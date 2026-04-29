@@ -145,17 +145,7 @@
         </div>
     </section>
 
-    <footer class="py-4 border-top">
-        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
-            <p class="text-muted small mb-0">&copy; Yayuk Makeover 2026</p>
-            <div class="social-icons">
-                <a href="#" class="text-muted me-3"><i class="bi bi-facebook"></i></a>
-                <a href="#" class="text-muted me-3"><i class="bi bi-instagram"></i></a>
-                <a href="#" class="text-muted"><i class="bi bi-twitter-x"></i></a>
-            </div>
-        </div>
-    </footer>
-
+    <?php include 'public/include/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
