@@ -1,3 +1,7 @@
+<?php
+ini_set('session.cookie_path', '/');
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,7 +32,7 @@
                 <h1 class="fw-bold mb-1">Welcome</h1>
                 <p class="text-secondary mb-4">please enter your details</p>
                 
-                <form action="../actions/proses_login.php" method="POST">
+                <form action=" /project-mua-final/dasboard.php" method="POST">
                     <div class="mb-3">
                         <label class="form-label small">Username</label>
                         <input type="text" name="username" class="form-control" required>

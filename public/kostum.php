@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <?php
 // halaman_kostum.php
 ?>
@@ -112,7 +113,7 @@ body{
                         <li>Hairdo</li>
                     </ul>
                 </div>
-                <a href="booking.php" class="btn btn-dark btn-booking w-100">
+                <a href="booking.php" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
                     Booking
                 </a>
             </div>
@@ -131,7 +132,7 @@ body{
                         <li>Teks 4</li>
                     </ul>
                 </div>
-                <a href="booking.php" class="btn btn-dark btn-booking w-100">
+                <a href="booking.php" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
                     Booking
                 </a>
             </div>
@@ -150,7 +151,7 @@ body{
                         <li>Teks 4</li>
                     </ul>
                 </div>
-                <a href="booking.php" class="btn btn-dark btn-booking w-100">
+                <a href="booking.php" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
                     Booking
                 </a>
             </div>
@@ -169,7 +170,7 @@ body{
                         <li>Teks 8</li>
                     </ul>
                 </div>
-                <a href="booking.php" class="btn btn-dark btn-booking w-100">
+                <a href="booking.php" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
                     Booking
                 </a>
             </div>

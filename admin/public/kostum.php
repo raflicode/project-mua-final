@@ -1,18 +1,10 @@
-```php id="p5ez6j"
-<?php
-echo "<h1>Halaman Kostum</h1>";
-?>
-```
 <?php
 $data_booking = [
-    ["paket"=>"Kostum Party","customer"=>"Tegar","tgl"=>"05 Januari 2026","status"=>"Dp","alamat"=>"Jl. Mastrip blok 3","telp"=>"089766455"],
-    ["paket"=>"Kostum Wedding","customer"=>"Rafli","tgl"=>"09 Januari 2026","status"=>"Lunas","alamat"=>"Jl. Mastrip blok 3","telp"=>"089766455"],
-    ["paket"=>"Kostum Tradisional","customer"=>"Lidya","tgl"=>"16 Januari 2026","status"=>"Lunas","alamat"=>"Jl. Mastrip blok 3","telp"=>"089766455"],
-    ["paket"=>"Kostum Wedding","customer"=>"Andyn","tgl"=>"28 Januari 2026","status"=>"Proses","alamat"=>"Jl. Mastrip blok 3","telp"=>"089766455"],
-    
+    ["paket"=>"Makeup Wedding","customer"=>"Rafli","tgl"=>"09 Januari 2026","status"=>"Lunas","alamat"=>"Jl. Mastrip","telp"=>"089766455"],
+    ["paket"=>"Makeup Birthday","customer"=>"Tegar","tgl"=>"05 Januari 2026","status"=>"Dp","alamat"=>"Jl. Mastrip","telp"=>"089766455"],
+    ["paket"=>"Makeup Artist","customer"=>"Andyn","tgl"=>"28 Januari 2026","status"=>"Proses","alamat"=>"Jl. Mastrip","telp"=>"089766455"],
 ];
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -23,282 +15,72 @@ $data_booking = [
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
-<style>
-body{
-    background:#dcdcdc;
-    font-family:Arial, Helvetica, sans-serif;
-}
-
-.wrapper{
-    width:930px;
-    height:650px;
-    margin:10px auto;
-    background:#0b5c98;
-    padding:8px;
-    display:flex;
-}
-
-/* Sidebar */
-.sidebar{
-    width:215px;
-    background:#0b5c98;
-    position:relative;
-    overflow:hidden;
-}
-
-.sidebar::before{
-    content:'';
-    position:absolute;
-    left:0;
-    top:0;
-    width:60px;
-    height:100%;
-    background:#4e6dd8;
-    border-radius:0 22px 22px 0;
-}
-
-.logo{
-    position:relative;
-    color:#fff;
-    font-size:20px;
-    font-style:italic;
-    font-weight:600;
-    margin:22px 0 35px 85px;
-}
-
-.menu{
-    position:relative;
-    z-index:2;
-}
-
-.menu a{
-    display:flex;
-    align-items:center;
-    color:#fff;
-    text-decoration:none;
-    font-size:16px;
-    padding:14px 20px;
-    margin-bottom:3px;
-}
-
-.menu a i{
-    width:40px;
-    font-size:22px;
-}
-
-.menu a.active{
-    background:#ececec;
-    color:#0b5c98;
-    border-radius:30px 0 0 30px;
-}
-
-.logout{
-    position:absolute;
-    bottom:18px;
-    width:100%;
-}
-
-/* Content */
-.content{
-    flex:1;
-    background:#ececec;
-    border-radius:15px;
-    padding:16px 18px;
-}
-
-/* Topbar */
-.search-box{
-    width:230px;
-}
-
-.search-box input{
-    border:none;
-    background:#e6e6e6;
-    height:36px;
-    border-radius:20px;
-}
-
-.search-box .input-group-text{
-    border:none;
-    background:#e6e6e6;
-    border-radius:20px 0 0 20px;
-}
-
-.profile{
-    background:#fff;
-    border-radius:8px;
-    padding:6px 10px;
-    font-size:11px;
-    min-width:120px;
-}
-
-.small-text{
-    font-size:10px;
-    color:#888;
-}
-
-hr{
-    margin:10px 0 12px;
-}
-
-/* Title */
-.title{
-    color:#0b5c98;
-    font-size:18px;
-    font-weight:700;
-}
-
-.subtitle{
-    margin:18px 0 14px;
-    font-size:14px;
-    font-weight:700;
-}
-
-/* Folder */
-.folder-link{
-    text-decoration:none;
-}
-
-.folder-box{
-    height:108px;
-    background:#d3d3d3;
-    border-radius:15px;
-    position:relative;
-    box-shadow:0 2px 4px rgba(0,0,0,.15);
-}
-
-.folder-box::before{
-    content:'';
-    position:absolute;
-    top:0;
-    left:28px;
-    width:48px;
-    height:14px;
-    background:#d3d3d3;
-    border-radius:0 0 8px 8px;
-}
-
-.folder-box.active{
-    background:#0b5c98;
-}
-
-.folder-box.active::before{
-    background:#0b5c98;
-}
-
-.folder-text{
-    position:absolute;
-    top:22px;
-    left:14px;
-    font-size:14px;
-    color:#444;
-}
-
-.folder-box.active .folder-text{
-    color:#fff;
-}
-
-/* Table */
-.table-title{
-    margin:16px 0 8px;
-    font-size:14px;
-    font-weight:700;
-}
-
-.table-head{
-    background:#005792;
-    color:#fff;
-    padding:8px 0;
-    font-size:14px;
-}
-
-.row-data{
-    background:#ececec;
-    border:1px solid #aaa;
-    border-radius:8px;
-    padding:10px 0;
-    margin-top:8px;
-    font-size:14px;
-    color:#555;
-}
-</style>
 </head>
 
-<body>
+<body class="bg-primary">
 
-<div class="wrapper">
+<div class="d-flex">
 
     <!-- Sidebar -->
-    <div class="sidebar">
-
-        <div class="logo">Yayuk Makeover</div>
-
-        <div class="menu">
-            <a href="#"><i class="bi bi-grid-fill"></i>Dashboard</a>
-            <a href="#" class="active"><i class="bi bi-envelope-fill"></i>Booking</a>
-            <a href="#"><i class="bi bi-headset"></i>Data Layanan</a>
-            <a href="#"><i class="bi bi-person-fill"></i>Manajemen User</a>
-            <a href="#"><i class="bi bi-cash-coin"></i>Pembayaran</a>
-        </div>
-
-        <div class="menu logout">
-            <a href="#"><i class="bi bi-box-arrow-right"></i>Log Out</a>
-        </div>
-
+    <div class="bg-primary text-white vh-100 p-3" style="width:260px;">
+        <?php include 'include/sidebar.php'; ?>
     </div>
 
     <!-- Content -->
-    <div class="content">
+    <div class="flex-grow-1 bg-light rounded-start-5 p-4">
 
         <!-- Topbar -->
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="input-group search-box">
-                <span class="input-group-text"><i class="bi bi-search"></i></span>
-                <input type="text" class="form-control" placeholder="Search">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <!-- Search -->
+            <div class="input-group w-25">
+                <span class="input-group-text bg-white rounded-start-pill">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="form-control rounded-end-pill" placeholder="Search">
             </div>
 
-            <div class="profile d-flex align-items-center">
+            <!-- Profile -->
+            <div class="d-flex align-items-center bg-white px-3 py-2 rounded-pill shadow-sm">
                 <i class="bi bi-person-circle fs-5 me-2"></i>
                 <div>
-                    <div class="fw-bold">Hotman Paris</div>
-                    <div class="small-text">Admin 1</div>
+                    <div class="fw-bold small">Hotman Paris</div>
+                    <div class="text-muted" style="font-size:12px;">Admin 1</div>
                 </div>
-                <i class="bi bi-chevron-down ms-auto"></i>
+                <i class="bi bi-chevron-down ms-2"></i>
             </div>
         </div>
-
-        <hr>
 
         <!-- Title -->
-        <div class="title">
-            <i class="bi bi-envelope-fill me-2"></i>Booking
-        </div>
+        <h5 class="fw-bold text-primary mb-3">
+            <i class="bi bi-envelope-fill me-2"></i> Booking
+        </h5>
 
         <!-- Quick Access -->
-        <div class="subtitle">QUICK ACCESS</div>
+        <h6 class="fw-bold mb-3">QUICK ACCESS</h6>
 
-        <div class="row mb-3">
+        <div class="row g-3 mb-4">
 
-            <div class="col-4">
-                <a href="makeup-wedding.php" class="folder-link">
-                    <div class="folder-box">
-                        <div class="folder-text">Makeup Wedding</div>
+            <div class="col-md-4">
+                <a href="makeup_wedding.php" class="text-decoration-none">
+                    <div class="card text-center shadow-sm border-0">
+                        <div class="card-body">Makeup Wedding</div>
                     </div>
                 </a>
             </div>
 
-            <div class="col-4">
-                <a href="dekor.php" class="folder-link">
-                    <div class="folder-box">
-                        <div class="folder-text">Dekor</div>
+            <div class="col-md-4">
+                <a href="dekor.php" class="text-decoration-none">
+                    <div class="card text-center shadow-sm border-0">
+                        <div class="card-body">Dekor</div>
                     </div>
                 </a>
             </div>
 
-            <div class="col-4">
-                <a href="kostum.php" class="folder-link">
-                    <div class="folder-box active">
-                        <div class="folder-text">Kostum</div>
+            <div class="col-md-4">
+                <a href="kostum.php" class="text-decoration-none">
+                    <div class="card text-center shadow-sm border-0 bg-primary text-white">
+                        <div class="card-body">Kostum</div>
                     </div>
                 </a>
             </div>
@@ -306,29 +88,50 @@ hr{
         </div>
 
         <!-- Table -->
-        <div class="table-title">ALL FILES</div>
+        <h6 class="fw-bold mb-3">ALL FILES</h6>
 
-        <div class="container-fluid p-0">
+        <div class="card shadow rounded-4 p-3">
 
-            <div class="row text-center table-head">
-                <div class="col">Paket</div>
-                <div class="col">Customer</div>
-                <div class="col">Tggl Booking</div>
-                <div class="col">Status</div>
-                <div class="col">Alamat</div>
-                <div class="col">No.Telp</div>
+            <div class="table-responsive">
+                <table class="table table-hover text-center align-middle mb-0">
+
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Paket</th>
+                            <th>Customer</th>
+                            <th>Tanggal Booking</th>
+                            <th>Status</th>
+                            <th>Alamat</th>
+                            <th>No. Telp</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <?php foreach($data_booking as $row): ?>
+                        <tr>
+                            <td><?= $row['paket']; ?></td>
+                            <td><?= $row['customer']; ?></td>
+                            <td><?= $row['tgl']; ?></td>
+
+                            <!-- Status -->
+                            <td>
+                                <?php if($row['status'] == 'Lunas'): ?>
+                                    <span class="badge bg-success">Lunas</span>
+                                <?php elseif($row['status'] == 'Dp'): ?>
+                                    <span class="badge bg-warning text-dark">DP</span>
+                                <?php else: ?>
+                                    <span class="badge bg-secondary">Proses</span>
+                                <?php endif; ?>
+                            </td>
+
+                            <td><?= $row['alamat']; ?></td>
+                            <td><?= $row['telp']; ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+
+                </table>
             </div>
-
-            <?php foreach($data_booking as $row): ?>
-            <div class="row text-center row-data align-items-center">
-                <div class="col"><?= $row['paket']; ?></div>
-                <div class="col"><?= $row['customer']; ?></div>
-                <div class="col"><?= $row['tgl']; ?></div>
-                <div class="col"><?= $row['status']; ?></div>
-                <div class="col"><?= $row['alamat']; ?></div>
-                <div class="col"><?= $row['telp']; ?></div>
-            </div>
-            <?php endforeach; ?>
 
         </div>
 
