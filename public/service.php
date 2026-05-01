@@ -1,6 +1,7 @@
 <?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>Yayuk Makeover</title>
@@ -29,7 +30,7 @@
         .card-custom {
             border-radius: 15px;
             padding: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             background: #fff;
         }
 
@@ -49,7 +50,7 @@
         .wedding-box {
             height: 180px;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             position: relative;
         }
 
@@ -93,92 +94,99 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container mt-3">
-    <div class="container-custom">
+    <?php include 'include/navbar.php'; ?>
+    <div class="container mt-3">
+        <div class="container-custom">
 
-        <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="brand">Yayuk <span>Makeover</span></h5>
-            <h4>☰</h4>
-        </div>
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="brand">Yayuk <span>Makeover</span></h5>
+                <h4>☰</h4>
+            </div>
 
-        <!-- Title -->
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">Pilih paket yang sesuai<br>dengan tujuan Anda.</h2>
-            <p class="text-muted">Pilih paket yang sesuai dengan kebutuhan Anda dan tingkatkan produktivitas Anda.</p>
-        </div>
+            <!-- Title -->
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Pilih paket yang sesuai<br>dengan tujuan Anda.</h2>
+                <p class="text-muted">Pilih paket yang sesuai dengan kebutuhan Anda dan tingkatkan produktivitas Anda.
+                </p>
+            </div>
 
-        <!-- Cards -->
-        <div class="row text-center mb-5">
-            <div class="col-md-4 mb-3">
-                <div class="card-custom">
-                    <h6>Makeup Wedding</h6>
-                    <ul class="text-start small mt-3">
-                        <li>Makeup</li>
-                        <li>Softlens</li>
-                        <li>Hairdo</li>
-                        <li>dll</li>
-                    </ul>
-                    <a href="../../project-mua-final/public/makeup.php" class="btn btn-outline-dark btn-booking w-100">Lihat Lebih Banyak
-                    </a>
+            <!-- Cards -->
+            <div class="row text-center mb-5">
+                <div class="col-md-4 mb-3">
+                    <div class="card-custom">
+                        <h6>Makeup Wedding</h6>
+                        <ul class="text-start small mt-3">
+                            <li>Makeup</li>
+                            <li>Softlens</li>
+                            <li>Hairdo</li>
+                            <li>dll</li>
+                        </ul>
+                        <a href="../../project-mua-final/public/makeup.php"
+                            class="btn btn-outline-dark btn-booking w-100">Lihat Lebih Banyak
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <div class="card-custom">
+                        <h6>Wedding Kostum</h6>
+                        <ul class="text-start small mt-3">
+                            <li>Teks 1</li>
+                            <li>Teks 2</li>
+                            <li>Teks 3</li>
+                            <li>Teks 4</li>
+                        </ul>
+                        <a href="../../project-mua-final/public/kostum.php"
+                            class="btn btn-outline-dark btn-booking w-100">Lihat Lebih Banyak
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <div class="card-custom">
+                        <h6>Dekor/Terop</h6>
+                        <ul class="text-start small mt-3">
+                            <li>Teks 5</li>
+                            <li>Teks 6</li>
+                            <li>Teks 7</li>
+                            <li>Teks 8</li>
+                        </ul>
+                        <a href="../../project-mua-final/public/dekor.php"
+                            class="btn btn-outline-dark btn-booking w-100">Lihat Lebih Banyak
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-md-4 mb-3">
-                <div class="card-custom">
-                    <h6>Wedding Kostum</h6>
-                    <ul class="text-start small mt-3">
-                        <li>Teks 1</li>
-                        <li>Teks 2</li>
-                        <li>Teks 3</li>
-                        <li>Teks 4</li>
-                    </ul>
-                    <a href="../../project-mua-final/public/kostum.php" class="btn btn-outline-dark btn-booking w-100">Lihat Lebih Banyak
-                    </a>
+            <!-- Paket Wedding -->
+            <div class="text-center mb-4">
+                <h4>Paket Wedding</h4>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-4">
+                    <div class="wedding-box silver">
+                        <div class="label label-silver">SILVER</div>
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="wedding-box gold">
+                        <div class="label label-gold">GOLD</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-md-4 mb-3">
-                <div class="card-custom">
-                    <h6>Dekor/Terop</h6>
-                    <ul class="text-start small mt-3">
-                        <li>Teks 5</li>
-                        <li>Teks 6</li>
-                        <li>Teks 7</li>
-                        <li>Teks 8</li>
-                    </ul>
-                    <a href="../../project-mua-final/public/dekor.php" class="btn btn-outline-dark btn-booking w-100">Lihat Lebih Banyak
-                    </a>
-                </div>
-            </div>
+            <!-- Button Kembali -->
+            <a href="#" class="btn btn-kembali">Kembali ⤴</a>
+
         </div>
-
-        <!-- Paket Wedding -->
-        <div class="text-center mb-4">
-            <h4>Paket Wedding</h4>
-        </div>
-
-        <div class="row justify-content-center">
-            <div class="col-4">
-                <div class="wedding-box silver">
-                    <div class="label label-silver">SILVER</div>
-                </div>
-            </div>
-
-            <div class="col-4">
-                <div class="wedding-box gold">
-                    <div class="label label-gold">GOLD</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Button Kembali -->
-        <a href="#" class="btn btn-kembali">Kembali ⤴</a>
-
     </div>
-</div>
 
 </body>
+
 </html>

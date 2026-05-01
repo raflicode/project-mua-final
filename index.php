@@ -72,7 +72,7 @@ session_start();
         <div class="container">
             <h1 class="display-4 fw-bold">Keanggunan Abadi untuk Hari Istimewa Anda.</h1>
             <p class="lead mb-4">Riasan dan penataan rambut pengantin profesional dengan hasil akhir<br>yang sempurna dan alami untuk menonjolkan kecantikan sejati Anda.</p>
-            <a href="../../project-mua-final/public/service.php" class="btn btn-booking">Booking</a>
+            <a href="/project-mua/public/service.php" class="btn btn-booking">Booking</a>
         </div>
     </header>
     <section class="py-5 container">

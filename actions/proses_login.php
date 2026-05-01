@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['id_user'] = $user['id_user'];
         $_SESSION['username'] = $user['username'];
 
-        header("Location: ../dasboard.php");
+        header("Location: ../index.php");
         exit();
 
     } else {
