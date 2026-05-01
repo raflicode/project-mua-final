@@ -1,6 +1,18 @@
 <?php
+<<<<<<< HEAD
 session_start();
 ?>
+=======
+$url = "https://api.opencagedata.com/geocode/v1/json?q=Jember&key=131683c4dbc145bd8c9f97463e297823";
+
+$response = file_get_contents($url);
+$data = json_decode($response, true);
+
+$lat = $data['results'][0]['geometry']['lat'];
+$lng = $data['results'][0]['geometry']['lng'];
+?>
+
+>>>>>>> fc6124d3e6df817dda04a16ea47eff57c0de4536
 <!DOCTYPE html>
 <html lang="id">
 <head>
