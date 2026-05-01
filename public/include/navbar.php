@@ -1,3 +1,10 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+
+
 <style>
 /* Custom offcanvas agar tingginya setengah layar */
 .offcanvas-custom.offcanvas-top {
@@ -21,11 +28,17 @@
     </button>
 
     <div class="d-none d-lg-flex ms-auto align-items-center gap-4">
-      <a class="nav-link text-white" href="../../project-mua/dasboard.php">Home</a>
-      <a class="nav-link text-white" href="#">Service</a>
-      <a class="nav-link text-white" href="#">Gallery</a>
+      <a class="nav-link text-white" href="../../project-mua-final/dasboard.php">Home</a>
+      <a class="nav-link text-white" href="../../project-mua-final/public/service.php">Service</a>
+      <a class="nav-link text-white" href="../../project-mua-final/dasboard.php#gallery">Gallery</a>
       <a class="nav-link text-white" href="#">Keranjang</a>
-      <a class="btn btn-outline-light ms-2" href="public/login.php">Login</a>
+
+      <?php if(isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
+    <span class="text-white">Halo, <?= $_SESSION['username']; ?></span>
+    <a class="btn btn-outline-light ms-2" href="/project-mua-final/public/logout.php">Logout</a>
+<?php else: ?>
+    <a class="btn btn-outline-light ms-2" href="/project-mua-final/public/login.php">Login</a>
+<?php endif; ?>
     </div>
   </div>
 </nav>
@@ -39,16 +52,21 @@
 
   <div class="offcanvas-body">
     <ul class="navbar-nav gap-3">
-      <li><a class="nav-link text-white" href="../../dasboard.php">🏠 Home</a></li>
-      <li><a class="nav-link text-white" href="#">💄 Service</a></li>
-      <li><a class="nav-link text-white" href="#">🖼️ Gallery</a></li>
+      <li><a class="nav-link text-white" href="../../project-mua-final/dasboard.php">🏠 Home</a></li>
+      <li><a class="nav-link text-white" href="../../project-mua-final/public/service.php">💄 Service</a></li>
+      <li><a class="nav-link text-white" href="../../project-mua-final/dasboard.php#gallery">🖼️ Gallery</a></li>
       <li><a class="nav-link text-white" href="#">🛒 Keranjang</a></li>
     </ul>
 
     <!-- Bagian user info di bawah menu masih manual harusnya otomatis saat login -->
     <div class="border-top pt-3 mt-4">
-      <div class="fw-bold">Putri</div>
-      <small class="text-secondary">user@gmail.com</small><br>
+      <?php if(isset($_SESSION['id_user'])): ?>
+    <div class="fw-bold"><?= $_SESSION['username']; ?></div>
+    <small class="text-secondary"><?= $_SESSION['email'] ?? 'Tidak ada email'; ?></small><br>
+    <a href="/project-mua-final/public/logout.php" class="text-danger small">Logout</a>
+<?php else: ?>
+    <a href="/project-mua-final/public/login.php" class="text-white">Login</a>
+<?php endif; ?>
       <a href="#" class="text-danger small">Logout</a>
     </div>
   </div>

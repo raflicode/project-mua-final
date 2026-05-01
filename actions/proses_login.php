@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../config/koneksi.php'; // Pastikan $pdo ada di sini
+require_once '../config/koneksi.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
@@ -11,21 +11,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute([$username]);
     $user = $stmt->fetch();
 
-    if ($user) {
-        // 2. Verifikasi Password (lebih aman daripada MD5/Plaintext)
-        if (password_verify($pass, $user['pass'])) {
-            // Login Sukses
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            
-            header("Location: ../../project-mua/dasboard.php");
-            exit();
-        } else {
-            // Password Salah
-            header("Location: ../public/login.php?error=Wrong password");
-        }
+    if ($user && password_verify($pass, $user['pass'])) {
+
+        $_SESSION['id_user'] = $user['id_user'];
+        $_SESSION['username'] = $user['username'];
+
+        print_r($_SESSION);
+        exit;
+
+        header("Location: ../../project-mua-final/dasboard.php");
+        exit();
+
     } else {
-        // Username tidak ditemukan
-        header("Location: ../login.php?error=User not found");
+        header("Location: /project-mua-final/public/login.php?error=Login gagal");
+        exit();
     }
 }
