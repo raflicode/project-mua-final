@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../config/koneksi.php';
+require_once '../config/koneksi.php'; 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
@@ -16,14 +16,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['id_user'] = $user['id_user'];
         $_SESSION['username'] = $user['username'];
 
-        print_r($_SESSION);
-        exit;
-
-        header("Location: ../../project-mua-final/dasboard.php");
+        header("Location: ../dasboard.php");
         exit();
 
     } else {
-        header("Location: /project-mua-final/public/login.php?error=Login gagal");
+        header("Location: /project-mua/public/login.php?error=Login gagal");
         exit();
     }
 }

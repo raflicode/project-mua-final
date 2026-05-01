@@ -38,9 +38,9 @@ if (session_status() === PHP_SESSION_NONE) {
 
       <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
         <span class="text-white">Halo, <?= $_SESSION['username']; ?></span>
-        <a class="btn btn-outline-light ms-2" href="/project-mua-final/public/logout.php">Logout</a>
+        <a class="btn btn-outline-light ms-2" href="../project-mua/public/logout.php">Logout</a>
       <?php else: ?>
-        <a class="btn btn-outline-light ms-2" href="/project-mua-final/public/login.php">Login</a>
+        <a class="btn btn-outline-light ms-2" href="/project-mua/public/login.php">Login</a>
       <?php endif; ?>
     </div>
   </div>
@@ -66,7 +66,7 @@ if (session_status() === PHP_SESSION_NONE) {
       <?php if (isset($_SESSION['id_user'])): ?>
         <div class="fw-bold"><?= $_SESSION['username']; ?></div>
         <small class="text-secondary"><?= $_SESSION['email'] ?? 'Tidak ada email'; ?></small><br>
-        <a href="/project-mua-final/public/logout.php" class="text-danger small">Logout</a>
+        <a href="../logout.php" class="text-danger small">Logout</a>
       <?php else: ?>
         <a href="/project-mua-final/public/login.php" class="text-white">Login</a>
       <?php endif; ?>
