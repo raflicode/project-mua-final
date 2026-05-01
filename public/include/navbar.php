@@ -110,7 +110,7 @@ if (session_status() === PHP_SESSION_NONE) {
         </div>
         <a href="../project-mua/public/logout.php" class="text-danger d-block mt-3 fw-bold">Logout</a>
       <?php else: ?>
-        <a href="/project-mua-final/public/login.php" class="text-white">Login</a>
+        <a href="/project-mua/public/login.php" class="text-white">Login</a>
       <?php endif; ?>
     </div>
   </div>
