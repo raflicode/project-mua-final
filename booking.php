@@ -4,7 +4,7 @@ $data_booking = [
     ["paket"=>"Makeup Wedding","customer"=>"Rafli","tgl"=>"09 Januari 2026","status"=>"Lunas","alamat"=>"Jl. Mastrip blok 3","telp"=>"089766455"],
     ["paket"=>"Makeup Wisuda","customer"=>"Lidya","tgl"=>"16 Januari 2026","status"=>"Lunas","alamat"=>"Jl. Mastrip blok 3","telp"=>"089766455"],
     ["paket"=>"Kostum","customer"=>"Andyn","tgl"=>"28 Januari 2026","status"=>"Proses","alamat"=>"Jl. Mastrip blok 3","telp"=>"089766455"],
-    ["paket"=>"Dekor","customer"=>"Puput","tgl"=>"28 Januari 2026","status"=>"Lunas","alamat"=>"Jl. Mastrip blok 3","telp"=>"089766455"]
+    
 ];
 ?>
 
