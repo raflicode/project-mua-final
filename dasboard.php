@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -63,13 +66,13 @@
     </style>
 </head>
 <body>
-  <?php include 'public/include/navbar.php'; ?>
+  <?php include __DIR__ . '/public/include/navbar.php'; ?>
 
     <header class="hero-section shadow">
         <div class="container">
             <h1 class="display-4 fw-bold">Keanggunan Abadi untuk Hari Istimewa Anda.</h1>
             <p class="lead mb-4">Riasan dan penataan rambut pengantin profesional dengan hasil akhir<br>yang sempurna dan alami untuk menonjolkan kecantikan sejati Anda.</p>
-            <a href="#booking" class="btn btn-booking">Booking</a>
+            <a href="../../project-mua-final/public/service.php" class="btn btn-booking">Booking</a>
         </div>
     </header>
     <section class="py-5 container">
@@ -110,7 +113,7 @@
         </div>
     </section>
 
-    <section class="py-5 container text-center">
+    <section id="gallery" class="py-5 container text-center">
         <h2 class="section-title h1">Mengabadikan Keindahan di Setiap Momen Berharga</h2>
         <p class="text-muted mb-5">Karena setiap detail hari pernikahan Anda adalah kisah yang akan selalu dikenang.</p>
         

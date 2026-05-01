@@ -1,3 +1,5 @@
+<?php session_start(); ?>
+
 <?php
 // halaman_kostum.php
 ?>
@@ -112,8 +114,8 @@ body{
                         <li>Hairdo</li>
                     </ul>
                 </div>
-                <a href="booking.php" class="btn btn-dark btn-booking w-100">
-                    Booking
+                <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
+                Booking
                 </a>
             </div>
         </div>
@@ -131,7 +133,7 @@ body{
                         <li>Teks 4</li>
                     </ul>
                 </div>
-                <a href="booking.php" class="btn btn-dark btn-booking w-100">
+                <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
                     Booking
                 </a>
             </div>
@@ -150,7 +152,7 @@ body{
                         <li>Teks 4</li>
                     </ul>
                 </div>
-                <a href="booking.php" class="btn btn-dark btn-booking w-100">
+                <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
                     Booking
                 </a>
             </div>
@@ -169,7 +171,7 @@ body{
                         <li>Teks 8</li>
                     </ul>
                 </div>
-                <a href="booking.php" class="btn btn-dark btn-booking w-100">
+                <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
                     Booking
                 </a>
             </div>
@@ -178,6 +180,38 @@ body{
     </div>
 
 </div>
+
+<!-- Modal Login/Register -->
+<div class="modal fade" id="modalAuth" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-4">
+      <h5 class="mb-3">Belum Login</h5>
+      <p>Kamu harus login atau register dulu sebelum booking</p>
+      
+      <div class="d-flex justify-content-center gap-2">
+        <a href="login.php" class="btn btn-dark">Login</a>
+        <a href="register.php" class="btn btn-primary">Register</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const isLoggedIn = <?php echo isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
+
+document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
+    btn.addEventListener('click', function(e){
+        e.preventDefault();
+
+        if(!isLoggedIn){
+            let modal = new bootstrap.Modal(document.getElementById('modalAuth'));
+            modal.show();
+        } else {
+            window.location.href = "booking.php";
+        }
+    });
+});
+</script>
 
 <!-- Tombol Kembali -->
 <a href="index.php" class="btn btn-danger btn-kembali shadow">
