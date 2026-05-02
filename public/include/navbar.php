@@ -8,15 +8,27 @@ if (session_status() === PHP_SESSION_NONE) {
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <style>
+  .btn-custom-gold {
+    border-color: #b5835a !important;
+    color: #b5835a !important;
+  }
+
+  .btn-custom-gold:hover {
+    background-color: #b5835a !important;
+    border-color: #b5835a !important;
+    color: white !important;
+  }
+
   /* 1. Pastikan transisi dipasang di class utama */
   .transition-nav {
     transition: all 0.5s ease-in-out !important;
-    background-color: transparent; /* Awalnya transparan */
-    
+    background-color: transparent;
+    /* Awalnya transparan */
+
   }
 
   /* 2. Warna teks default saat di atas (Putih agar kontras dengan hero image) */
-  .navbar .nav-link, 
+  .navbar .nav-link,
   .navbar .navbar-brand {
     color: black !important;
     transition: 0.3s;
@@ -79,48 +91,47 @@ if (session_status() === PHP_SESSION_NONE) {
 </style>
 
 <nav id="mainNavbar" class="navbar fixed-top px-3 transition-nav"">
-  <div class="container-fluid ">
-    <a class="navbar-brand fw-bold" href="/project-mua/index.php">
-      Yayuk <span style="font-style: italic; font-weight: 300; color: #FED03A;">Makeover</span>
-    </a>
+  <div class=" container-fluid ">
+    <a class=" navbar-brand fw-bold" href="/project-mua/index.php">
+  Yayuk <span style="font-style: italic; font-weight: 300; color: #FED03A;">Makeover</span>
+  </a>
 
-    <button class="navbar-toggler border-0 d-lg-none" type="button" data-bs-toggle="offcanvas"
-      data-bs-target="#mobileMenu">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+  <button class="navbar-toggler border-0 d-lg-none" type="button" data-bs-toggle="offcanvas"
+    data-bs-target="#mobileMenu">
+    <span class="navbar-toggler-icon"></span>
+  </button>
 
-    <div class="d-none d-lg-flex ms-auto align-items-center gap-4 text-dark">
-      <a class="nav-link ]" href="/project-mua/index.php">Home</a>
-      <a class="nav-link " href="/project-mua/public/service.php">Service</a>
-      <a class="nav-link " href="/project-mua/index.php#gallery">Gallery</a>
-      <a class="nav-link " href="#">Keranjang</a>
+  <div class="d-none d-lg-flex ms-auto align-items-center gap-4 text-dark">
+    <a class="nav-link ]" href="/project-mua/index.php">Home</a>
+    <a class="nav-link " href="/project-mua/public/service.php">Service</a>
+    <a class="nav-link " href="/project-mua/index.php#gallery">Gallery</a>
+    <a class="nav-link " href="#">Keranjang</a>
 
-      <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
-        <!-- DROPDRON PROFILE -->
-        <div class="dropdown">
-          <a class="nav-link dropdown-toggle d-flex align-items-center border-0" href="#" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <!-- Icon Vector Umum (Kepala & Badan) -->
-            <div class="profile-circle-icon">
-              <i class="bi bi-person-circle"></i>
-            </div>
-          </a>
+    <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
+      <!-- DROPDRON PROFILE -->
+      <div class="dropdown">
+        <a class="nav-link dropdown-toggle d-flex align-items-center border-0" href="#" role="button"
+          data-bs-toggle="dropdown" aria-expanded="false">
+          <!-- Icon Vector Umum (Kepala & Badan) -->
+          <div class="profile-circle-icon">
+            <i class="bi bi-person-circle"></i>
+          </div>
+        </a>
 
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom">
-            <li>
-              <div class="dropdown-header text-muted">Halo, <strong><?= $_SESSION['username']; ?></strong></div>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-            <!-- Link Logout Backend Kamu -->
-            <li><a class="dropdown-item text-danger fw-bold" href="../project-mua/public/logout.php">Logout</a></li>
-          </ul>
-        </div>
-      <?php else: ?>
-        <a class="btn btn-outline-dark border-2 ms-2 " href="/project-mua/public/login.php">Login</a>
-      <?php endif; ?>
-    </div>
+        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom">
+          <li>
+            <div class="dropdown-header text-muted">Halo, <strong><?= $_SESSION['username']; ?></strong></div>
+          </li>
+          <li>
+            <hr class="dropdown-divider">
+          </li>
+          <!-- Link Logout Backend Kamu -->
+          <li><a class="dropdown-item text-danger fw-bold" href="../project-mua/public/logout.php">Logout</a></li>
+        </ul>
+      </div>
+    <?php else: ?>
+      <a class="btn btn-custom-gold border-2 ms-2" href="/project-mua/public/login.php">Login</a> <?php endif; ?>
+  </div>
   </div>
 </nav>
 
@@ -156,9 +167,9 @@ if (session_status() === PHP_SESSION_NONE) {
 </div>
 
 <script>
-  window.onscroll = function() {
+  window.onscroll = function () {
     var navbar = document.getElementById('mainNavbar');
-    
+
     // Jika user scroll lebih dari 50px ke bawah
     if (window.pageYOffset > 50) {
       navbar.classList.add('nav-scrolled');
