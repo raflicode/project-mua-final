@@ -16,14 +16,14 @@ if (session_status() === PHP_SESSION_NONE) {
   /* Container Icon Profile */
   .profile-circle-icon {
     font-size: 1.8rem;
-    color: white;
+    color: black;
     transition: 0.3s;
     display: flex;
     align-items: center;
   }
 
   .profile-circle-icon:hover {
-    color: #949494; /* Warna ungu pas di hover biar senada sama login */
+    color: #a7a6a6; /* Warna ungu pas di hover biar senada sama login */
   }
 
   /* Styling Dropdown Box */
@@ -45,21 +45,21 @@ if (session_status() === PHP_SESSION_NONE) {
   }
 </style>
 
-<nav class="navbar navbar-dark bg-black px-3 fixed-top">
-  <div class="container-fluid">
+<nav class="navbar navbar-light bg-transparent px- fixed-top text-dark ">
+  <div class="container-fluid ">
     <a class="navbar-brand fw-bold" href="/project-mua/index.php">
-      Yayuk <span style="font-style: italic; font-weight: 300;">Makeover</span>
+      Yayuk <span style="font-style: italic; font-weight: 300; color: #FED03A;">Makeover</span>
     </a>
 
     <button class="navbar-toggler border-0 d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="d-none d-lg-flex ms-auto align-items-center gap-4">
-      <a class="nav-link text-white" href="/project-mua/index.php">Home</a>
-      <a class="nav-link text-white" href="/project-mua/public/service.php">Service</a>
-      <a class="nav-link text-white" href="/project-mua/index.php#gallery">Gallery</a>
-      <a class="nav-link text-white" href="#">Keranjang</a>
+    <div class="d-none d-lg-flex ms-auto align-items-center gap-4 text-dark">
+      <a class="nav-link ]" href="/project-mua/index.php">Home</a>
+      <a class="nav-link " href="/project-mua/public/service.php">Service</a>
+      <a class="nav-link " href="/project-mua/index.php#gallery">Gallery</a>
+      <a class="nav-link " href="#">Keranjang</a>
 
       <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
         <!-- DROPDRON PROFILE -->
@@ -79,7 +79,7 @@ if (session_status() === PHP_SESSION_NONE) {
           </ul>
         </div>
       <?php else: ?>
-        <a class="btn btn-outline-light ms-2" href="/project-mua/public/login.php">Login</a>
+        <a class="btn btn-outline-dark border-2 ms-2 " href="/project-mua/public/login.php">Login</a>
       <?php endif; ?>
     </div>
   </div>
