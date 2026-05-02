@@ -116,26 +116,26 @@ session_start();
         </div>
     </section>
 
-    <section class="bg-light py-5">
-        <div class="container text-center">
+    <section class="bg-light py-5 " >
+        <div class="container text-center p-5 rounded-4" style="background-color: #A58459; color: white;">
             <h3 class="fw-bold mb-5">MENGAPA MEMILIH KAMI?</h3>
-            <div class="row g-4">
+            <div class="row g-4" style="color: white;">
                 <div class="col-md-4">
-                    <i class="bi bi-stars fs-1 text-muted mb-3"></i>
+                    <i class="bi bi-stars fs-1  mb-3"></i>
                     <h5 class="fw-bold">TIM AHLI & BERPENGALAMAN</h5>
-                    <p class="small text-muted">Didukung oleh MUA & penata gaya profesional yang berdedikasi menciptakan
+                    <p class="small ">Didukung oleh MUA & penata gaya profesional yang berdedikasi menciptakan
                         tampilan impian Anda dengan teknik terkini.</p>
                 </div>
                 <div class="col-md-4">
-                    <i class="bi bi-brush fs-1 text-muted mb-3"></i>
+                    <i class="bi bi-brush fs-1  mb-3"></i>
                     <h5 class="fw-bold">PRODUK PREMIUM BERKUALITAS</h5>
-                    <p class="small text-muted">Kami hanya menggunakan produk makeup asli & berkualitas tinggi untuk
+                    <p class="small ">Kami hanya menggunakan produk makeup asli & berkualitas tinggi untuk
                         hasil riasan yang flawless, tahan lama, dan aman untuk kulit.</p>
                 </div>
                 <div class="col-md-4">
-                    <i class="bi bi-person-check fs-1 text-muted mb-3"></i>
+                    <i class="bi bi-person-check fs-1  mb-3"></i>
                     <h5 class="fw-bold">RIASAN PERSONALISASI (CUSTOM)</h5>
-                    <p class="small text-muted">Konsultasi mendalam untuk memahami gaya dan karakter Anda, menciptakan
+                    <p class="small ">Konsultasi mendalam untuk memahami gaya dan karakter Anda, menciptakan
                         riasan yang benar-benar memancarkan kecantikan alami Anda.</p>
                 </div>
             </div>
