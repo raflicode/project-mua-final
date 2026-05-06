@@ -1,10 +1,7 @@
 <?php
 session_start();
 ?>
-<<<<<<< HEAD:dasboard.php
 
-=======
->>>>>>> 382801bd7ffe7bb38dd53f2e21d0326056d6e843:index.php
 <!DOCTYPE html>
 <html lang="id">
 
@@ -92,19 +89,33 @@ session_start();
 </head>
 
 <body>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <?php if (isset($_GET['success'])): ?>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '<?php echo htmlspecialchars($_GET['success'], ENT_QUOTES, 'UTF-8'); ?>',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            if (window.history.replaceState) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        </script>
+    <?php endif; ?>
+
     <?php include __DIR__ . '/public/include/navbar.php'; ?>
 
     <header class="hero-section shadow " style="margin-top: 60px;">
         <div class="container">
             <h1 class="display-4 fw-bold">Keanggunan Abadi untuk Hari Istimewa Anda.</h1>
-<<<<<<< HEAD:dasboard.php
-            <p class="lead mb-4">Riasan dan penataan rambut pengantin profesional dengan hasil akhir<br>yang sempurna dan alami untuk menonjolkan kecantikan sejati Anda.</p>
-            <a href="../../project-mua/public/service.php" class="btn btn-booking">Booking</a>
-=======
+
             <p class="lead mb-4">Riasan dan penataan rambut pengantin profesional dengan hasil akhir<br>yang sempurna
                 dan alami untuk menonjolkan kecantikan sejati Anda.</p>
             <a href="/project-mua/public/service.php" class="btn btn-booking">Booking</a>
->>>>>>> 382801bd7ffe7bb38dd53f2e21d0326056d6e843:index.php
+
         </div>
         
     </header>

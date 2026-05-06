@@ -28,5 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: ../public/login.php?success=Registration complete! Please login.");
     } catch (PDOException $e) {
         header("Location: ../public/register.php?error=System error: " . $e->getMessage());
-    }
+        header("Location: ../public/register.php?success=Registrasi berhasil!");
+    exit;
 }
+    }

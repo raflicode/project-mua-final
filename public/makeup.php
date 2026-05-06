@@ -1,4 +1,4 @@
-<?php session_start(); ?>
+
 
 <?php
 session_start();
@@ -138,11 +138,8 @@ body{
                     </ul>
                 </div>
                 <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
-<<<<<<< HEAD
-                Booking
-=======
                     Booking
->>>>>>> 382801bd7ffe7bb38dd53f2e21d0326056d6e843
+
                 </a>
             </div>
         </div>
@@ -161,11 +158,8 @@ body{
                     </ul>
                 </div>
                 <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
-<<<<<<< HEAD
-                Booking
-=======
                     Booking
->>>>>>> 382801bd7ffe7bb38dd53f2e21d0326056d6e843
+
                 </a>
             </div>
         </div>
@@ -184,11 +178,8 @@ body{
                     </ul>
                 </div>
                 <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
-<<<<<<< HEAD
-                Booking
-=======
                     Booking
->>>>>>> 382801bd7ffe7bb38dd53f2e21d0326056d6e843
+
                 </a>
             </div>
         </div>
@@ -213,11 +204,9 @@ body{
 </div>
 
 <script>
-<<<<<<< HEAD
-const isLoggedIn = <?php echo isset($_SESSION['user']) ? 'true' : 'false'; ?>;
-=======
+
 const isLoggedIn = <?php echo isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
->>>>>>> 382801bd7ffe7bb38dd53f2e21d0326056d6e843
+
 
 document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
     btn.addEventListener('click', function(e){

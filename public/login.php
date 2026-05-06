@@ -1,29 +1,9 @@
 <?php
-<<<<<<< HEAD
-session_start();
 
-// contoh login sederhana (tanpa database dulu)
-if(isset($_POST['username']) && isset($_POST['pass'])){
-    
-    $username = $_POST['username'];
-    $password = $_POST['pass'];
-
-    // contoh login manual
-    if($username == "admin" && $password == "123"){
-        $_SESSION['user'] = $username;
-        header("Location: halaman_kostum.php");
-        exit;
-    } else {
-        $error = "Username atau password salah!";
-    }
-}
-?>
-
-=======
 ini_set('session.cookie_path', '/');
 session_start();
 ?>
->>>>>>> 382801bd7ffe7bb38dd53f2e21d0326056d6e843
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -82,12 +62,27 @@ session_start();
 <body>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <?php if (isset($_GET['success'])): ?>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '<?php echo htmlspecialchars($_GET['success'], ENT_QUOTES, 'UTF-8'); ?>',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            if (window.history.replaceState) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        </script>
+    <?php endif; ?>
+
     <?php if (isset($_GET['error'])): ?>
         <script>
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
-                text: '<?php echo $_GET['error']; ?>'
+                text: '<?php echo htmlspecialchars($_GET['error'], ENT_QUOTES, 'UTF-8'); ?>'
             });
             if (window.history.replaceState) {
                 window.history.replaceState({}, document.title, window.location.pathname);
