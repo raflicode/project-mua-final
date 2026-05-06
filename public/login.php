@@ -1,3 +1,23 @@
+<?php
+session_start();
+
+// contoh login sederhana (tanpa database dulu)
+if(isset($_POST['username']) && isset($_POST['pass'])){
+    
+    $username = $_POST['username'];
+    $password = $_POST['pass'];
+
+    // contoh login manual
+    if($username == "admin" && $password == "123"){
+        $_SESSION['user'] = $username;
+        header("Location: halaman_kostum.php");
+        exit;
+    } else {
+        $error = "Username atau password salah!";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
