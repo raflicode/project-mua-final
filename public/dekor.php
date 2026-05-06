@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <?php
 session_start();
 ?>
@@ -116,7 +117,11 @@ body{
                         <li>Hairdo</li>
                     </ul>
                 </div>
+<<<<<<< HEAD
                 <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
+=======
+                <a href="booking.php" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
+>>>>>>> 382801bd7ffe7bb38dd53f2e21d0326056d6e843
                     Booking
                 </a>
             </div>
@@ -135,7 +140,11 @@ body{
                         <li>Teks 4</li>
                     </ul>
                 </div>
+<<<<<<< HEAD
                 <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
+=======
+                <a href="booking.php" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
+>>>>>>> 382801bd7ffe7bb38dd53f2e21d0326056d6e843
                     Booking
                 </a>
             </div>
@@ -154,7 +163,11 @@ body{
                         <li>Teks 4</li>
                     </ul>
                 </div>
+<<<<<<< HEAD
                 <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
+=======
+                <a href="booking.php" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
+>>>>>>> 382801bd7ffe7bb38dd53f2e21d0326056d6e843
                     Booking
                 </a>
             </div>
@@ -173,7 +186,11 @@ body{
                         <li>Teks 8</li>
                     </ul>
                 </div>
+<<<<<<< HEAD
                 <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
+=======
+                <a href="booking.php" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
+>>>>>>> 382801bd7ffe7bb38dd53f2e21d0326056d6e843
                     Booking
                 </a>
             </div>
