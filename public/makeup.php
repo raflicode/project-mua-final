@@ -1,4 +1,8 @@
-<?php session_start(); ?>
+
+
+<?php
+session_start();
+?>
 
 <?php
 // halaman_kostum.php
@@ -135,6 +139,7 @@ body{
                 </div>
                 <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
                     Booking
+
                 </a>
             </div>
         </div>
@@ -154,6 +159,7 @@ body{
                 </div>
                 <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
                     Booking
+
                 </a>
             </div>
         </div>
@@ -173,6 +179,7 @@ body{
                 </div>
                 <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
                     Booking
+
                 </a>
             </div>
         </div>
@@ -197,7 +204,9 @@ body{
 </div>
 
 <script>
+
 const isLoggedIn = <?php echo isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
+
 
 document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
     btn.addEventListener('click', function(e){

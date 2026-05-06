@@ -1,4 +1,8 @@
-<?php session_start(); ?>
+
+<?php
+session_start();
+?>
+
 <?php
 // halaman_kostum.php
 ?>
@@ -179,6 +183,38 @@ body{
     </div>
 
 </div>
+
+<!-- Modal Login/Register -->
+<div class="modal fade" id="modalAuth" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-4">
+      <h5 class="mb-3">Belum Login</h5>
+      <p>Kamu harus login atau register dulu sebelum booking</p>
+      
+      <div class="d-flex justify-content-center gap-2">
+        <a href="login.php" class="btn btn-dark">Login</a>
+        <a href="register.php" class="btn btn-primary">Register</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const isLoggedIn = <?php echo isset($_SESSION['user']) ? 'true' : 'false'; ?>;
+
+document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
+    btn.addEventListener('click', function(e){
+        e.preventDefault();
+
+        if(!isLoggedIn){
+            let modal = new bootstrap.Modal(document.getElementById('modalAuth'));
+            modal.show();
+        } else {
+            window.location.href = "booking.php";
+        }
+    });
+});
+</script>
 
 <!-- Tombol Kembali -->
 <a href="index.php" class="btn btn-danger btn-kembali shadow">

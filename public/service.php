@@ -1,3 +1,4 @@
+
 <?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -30,7 +31,9 @@
         .card-custom {
             border-radius: 15px;
             padding: 15px;
+
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
             background: #fff;
         }
 
@@ -50,7 +53,9 @@
         .wedding-box {
             height: 180px;
             border-radius: 15px;
+
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+
             position: relative;
         }
 

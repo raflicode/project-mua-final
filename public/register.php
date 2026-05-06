@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,6 +25,38 @@
 </head>
 <body>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- ✅ NOTIF ERROR -->
+<?php if (isset($_GET['error'])): ?>
+<script>
+Swal.fire({
+    icon: 'error',
+    title: 'Gagal!',
+    text: '<?php echo htmlspecialchars($_GET['error']); ?>'
+});
+</script>
+<?php endif; ?>
+
+<!-- ✅ NOTIF SUCCESS -->
+<?php if (isset($_GET['success'])): ?>
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil!',
+    text: '<?php echo htmlspecialchars($_GET['success']); ?>',
+    timer: 2000,
+    showConfirmButton: false
+});
+</script>
+<?php endif; ?>
+
+<script>
+if (window.history.replaceState) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
+</script>
+
 <div class="container-fluid">
     <div class="row login-container">
         <div class="col-md-6 d-flex align-items-center justify-content-center">
@@ -28,7 +64,7 @@
                 <h1 class="fw-bold mb-1">Join Us</h1>
                 <p class="text-secondary mb-4">create your account to get started</p>
                 
-                <form action="../actions/proses_register.php" method="POST">
+                <form action="../actions/proses_register.php" method="POST" id="registerForm">
                      <div class="mb-3">
                         <label class="form-label small">Nama Lengkap</label>
                         <input type="text" name="full_name" class="form-control" placeholder="Choose a username" required>
@@ -43,11 +79,38 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label small">Password</label>
-                        <input type="password" name="password" class="form-control" placeholder="Min. 8 characters" required>
+                        <input type="password" name="password" id="password" class="form-control" placeholder="Min. 8 characters" required>
+                        <small class="text-secondary">Minimal 8 karakter.</small>
                     </div>
                     
                     <button type="submit" class="btn btn-purple w-100 py-2 fw-bold mt-3">Sign Up</button>
                 </form>
+                
+                <script>
+                document.getElementById('registerForm').addEventListener('submit', function(e) {
+                    const password = document.getElementById('password').value;
+                    if (password.length < 8) {
+                        e.preventDefault();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Password Tidak Valid',
+                            text: 'Password minimal 8 karakter.'
+                        });
+                        return;
+                    }
+                    const isAllDigits = /^\d+$/.test(password);
+                    const isAllLetters = /^[a-zA-Z]+$/.test(password);
+                    if (!isAllDigits && !isAllLetters) {
+                        e.preventDefault();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Password Tidak Valid',
+                            text: 'Password harus berisi angka semua atau huruf semua.'
+                        });
+                        return;
+                    }
+                });
+                </script>
                 
                 <p class="text-center mt-4 small text-secondary">
                     Already have an account? <a href="login.php" class="text-purple text-decoration-none" style="color: #a660c3;">Login</a>

@@ -1,7 +1,9 @@
 <?php
+
 ini_set('session.cookie_path', '/');
 session_start();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -60,12 +62,27 @@ session_start();
 <body>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <?php if (isset($_GET['success'])): ?>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '<?php echo htmlspecialchars($_GET['success'], ENT_QUOTES, 'UTF-8'); ?>',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            if (window.history.replaceState) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        </script>
+    <?php endif; ?>
+
     <?php if (isset($_GET['error'])): ?>
         <script>
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
-                text: '<?php echo $_GET['error']; ?>'
+                text: '<?php echo htmlspecialchars($_GET['error'], ENT_QUOTES, 'UTF-8'); ?>'
             });
             if (window.history.replaceState) {
                 window.history.replaceState({}, document.title, window.location.pathname);
