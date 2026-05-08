@@ -49,7 +49,7 @@
 
             <!-- Back -->
             <div class="text-start mb-3">
-                <a href="forgot-password.php" class="text-dark">
+                <a href="forgot.php" class="text-dark">
                     <i class="bi bi-arrow-left fs-4"></i>
                 </a>
             </div>
@@ -87,12 +87,26 @@
 
             <!-- PHP -->
             <?php
+            session_start();
             if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                $otp = $_POST['otp1'] . $_POST['otp2'] . $_POST['otp3'] . $_POST['otp4'];
+                $otp_input = $_POST['otp1'] . $_POST['otp2'] . $_POST['otp3'] . $_POST['otp4'];
 
-                echo "<div class='alert alert-success mt-3'>
-                        OTP yang dimasukkan: <b>$otp</b>
-                      </div>";
+                if (isset($_SESSION['otp']) && $otp_input == $_SESSION['otp']) {
+                    // OTP benar, redirect ke halaman reset password
+                    // Jangan unset session di sini, biarkan untuk reset password
+                    echo "<div class='alert alert-success mt-3'>
+                            OTP benar! Mengalihkan ke reset password...
+                          </div>";
+                    echo "<script>
+                        setTimeout(() => {
+                            window.location.href = 'reset_password.php';
+                        }, 2000);
+                    </script>";
+                } else {
+                    echo "<div class='alert alert-danger mt-3'>
+                            OTP salah. Coba lagi.
+                          </div>";
+                }
             }
             ?>
 
