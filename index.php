@@ -132,7 +132,7 @@ session_start();
                     yang tidak hanya terlihat indah di mata, tetapi juga terasa hangat di jiwa.</p>
             </div>
             <div class="col-lg-5 text-center">
-                <img src="assets/bg_log.jpeg" class="img-fluid custom-shape shadow-lg" alt="Yayuk">
+                <img src="assets/foto_profile.jpeg" class="img-fluid custom-shape shadow-lg" alt="Yayuk">
             </div>
         </div>
     </section>
