@@ -105,7 +105,9 @@ if (session_status() === PHP_SESSION_NONE) {
     <a class="nav-link ]" href="/project-mua/index.php">Home</a>
     <a class="nav-link " href="/project-mua/public/service.php">Service</a>
     <a class="nav-link " href="/project-mua/index.php#gallery">Gallery</a>
-    <a class="nav-link " href="#">Keranjang</a>
+    <a href="/project-mua/public/keranjang.php" class="text-dark fs-4">
+    <i class="bi bi-cart"></i>
+</a>
 
     <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
       <!-- DROPDRON PROFILE -->

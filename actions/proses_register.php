@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $check->execute([$username, $email]);
     
     if ($check->rowCount() > 0) {
-        header("Location: ../register.php?error=Username or email already exists");
+        header("Location: ../public/register.php?error=Username or email already exists");
         exit();
     }
 
