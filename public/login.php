@@ -96,14 +96,15 @@ session_start();
                     <h1 class="fw-bold mb-1">Welcome</h1>
                     <p class="text-secondary mb-4">please enter your details</p>
 
-                    <form action="../actions/proses_login.php" method="POST">
+                    <form action="../actions/proses_login.php" method="POST" id="loginForm">
                         <div class="mb-3">
                             <label class="form-label small">Username</label>
                             <input type="text" name="username" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small">Password</label>
-                            <input type="password" name="pass" class="form-control" required>
+                            <input type="password" name="pass" id="password" class="form-control" required>
+                            <small class="text-secondary">Minimal 8 karakter.</small>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -129,6 +130,19 @@ session_start();
         </div>
     </div>
 
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            if (password.length < 8) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Password Tidak Valid',
+                    text: 'Password minimal 8 karakter.'
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
