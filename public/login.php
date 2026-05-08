@@ -502,7 +502,7 @@ session_start();
 
 <body>
 
-<<<<<<< HEAD
+
     <?php if (isset($_GET['success'])): ?>
         <script>
             Swal.fire({
@@ -530,24 +530,7 @@ session_start();
             }
         </script>
     <?php endif; ?>
-    <div class="container-fluid">
-        <div class="row login-container">
-            <div class="col-md-6 d-flex align-items-center justify-content-center">
-                <div class="login-form w-75">
-                    <h1 class="fw-bold mb-1">Welcome</h1>
-                    <p class="text-secondary mb-4">please enter your details</p>
 
-                    <form action="../actions/proses_login.php" method="POST" id="loginForm">
-                        <div class="mb-3">
-                            <label class="form-label small">Username</label>
-                            <input type="text" name="username" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small">Password</label>
-                            <input type="password" name="pass" id="password" class="form-control" required>
-                            <small class="text-secondary">Minimal 8 karakter.</small>
-                        </div>
-=======
 <!-- ALERT -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -560,7 +543,7 @@ session_start();
     });
 </script>
 <?php endif; ?>
->>>>>>> f333b19 (mengatur responsive halaman login dan register, menghapus btn sosial)
+
 
 <div class="login-card">
 
@@ -668,7 +651,7 @@ session_start();
 
     </div>
 
-<<<<<<< HEAD
+
     <script>
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             const password = document.getElementById('password').value;
@@ -683,12 +666,8 @@ session_start();
         });
     </script>
 </body>
-=======
     <!-- FOTO DESKTOP -->
     <div class="photo-col desktop-only"></div>
->>>>>>> f333b19 (mengatur responsive halaman login dan register, menghapus btn sosial)
-
-</div>
 
 </body>
 </html>
