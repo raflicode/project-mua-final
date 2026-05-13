@@ -7,18 +7,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm_password = $_POST['confirm_password'];
 
     if ($password !== $confirm_password) {
-        header("Location: reset_password.php?error=Password tidak cocok");
+        header("Location: ../public/reset_password.php?error=" . urlencode("Password tidak cocok"));
         exit();
     }
 
-    if (strlen($password) < 6) {
-        header("Location: reset_password.php?error=Password minimal 6 karakter");
+    if (strlen($password) < 8) {
+        header("Location: ../public/reset_password.php?error=" . urlencode("Password minimal 8 karakter"));
         exit();
     }
 
     // Ambil email dari session
     if (!isset($_SESSION['otp_email'])) {
-        header("Location: login.php?error=Sesi tidak valid");
+        header("Location: ../public/login.php?error=" . urlencode("Sesi tidak valid"));
         exit();
     }
 
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: ../public/reset_password.php?success=Password berhasil direset");
     exit();
 } else {
-    header("Location: reset_password.php");
+    header("Location: ../public/reset_password.php");
     exit();
 }
 ?>

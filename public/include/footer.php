@@ -122,7 +122,7 @@
                 </ul>
                 <div class="social-icons">
                     <a href="#"><i class="bi bi-facebook"></i></a>
-                    <a href="#"><i class="bi bi-instagram"></i></a>
+                    <a href="https://www.instagram.com/yayukmakeover_jbr?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="><i class="bi bi-instagram"></i></a>
                     <a href="#"><i class="bi bi-twitter-x"></i></a>
                 </div>
             </div>
@@ -132,7 +132,7 @@
         <div class="row mt-4">
             <div class="col-12">
                 <p style="font-size: 13px; opacity: 0.8;">
-                    <i class="bi bi-geo-alt-fill"></i> <span id="alamat-api">Mengambil alamat...</span>
+                     <span id="alamat-api">Mengambil alamat...</span>
                 </p>
             </div>
         </div>

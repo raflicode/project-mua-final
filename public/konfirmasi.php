@@ -1,86 +1,87 @@
-```php id="20458"
 <?php
 // konfirmasi.php
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Pembayaran</title>
+    <title>Pembayaran</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<style>
-body{
-    background:#6f907e;
-    font-family:Arial, Helvetica, sans-serif;
-}
+    <style>
+        body {
+            /* Mengubah background menjadi putih polos */
+            background: #ffffff;
+            font-family: Arial, Helvetica, sans-serif;
+        }
 
-.wrapper{
-    max-width:420px;
-    margin:auto;
-}
+        .wrapper {
+            max-width: 420px;
+            margin: auto;
+        }
 
-.card-custom{
-    border:none;
-    border-radius:18px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.15);
-}
+        .card-custom {
+            /* Menambahkan border tipis agar card terlihat di background putih */
+            border: 1px solid #f0f0f0;
+            border-radius: 18px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
 
-.icon-box{
-    width:65px;
-    height:65px;
-    background:#f6d8c8;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:30px;
-    margin:auto;
-}
+        .icon-box {
+            width: 65px;
+            height: 65px;
+            background: #f6d8c8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin: auto;
+        }
 
-.bank-box{
-    background:#f8f8f8;
-    border-radius:12px;
-    padding:16px;
-}
+        .bank-box {
+            background: #f8f8f8;
+            border-radius: 12px;
+            padding: 16px;
+        }
 
-.upload-box{
-    border:2px dashed #ced4da;
-    border-radius:12px;
-    padding:25px 15px;
-    text-align:center;
-    cursor:pointer;
-    transition:0.2s;
-}
+        .upload-box {
+            border: 2px dashed #ced4da;
+            border-radius: 12px;
+            padding: 25px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
 
-.upload-box:hover{
-    background:#f8f9fa;
-}
+        .upload-box:hover {
+            background: #f8f9fa;
+        }
 
-.upload-box input{
-    display:none;
-}
+        .upload-box input {
+            display: none;
+        }
 
-.btn-konfirmasi{
-    background:#5a8dee;
-    border:none;
-    padding:14px;
-    font-weight:bold;
-}
+        .btn-konfirmasi {
+            background: #5a8dee;
+            border: none;
+            padding: 14px;
+            font-weight: bold;
+            border-radius: 10px;
+        }
 
-.btn-konfirmasi:hover{
-    background:#3d73dc;
-}
-</style>
+        .btn-konfirmasi:hover {
+            background: #3d73dc;
+        }
+    </style>
 </head>
 
 <body>
 
-<!-- Navbar Include -->
-<?php include 'include/navbar.php'; ?>
+<!-- Baris include navbar telah dihapus untuk menghilangkan menu samping/atas -->
 
 <div class="container py-5 wrapper">
 
@@ -140,4 +141,3 @@ body{
 
 </body>
 </html>
-```
