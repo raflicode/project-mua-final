@@ -34,6 +34,11 @@ if (session_status() === PHP_SESSION_NONE) {
     transition: 0.3s;
   }
 
+  .navbar .nav-link:hover {
+    color: #b5835a !important;
+    text-decoration: underline;
+  }
+
   /* 3. Class saat di-scroll (Warna background putih, teks jadi gelap) */
   .nav-scrolled {
     background-color: #ffffff !important;
