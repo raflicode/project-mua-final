@@ -19,6 +19,7 @@ session_start();
         body {
             font-family: 'Poppins', sans-serif;
             color: #4a4a4a;
+            background-color: #f7f2eb;
         }
 
         h1,
@@ -43,12 +44,28 @@ session_start();
             margin: 0  15px;
         }
 
+        .hero-title {
+            max-width: 720px;
+            margin: 0 auto 16px;
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.18;
+        }
+
+        .hero-subtitle {
+            max-width: 650px;
+            margin: 0 auto 24px;
+            font-size: clamp(0.92rem, 1.6vw, 1.08rem);
+            line-height: 1.65;
+        }
+
         .btn-booking {
             border: 2px solid white;
             color: white;
-            padding: 10px 40px;
+            padding: 8px 30px;
             border-radius: 30px;
             text-transform: uppercase;
+            font-size: 0.86rem;
+            letter-spacing: 0.04em;
             background: rgba(255, 255, 255, 0.1);
             transition: 0.3s;
         }
@@ -85,6 +102,27 @@ session_start();
         .section-title {
             color: #b5835a;
         }
+
+        .animated-divider {
+            width: 450px;
+            height: 4px;
+            margin: 0;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #b5835a, #FED03A);
+            transform: scaleX(0);
+            transform-origin: left;
+            opacity: 0;
+            transition: transform 1s ease, opacity 0.4s ease;
+        }
+
+        .animated-divider.is-visible {
+            transform: scaleX(1);
+            opacity: 1;
+        }
+
+        .soft-section {
+            background-color: #f1e8dd !important;
+        }
     </style>
 </head>
 
@@ -110,9 +148,9 @@ session_start();
 
     <header class="hero-section shadow " style="margin-top: 60px;">
         <div class="container">
-            <h1 class="display-4 fw-bold">Keanggunan Abadi untuk Hari Istimewa Anda.</h1>
+            <h1 class="hero-title fw-bold">Keanggunan Abadi untuk Hari Istimewa Anda.</h1>
 
-            <p class="lead mb-4">Riasan dan penataan rambut pengantin profesional dengan hasil akhir<br>yang sempurna
+            <p class="hero-subtitle">Riasan dan penataan rambut pengantin profesional dengan hasil akhir<br>yang sempurna
                 dan alami untuk menonjolkan kecantikan sejati Anda.</p>
             <a href="/project-mua-final/public/service.php" class="btn btn-booking">Booking</a>
 
@@ -123,7 +161,7 @@ session_start();
         <div class="row align-items-center g-5">
             <div class="col-lg-7">
                 <h2 class="section-title h1 mb-4">Merajut Kenangan <br> dalam Setiap Sentuhan</h2>
-                <hr style="width: 100px; border: 2px solid #b5835a; opacity: 1;">
+                <div class="animated-divider"></div>
                 <p class="mt-4">Perjalanan Yayuk Makeover tumbuh bersama ribuan senyum dan cerita bahagia dari para
                     pasangan yang telah menjadi bagian dari keluarga kami.</p>
                 <p>Kami memahami bahwa pernikahan adalah momen sekali seumur hidup yang penuh dengan detail dan harapan.
@@ -137,7 +175,7 @@ session_start();
         </div>
     </section>
 
-    <section class="bg-light py-5 " >
+    <section class="soft-section py-5 " >
         <div class="container text-center p-5 rounded-4" style="background-color: #A58459; color: white;">
             <h3 class="fw-bold mb-5">MENGAPA MEMILIH KAMI?</h3>
             <div class="row g-4" style="color: white;">
@@ -205,6 +243,21 @@ session_start();
     </section>
 
     <?php include 'public/include/footer.php'; ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const divider = document.querySelector('.animated-divider');
+
+            if (!divider) return;
+
+            const observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    divider.classList.toggle('is-visible', entry.isIntersecting);
+                });
+            }, { threshold: 0.45 });
+
+            observer.observe(divider);
+        });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

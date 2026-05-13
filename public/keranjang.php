@@ -166,6 +166,10 @@ session_start();
                 display: none;
             }
 
+            .btn-checkout {
+                font-size: 20px;
+            }
+
             .cart-item {
                 align-items: flex-start;
                 gap: 12px;

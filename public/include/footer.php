@@ -132,7 +132,7 @@
         <div class="row mt-4">
             <div class="col-12">
                 <p style="font-size: 13px; opacity: 0.8;">
-                     <span id="alamat-api">Mengambil alamat...</span>
+                    <span id="alamat-api">Mengambil alamat...</span>
                 </p>
             </div>
         </div>
