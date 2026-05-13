@@ -14,7 +14,7 @@ session_start();
 
     <style>
         body { background-color: #f4f4f4; font-family: 'Poppins', sans-serif; }
-        .navbar-custom { background-color: #f4f4f4; padding: 14px 10px; }
+
         .brand-text { font-size: 20px; font-weight: 700; color: #222; }
         .brand-text span { color: #f6b437; }
 
@@ -70,24 +70,14 @@ session_start();
             .blog-title { font-size: 18px; }
             .blog-desc { font-size: 14px; }
             .section-title { font-size: 32px; }
-            .navbar-custom { padding: 20px 0; }
-            .brand-text { font-size: 28px; }
         }
     </style>
 </head>
 <body>
-<div class="container-fluid px-3 px-md-4 px-lg-5 py-2">
 
-    <nav class="navbar navbar-custom">
-        <div class="container-fluid px-0">
-            <a class="navbar-brand brand-text" href="index.php">Yayuk <span>Makeover</span></a>
-            <button class="btn p-0 border-0">
-                <i class="bi bi-list" style="font-size:38px;color:#222;"></i>
-            </button>
-        </div>
-    </nav>
-
-    <div class="hero-card mt-2">
+<?php include 'include/navbar.php'; ?>
+<div class="container-fluid px-3 px-md-4 px-lg-5" style="padding-top: 65px;">
+    <div class="hero-card mt-3">
         <img src="../assets/foto_muayayuk.jpeg" alt="Gallery Makeup">
         <div class="hero-overlay">
             <div>

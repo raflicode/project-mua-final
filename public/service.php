@@ -18,13 +18,7 @@
             color: #ffc107;
         }
 
-        .navbar {
-            transition: background-color 0.3s, box-shadow 0.3s;
-        }
-        .navbar.scrolled {
-            background-color: #fff !important;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.12) !important;
-        }
+
 
         .card-custom {
             border: none;
