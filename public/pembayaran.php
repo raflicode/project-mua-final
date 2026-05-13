@@ -4,57 +4,56 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Proses Pembayaran</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<title>Proses Pembayaran</title>
+    <style>
+        body {
+            /* Mengubah background menjadi putih polos */
+            background: #ffffff; 
+            font-family: Arial, Helvetica, sans-serif;
+        }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        .wrapper {
+            max-width: 420px;
+            margin: auto;
+        }
 
-<style>
-body{
-    background:#6f907e;
-    font-family:Arial, Helvetica, sans-serif;
-}
+        .card-custom {
+            border: 1px solid #eee; /* Menambah border tipis karena background sudah putih */
+            border-radius: 16px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
 
-.wrapper{
-    max-width:420px;
-    margin:auto;
-}
+        .judul {
+            font-weight: bold;
+            color: #333;
+        }
 
-.card-custom{
-    border:none;
-    border-radius:16px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.15);
-}
+        .total-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+        }
 
-.judul{
-    font-weight:bold;
-}
+        .btn-bayar {
+            background: #5a8dee;
+            border: none;
+            font-weight: bold;
+            padding: 14px;
+            border-radius: 10px;
+        }
 
-.total-box{
-    background:#f5f5f5;
-    border-radius:12px;
-    padding:15px;
-}
-
-.btn-bayar{
-    background:#5a8dee;
-    border:none;
-    font-weight:bold;
-    padding:14px;
-}
-
-.btn-bayar:hover{
-    background:#3d73dc;
-}
-</style>
+        .btn-bayar:hover {
+            background: #3d73dc;
+        }
+    </style>
 </head>
-
 <body>
 
-<!-- Navbar Include -->
-<?php include 'include/navbar.php'; ?>
+<!-- Bagian <?php // include 'include/navbar.php'; ?> telah dihapus agar menu navigasi tidak muncul -->
 
 <div class="container py-5 wrapper">
 

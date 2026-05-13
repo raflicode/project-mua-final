@@ -1,79 +1,115 @@
 <?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
-    <title>Yayuk Makeover</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap 5 CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yayuk Makeover - Pilih Paket</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-        .brand span {
-            color: orange;
-            font-weight: bold;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            padding-top: 100px !important;
+        }
+
+        .text-gold {
+            color: #ffc107;
         }
 
         .card-custom {
-            border-radius: 15px;
-            padding: 15px;
-
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             background: #fff;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 30px;
+            transition: transform 0.3s;
+        }
+
+        .card-custom:hover,
+        .wedding-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-custom h5 {
+            font-size: 1.5rem;
+            font-weight: bold;
         }
 
         .btn-booking {
             border-radius: 20px;
+            width: 100%;
+            padding: 12px;
+            font-weight: 600;
         }
 
-        .btn-black {
-            background: #000;
-            color: #fff;
+        .wedding-card {
+            border-radius: 25px;
+            overflow: hidden;
+            border: none;
+            transition: 0.3s;
+            height: 100%;
         }
 
-        .btn-black:hover {
-            background: #333;
+        .header-silver {
+            background: linear-gradient(to bottom, #d9d9d9, #f8f9fa);
+            padding: 18px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #666;
         }
 
-        .wedding-box {
-            height: 180px;
-            border-radius: 15px;
-
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-
-            position: relative;
+        .header-gold {
+            background: linear-gradient(to bottom, #ffd54f, #fff3c4);
+            padding: 18px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #b8860b;
         }
 
-        .silver {
-            background: #eaeaea;
+        .silver-card {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border: 2px solid #d9d9d9;
         }
 
-        .gold {
-            background: #fff;
-            border: 3px solid gold;
-            box-shadow: 0 0 20px gold;
+        .gold-card {
+            box-shadow: 0 10px 30px rgba(255, 193, 7, 0.35);
+            border: 2px solid #ffd54f;
         }
 
-        .label {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 5px 20px;
+        .btn-silver {
+            background-color: #d9d9d9;
+            border: none;
+            color: #555;
             border-radius: 10px;
-            font-size: 12px;
+            font-weight: 600;
+            padding: 10px;
         }
 
-        .label-silver {
-            background: #ddd;
+        .btn-silver:hover {
+            background-color: #c7c7c7;
+            color: #333;
         }
 
-        .label-gold {
-            background: gold;
-            color: #000;
+        .btn-gold {
+            background-color: #ffd54f;
+            border: none;
+            color: white;
+            border-radius: 10px;
+            font-weight: 600;
+            padding: 10px;
+        }
+
+        .btn-gold:hover {
+            background-color: #ffc107;
+            color: white;
         }
 
         .btn-kembali {
@@ -84,125 +120,105 @@
             color: white;
             border-radius: 30px;
             padding: 10px 20px;
+            z-index: 10;
         }
-
-    .card-custom {
-        border-radius: 20px; /* Lebih melengkung */
-        padding: 30px; /* Perbesar ruang dalam dari 15px ke 30px */
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        background: #fff;
-        min-height: 400px; /* Menentukan tinggi minimal agar kotak seragam */
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
-    /* Perbesar ukuran teks judul di dalam card */
-    .card-custom h6 {
-        font-size: 1.5rem; 
-        font-weight: bold;
-    }
-
-    /* Perbesar area Paket Wedding */
-    .wedding-box {
-        height: 250px; /* Perbesar tinggi dari 180px ke 250px */
-        border-radius: 20px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        position: relative;
-    }
-
-    /* Perbesar teks label SILVER/GOLD */
-    .label {
-        font-size: 14px;
-        padding: 8px 30px;
-        font-weight: bold;
-    }
-
-        body {
-    /* Sesuaikan angka ini dengan tinggi navbar kamu */
-    padding-top: 100px !important; 
-}
     </style>
 </head>
-
 <body>
 
-    <?php include 'include/navbar.php'; ?>
-    <div class="container-fluid mt-3 px-lg-5"> 
-    <div class="container-custom">
+<?php include 'include/navbar.php'; ?>
 
-        <div class="text-center mb-5">
-            <h2 class="fw-bold" style="font-size: 2.5rem;">Pilih paket yang sesuai<br>dengan tujuan Anda.</h2>
-            <h10>Pilih paket yang sesuai dengan kebutuhan Anda dan tingkatkan produktivitas Anda.</h10>
-        </div>
+<div class="container-fluid mt-3 px-lg-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">Pilih paket yang sesuai<br>dengan tujuan Anda.</h1>
+        <p class="text-muted small">Pilih paket yang sesuai dengan kebutuhan Anda dan tingkatkan produktivitas Anda.</p>
+    </div>
 
-        <div class="row text-center mb-5 justify-content-center">
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card-custom">
-                    <h6>Makeup Wedding</h6>
+    <div class="row g-4 justify-content-center mb-5">
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card-custom">
+                <div>
+                    <h5 class="mb-4">Makeup Wedding</h5>
+                    <p class="small fw-bold mb-2">Include:</p>
                     <ul class="text-start mt-3" style="font-size: 1.1rem;">
                         <li>Makeup</li>
                         <li>Softlens</li>
                         <li>Hairdo</li>
                         <li>dll</li>
                     </ul>
-                    <a href="../../project-mua-final/public/makeup.php"
-                        class="btn btn-outline-dark btn-booking w-100 py-3">Lihat Lebih Banyak
-                    </a>
                 </div>
+                <a href="makeup.php" class="btn btn-outline-dark btn-booking">Lihat Lebih Banyak</a>
             </div>
+        </div>
 
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card-custom">
-                    <h6>Wedding Kostum</h6>
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card-custom">
+                <div>
+                    <h5 class="mb-4">Wedding Kostum</h5>
+                    <p class="small fw-bold mb-2">Include:</p>
                     <ul class="text-start mt-3" style="font-size: 1.1rem;">
                         <li>Teks 1</li>
                         <li>Teks 2</li>
                         <li>Teks 3</li>
                         <li>Teks 4</li>
                     </ul>
-                    <a href="../../project-mua-final/public/kostum.php"
-                        class="btn btn-outline-dark btn-booking w-100 py-3">Lihat Lebih Banyak
-                    </a>
                 </div>
+                <a href="kostum.php" class="btn btn-outline-dark btn-booking">Lihat Lebih Banyak</a>
             </div>
+        </div>
 
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card-custom">
-                    <h6>Dekor/Terop</h6>
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card-custom">
+                <div>
+                    <h5 class="mb-4">Dekor/Terop</h5>
+                    <p class="small fw-bold mb-2">Include:</p>
                     <ul class="text-start mt-3" style="font-size: 1.1rem;">
                         <li>Teks 5</li>
                         <li>Teks 6</li>
                         <li>Teks 7</li>
                         <li>Teks 8</li>
                     </ul>
-                    <a href="../../project-mua-final/public/dekor.php"
-                        class="btn btn-outline-dark btn-booking w-100 py-3">Lihat Lebih Banyak
-                    </a>
+                </div>
+                <a href="dekor.php" class="btn btn-outline-dark btn-booking">Lihat Lebih Banyak</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5 mb-4">
+        <h3 class="fw-bold">Paket Wedding</h3>
+    </div>
+
+    <div class="row g-4 justify-content-center pb-5">
+        <div class="col-10 col-sm-6 col-md-4 col-lg-3">
+            <div class="card wedding-card silver-card">
+                <div class="header-silver text-uppercase">Silver</div>
+                <div class="card-body py-5 text-center" style="min-height: 200px;"></div>
+                <div class="card-footer bg-white border-0 p-3">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-silver" type="button"><i class="bi bi-cart3"></i></button>
+                        <a href="paket_silver.php" class="btn btn-silver w-100">Booking</a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="row justify-content-center mb-5">
-            <div class="col-md-5 col-lg-4 mb-4"> <div class="wedding-box silver">
-                    <div class="label label-silver">SILVER</div>
-                </div>
-            </div>
-            <div class="col-md-5 col-lg-4 mb-4">
-                <div class="wedding-box gold">
-                    <div class="label label-gold">GOLD</div>
+        <div class="col-10 col-sm-6 col-md-4 col-lg-3">
+            <div class="card wedding-card gold-card">
+                <div class="header-gold text-uppercase">Gold</div>
+                <div class="card-body py-5 text-center" style="min-height: 200px;"></div>
+                <div class="card-footer bg-white border-0 p-3">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-gold text-white" type="button"><i class="bi bi-cart3"></i></button>
+                        <a href="paket_gold.php" class="btn btn-gold w-100 text-white">Booking</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-            <!-- Button Kembali -->
-            <a href="#" class="btn btn-kembali">Kembali ⤴</a>
+<a href="javascript:history.back()" class="btn btn-kembali">Kembali</a>
 
-        </div>
-    </div>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
