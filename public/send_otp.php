@@ -70,19 +70,9 @@ try {
 
     $mail->send();
 
-    // === PERINGATAN: HAPUS BAGIAN INI DI PRODUCTION ===
-    // Untuk testing saja: tampilkan OTP di halaman
-    echo "OTP berhasil dikirim ke $email_tujuan<br>";
-    echo "<strong>Kode OTP (untuk testing): $otp</strong><br>";
-    echo "Cek email Anda untuk kode OTP asli.";
-    // === AKHIR TESTING ===
-
-    // Redirect ke halaman verifikasi OTP setelah 5 detik
-    echo "<script>
-        setTimeout(() => {
-            window.location.href = 'OTP_verifikasi.php';
-        }, 5000);
-    </script>";
+    // Redirect langsung ke halaman verifikasi OTP tanpa menampilkan proses
+    header('Location: OTP_verifikasi.php');
+    exit();
 
 } catch (Exception $e) {
 

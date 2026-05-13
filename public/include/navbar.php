@@ -175,7 +175,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 <nav id="mainNavbar" class="navbar navbar-expand-lg fixed-top px-3 transition-nav bg-white navbar-light shadow-sm">
   <div class=" container-fluid ">
-    <a class=" navbar-brand fw-bold" href="/project-mua/index.php">
+    <a class=" navbar-brand fw-bold" href="/project-mua-final/index.php">
   Yayuk <span style="font-style: italic; font-weight: 300; color: #FED03A;">Makeover</span>
   </a>
 
@@ -245,9 +245,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <small class="text-secondary"><?= $_SESSION['email'] ?? 'Member'; ?></small>
           </div>
         </div>
-
         <a href="../project-mua-final/public/logout.php" class="text-danger d-block mt-3 fw-bold">Logout</a>
-
       <?php else: ?>
         <a href="/project-mua-final/public/login.php" class="text-white">Login</a>
       <?php endif; ?>

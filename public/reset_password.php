@@ -86,7 +86,7 @@
             ?>
 
             <!-- Form -->
-            <form action="../actions/proses_reset_password.php" method="POST">
+            <form id="resetPasswordForm" action="../actions/proses_reset_password.php" method="POST">
                 <div class="mb-3">
                     <div class="password-wrap">
                         <input type="password" name="password" id="newPassword" class="form-control" placeholder="Password Baru" required>
@@ -104,7 +104,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-custom text-white w-100 py-2">
+                <button id="resetPasswordButton" type="submit" class="btn btn-custom text-white w-100 py-2">
                     Reset Password
                 </button>
             </form>
@@ -148,6 +148,33 @@ setTimeout(() => {
 }, 2200);
 </script>
 <?php endif; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordField = document.getElementById('newPassword');
+    const confirmPasswordField = document.getElementById('confirmPassword');
+    const form = document.getElementById('resetPasswordForm');
+    const submitButton = document.getElementById('resetPasswordButton');
+
+    if (form && submitButton) {
+        form.addEventListener('submit', function(event) {
+            const passwordValue = passwordField ? passwordField.value.trim() : '';
+            if (passwordValue.length < 8) {
+                event.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Password terlalu pendek',
+                    text: 'Password harus minimal 8 karakter.',
+                });
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'Mengirim...';
+        });
+    }
+});
+</script>
 
 </body>
 </html>

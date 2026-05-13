@@ -53,7 +53,7 @@ INSERT INTO `user` (`id_user`, `full_name`, `username`, `role`, `email`, `pass`)
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`id_user`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `username` (`username`);
 
 --
 -- AUTO_INCREMENT for dumped tables

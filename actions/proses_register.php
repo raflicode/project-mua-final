@@ -25,27 +25,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // 2. Cek apakah username atau email sudah ada
-    $check = $pdo->prepare("SELECT * FROM user WHERE username = ? OR email = ?");
-    $check->execute([$username, $email]);
+    // 2. Cek apakah email sudah ada
+    $checkEmail = $pdo->prepare("SELECT * FROM user WHERE email = ?");
+    $checkEmail->execute([$email]);
     
-    if ($check->rowCount() > 0) {
-        $queryData['error'] = 'Username or email already exists';
+    if ($checkEmail->rowCount() > 0) {
+        $queryData['error'] = 'Email sudah dipakai';
         header("Location: ../public/register.php?" . http_build_query($queryData));
         exit();
     }
 
-    // 3. Validasi password minimal 8 karakter
+    // 3. Cek apakah username sudah ada
+    $checkUsername = $pdo->prepare("SELECT * FROM user WHERE username = ?");
+    $checkUsername->execute([$username]);
+    
+    if ($checkUsername->rowCount() > 0) {
+        $queryData['error'] = 'Username sudah ada';
+        header("Location: ../public/register.php?" . http_build_query($queryData));
+        exit();
+    }
+
+    // 4. Validasi password minimal 8 karakter
     if (strlen($password) < 8) {
         $queryData['error'] = 'Password minimal 8 karakter';
         header("Location: ../public/register.php?" . http_build_query($queryData));
         exit();
     }
 
-    // 4. Hash Password (WAJIB, jangan simpan teks biasa!)
+    // 5. Hash Password (WAJIB, jangan simpan teks biasa!)
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-    // 5. Kirim OTP verifikasi email
+    // 6. Kirim OTP verifikasi email
     $otp = rand(1000, 9999);
 
     $mail = new PHPMailer(true);
