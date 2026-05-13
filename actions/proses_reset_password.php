@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     unset($_SESSION['otp']);
     unset($_SESSION['otp_email']);
 
-    header("Location: ../public/reset_password.php?success=Password berhasil direset");
+    header("Location: ../public/login.php?success=" . urlencode("Password berhasil direset. Silakan login dengan password baru Anda."));
     exit();
 } else {
     header("Location: ../public/reset_password.php");

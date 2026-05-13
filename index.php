@@ -1,5 +1,5 @@
 <?php
-session_start();
+include __DIR__ . '/actions/proses_index.php';
 ?>
 
 <!DOCTYPE html>
@@ -129,20 +129,7 @@ session_start();
 <body>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <?php if (isset($_GET['success'])): ?>
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: '<?php echo htmlspecialchars($_GET['success'], ENT_QUOTES, 'UTF-8'); ?>',
-                timer: 2000,
-                showConfirmButton: false
-            });
-            if (window.history.replaceState) {
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        </script>
-    <?php endif; ?>
+    <?php echo getSuccessAlert(); ?>
 
     <?php include __DIR__ . '/public/include/navbar.php'; ?>
 

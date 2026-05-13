@@ -1,12 +1,51 @@
 <?php
 session_start();
-require_once '../config/koneksi.php';
-require_once '../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+function getRegisterAlertScript() {
+    $script = '';
+
+    if (isset($_GET['success'])) {
+        $successMessage = htmlspecialchars($_GET['success'], ENT_QUOTES, 'UTF-8');
+        $script = "
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{$successMessage}',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        </script>
+        ";
+    }
+
+    if (isset($_GET['error'])) {
+        $errorMessage = htmlspecialchars($_GET['error'], ENT_QUOTES, 'UTF-8');
+        $script = "
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: '{$errorMessage}'
+            });
+        </script>
+        ";
+    }
+
+    return $script;
+}
+
+function getOldRegisterValue($key) {
+    return isset($_GET[$key]) ? htmlspecialchars($_GET[$key], ENT_QUOTES, 'UTF-8') : '';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once __DIR__ . '/../config/koneksi.php';
+    require_once __DIR__ . '/../vendor/autoload.php';
+
     $full_name = trim($_POST['full_name']);
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);

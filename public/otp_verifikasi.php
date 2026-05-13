@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -66,7 +70,7 @@
             </p>
 
             <!-- Form -->
-            <form method="POST">
+            <form method="POST" action="../actions/OTP_verifikasi.php">
                 <div class="d-flex justify-content-center gap-2 mb-4">
                     <input type="text" name="otp1" maxlength="1" class="otp-input" required>
                     <input type="text" name="otp2" maxlength="1" class="otp-input" required>
@@ -84,31 +88,6 @@
                 Tidak menerima OTP? 
                 <a href="" class="text-danger">Kirim ulang</a>
             </p>
-
-            <!-- PHP -->
-            <?php
-            session_start();
-            if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                $otp_input = $_POST['otp1'] . $_POST['otp2'] . $_POST['otp3'] . $_POST['otp4'];
-
-                if (isset($_SESSION['otp']) && $otp_input == $_SESSION['otp']) {
-                    // OTP benar, redirect ke halaman reset password
-                    // Jangan unset session di sini, biarkan untuk reset password
-                    echo "<div class='alert alert-success mt-3'>
-                            OTP benar! Mengalihkan ke reset password...
-                          </div>";
-                    echo "<script>
-                        setTimeout(() => {
-                            window.location.href = 'reset_password.php';
-                        }, 2000);
-                    </script>";
-                } else {
-                    echo "<div class='alert alert-danger mt-3'>
-                            OTP salah. Coba lagi.
-                          </div>";
-                }
-            }
-            ?>
 
         </div>
     </div>

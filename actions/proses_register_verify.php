@@ -1,17 +1,27 @@
 <?php
 session_start();
-require_once '../config/koneksi.php';
+
+function getRegisterVerifyEmail() {
+    return isset($_SESSION['reg_email']) ? htmlspecialchars($_SESSION['reg_email'], ENT_QUOTES, 'UTF-8') : '';
+}
+
+if (!isset($_SESSION['reg_email'])) {
+    header('Location: ../public/register.php?error=' . urlencode('Silakan daftar terlebih dahulu'));
+    exit();
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once __DIR__ . '/../config/koneksi.php';
+
     $otp_input = $_POST['otp1'] . $_POST['otp2'] . $_POST['otp3'] . $_POST['otp4'];
 
     if (!isset($_SESSION['reg_otp']) || !isset($_SESSION['reg_email']) || !isset($_SESSION['reg_password_hash'])) {
-        header('Location: ../public/register.php?error=Session pendaftaran tidak valid');
+        header('Location: ../public/register.php?error=' . urlencode('Session pendaftaran tidak valid'));
         exit();
     }
 
     if ($otp_input != $_SESSION['reg_otp']) {
-        header('Location: ../public/register_verify.php?error=Kode OTP salah');
+        header('Location: ../public/register_verify.php?error=' . urlencode('Kode OTP salah'));
         exit();
     }
 
@@ -31,24 +41,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         unset($_SESSION['reg_otp']);
         unset($_SESSION['reg_otp_time']);
 
-        header('Location: ../public/login.php?success=Registrasi berhasil. Silakan login.');
+        header('Location: ../public/login.php?success=' . urlencode('Registrasi berhasil. Silakan login.'));
         exit();
     } catch (PDOException $e) {
-        // Cek jika error adalah karena email atau username duplikat
         if (strpos($e->getMessage(), 'UNIQUE constraint failed') !== false) {
             if (strpos($e->getMessage(), 'email') !== false) {
-                header('Location: ../public/register_verify.php?error=Email sudah dipakai');
+                header('Location: ../public/register_verify.php?error=' . urlencode('Email sudah dipakai'));
             } elseif (strpos($e->getMessage(), 'username') !== false) {
-                header('Location: ../public/register_verify.php?error=Username sudah dipakai');
+                header('Location: ../public/register_verify.php?error=' . urlencode('Username sudah dipakai'));
             } else {
-                header('Location: ../public/register_verify.php?error=Data sudah terdaftar');
+                header('Location: ../public/register_verify.php?error=' . urlencode('Data sudah terdaftar'));
             }
         } else {
-            header('Location: ../public/register_verify.php?error=Gagal menyimpan data: ' . urlencode($e->getMessage()));
+            header('Location: ../public/register_verify.php?error=' . urlencode('Gagal menyimpan data: ' . $e->getMessage()));
         }
         exit();
     }
-} else {
-    header('Location: ../public/register.php');
-    exit();
 }

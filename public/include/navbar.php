@@ -126,11 +126,11 @@ if (session_status() === PHP_SESSION_NONE) {
             <hr class="dropdown-divider">
           </li>
           <!-- Link Logout Backend Kamu -->
-          <li><a class="dropdown-item text-danger fw-bold" href="../project-mua/public/login.php">Logout</a></li>
+          <li><a class="dropdown-item text-danger fw-bold" href="../project-mua-final/public/login.php">Logout</a></li>
         </ul>
       </div>
     <?php else: ?>
-      <a class="btn btn-custom-gold border-2 ms-2" href="/project-mua/public/login.php">Login</a> <?php endif; ?>
+      <a class="btn btn-custom-gold border-2 ms-2" href="/project-mua-final/public/login.php">Login</a> <?php endif; ?>
   </div>
   </div>
 </nav>
