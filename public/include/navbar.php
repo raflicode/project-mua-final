@@ -6,6 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 <!-- Link Icon ini ditaruh di sini supaya otomatis terbawa ke file mana pun yang meng-include navbar -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
 <style>
   .btn-custom-gold {
@@ -90,7 +91,89 @@ if (session_status() === PHP_SESSION_NONE) {
   }
 </style>
 
-<nav id="mainNavbar" class="navbar fixed-top px-3 transition-nav"">
+<style>
+.nav-link i {
+        font-size: 1.5rem;
+        color: #333;
+    }
+    #cart-badge {
+        padding: 0.35em 0.5em;
+        line-height: 1;
+        z-index: 10;
+    }
+
+/* Memastikan posisi dropdown relatif terhadap icon */
+.dropdown-cart {
+    position: relative;
+    display: inline-block;
+}
+
+/* Kotak preview yang akan muncul */
+.cart-preview-box {
+    position: absolute;
+    top: 100%; /* Muncul tepat di bawah navbar */
+    right: 0;
+    width: 500px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    padding: 15px;
+    display: none; /* Sembunyikan dulu */
+    z-index: 9999;
+    border: 1px solid #eee;
+    margin-top: 10px;
+}
+
+.cart-preview-box img {
+        width: 100px !important; /* Ukuran gambar diperbesar */
+        height: 100px !important;
+        border-radius: 8px;
+    }
+
+/* Munculkan kotak saat kursor diarahkan ke area keranjang */
+.dropdown-cart:hover .cart-preview-box {
+    display: block;
+}
+
+
+/* Gaya item di dalam preview */
+.preview-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.preview-item img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.navbar.bg-white {
+        background-color: #ffffff !important; /* Memastikan warna putih bersih */
+        transition: all 0.3s ease;
+    }
+
+    /* Mengatur warna teks link agar gelap (karena background putih) */
+    .navbar-light .nav-link {
+        color: #333333 !important;
+        font-weight: 500;
+    }
+
+    /* Warna saat kursor diarahkan ke menu (hover) */
+    .navbar-light .nav-link:hover {
+        color: #FED03A !important; /* Warna gold khas Yayuk Makeover */
+    }
+
+    /* Tambahkan bayangan halus agar navbar terpisah dari konten bawah */
+    .shadow-sm {
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
+    }
+</style>
+
+<nav id="mainNavbar" class="navbar navbar-expand-lg fixed-top px-3 transition-nav bg-white navbar-light shadow-sm">
   <div class=" container-fluid ">
     <a class=" navbar-brand fw-bold" href="/project-mua/index.php">
   Yayuk <span style="font-style: italic; font-weight: 300; color: #FED03A;">Makeover</span>
@@ -105,7 +188,30 @@ if (session_status() === PHP_SESSION_NONE) {
     <a class="nav-link ]" href="/project-mua/index.php">Home</a>
     <a class="nav-link " href="/project-mua/public/service.php">Service</a>
     <a class="nav-link " href="/project-mua/index.php#gallery">Gallery</a>
-    <a class="nav-link " href="#">Keranjang</a>
+  
+    
+
+    <div class="dropdown-cart">
+    <a class="nav-link position-relative" href="keranjang.php">
+        <i class="fas fa-shopping-cart"></i>
+        <span id="cart-badge" class="position-absolute badge rounded-pill bg-danger" 
+              style="top: 0; right: -5px; font-size: 0.6rem; display: none;">
+            0
+        </span>
+    </a>
+
+    <div class="cart-preview-box" id="cart-preview">
+        <div id="cart-items-preview">
+            <p class="text-center text-muted p-3" style="font-size: 13px;">Belum Ada Produk</p>
+        </div>
+        <div class="cart-preview-footer" id="cart-preview-footer" style="display: none;">
+            <hr>
+            <a href="keranjang.php" class="btn btn-dark btn-sm w-100">Lihat Keranjang</a>
+        </div>
+    </div>
+</div>
+</a>
+</li>
 
     <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
       <!-- DROPDRON PROFILE -->
@@ -117,6 +223,8 @@ if (session_status() === PHP_SESSION_NONE) {
             <i class="bi bi-person-circle"></i>
           </div>
         </a>
+
+        
 
         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom">
           <li>
@@ -158,9 +266,9 @@ if (session_status() === PHP_SESSION_NONE) {
             <small class="text-secondary"><?= $_SESSION['email'] ?? 'Member'; ?></small>
           </div>
         </div>
-        <a href="../project-mua/public/logout.php" class="text-danger d-block mt-3 fw-bold">Logout</a>
+        <a href="../project-mua-final/public/logout.php" class="text-danger d-block mt-3 fw-bold">Logout</a>
       <?php else: ?>
-        <a href="/project-mua/public/login.php" class="text-white">Login</a>
+        <a href="/project-mua-final/public/login.php" class="text-white">Login</a>
       <?php endif; ?>
     </div>
   </div>
@@ -178,4 +286,79 @@ if (session_status() === PHP_SESSION_NONE) {
       navbar.classList.remove('nav-scrolled');
     }
   };
+</script>
+
+<script>
+function addToCart(id, nama, harga, foto) {
+    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
+    let foundIndex = cart.findIndex(item => item.id === id);
+
+    if (foundIndex > -1) {
+        cart[foundIndex].qty += 1;
+    } else {
+        cart.push({ id, nama, harga, foto, qty: 1 });
+    }
+
+    localStorage.setItem('yayuk_cart', JSON.stringify(cart));
+
+    // --- PENTING: Panggil fungsi ini agar angka di navbar langsung berubah ---
+    updateNavbarBadge(); 
+    // ------------------------------------------------------------------------
+
+    alert(nama + " berhasil ditambah ke keranjang!");
+}
+
+// Fungsi ini harus ada di file yang sama atau di navbar.php yang di-include
+function updateNavbarBadge() {
+    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
+    let totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+    const badge = document.getElementById('cart-badge');
+    
+    if (badge) {
+        badge.innerText = totalItems;
+        badge.style.display = totalItems > 0 ? 'inline-block' : 'none';
+    }
+}
+
+// Tetap jalankan ini agar saat pindah halaman angkanya tidak hilang
+document.addEventListener('DOMContentLoaded', updateNavbarBadge);
+</script>
+
+<script>
+function updateNavbarBadge() {
+    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
+    let totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+    
+    // Update Badge Angka
+    const badge = document.getElementById('cart-badge');
+    if (badge) {
+        badge.innerText = totalItems;
+        badge.style.display = totalItems > 0 ? 'inline-block' : 'none';
+    }
+
+    // Update Isi Kotak Preview
+    const previewContainer = document.getElementById('cart-items-preview');
+    const previewFooter = document.getElementById('cart-preview-footer');
+    
+    if (cart.length > 0) {
+        let html = "";
+        cart.slice(0, 3).forEach(item => { // Tampilkan 3 produk terakhir saja
+            html += `
+                <div class="preview-item">
+                    <img src="${item.foto}">
+                    <div style="font-size: 13px;">
+                        <div class="fw-bold text-dark text-truncate" style="max-width: 180px;">${item.nama}</div>
+                        <div class="text-warning">${item.qty} x Rp ${item.harga.toLocaleString('id-ID')}</div>
+                    </div>
+                </div>`;
+        });
+        previewContainer.innerHTML = html;
+        previewFooter.style.display = 'block';
+    } else {
+        previewContainer.innerHTML = '<p class="text-center text-muted p-2">Belum Ada Produk</p>';
+        previewFooter.style.display = 'none';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', updateNavbarBadge);
 </script>
