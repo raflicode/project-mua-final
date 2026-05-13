@@ -6,7 +6,7 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gallery Makeup - Yayuk Makeover</title>
+    <title>Gallery Dekor - Yayuk Makeover</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -14,7 +14,7 @@ session_start();
 
     <style>
         body { background-color: #f4f4f4; font-family: 'Poppins', sans-serif; }
-
+        .navbar-custom { background-color: #f4f4f4; padding: 14px 10px; }
         .brand-text { font-size: 20px; font-weight: 700; color: #222; }
         .brand-text span { color: #f6b437; }
 
@@ -70,45 +70,55 @@ session_start();
             .blog-title { font-size: 18px; }
             .blog-desc { font-size: 14px; }
             .section-title { font-size: 32px; }
+            .navbar-custom { padding: 20px 0; }
+            .brand-text { font-size: 28px; }
         }
     </style>
 </head>
 <body>
+<div class="container-fluid px-3 px-md-4 px-lg-5 py-2">
 
-<?php include 'include/navbar.php'; ?>
-<div class="container-fluid px-3 px-md-4 px-lg-5" style="padding-top: 65px;">
-    <div class="hero-card mt-3">
-        <img src="../assets/foto_muayayuk.jpeg" alt="Gallery Makeup">
+    <nav class="navbar navbar-custom">
+        <div class="container-fluid px-0">
+            <a class="navbar-brand brand-text" href="index.php">Yayuk <span>Makeover</span></a>
+            <button class="btn p-0 border-0">
+                <i class="bi bi-list" style="font-size:38px;color:#222;"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="hero-card mt-2">
+        <img src="../assets/foto_muayayuk.jpeg" alt="Gallery Dekor">
         <div class="hero-overlay">
             <div>
-                <h2 class="hero-title">Keindahan Makeup Profesional untuk Momen Istimewa Anda.</h2>
-                <p class="hero-desc">Makeup artistry profesional dengan produk berkualitas tinggi yang membuat penampilan Anda semakin percaya diri, cantik, dan memukau di setiap kesempatan.</p>
+                <h2 class="hero-title">Keanggunan Abadi untuk Hari Istimewa Anda.</h2>
+                <p class="hero-desc">Dekorasi pernikahan profesional dengan sentuhan terbaik yang menjadikan hari istimewa Anda semakin berkesan dan tak terlupakan.</p>
             </div>
         </div>
     </div>
 
     <section class="mt-5">
-        <h4 class="section-title">Gallery Makeup</h4>
+        <h4 class="section-title">Gallery Dekor</h4>
 
         <div class="row g-3">
             <?php
             /*
             ================================================================
             CARA TAMBAH FOTO:
-            Upload foto ke folder: assets/gallery_makeup/
+            Upload foto ke folder: assets/gallery_dekor/
             Tambah item baru di array $photos di bawah
             ================================================================
             */
             $photos = [
-                ['src' => '../assets/gallery_makeup/makeup_1.jpeg', 'title' => 'Makeup Wedding Klasik',    'desc' => 'Riasan pengantin dengan konsep klasik dan elegan.'],
-                ['src' => '../assets/gallery_makeup/makeup_2.jpeg', 'title' => 'Makeup Modern Natural',  'desc' => 'Natural makeup look untuk tampilan sehari-hari.'],
-                ['src' => '../assets/gallery_makeup/makeup_3.jpeg', 'title' => 'Makeup Glamour',    'desc' => 'Riasan glamour dengan smokey eye yang memukau.'],
-                ['src' => '../assets/gallery_makeup/makeup_4.jpeg', 'title' => 'Makeup Pengantin Adat',     'desc' => 'Makeup tradisional dengan sentuhan modern.'],
-                ['src' => '../assets/gallery_makeup/makeup_5.jpeg', 'title' => 'Makeup Bold & Dramatic',       'desc' => 'Makeup berani dengan warna-warna cerah menawan.'],
-                ['src' => '../assets/gallery_makeup/makeup_6.jpeg', 'title' => 'Makeup Engagement',   'desc' => 'Riasan cantik untuk acara tunangan spesial.'],
-                ['src' => '../assets/gallery_makeup/makeup_7.jpeg', 'title' => 'Makeup Airbrush',      'desc' => 'Makeup flawless dengan teknik airbrush terkini.'],
-                ['src' => '../assets/gallery_makeup/makeup_8.jpeg', 'title' => 'Makeup Editorial',         'desc' => 'Makeup profesional untuk keperluan fotografi.'],
-                ['src' => '../assets/gallery_makeup/makeup_9.jpeg', 'title' => 'Makeup Bridal',  'desc' => 'Riasan sempurna untuk pengantin impian Anda.'],
+                ['src' => '../assets/gallery_dekor/dekor_1.jpeg', 'title' => 'Pelaminan Modern',    'desc' => 'Dekorasi pelaminan tema modern minimalis.'],
+                ['src' => '../assets/gallery_dekor/dekor_2.jpeg', 'title' => 'Wedding Decoration',  'desc' => 'Dekorasi pernikahan full setup indoor.'],
+                ['src' => '../assets/gallery_dekor/dekor_3.jpeg', 'title' => 'Dekor Akad Nikah',    'desc' => 'Setup meja akad dengan floral premium.'],
+                ['src' => '../assets/gallery_dekor/dekor_4.jpeg', 'title' => 'Standing Flower',     'desc' => 'Rangkaian bunga segar untuk pelaminan.'],
+                ['src' => '../assets/gallery_dekor/dekor_5.jpeg', 'title' => 'Dekor Lamaran',       'desc' => 'Backdrop foto cantik untuk lamaran.'],
+                ['src' => '../assets/gallery_dekor/dekor_6.jpeg', 'title' => 'Dekor Ulang Tahun',   'desc' => 'Tema balon dan bunting flag colorful.'],
+                ['src' => '../assets/gallery_dekor/dekor_7.jpeg', 'title' => 'Dekor Syukuran',      'desc' => 'Dekorasi sederhana namun elegan.'],
+                ['src' => '../assets/gallery_dekor/dekor_8.jpeg', 'title' => 'Photo Booth',         'desc' => 'Backdrop photo booth custom desain.'],
+                ['src' => '../assets/gallery_dekor/dekor_9.jpeg', 'title' => 'Dekor Garden Party',  'desc' => 'Dekorasi outdoor nuansa alam terbuka.'],
             ];
 
             foreach ($photos as $i => $photo): ?>
