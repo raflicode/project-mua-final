@@ -1,5 +1,4 @@
 
-
 <?php
 session_start();
 ?>
@@ -39,6 +38,7 @@ body{
     margin:auto;
 }
 
+
 /* Card */
 .card-custom{
     border:none;
@@ -67,9 +67,41 @@ body{
     color:black;
 }
 
-.btn-booking{
-    border-radius:30px;
-    font-weight:600;
+.btn-booking {
+    height: 45px; /* Samakan tinggi dengan tombol keranjang */
+    border-radius: 30px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.btn-cart-icon {
+    width: 45px;
+    height: 45px;
+    background-color: #212529;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: none;
+    flex-shrink: 0; /* Agar tidak tertekan/gepeng */
+}
+
+.btn-cart-icon i {
+    font-size: 18px; /* Ukuran besar kecilnya logo keranjang */
+} 
+
+/* Styling Gambar Paket */
+.img-paket {
+    width: 100%;
+    height: 200px; /* Tinggi tetap agar card sejajar */
+    object-fit: cover; /* Memotong gambar secara proporsional agar memenuhi area */
+    border-radius: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 /* Tombol kembali */
@@ -107,28 +139,38 @@ body{
     <div class="row g-4">
 
         <!-- Card 1 -->
-        <div class="col-md-6">
-            <div class="card card-custom h-100 p-3">
-                <div class="card-body">
-                    <h5 class="mb-4">Kostum Baju Adat</h5>
-                    <p class="fw-semibold">Include :</p>
-                    <ul>
-                        <li>Makeup</li>
-                        <li>Softlens</li>
-                        <li>Hairdo</li>
-                    </ul>
-                </div>
-                <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
-                Booking
+        <div class="row g-4">
+
+    <div class="col-md-6">
+        <div class="card card-custom h-100 p-3">
+            <div class="card-body">
+                <h5 class="mb-3">Makeup Graduation</h5>
+                <img src="../assets/foto_makeup.jpeg" class="img-paket" alt="Makeup Graduation">
+                
+                <p class="fw-semibold">Include :</p>
+                <ul>
+                    <li>Makeup</li>
+                    <li>Softlens</li>
+                    <li>Hairdo</li>
+                </ul>
+            </div>
+            <div class="d-flex gap-2 mt-auto">
+                    <button onclick="addToCart(1, 'Makeup Graduation', 800000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    🛒
+                    </button>
+                    <a href="booking.php" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    Booking
                 </a>
             </div>
         </div>
+    </div>
 
         <!-- Card 2 -->
         <div class="col-md-6">
             <div class="card card-custom h-100 p-3">
                 <div class="card-body">
-                    <h5 class="mb-4">Kostum Wedding</h5>
+                    <h5 class="mb-4">Makeup Wedding</h5>
+                    <img src="../assets/foto_makeup.jpeg" class="img-paket" alt="Makeup Graduation">
                     <p class="fw-semibold">Include :</p>
                     <ul>
                         <li>Teks 1</li>
@@ -137,10 +179,14 @@ body{
                         <li>Teks 4</li>
                     </ul>
                 </div>
-                <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
-                    Booking
-
-                </a>
+                <div class="d-flex gap-2 mt-auto">
+                    <button onclick="addToCart(2, 'Makeup Wedding', 1500000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    🛒
+                    </button>
+                    <a href="booking.php" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                        Booking
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -148,7 +194,8 @@ body{
         <div class="col-md-6">
             <div class="card card-custom h-100 p-3">
                 <div class="card-body">
-                    <h5 class="mb-4">Kostum Graduation</h5>
+                    <h5 class="mb-4">Makeup Carnaval</h5>
+                    <img src="../assets/foto_makeup.jpeg" class="img-paket" alt="Makeup Graduation">
                     <p class="fw-semibold">Include :</p>
                     <ul>
                         <li>Teks 1</li>
@@ -157,10 +204,14 @@ body{
                         <li>Teks 4</li>
                     </ul>
                 </div>
-                <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
-                    Booking
-
-                </a>
+                <div class="d-flex gap-2 mt-auto">
+                    <button onclick="addToCart(3, 'Makeup Carnava', 1000000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    🛒
+                    </button>
+                    <a href="booking.php" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                        Booking
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -168,7 +219,8 @@ body{
         <div class="col-md-6">
             <div class="card card-custom h-100 p-3">
                 <div class="card-body">
-                    <h5 class="mb-4">Kostum Kebaya</h5>
+                    <h5 class="mb-4">Makeup Natural</h5>
+                    <img src="../assets/foto_makeup.jpeg" class="img-paket" alt="Makeup Graduation">
                     <p class="fw-semibold">Include :</p>
                     <ul>
                         <li>Teks 5</li>
@@ -177,10 +229,14 @@ body{
                         <li>Teks 8</li>
                     </ul>
                 </div>
-                <a href="#" class="btn btn-dark btn-booking w-100 btn-booking-trigger">
-                    Booking
-
-                </a>
+                <div class="d-flex gap-2 mt-auto">
+                    <button onclick="addToCart(4, 'Makeup Natural', 2000000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    🛒
+                    </button>
+                    <a href="booking.php" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                        Booking
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -204,10 +260,7 @@ body{
 </div>
 
 <script>
-
 const isLoggedIn = <?php echo isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
-
-
 document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
     btn.addEventListener('click', function(e){
         e.preventDefault();
@@ -229,6 +282,40 @@ document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+<script>
+function addToCart(id, nama, harga, foto) {
+    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
+    let foundIndex = cart.findIndex(item => item.id === id);
+
+    if (foundIndex > -1) {
+        cart[foundIndex].qty += 1;
+    } else {
+        cart.push({ id, nama, harga, foto, qty: 1 });
+    }
+
+    localStorage.setItem('yayuk_cart', JSON.stringify(cart));
+
+    // TARUH DI SINI: Agar angka di navbar langsung berubah saat tombol diklik
+    updateNavbarBadge(); 
+
+    alert(nama + " berhasil ditambah ke keranjang!");
+}
+
+// Jalankan ini agar saat halaman baru dibuka, angka keranjang tetap ada
+document.addEventListener('DOMContentLoaded', updateNavbarBadge);
+
+// Definisi fungsinya (Taruh di sini jika belum ada di navbar.php)
+function updateNavbarBadge() {
+    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
+    let totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+    const badge = document.getElementById('cart-badge');
+    
+    if (badge) {
+        badge.innerText = totalItems;
+        badge.style.display = totalItems > 0 ? 'inline-block' : 'none';
+    }
+}
+</script>
+
 </body>
 </html>
-```
