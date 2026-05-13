@@ -198,7 +198,7 @@ include __DIR__ . '/actions/proses_index.php';
                     <img src="assets/foto_makeup.jpeg" class="card-img-top gallery-img" alt="Gallery Makeup">
                     <div class="card-body">
                         <h6 class="fw-bold">Gallery Makeup</h6>
-                        <a href="gallery_makeup.php" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                        <a href="public/gallery_makeup.php" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
     LIHAT
 </a>
                     </div>
@@ -209,7 +209,7 @@ include __DIR__ . '/actions/proses_index.php';
                     <img src="assets/foto_dekor.jpeg" class="card-img-top gallery-img" alt="Gallery Dekor">
                     <div class="card-body">
                         <h6 class="fw-bold">Gallery Dekor</h6>
-                        <a href="gallery_dekor.php" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                        <a href="public/gallery_dekor.php" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
     LIHAT
 </a>
                     </div>
@@ -220,7 +220,7 @@ include __DIR__ . '/actions/proses_index.php';
                     <img src="assets/foto_kostum.jpeg" class="card-img-top gallery-img" alt="Gallery Kostum">
                     <div class="card-body">
                         <h6 class="fw-bold">Gallery Kostum</h6>
-                       <a href="gallery_kostum.php" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                       <a href="public/gallery_kostum.php" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
     LIHAT
 </a>
                     </div>

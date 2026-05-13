@@ -1,5 +1,6 @@
 <?php
 // konfirmasi.php
+$backHref = 'pembayaran.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -81,9 +82,13 @@
 
 <body>
 
-<!-- Baris include navbar telah dihapus untuk menghilangkan menu samping/atas -->
+<?php include 'include/navbar.php'; ?>
 
 <div class="container py-5 wrapper">
+
+    <div class="mb-4">
+        <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="text-dark fs-3"><i class="bi bi-chevron-left"></i></a>
+    </div>
 
     <!-- Judul -->
     <h2 class="text-center fw-bold mb-5">Pembayaran</h2>
@@ -137,6 +142,15 @@
 
 </div>
 
+<script>
+function goBack() {
+    if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+        window.history.back();
+    } else {
+        window.location.href = 'booking.php';
+    }
+}
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

@@ -1,5 +1,6 @@
 <?php
 session_start();
+$backHref = '../index.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -10,7 +11,7 @@ session_start();
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
         body {
             background-color: #f5f5f5;
@@ -211,6 +212,7 @@ session_start();
 <?php include 'include/navbar.php'; ?>
 
 <div class="container-fluid mt-4 px-lg-5">
+    <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="text-dark fs-3"><i class="bi bi-chevron-left"></i></a>
     <h4 class="fw-bold mb-4">Keranjang Belanja</h4>
 
     <div class="cart-header d-none d-lg-flex">
@@ -238,7 +240,7 @@ session_start();
                 <span class="text-muted">Total (<span id="item-total">0</span> produk): </span>
                 <span class="total-price" id="total-text">Rp 0</span>
             </div>
-            <a href="booking.php" class="btn btn-checkout">Checkout</a>
+            <a href="#" onclick="checkoutSelected()" class="btn btn-checkout">Checkout</a>
         </div>
     </div>
 </div>
@@ -266,6 +268,21 @@ function updateDisplay() {
         const totalHargaItem = Number(item.harga) * Number(item.qty);
         const checked = selectedItems.has(index) ? 'checked' : '';
 
+        // Tentukan include berdasarkan nama item
+        let includes = [];
+        const namaLower = item.nama.toLowerCase();
+        if (namaLower.includes('makeup')) {
+            includes = ['Makeup', 'Softlens', 'Hairdo'];
+        } else if (namaLower.includes('dekor')) {
+            includes = ['Dekorasi', 'Lighting', 'Props'];
+        } else if (namaLower.includes('kostum')) {
+            includes = ['Kostum', 'Aksesoris', 'Makeup'];
+        } else {
+            includes = ['Makeup', 'Softlens', 'Hairdo'];
+        }
+
+        const includeList = includes.map(inc => `<li><i class="fas fa-check text-success me-2"></i>${inc}</li>`).join('');
+
         html += `
             <div class="cart-item">
                 <div class="col-checkbox">
@@ -275,6 +292,7 @@ function updateDisplay() {
                     <img src="${item.foto}" class="img-thumbnail" alt="${item.nama}">
                     <div>
                         <div class="fw-bold fs-5 text-dark">${item.nama}</div>
+                        <div class="text-muted small">${item.desc || ''}</div>
                     </div>
                 </div>
 
@@ -284,9 +302,7 @@ function updateDisplay() {
                     </button>
                     <div class="include-popover shadow-sm" id="details-include-${index}" style="display: none;">
                         <ul class="list-unstyled mb-0 p-2 text-start">
-                            <li><i class="fas fa-check text-success me-2"></i>Foundation</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Bulu Mata</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Hairdo/Hijab</li>
+                            ${includeList}
                         </ul>
                     </div>
                 </div>
@@ -371,6 +387,23 @@ function removeSelected() {
     selectedItems = new Set(cartData.map((_, index) => index));
     saveCart();
     updateDisplay();
+}
+
+function toggleInclude(index) {
+    const details = document.getElementById(`details-include-${index}`);
+    if (!details) return;
+    details.style.display = details.style.display === "none" ? "block" : "none";
+}
+
+function checkoutSelected() {
+    const selectedCartItems = cartData.filter((_, index) => selectedItems.has(index));
+    if (selectedCartItems.length === 0) {
+        alert('Pilih minimal 1 item untuk checkout');
+        return;
+    }
+    
+    sessionStorage.setItem('checkout_items', JSON.stringify(selectedCartItems));
+    window.location.href = 'booking.php';
 }
 
 function toggleInclude(index) {

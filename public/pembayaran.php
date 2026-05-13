@@ -1,5 +1,6 @@
 <?php
 // pembayaran.php
+$backHref = 'penjadwalan.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -8,6 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Proses Pembayaran</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
     <style>
         body {
@@ -53,9 +55,13 @@
 </head>
 <body>
 
-<!-- Bagian <?php // include 'include/navbar.php'; ?> telah dihapus agar menu navigasi tidak muncul -->
+<?php include 'include/navbar.php'; ?>
 
 <div class="container py-5 wrapper">
+
+    <div class="mb-4">
+       <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="text-dark fs-3"><i class="bi bi-chevron-left"></i></a>
+    </div>
 
     <!-- Judul -->
     <h2 class="text-center judul mb-4">Proses Pembayaran</h2>
@@ -75,7 +81,7 @@
                 <!-- HP -->
                 <div class="mb-3">
                     <label class="form-label">No Handphone</label>
-                    <input type="text" name="hp" class="form-control" required>
+                    <input type="tel" inputmode="numeric" pattern="[0-9]*" name="hp" class="form-control" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                 </div>
 
                 <!-- Metode -->
@@ -115,6 +121,15 @@
 
 </div>
 
+<script>
+function goBack() {
+    if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+        window.history.back();
+    } else {
+        window.location.href = 'booking.php';
+    }
+}
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
