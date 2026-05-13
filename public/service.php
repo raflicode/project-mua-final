@@ -1,8 +1,7 @@
-<<<<<<< HEAD
-=======
+
 
 <?php session_start(); ?>
->>>>>>> 82211bea8e7750c82a22c3dda6af5aa913d9ae61
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -37,35 +36,97 @@
             padding: 10px;
             font-weight: bold;
         }
-<<<<<<< HEAD
+
         
         /* Paket Wedding Style */
-        .wedding-card {
-=======
+.wedding-card {
+    border-radius: 25px;
+    overflow: hidden;
+    border: none;
+    transition: 0.3s;
+    height: 100%;
+}
 
-        .card-custom {
-            border-radius: 15px;
-            padding: 15px;
+.wedding-card:hover {
+    transform: translateY(-5px);
+}
 
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+/* Header Silver */
+.header-silver {
+    background: linear-gradient(to bottom, #d9d9d9, #f8f9fa);
+    padding: 18px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: #666;
+}
 
-            background: #fff;
-        }
+/* Header Gold */
+.header-gold {
+    background: linear-gradient(to bottom, #ffd54f, #fff3c4);
+    padding: 18px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: #b8860b;
+}
+
+/* Card Silver */
+.silver-card {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    border: 2px solid #d9d9d9;
+}
+
+/* Card Gold */
+.gold-card {
+    box-shadow: 0 10px 30px rgba(255,193,7,0.35);
+    border: 2px solid #ffd54f;
+}
+
+/* Tombol Silver */
+.btn-silver {
+    background-color: #d9d9d9;
+    border: none;
+    color: #555;
+    border-radius: 10px;
+    font-weight: 600;
+    padding: 10px;
+}
+
+.btn-silver:hover {
+    background-color: #c7c7c7;
+    color: #333;
+}
+
+/* Tombol Gold */
+.btn-gold {
+    background-color: #ffd54f;
+    border: none;
+    color: white;
+    border-radius: 10px;
+    font-weight: 600;
+    padding: 10px;
+}
+
+.btn-gold:hover {
+    background-color: #ffc107;
+    color: white;
+}
 
         .btn-booking {
->>>>>>> 82211bea8e7750c82a22c3dda6af5aa913d9ae61
+82211bea8e7750c82a22c3dda6af5aa913d9ae61
             border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             border: none;
         }
-<<<<<<< HEAD
+ 
         .header-silver { background: linear-gradient(to bottom, #d1d1d1, #f8f9fa); padding: 15px; text-align: center; font-weight: bold; color: #666; }
-        .header-gold { background: linear-gradient(to bottom, #ffe082, #fff); padding: 15px; text-align: center; font-weight: bold; color: #b8860b; }
+        .header-gold { background: linear-gradient(to bottom, #ffe082,  #ffe082); padding: 15px; text-align: center; font-weight: bold; color: #b8860b; }
         
-        .btn-gold { background-color: #ffd54f; border: none; color: white; border-radius: 5px; }
+        .btn-gold { background-color: #ffd54f; border: none; color: yellow; border-radius: 5px; }
         .btn-silver { background-color: #e0e0e0; border: none; color: #757575; border-radius: 5px; }
-=======
+
 
         .btn-black {
             background: #000;
@@ -90,7 +151,7 @@
         }
 
         .gold {
-            background: #fff;
+            background:  #ffe082,
             border: 3px solid gold;
             box-shadow: 0 0 20px gold;
         }
@@ -123,7 +184,7 @@
             border-radius: 30px;
             padding: 10px 20px;
         }
->>>>>>> 82211bea8e7750c82a22c3dda6af5aa913d9ae61
+
     </style>
 </head>
 <body>
@@ -215,7 +276,7 @@
     <div class="row g-4 justify-content-center pb-5">
         <!-- Silver Package -->
         <div class="col-10 col-sm-6 col-md-4 col-lg-3">
-            <div class="card wedding-card">
+            <div class="card wedding-card silver-card">
                 <div class="header-silver text-uppercase">Silver</div>
                 <div class="card-body py-5 text-center" style="min-height: 200px;">
                     <!-- Konten isi di sini -->
@@ -233,7 +294,7 @@
 
         <!-- Gold Package -->
         <div class="col-10 col-sm-6 col-md-4 col-lg-3">
-            <div class="card wedding-card" style="box-shadow: 0 15px 35px rgba(255, 193, 7, 0.2);">
+            <div class="card wedding-card gold-card">
                 <div class="header-gold text-uppercase">Gold</div>
                 <div class="card-body py-5 text-center" style="min-height: 200px;">
                     <!-- Konten isi di sini -->
