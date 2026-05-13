@@ -21,8 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password_hash = $_SESSION['reg_password_hash'];
 
     try {
-        $stmt = $pdo->prepare('INSERT INTO user (full_name, username, email, pass) VALUES (?, ?, ?, ?)');
-        $stmt->execute([$full_name, $username, $email, $password_hash]);
+        $stmt = $pdo->prepare('INSERT INTO user (full_name, username, email, pass, role) VALUES (?, ?, ?, ?, ?)');
+        $stmt->execute([$full_name, $username, $email, $password_hash, 'client']);
 
         unset($_SESSION['reg_full_name']);
         unset($_SESSION['reg_username']);
@@ -34,7 +34,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: ../public/login.php?success=Registrasi berhasil. Silakan login.');
         exit();
     } catch (PDOException $e) {
-        header('Location: ../public/register_verify.php?error=Gagal menyimpan data: ' . urlencode($e->getMessage()));
+        // Cek jika error adalah karena email atau username duplikat
+        if (strpos($e->getMessage(), 'UNIQUE constraint failed') !== false) {
+            if (strpos($e->getMessage(), 'email') !== false) {
+                header('Location: ../public/register_verify.php?error=Email sudah dipakai');
+            } elseif (strpos($e->getMessage(), 'username') !== false) {
+                header('Location: ../public/register_verify.php?error=Username sudah dipakai');
+            } else {
+                header('Location: ../public/register_verify.php?error=Data sudah terdaftar');
+            }
+        } else {
+            header('Location: ../public/register_verify.php?error=Gagal menyimpan data: ' . urlencode($e->getMessage()));
+        }
         exit();
     }
 } else {

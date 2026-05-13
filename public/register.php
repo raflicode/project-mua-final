@@ -470,6 +470,18 @@ Swal.fire({
 if (window.history.replaceState) {
     window.history.replaceState({}, document.title, window.location.pathname);
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('registerForm');
+    const submitButton = document.getElementById('registerButton');
+
+    if (form && submitButton) {
+        form.addEventListener('submit', function() {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Mengirim...';
+        });
+    }
+});
 </script>
 <div class="login-card">
 
@@ -505,7 +517,7 @@ if (window.history.replaceState) {
         
 
                 <!-- FORM -->
-                <form action="../actions/proses_register.php" method="POST">
+                <form id="registerForm" action="../actions/proses_register.php" method="POST">
 
                     <div class="mb-field">
 
@@ -574,7 +586,11 @@ if (window.history.replaceState) {
 
                     </div>
 
-                    <button type="submit" class="btn-submit">
+                    <p style="font-size:.85rem; color:#555; margin-bottom:14px;">
+                        Registrasi ini hanya untuk membuat akun client. Akun admin tidak dapat dibuat dari halaman ini.
+                    </p>
+
+                    <button id="registerButton" type="submit" class="btn-submit">
                         Register
                     </button>
 

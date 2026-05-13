@@ -11,8 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    if (strlen($password) < 6) {
-        header("Location: reset_password.php?error=Password minimal 6 karakter");
+    if (strlen($password) < 8) {
+        header("Location: reset_password.php?error=Password minimal 8 karakter");
         exit();
     }
 

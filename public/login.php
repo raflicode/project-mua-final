@@ -502,6 +502,8 @@ session_start();
 
 <body>
 
+<!-- ALERT -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <?php if (isset($_GET['success'])): ?>
         <script>
@@ -510,39 +512,26 @@ session_start();
                 title: 'Berhasil!',
                 text: '<?php echo htmlspecialchars($_GET['success'], ENT_QUOTES, 'UTF-8'); ?>',
                 timer: 2000,
-                showConfirmButton: false
+                showConfirmButton: false,
+                didOpen: () => {
+                    if (window.history.replaceState) {
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+                }
             });
-            if (window.history.replaceState) {
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
         </script>
     <?php endif; ?>
 
-    <?php if (isset($_GET['error'])): ?>
+    <?php if (isset($_SESSION['error'])): ?>
         <script>
             Swal.fire({
                 icon: 'error',
-                title: 'Oops...',
-                text: '<?php echo htmlspecialchars($_GET['error'], ENT_QUOTES, 'UTF-8'); ?>'
+                title: 'Login Gagal',
+                text: '<?php echo htmlspecialchars($_SESSION['error'], ENT_QUOTES, 'UTF-8'); ?>'
             });
-            if (window.history.replaceState) {
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
         </script>
+        <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
-
-<!-- ALERT -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<?php if(isset($_GET['error'])): ?>
-<script>
-    Swal.fire({
-        icon:'error',
-        title:'Login Gagal',
-        text:'<?php echo htmlspecialchars($_GET['error']); ?>'
-    });
-</script>
-<?php endif; ?>
 
 
 <div class="login-card">
@@ -577,7 +566,7 @@ session_start();
 
 
                 <!-- FORM -->
-                <form action="../actions/proses_login.php" method="POST">
+                <form action="../actions/proses_login.php" method="POST" id="loginForm">
 
                     <div class="mb-field">
 
@@ -604,6 +593,7 @@ session_start();
                         <input
                             type="password"
                             name="pass"
+                            id="password"
                             class="field-input"
                             placeholder="••••••••"
                             required
@@ -658,13 +648,14 @@ session_start();
             if (password.length < 8) {
                 e.preventDefault();
                 Swal.fire({
-                    icon: 'error',
+                    icon: 'warning',
                     title: 'Password Tidak Valid',
                     text: 'Password minimal 8 karakter.'
                 });
             }
         });
     </script>
+    
 </body>
     <!-- FOTO DESKTOP -->
     <div class="photo-col desktop-only"></div>
