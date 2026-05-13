@@ -33,6 +33,8 @@ if (!$user) {
 
 $mail = new PHPMailer(true);
 
+echo "phpmailer berhasil";
+
 try {
 
     $mail->isSMTP();
