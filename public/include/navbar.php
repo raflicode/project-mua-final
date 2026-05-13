@@ -105,7 +105,7 @@ if (session_status() === PHP_SESSION_NONE) {
       <a class="nav-link" href="/project-mua-final/index.php">Home</a>
       <a class="nav-link" href="/project-mua-final/public/service.php">Service</a>
       <a class="nav-link" href="/project-mua-final/index.php#gallery">Gallery</a>
-      <a class="nav-link" href="/project-mua-final/public/booking.php">Keranjang</a>
+      <a class="nav-link" href="/project-mua-final/public/booking.php"><i class="bi bi-cart3"></i> Keranjang</a>
 
     <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
       <!-- DROPDRON PROFILE -->
@@ -146,7 +146,7 @@ if (session_status() === PHP_SESSION_NONE) {
       <li><a class="nav-link text-white" href="/project-mua-final/index.php">🏠 Home</a></li>
       <li><a class="nav-link text-white" href="/project-mua-final/public/service.php">💄 Service</a></li>
       <li><a class="nav-link text-white" href="/project-mua-final/index.php#gallery">🖼️ Gallery</a></li>
-      <li><a class="nav-link text-white" href="/project-mua-final/public/booking.php">🛒 Keranjang</a></li>
+      <li><a class="nav-link text-white" href="/project-mua-final/public/booking.php"><i class="bi bi-cart3"></i> Keranjang</a></li>
     </ul>
 
     <div class="border-top pt-3 mt-4">
