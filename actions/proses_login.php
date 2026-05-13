@@ -3,12 +3,12 @@ session_start();
 require_once '../config/koneksi.php'; 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
+    $email = trim($_POST['email']);
     $pass = $_POST['pass'];
 
     // 1. Prepared Statement untuk menghindari SQL Injection
-    $stmt = $pdo->prepare("SELECT * FROM user WHERE username = ?");
-    $stmt->execute([$username]);
+    $stmt = $pdo->prepare("SELECT * FROM user WHERE email = ?");
+    $stmt->execute([$email]);
     $user = $stmt->fetch();
 
     if ($user && password_verify($pass, $user['pass'])) {
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
 
     } else {
-        header("Location: /project-mua/public/login.php?error=Login gagal");
+        header("Location: ../public/login.php?error=" . urlencode("Email atau password salah"));
         exit();
     }
 }

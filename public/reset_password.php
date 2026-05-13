@@ -30,6 +30,27 @@
             border-radius: 30px;
             padding: 12px 20px;
         }
+        .password-wrap {
+            position: relative;
+        }
+        .password-wrap .form-control {
+            padding-right: 48px;
+        }
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 14px;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            padding: 4px;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .toggle-password:hover {
+            color: #4a7cf3;
+        }
     </style>
 </head>
 <body>
@@ -67,10 +88,20 @@
             <!-- Form -->
             <form action="../actions/proses_reset_password.php" method="POST">
                 <div class="mb-3">
-                    <input type="password" name="password" class="form-control" placeholder="Password Baru" required>
+                    <div class="password-wrap">
+                        <input type="password" name="password" id="newPassword" class="form-control" placeholder="Password Baru" required>
+                        <button type="button" class="toggle-password" data-toggle-password="newPassword" aria-label="Lihat password baru">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="mb-3">
-                    <input type="password" name="confirm_password" class="form-control" placeholder="Konfirmasi Password" required>
+                    <div class="password-wrap">
+                        <input type="password" name="confirm_password" id="confirmPassword" class="form-control" placeholder="Konfirmasi Password" required>
+                        <button type="button" class="toggle-password" data-toggle-password="confirmPassword" aria-label="Lihat konfirmasi password">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-custom text-white w-100 py-2">
@@ -83,6 +114,22 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.querySelectorAll('[data-toggle-password]').forEach(function(button) {
+    button.addEventListener('click', function() {
+        const input = document.getElementById(this.dataset.togglePassword);
+        const icon = this.querySelector('i');
+
+        if (!input) return;
+
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        icon.classList.toggle('bi-eye', !isHidden);
+        icon.classList.toggle('bi-eye-slash', isHidden);
+        this.setAttribute('aria-label', isHidden ? 'Sembunyikan password' : 'Lihat password');
+    });
+});
+</script>
 <?php if (isset($_GET['success'])): ?>
 <script>
 Swal.fire({

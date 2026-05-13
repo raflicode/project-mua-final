@@ -16,6 +16,7 @@ session_start();
 
     <!-- BOOTSTRAP -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
 
@@ -93,6 +94,34 @@ session_start();
 
         .mb-field{
             margin-bottom:14px;
+        }
+
+        .password-wrap{
+            position:relative;
+        }
+
+        .password-wrap .field-input{
+            padding-right:44px;
+        }
+
+        .toggle-password{
+            position:absolute;
+            top:50%;
+            right:12px;
+            transform:translateY(-50%);
+
+            width:30px;
+            height:30px;
+
+            border:none;
+            background:transparent;
+
+            color:#777;
+            cursor:pointer;
+        }
+
+        .toggle-password:hover{
+            color:#a660c3;
         }
 
         /* =====================================================
@@ -577,19 +606,19 @@ session_start();
 
 
                 <!-- FORM -->
-                <form action="../actions/proses_login.php" method="POST">
+                <form action="../actions/proses_login.php" method="POST" id="loginForm">
 
                     <div class="mb-field">
 
                         <label class="field-label">
-                            Username
+                            Email
                         </label>
 
                         <input
-                            type="text"
-                            name="username"
+                            type="email"
+                            name="email"
                             class="field-input"
-                            placeholder="Masukkan username"
+                            placeholder="Masukkan email"
                             required
                         >
 
@@ -601,13 +630,19 @@ session_start();
                             Password
                         </label>
 
+                        <div class="password-wrap">
                         <input
                             type="password"
                             name="pass"
+                            id="password"
                             class="field-input"
                             placeholder="••••••••"
                             required
                         >
+                        <button type="button" class="toggle-password" data-toggle-password="password" aria-label="Lihat password">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        </div>
 
                     </div>
 
@@ -653,6 +688,21 @@ session_start();
 
 
     <script>
+        document.querySelectorAll('[data-toggle-password]').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const input = document.getElementById(this.dataset.togglePassword);
+                const icon = this.querySelector('i');
+
+                if (!input) return;
+
+                const isHidden = input.type === 'password';
+                input.type = isHidden ? 'text' : 'password';
+                icon.classList.toggle('bi-eye', !isHidden);
+                icon.classList.toggle('bi-eye-slash', isHidden);
+                this.setAttribute('aria-label', isHidden ? 'Sembunyikan password' : 'Lihat password');
+            });
+        });
+
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             const password = document.getElementById('password').value;
             if (password.length < 8) {
