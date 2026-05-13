@@ -168,11 +168,6 @@ session_start();
         font-size: 20px;
     }
 
-    /* Memperbesar teks di Navbar (Home, Service, dll) */
-    .nav-link {
-        font-size: 20px !important;
-    }
-    
     /* Memperbesar teks tombol Checkout */
     .btn-checkout {
         font-size: 20px;

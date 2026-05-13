@@ -2,6 +2,11 @@
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
+
+$currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
+$isHome = preg_match('#/project-mua-final/?(index\.php)?$#', $currentPath);
+$isService = preg_match('#/public/(service|makeup|kostum|dekor)\.php$#', $currentPath);
+$isCart = preg_match('#/public/(keranjang|cart)\.php$#', $currentPath);
 ?>
 
 <!-- Link Icon ini ditaruh di sini supaya otomatis terbawa ke file mana pun yang meng-include navbar -->
@@ -151,9 +156,10 @@ if (session_status() === PHP_SESSION_NONE) {
     border-radius: 8px;
 }
 
-.navbar.bg-white {
+  .navbar.bg-white {
         background-color: #ffffff !important; /* Memastikan warna putih bersih */
         transition: all 0.3s ease;
+        min-height: 64px;
     }
 
     /* Mengatur warna teks link agar gelap (karena background putih) */
@@ -162,9 +168,54 @@ if (session_status() === PHP_SESSION_NONE) {
         font-weight: 500;
     }
 
-    /* Warna saat kursor diarahkan ke menu (hover) */
-    .navbar-light .nav-link:hover {
-        color: #FED03A !important; /* Warna gold khas Yayuk Makeover */
+    .nav-menu-link {
+        position: relative;
+        padding-inline: 2px !important;
+        padding-bottom: 7px !important;
+        color: #333333 !important;
+        font-size: 1rem !important;
+        font-weight: 500;
+        line-height: 1.5;
+        transition: color 0.25s ease;
+    }
+
+    .nav-menu-link::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #FED03A, #b5835a);
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform 0.25s ease;
+    }
+
+    .nav-menu-link:hover,
+    .nav-menu-link.active {
+        color: #b5835a !important;
+    }
+
+    .nav-menu-link:hover::after,
+    .nav-menu-link.active::after {
+        transform: scaleX(1);
+    }
+
+    .offcanvas .nav-menu-link {
+        display: inline-block;
+        color: #ffffff !important;
+        padding-bottom: 6px !important;
+    }
+
+    .offcanvas .nav-menu-link:hover,
+    .offcanvas .nav-menu-link.active {
+        color: #FED03A !important;
+    }
+
+    .offcanvas-body > .navbar-nav + .navbar-nav {
+        display: none;
     }
 
     /* Tambahkan bayangan halus agar navbar terpisah dari konten bawah */
@@ -186,10 +237,10 @@ if (session_status() === PHP_SESSION_NONE) {
 
   <div class="d-none d-lg-flex ms-auto align-items-center gap-4 text-dark">
 
-    <a class="nav-link ]" href="/project-mua-final/index.php">Home</a>
-    <a class="nav-link " href="/project-mua-final/public/service.php">Service</a>
-    <a class="nav-link " href="/project-mua-final/index.php#gallery">Gallery</a>
-    <a class="nav-link " href="/project-mua-final/public/cart.php">Keranjang</a>
+    <a class="nav-link nav-menu-link <?= $isHome ? 'active' : ''; ?>" data-nav-page="home" href="/project-mua-final/index.php">Home</a>
+    <a class="nav-link nav-menu-link <?= $isService ? 'active' : ''; ?>" data-nav-page="service" href="/project-mua-final/public/service.php">Service</a>
+    <a class="nav-link nav-menu-link" data-nav-page="gallery" href="/project-mua-final/index.php#gallery">Gallery</a>
+    <a class="nav-link nav-menu-link <?= $isCart ? 'active' : ''; ?>" data-nav-page="cart" href="/project-mua-final/public/keranjang.php">Keranjang</a>
 
 
     <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
@@ -230,6 +281,13 @@ if (session_status() === PHP_SESSION_NONE) {
   </div>
   <div class="offcanvas-body">
     <ul class="navbar-nav gap-3">
+      <li><a class="nav-link nav-menu-link <?= $isHome ? 'active' : ''; ?>" data-nav-page="home" href="/project-mua-final/index.php">Home</a></li>
+      <li><a class="nav-link nav-menu-link <?= $isService ? 'active' : ''; ?>" data-nav-page="service" href="/project-mua-final/public/service.php">Service</a></li>
+      <li><a class="nav-link nav-menu-link" data-nav-page="gallery" href="/project-mua-final/index.php#gallery">Gallery</a></li>
+      <li><a class="nav-link nav-menu-link <?= $isCart ? 'active' : ''; ?>" data-nav-page="cart" href="/project-mua-final/public/keranjang.php">Keranjang</a></li>
+    </ul>
+
+    <ul class="navbar-nav gap-3">
       <li><a class="nav-link text-white" href="../../project-mua-final/dasboard.php">🏠 Home</a></li>
       <li><a class="nav-link text-white" href="../../project-mua-final/public/service.php">💄 Service</a></li>
       <li><a class="nav-link text-white" href="../../project-mua-final/dasboard.php#gallery">🖼️ Gallery</a></li>
@@ -265,6 +323,26 @@ if (session_status() === PHP_SESSION_NONE) {
       navbar.classList.remove('nav-scrolled');
     }
   };
+</script>
+
+<script>
+  function updateActiveGalleryNav() {
+    const isGallery = window.location.hash === '#gallery';
+    const isHomePage = /\/project-mua-final\/(index\.php)?$/.test(window.location.pathname);
+
+    if (!isHomePage) return;
+
+    document.querySelectorAll('[data-nav-page]').forEach(function(link) {
+      link.classList.remove('active');
+    });
+
+    document.querySelectorAll('[data-nav-page="' + (isGallery ? 'gallery' : 'home') + '"]').forEach(function(link) {
+      link.classList.add('active');
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', updateActiveGalleryNav);
+  window.addEventListener('hashchange', updateActiveGalleryNav);
 </script>
 
 <script>
