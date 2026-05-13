@@ -21,9 +21,10 @@ if(!isset($_SESSION['id_user'])){
 
 <style>
 body{
-    background:#6f907e;
     font-family:Arial, Helvetica, sans-serif;
+    padding-top: 100px !important; 
 }
+
 
 /* Container utama */
 .booking-wrapper{
@@ -64,13 +65,14 @@ textarea.form-control{
 .btn-lanjut:hover{
     background:#4177df;
 }
+
 </style>
 </head>
 
 <body>
 
 <!-- Navbar Include -->
-<?php include 'public/include/navbar.php'; ?>
+<?php include 'include/navbar.php'; ?>
 
 <div class="container py-5 booking-wrapper">
 

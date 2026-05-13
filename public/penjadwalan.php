@@ -14,13 +14,14 @@
 
 <style>
 body{
-    background:#7c9a87;
+    background: #ffffff;
     font-family:Arial, Helvetica, sans-serif;
 }
 
-.wrapper{
-    max-width:420px;
-    margin:auto;
+.wrapper {
+    width: 100%; /* Ubah dari 420px ke 100% */
+    max-width: 1200px; /* Atur batas maksimal yang lebih lebar, misal 1200px */
+    margin: auto;
 }
 
 .card-custom{
@@ -35,7 +36,7 @@ body{
     padding:18px;
     text-align:center;
     font-weight:bold;
-    font-size:18px;
+    font-size:22px;
 }
 
 .calendar-header{
@@ -47,7 +48,7 @@ body{
 .calendar{
     display:grid;
     grid-template-columns:repeat(7,1fr);
-    gap:8px;
+    gap:10px;
 }
 
 .tgl{
@@ -55,8 +56,9 @@ body{
     background:#eeeeee;
     padding:10px 0;
     border-radius:8px;
-    font-size:14px;
+    font-size:18px;
     transition:0.2s;
+    min-height: 50px;
 }
 
 .tgl:hover,
@@ -88,6 +90,22 @@ body{
 .btn-lanjut:hover{
     background:#4568c7;
 }
+/* Mengatur lebar kolom secara proporsional di layar lebar */
+    .col-checkbox  { width: 5%; }
+    .col-produk    { width: 30%; } /* Memberi ruang lebih untuk gambar & nama produk */
+    .col-include   { width: 15%; }
+    .col-harga     { width: 15%; }
+    .col-kuantitas { width: 15%; }
+    .col-total     { width: 15%; }
+    .col-aksi      { width: 5%; }
+
+    /* Agar konten di dalam item keranjang sejajar rapi */
+    .cart-item {
+        display: flex;
+        align-items: center;
+        padding: 20px 0;
+        border-bottom: 1px solid #eee;
+    }
 </style>
 </head>
 
@@ -96,14 +114,15 @@ body{
 <!-- Navbar Include -->
 <?php include 'include/navbar.php'; ?>
 
-<div class="container py-5 wrapper">
-
+<div class="container-fluid mt-5 px-lg-5" style="padding-top: 50px;">
     <div class="card card-custom">
 
         <div class="header-booking">
             Pilih Ketersediaan Tanggal
         </div>
 
+
+        
         <div class="card-body">
 
             <!-- Header Bulan -->
