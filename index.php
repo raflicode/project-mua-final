@@ -1,6 +1,7 @@
 <?php
 session_start();
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -88,15 +89,35 @@ session_start();
 </head>
 
 <body>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <?php if (isset($_GET['success'])): ?>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '<?php echo htmlspecialchars($_GET['success'], ENT_QUOTES, 'UTF-8'); ?>',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            if (window.history.replaceState) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        </script>
+    <?php endif; ?>
+
     <?php include __DIR__ . '/public/include/navbar.php'; ?>
 
     <header class="hero-section shadow " style="margin-top: 60px;">
         <div class="container">
             <h1 class="display-4 fw-bold">Keanggunan Abadi untuk Hari Istimewa Anda.</h1>
+
             <p class="lead mb-4">Riasan dan penataan rambut pengantin profesional dengan hasil akhir<br>yang sempurna
                 dan alami untuk menonjolkan kecantikan sejati Anda.</p>
             <a href="/project-mua/public/service.php" class="btn btn-booking">Booking</a>
+
         </div>
+        
     </header>
     <section class="py-5 container">
         <div class="row align-items-center g-5">
@@ -111,7 +132,7 @@ session_start();
                     yang tidak hanya terlihat indah di mata, tetapi juga terasa hangat di jiwa.</p>
             </div>
             <div class="col-lg-5 text-center">
-                <img src="assets/bg_log.jpeg" class="img-fluid custom-shape shadow-lg" alt="Yayuk">
+                <img src="assets/foto_profile.jpeg" class="img-fluid custom-shape shadow-lg" alt="Yayuk">
             </div>
         </div>
     </section>

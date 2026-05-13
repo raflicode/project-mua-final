@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+
+<?php session_start(); ?>
+>>>>>>> 82211bea8e7750c82a22c3dda6af5aa913d9ae61
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -32,19 +37,93 @@
             padding: 10px;
             font-weight: bold;
         }
+<<<<<<< HEAD
         
         /* Paket Wedding Style */
         .wedding-card {
+=======
+
+        .card-custom {
+            border-radius: 15px;
+            padding: 15px;
+
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+            background: #fff;
+        }
+
+        .btn-booking {
+>>>>>>> 82211bea8e7750c82a22c3dda6af5aa913d9ae61
             border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             border: none;
         }
+<<<<<<< HEAD
         .header-silver { background: linear-gradient(to bottom, #d1d1d1, #f8f9fa); padding: 15px; text-align: center; font-weight: bold; color: #666; }
         .header-gold { background: linear-gradient(to bottom, #ffe082, #fff); padding: 15px; text-align: center; font-weight: bold; color: #b8860b; }
         
         .btn-gold { background-color: #ffd54f; border: none; color: white; border-radius: 5px; }
         .btn-silver { background-color: #e0e0e0; border: none; color: #757575; border-radius: 5px; }
+=======
+
+        .btn-black {
+            background: #000;
+            color: #fff;
+        }
+
+        .btn-black:hover {
+            background: #333;
+        }
+
+        .wedding-box {
+            height: 180px;
+            border-radius: 15px;
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+
+            position: relative;
+        }
+
+        .silver {
+            background: #eaeaea;
+        }
+
+        .gold {
+            background: #fff;
+            border: 3px solid gold;
+            box-shadow: 0 0 20px gold;
+        }
+
+        .label {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 5px 20px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .label-silver {
+            background: #ddd;
+        }
+
+        .label-gold {
+            background: gold;
+            color: #000;
+        }
+
+        .btn-kembali {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 30px;
+            padding: 10px 20px;
+        }
+>>>>>>> 82211bea8e7750c82a22c3dda6af5aa913d9ae61
     </style>
 </head>
 <body>
