@@ -515,9 +515,10 @@ if (window.history.replaceState) {
 
                         <input
                             type="text"
-                            name="nama"
+                            name="full_name"
                             class="field-input"
                             placeholder="Masukkan nama lengkap"
+                            value="<?php echo isset($_GET['old_full_name']) ? htmlspecialchars($_GET['old_full_name']) : ''; ?>"
                             required
                         >
 
@@ -534,6 +535,7 @@ if (window.history.replaceState) {
                             name="email"
                             class="field-input"
                             placeholder="Masukkan email"
+                            value="<?php echo isset($_GET['old_email']) ? htmlspecialchars($_GET['old_email']) : ''; ?>"
                             required
                         >
 
@@ -550,6 +552,7 @@ if (window.history.replaceState) {
                             name="username"
                             class="field-input"
                             placeholder="Masukkan username"
+                            value="<?php echo isset($_GET['old_username']) ? htmlspecialchars($_GET['old_username']) : ''; ?>"
                             required
                         >
 

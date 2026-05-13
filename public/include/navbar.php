@@ -185,33 +185,12 @@ if (session_status() === PHP_SESSION_NONE) {
   </button>
 
   <div class="d-none d-lg-flex ms-auto align-items-center gap-4 text-dark">
-    <a class="nav-link ]" href="/project-mua/index.php">Home</a>
-    <a class="nav-link " href="/project-mua/public/service.php">Service</a>
-    <a class="nav-link " href="/project-mua/index.php#gallery">Gallery</a>
-  
-    
 
-    <div class="dropdown-cart">
-    <a class="nav-link position-relative" href="keranjang.php">
-        <i class="fas fa-shopping-cart"></i>
-        <span id="cart-badge" class="position-absolute badge rounded-pill bg-danger" 
-              style="top: 0; right: -5px; font-size: 0.6rem; display: none;">
-            0
-        </span>
-    </a>
+    <a class="nav-link ]" href="/project-mua-final/index.php">Home</a>
+    <a class="nav-link " href="/project-mua-final/public/service.php">Service</a>
+    <a class="nav-link " href="/project-mua-final/index.php#gallery">Gallery</a>
+    <a class="nav-link " href="/project-mua-final/public/cart.php">Keranjang</a>
 
-    <div class="cart-preview-box" id="cart-preview">
-        <div id="cart-items-preview">
-            <p class="text-center text-muted p-3" style="font-size: 13px;">Belum Ada Produk</p>
-        </div>
-        <div class="cart-preview-footer" id="cart-preview-footer" style="display: none;">
-            <hr>
-            <a href="keranjang.php" class="btn btn-dark btn-sm w-100">Lihat Keranjang</a>
-        </div>
-    </div>
-</div>
-</a>
-</li>
 
     <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
       <!-- DROPDRON PROFILE -->
@@ -234,11 +213,11 @@ if (session_status() === PHP_SESSION_NONE) {
             <hr class="dropdown-divider">
           </li>
           <!-- Link Logout Backend Kamu -->
-          <li><a class="dropdown-item text-danger fw-bold" href="../project-mua/public/logout.php">Logout</a></li>
+          <li><a class="dropdown-item text-danger fw-bold" href="../project-mua-final/public/logout.php">Logout</a></li>
         </ul>
       </div>
     <?php else: ?>
-      <a class="btn btn-custom-gold border-2 ms-2" href="/project-mua/public/login.php">Login</a> <?php endif; ?>
+      <a class="btn btn-custom-gold border-2 ms-2" href="/project-mua-final/public/login.php">Login</a> <?php endif; ?>
   </div>
   </div>
 </nav>
@@ -254,7 +233,7 @@ if (session_status() === PHP_SESSION_NONE) {
       <li><a class="nav-link text-white" href="../../project-mua-final/dasboard.php">🏠 Home</a></li>
       <li><a class="nav-link text-white" href="../../project-mua-final/public/service.php">💄 Service</a></li>
       <li><a class="nav-link text-white" href="../../project-mua-final/dasboard.php#gallery">🖼️ Gallery</a></li>
-      <li><a class="nav-link text-white" href="#">🛒 Keranjang</a></li>
+      <li><a class="nav-link text-white" href="../../project-mua-final/public/cart.php">🛒 Keranjang</a></li>
     </ul>
 
     <div class="border-top pt-3 mt-4">
@@ -266,7 +245,9 @@ if (session_status() === PHP_SESSION_NONE) {
             <small class="text-secondary"><?= $_SESSION['email'] ?? 'Member'; ?></small>
           </div>
         </div>
+
         <a href="../project-mua-final/public/logout.php" class="text-danger d-block mt-3 fw-bold">Logout</a>
+
       <?php else: ?>
         <a href="/project-mua-final/public/login.php" class="text-white">Login</a>
       <?php endif; ?>

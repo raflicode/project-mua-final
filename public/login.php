@@ -623,7 +623,7 @@ session_start();
 
                         </div>
 
-                        <a href="#" class="forgot">
+                        <a href="forgot.php" class="forgot">
                             Lupa kata sandi?
                         </a>
 
