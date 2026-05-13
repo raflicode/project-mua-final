@@ -44,7 +44,7 @@ if (!isset($_SESSION['reg_email'])) {
                 Kode OTP sudah dikirim ke <strong><?php echo htmlspecialchars($_SESSION['reg_email']); ?></strong>.
             </p>
 
-            <form action="../actions/proses_register_verify.php" method="POST">
+            <form id="verifyForm" action="../actions/proses_register_verify.php" method="POST">
                 <div class="d-flex justify-content-center gap-2 mb-4">
                     <input type="text" name="otp1" maxlength="1" class="otp-input" required>
                     <input type="text" name="otp2" maxlength="1" class="otp-input" required>
@@ -52,7 +52,7 @@ if (!isset($_SESSION['reg_email'])) {
                     <input type="text" name="otp4" maxlength="1" class="otp-input" required>
                 </div>
 
-                <button type="submit" class="btn btn-custom text-white w-100 py-2">Verifikasi</button>
+                <button id="verifyButton" type="submit" class="btn btn-custom text-white w-100 py-2">Verifikasi</button>
             </form>
 
             <p class="mt-3 small">
@@ -88,6 +88,15 @@ inputs.forEach((input, index) => {
         }
     });
 });
+
+const verifyForm = document.getElementById('verifyForm');
+const verifyButton = document.getElementById('verifyButton');
+if (verifyForm && verifyButton) {
+    verifyForm.addEventListener('submit', function() {
+        verifyButton.disabled = true;
+        verifyButton.textContent = 'Mengirim...';
+    });
+}
 </script>
 </body>
 </html>

@@ -18,38 +18,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'old_username' => $username,
     ];
 
-    // 1. Validasi email Gmail
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/@gmail\.com$/i', $email)) {
         $queryData['error'] = 'Gunakan alamat Gmail yang valid';
         header("Location: ../public/register.php?" . http_build_query($queryData));
         exit();
     }
 
-    // 2. Cek apakah username atau email sudah ada
-    $check = $pdo->prepare("SELECT * FROM user WHERE username = ? OR email = ?");
-    $check->execute([$username, $email]);
-    
-    if ($check->rowCount() > 0) {
-<<<<<<< HEAD
-        header("Location: ../public/register.php?error=Username or email already exists");
-=======
-        $queryData['error'] = 'Username or email already exists';
+    $checkEmail = $pdo->prepare("SELECT * FROM user WHERE email = ?");
+    $checkEmail->execute([$email]);
+
+    if ($checkEmail->rowCount() > 0) {
+        $queryData['error'] = 'Email sudah dipakai';
         header("Location: ../public/register.php?" . http_build_query($queryData));
->>>>>>> 82211bea8e7750c82a22c3dda6af5aa913d9ae61
         exit();
     }
 
-    // 3. Validasi password minimal 8 karakter
+    $checkUsername = $pdo->prepare("SELECT * FROM user WHERE username = ?");
+    $checkUsername->execute([$username]);
+
+    if ($checkUsername->rowCount() > 0) {
+        $queryData['error'] = 'Username sudah ada';
+        header("Location: ../public/register.php?" . http_build_query($queryData));
+        exit();
+    }
+
     if (strlen($password) < 8) {
         $queryData['error'] = 'Password minimal 8 karakter';
         header("Location: ../public/register.php?" . http_build_query($queryData));
         exit();
     }
 
-    // 4. Hash Password (WAJIB, jangan simpan teks biasa!)
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-    // 5. Kirim OTP verifikasi email
     $otp = rand(1000, 9999);
 
     $mail = new PHPMailer(true);

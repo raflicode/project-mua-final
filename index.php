@@ -114,7 +114,7 @@ session_start();
 
             <p class="lead mb-4">Riasan dan penataan rambut pengantin profesional dengan hasil akhir<br>yang sempurna
                 dan alami untuk menonjolkan kecantikan sejati Anda.</p>
-            <a href="/project-mua/public/service.php" class="btn btn-booking">Booking</a>
+            <a href="/project-mua-final/public/service.php" class="btn btn-booking">Booking</a>
 
         </div>
         

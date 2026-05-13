@@ -1,3 +1,11 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['id_user'])) {
+    header("Location: login.php");
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -11,16 +19,15 @@
             background-color: #fff;
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: #333;
+            padding-top: 100px !important;
         }
 
-        /* Container utama agar di tengah dan pas di mobile */
         .order-detail-container {
             max-width: 500px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        /* Card styling dengan shadow lembut seperti di gambar */
         .order-card {
             border: 1px solid #eee;
             border-radius: 20px;
@@ -29,7 +36,6 @@
             background-color: #fff;
         }
 
-        /* Gambar produk placeholder (kotak abu-abu border biru) */
         .product-img-placeholder {
             width: 80px;
             height: 80px;
@@ -38,7 +44,6 @@
             border-radius: 12px;
         }
 
-        /* Styling textarea untuk request khusus */
         .request-box {
             background-color: #f8f8f8;
             border: none;
@@ -50,15 +55,15 @@
             font-size: 0.9rem;
             color: #888;
         }
+
         .request-box:focus {
             outline: none;
             box-shadow: none;
             background-color: #f0f0f0;
         }
 
-        /* Tombol Proses Pembayaran */
         .btn-payment {
-            background-color: #6493e9; /* Warna biru sesuai gambar */
+            background-color: #6493e9;
             color: white;
             border: none;
             border-radius: 10px;
@@ -67,12 +72,12 @@
             width: 100%;
             transition: background-color 0.3s;
         }
+
         .btn-payment:hover {
             background-color: #5381d6;
             color: white;
         }
 
-        /* Garis pemisah tipis */
         .divider {
             border-top: 1px solid #f0f0f0;
             margin: 20px 0;
@@ -90,9 +95,11 @@
 </head>
 <body>
 
+<?php include 'include/navbar.php'; ?>
+
 <div class="order-detail-container">
     <div class="mb-4">
-        <a href="#" class="text-dark fs-3"><i class="bi bi-chevron-left"></i></a>
+        <a href="service.php" class="text-dark fs-3"><i class="bi bi-chevron-left"></i></a>
     </div>
 
     <h2 class="text-center fw-bold mb-5">Detail Pesanan</h2>
@@ -128,9 +135,9 @@
             <span class="fw-bold text-price">Rp. 810.000</span>
         </div>
 
-        <a href="pembayaran.php" class="btn btn-payment">
-    Proses Pembayaran
-</a>
+        <a href="penjadwalan.php" class="btn btn-payment">
+            Lanjut Penjadwalan
+        </a>
     </div>
 </div>
 

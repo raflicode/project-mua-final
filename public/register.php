@@ -15,6 +15,7 @@ session_start();
 
     <!-- BOOTSTRAP -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
 
@@ -87,6 +88,34 @@ session_start();
 
         .mb-field{
             margin-bottom:14px;
+        }
+
+        .password-wrap{
+            position:relative;
+        }
+
+        .password-wrap .field-input{
+            padding-right:44px;
+        }
+
+        .toggle-password{
+            position:absolute;
+            top:50%;
+            right:12px;
+            transform:translateY(-50%);
+
+            width:30px;
+            height:30px;
+
+            border:none;
+            background:transparent;
+
+            color:#777;
+            cursor:pointer;
+        }
+
+        .toggle-password:hover{
+            color:#a660c3;
         }
 
         /* =====================================================
@@ -468,6 +497,18 @@ Swal.fire({
 if (window.history.replaceState) {
     window.history.replaceState({}, document.title, window.location.pathname);
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('registerForm');
+    const submitButton = document.getElementById('registerButton');
+
+    if (form && submitButton) {
+        form.addEventListener('submit', function() {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Mengirim...';
+        });
+    }
+});
 </script>
 <div class="login-card">
 
@@ -503,7 +544,7 @@ if (window.history.replaceState) {
         
 
                 <!-- FORM -->
-                <form action="../actions/proses_register.php" method="POST">
+                <form id="registerForm" action="../actions/proses_register.php" method="POST">
 
                     <div class="mb-field">
 
@@ -562,17 +603,27 @@ if (window.history.replaceState) {
                             Password
                         </label>
 
+                        <div class="password-wrap">
                         <input
                             type="password"
                             name="password"
+                            id="registerPassword"
                             class="field-input"
                             placeholder="••••••••"
                             required
                         >
+                        <button type="button" class="toggle-password" data-toggle-password="registerPassword" aria-label="Lihat password">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        </div>
 
                     </div>
 
-                    <button type="submit" class="btn-submit">
+                    <p style="font-size:.85rem; color:#555; margin-bottom:14px;">
+                        Registrasi ini hanya untuk membuat akun client. Akun admin tidak dapat dibuat dari halaman ini.
+                    </p>
+
+                    <button id="registerButton" type="submit" class="btn-submit">
                         Register
                     </button>
 
@@ -599,5 +650,21 @@ if (window.history.replaceState) {
 
 </div>
 
+<script>
+    document.querySelectorAll('[data-toggle-password]').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const input = document.getElementById(this.dataset.togglePassword);
+            const icon = this.querySelector('i');
+
+            if (!input) return;
+
+            const isHidden = input.type === 'password';
+            input.type = isHidden ? 'text' : 'password';
+            icon.classList.toggle('bi-eye', !isHidden);
+            icon.classList.toggle('bi-eye-slash', isHidden);
+            this.setAttribute('aria-label', isHidden ? 'Sembunyikan password' : 'Lihat password');
+        });
+    });
+</script>
 </body>
 </html>
