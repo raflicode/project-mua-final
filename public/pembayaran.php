@@ -1,6 +1,17 @@
 <?php
 // pembayaran.php
+session_start();
 $backHref = 'penjadwalan.php';
+
+// Check for errors from proses_pembayaran
+$errors = isset($_SESSION['errors']) ? $_SESSION['errors'] : [];
+$formData = isset($_SESSION['form_data']) ? $_SESSION['form_data'] : [];
+
+// Clear session after displaying
+if (!empty($errors)) {
+    unset($_SESSION['errors']);
+    unset($_SESSION['form_data']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -70,12 +81,22 @@ $backHref = 'penjadwalan.php';
     <div class="card card-custom">
         <div class="card-body p-4">
 
-            <form action="konfirmasi.php" method="post">
+            <!-- Error Messages -->
+            <?php if (!empty($errors)): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <?php foreach ($errors as $error): ?>
+                        <div>• <?= htmlspecialchars($error) ?></div>
+                    <?php endforeach; ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+
+            <form action="../actions/proses_pembayaran.php" method="post">
 
                 <!-- Nama -->
                 <div class="mb-3">
                     <label class="form-label">Nama Lengkap</label>
-                    <input type="text" name="nama" class="form-control" required>
+                    <input type="text" name="nama" class="form-control" required pattern="[a-zA-Z\s]+" title="Nama hanya boleh mengandung huruf dan spasi" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '');">
                 </div>
 
                 <!-- HP -->
@@ -100,7 +121,7 @@ $backHref = 'penjadwalan.php';
                 <!-- Alamat -->
                 <div class="mb-4">
                     <label class="form-label">Alamat / Catatan</label>
-                    <textarea name="alamat" rows="4" class="form-control"></textarea>
+                    <textarea name="alamat" rows="4" class="form-control" required></textarea>
                 </div>
 
                 <!-- Total -->

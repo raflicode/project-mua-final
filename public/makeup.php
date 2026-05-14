@@ -159,7 +159,7 @@ body{
                     <button onclick="addToCart(1, 'Makeup Graduation', 800000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
-                    <a href="booking.php?from=makeup" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <a href="booking.php?from=makeup&nama=Makeup+Graduation&harga=800000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                     Booking
                 </a>
             </div>
@@ -184,7 +184,7 @@ body{
                     <button onclick="addToCart(2, 'Makeup Wedding', 1500000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
-                    <a href="booking.php?from=makeup" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <a href="booking.php?from=makeup&nama=Makeup+Wedding&harga=1500000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                         Booking
                     </a>
                 </div>
@@ -209,7 +209,7 @@ body{
                     <button onclick="addToCart(3, 'Makeup Carnava', 1000000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
-                    <a href="booking.php?from=makeup" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <a href="booking.php?from=makeup&nama=Makeup+Carnaval&harga=1000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                         Booking
                     </a>
                 </div>
@@ -234,7 +234,7 @@ body{
                     <button onclick="addToCart(4, 'Makeup Natural', 2000000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
-                    <a href="booking.php?from=makeup" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <a href="booking.php?from=makeup&nama=Makeup+Natural&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                         Booking
                     </a>
                 </div>

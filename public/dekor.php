@@ -157,7 +157,7 @@ body{
                     <button onclick="addToCart(101, 'Dekor 1', 3000000, '../assets/foto_dekor.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
-                    <a href="booking.php?from=dekor" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <a href="booking.php?from=dekor&nama=Dekor+1&harga=3000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                     Booking
                 </a>
             </div>
@@ -182,7 +182,7 @@ body{
                     <button onclick="addToCart(102, 'Dekor 2', 4000000, '../assets/foto_dekor.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
-                    <a href="booking.php?from=dekor" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <a href="booking.php?from=dekor&nama=Dekor+2&harga=4000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                         Booking
                     </a>
                 </div>
@@ -207,7 +207,7 @@ body{
                     <button onclick="addToCart(103, 'Dekor 3', 6000000, '../assets/foto_dekor.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
-                    <a href="booking.php?from=dekor" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <a href="booking.php?from=dekor&nama=Dekor+3&harga=6000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                         Booking
                     </a>
                 </div>
@@ -232,7 +232,7 @@ body{
                     <button onclick="addToCart(104, 'Dekor 4', 2000000, '../assets/foto_dekor.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
-                    <a href="booking.php?from=dekor" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <a href="booking.php?from=dekor&nama=Dekor+4&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                         Booking
                     </a>
                 </div>

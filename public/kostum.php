@@ -159,7 +159,7 @@ body{
                             <button onclick="addToCart(1001, 'Kostum Baju Adat', 8000000, '../assets/foto_kostum.jpeg')" class="btn-cart-icon">
                             🛒
                             </button>
-                            <a href="booking.php?from=kostum" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                            <a href="booking.php?from=kostum&nama=Kostum+Baju+Adat&harga=8000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                             Booking
                         </a>
                     </div>
@@ -184,7 +184,7 @@ body{
                     <button onclick="addToCart(1002, 'Kostum Wedding', 4000000, '../assets/foto_kostum.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
-                    <a href="booking.php?from=kostum" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <a href="booking.php?from=kostum&nama=Kostum+Wedding&harga=4000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                         Booking
                     </a>
                 </div>
@@ -209,7 +209,7 @@ body{
                     <button onclick="addToCart(1003, 'Kostum Graduation', 6000000, '../assets/foto_kostum.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
-                    <a href="booking.php?from=kostum" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <a href="booking.php?from=kostum&nama=Kostum+Graduation&harga=6000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                         Booking
                     </a>
                 </div>
@@ -234,7 +234,7 @@ body{
                     <button onclick="addToCart(1004, 'Kostum Kebaya', 2000000, '../assets/foto_kostum.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
-                    <a href="booking.php?from=kostum" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <a href="booking.php?from=kostum&nama=Kostum+Kebaya&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                         Booking
                     </a>
                 </div>

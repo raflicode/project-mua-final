@@ -17,17 +17,29 @@ if ($fromPage && isset($allowedBack[$fromPage])) {
     $backHref = $allowedBack[$fromPage];
 }
 
+// Get product name and price from URL parameters
+$namaProduk = filter_input(INPUT_GET, 'nama', FILTER_SANITIZE_STRING);
+$hargaProduk = filter_input(INPUT_GET, 'harga', FILTER_VALIDATE_INT);
+
+// Determine foto berdasarkan kategori produk
+$foto = '../assets/foto_makeup.jpeg';
+if ($fromPage === 'dekor') {
+    $foto = '../assets/foto_dekor.jpeg';
+} elseif ($fromPage === 'kostum') {
+    $foto = '../assets/foto_kostum.jpeg';
+}
+
 // Default checkout items (fallback)
 $checkoutItems = [
     [
-        'nama' => 'Makeup Graduation',
-        'harga' => 800000,
+        'nama' => $namaProduk ?: 'Makeup Graduation',
+        'harga' => $hargaProduk ?: 800000,
         'qty' => 1,
-        'foto' => '../assets/foto_makeup.jpeg'
+        'foto' => $foto
     ]
 ];
 $totalItems = 1;
-$totalHarga = 800000;
+$totalHarga = $hargaProduk ?: 800000;
 $biayaLayanan = 10000;
 $totalBayar = $totalHarga + $biayaLayanan;
 ?>
