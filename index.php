@@ -58,21 +58,37 @@ include __DIR__ . '/actions/proses_index.php';
             line-height: 1.65;
         }
 
-        .btn-booking {
-            border: 2px solid white;
-            color: white;
+        .btn-booking,
+        .btn-gallery-action {
+            border: 2px solid #b5835a;
+            color: #b5835a;
             padding: 8px 30px;
-            border-radius: 30px;
+            border-radius: 999px;
             text-transform: uppercase;
             font-size: 0.86rem;
+            font-weight: 600;
             letter-spacing: 0.04em;
-            background: rgba(255, 255, 255, 0.1);
-            transition: 0.3s;
+            background: rgba(255, 255, 255, 0.12);
+            transition: all 0.25s ease;
         }
 
-        .btn-booking:hover {
-            background: white;
-            color: #333333;
+        .btn-booking:hover,
+        .btn-gallery-action:hover {
+            color: white;
+            transform: translateY(-2px);
+            border-color: #b5835a;
+            background: #b5835a;
+            box-shadow: 0 12px 24px rgba(181, 131, 90, 0.28);
+        }
+
+        .btn-booking {
+            border-color: white;
+            color: white;
+        }
+
+        .btn-gallery-action {
+            padding: 7px 24px;
+            font-size: 0.78rem;
         }
 
         .custom-shape {
@@ -118,6 +134,13 @@ include __DIR__ . '/actions/proses_index.php';
         .animated-divider.is-visible {
             transform: scaleX(1);
             opacity: 1;
+        }
+
+        @media (max-width: 576px) {
+            .animated-divider {
+                width: 300px;
+                height: 3px;
+            }
         }
 
         .soft-section {
@@ -198,7 +221,7 @@ include __DIR__ . '/actions/proses_index.php';
                     <img src="assets/foto_makeup.jpeg" class="card-img-top gallery-img" alt="Gallery Makeup">
                     <div class="card-body">
                         <h6 class="fw-bold">Gallery Makeup</h6>
-                        <a href="gallery_makeup.php" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                        <a href="gallery_makeup.php" class="btn btn-gallery-action">
     LIHAT
 </a>
                     </div>
@@ -209,7 +232,7 @@ include __DIR__ . '/actions/proses_index.php';
                     <img src="assets/foto_dekor.jpeg" class="card-img-top gallery-img" alt="Gallery Dekor">
                     <div class="card-body">
                         <h6 class="fw-bold">Gallery Dekor</h6>
-                        <a href="gallery_dekor.php" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                        <a href="gallery_dekor.php" class="btn btn-gallery-action">
     LIHAT
 </a>
                     </div>
@@ -220,7 +243,7 @@ include __DIR__ . '/actions/proses_index.php';
                     <img src="assets/foto_kostum.jpeg" class="card-img-top gallery-img" alt="Gallery Kostum">
                     <div class="card-body">
                         <h6 class="fw-bold">Gallery Kostum</h6>
-                       <a href="gallery_kostum.php" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                       <a href="gallery_kostum.php" class="btn btn-gallery-action">
     LIHAT
 </a>
                     </div>

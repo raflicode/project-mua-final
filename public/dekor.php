@@ -280,40 +280,5 @@ document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-function addToCart(id, nama, harga, foto) {
-    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
-    let foundIndex = cart.findIndex(item => item.id === id);
-
-    if (foundIndex > -1) {
-        cart[foundIndex].qty += 1;
-    } else {
-        cart.push({ id, nama, harga, foto, qty: 1 });
-    }
-
-    localStorage.setItem('yayuk_cart', JSON.stringify(cart));
-
-    // TARUH DI SINI: Agar angka di navbar langsung berubah saat tombol diklik
-    updateNavbarBadge(); 
-
-    alert(nama + " berhasil ditambah ke keranjang!");
-}
-
-// Jalankan ini agar saat halaman baru dibuka, angka keranjang tetap ada
-document.addEventListener('DOMContentLoaded', updateNavbarBadge);
-
-// Definisi fungsinya (Taruh di sini jika belum ada di navbar.php)
-function updateNavbarBadge() {
-    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
-    let totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-    const badge = document.getElementById('cart-badge');
-    
-    if (badge) {
-        badge.innerText = totalItems;
-        badge.style.display = totalItems > 0 ? 'inline-block' : 'none';
-    }
-}
-</script>
-
 </body>
 </html>
