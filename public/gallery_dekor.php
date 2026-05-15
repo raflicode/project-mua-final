@@ -78,14 +78,8 @@ session_start();
 <body>
 <div class="container-fluid px-3 px-md-4 px-lg-5 py-2">
 
-    <nav class="navbar navbar-custom">
-        <div class="container-fluid px-0">
-            <a class="navbar-brand brand-text" href="index.php">Yayuk <span>Makeover</span></a>
-            <button class="btn p-0 border-0">
-                <i class="bi bi-list" style="font-size:38px;color:#222;"></i>
-            </button>
-        </div>
-    </nav>
+    <!-- NAVBAR -->
+    <?php include 'include/navbar.php'; ?>
 
     <div class="hero-card mt-2">
         <img src="../assets/foto_muayayuk.jpeg" alt="Gallery Dekor">
@@ -101,41 +95,46 @@ session_start();
         <h4 class="section-title">Gallery Dekor</h4>
 
         <div class="row g-3">
-            <?php
-            /*
-            ================================================================
-            CARA TAMBAH FOTO:
-            Upload foto ke folder: assets/gallery_dekor/
-            Tambah item baru di array $photos di bawah
-            ================================================================
-            */
-            $photos = [
-                ['src' => '../assets/gallery_dekor/dekor_1.jpeg', 'title' => 'Pelaminan Modern',    'desc' => 'Dekorasi pelaminan tema modern minimalis.'],
-                ['src' => '../assets/gallery_dekor/dekor_2.jpeg', 'title' => 'Wedding Decoration',  'desc' => 'Dekorasi pernikahan full setup indoor.'],
-                ['src' => '../assets/gallery_dekor/dekor_3.jpeg', 'title' => 'Dekor Akad Nikah',    'desc' => 'Setup meja akad dengan floral premium.'],
-                ['src' => '../assets/gallery_dekor/dekor_4.jpeg', 'title' => 'Standing Flower',     'desc' => 'Rangkaian bunga segar untuk pelaminan.'],
-                ['src' => '../assets/gallery_dekor/dekor_5.jpeg', 'title' => 'Dekor Lamaran',       'desc' => 'Backdrop foto cantik untuk lamaran.'],
-                ['src' => '../assets/gallery_dekor/dekor_6.jpeg', 'title' => 'Dekor Ulang Tahun',   'desc' => 'Tema balon dan bunting flag colorful.'],
-                ['src' => '../assets/gallery_dekor/dekor_7.jpeg', 'title' => 'Dekor Syukuran',      'desc' => 'Dekorasi sederhana namun elegan.'],
-                ['src' => '../assets/gallery_dekor/dekor_8.jpeg', 'title' => 'Photo Booth',         'desc' => 'Backdrop photo booth custom desain.'],
-                ['src' => '../assets/gallery_dekor/dekor_9.jpeg', 'title' => 'Dekor Garden Party',  'desc' => 'Dekorasi outdoor nuansa alam terbuka.'],
-            ];
 
-            foreach ($photos as $i => $photo): ?>
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="gallery-card" onclick="openLightbox(<?= $i ?>)">
-                    <div class="gallery-img-wrapper">
-                        <img src="<?= htmlspecialchars($photo['src']) ?>"
-                             class="gallery-img"
-                             alt="<?= htmlspecialchars($photo['title']) ?>"
-                             loading="lazy"
-                             onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#bbb;\'><i class=\'bi bi-image\' style=\'font-size:2rem;\'></i><small style=\'margin-top:8px;font-size:11px;\'>Foto belum tersedia</small></div>'">
-                    </div>
-                    <h6 class="blog-title"><?= htmlspecialchars($photo['title']) ?></h6>
-                    <p class="blog-desc"><?= htmlspecialchars($photo['desc']) ?></p>
-                </div>
-            </div>
-            <?php endforeach; ?>
+<?php
+
+$photos = [
+    ['src' => '../assets/gallery_dekor/dekor_1.jpeg', 'title' => 'Pelaminan Modern',    'desc' => 'Dekorasi pelaminan tema modern minimalis.'],
+    ['src' => '../assets/gallery_dekor/dekor_2.jpeg', 'title' => 'Wedding Decoration',  'desc' => 'Dekorasi pernikahan full setup indoor.'],
+    ['src' => '../assets/gallery_dekor/dekor_3.jpeg', 'title' => 'Dekor Akad Nikah',    'desc' => 'Setup meja akad dengan floral premium.'],
+    ['src' => '../assets/gallery_dekor/dekor_4.jpeg', 'title' => 'Standing Flower',     'desc' => 'Rangkaian bunga segar untuk pelaminan.'],
+    ['src' => '../assets/gallery_dekor/dekor_5.jpeg', 'title' => 'Dekor Lamaran',       'desc' => 'Backdrop foto cantik untuk lamaran.'],
+    ['src' => '../assets/gallery_dekor/dekor_6.jpeg', 'title' => 'Dekor Ulang Tahun',   'desc' => 'Tema balon dan bunting flag colorful.'],
+    ['src' => '../assets/gallery_dekor/dekor_7.jpeg', 'title' => 'Dekor Syukuran',      'desc' => 'Dekorasi sederhana namun elegan.'],
+    ['src' => '../assets/gallery_dekor/dekor_8.jpeg', 'title' => 'Photo Booth',         'desc' => 'Backdrop photo booth custom desain.'],
+    ['src' => '../assets/gallery_dekor/dekor_9.jpeg', 'title' => 'Dekor Garden Party',  'desc' => 'Dekorasi outdoor nuansa alam terbuka.'],
+];
+
+foreach ($photos as $i => $photo):
+?>
+
+<div class="col-6 col-md-4 col-lg-3">
+    <div class="gallery-card" onclick="openLightbox(<?= $i ?>)">
+
+        <div class="gallery-img-wrapper">
+            <img src="<?= htmlspecialchars($photo['src']) ?>"
+                 class="gallery-img"
+                 alt="<?= htmlspecialchars($photo['title']) ?>"
+                 loading="lazy">
+        </div>
+
+        <h6 class="blog-title">
+            <?= htmlspecialchars($photo['title']) ?>
+        </h6>
+
+        <p class="blog-desc">
+            <?= htmlspecialchars($photo['desc']) ?>
+        </p>
+
+    </div>
+</div>
+
+<?php endforeach; ?>
         </div>
     </section>
 

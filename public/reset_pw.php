@@ -25,7 +25,7 @@ session_start();
 
     <!-- Back Button -->
     <div class="mb-5">
-        <a href="login.php" class="text-dark text-decoration-none">
+        <a href="#" onclick="history.back(); return false;" class="text-dark text-decoration-none">
             <i class="bi bi-chevron-left fs-2 fw-bold"></i>
         </a>
     </div>

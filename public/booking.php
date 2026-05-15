@@ -99,7 +99,7 @@ if (!isset($_SESSION['id_user'])) {
 
 <div class="order-detail-container">
     <div class="mb-4">
-        <a href="service.php" class="text-dark fs-3"><i class="bi bi-chevron-left"></i></a>
+        <a href="#" onclick="history.back(); return false;" class="text-dark fs-3"><i class="bi bi-chevron-left"></i></a>
     </div>
 
     <h2 class="text-center fw-bold mb-5">Detail Pesanan</h2>
