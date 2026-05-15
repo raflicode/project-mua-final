@@ -421,6 +421,17 @@ session_start();
             }
         }
 
+   .btn-kembali {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 30px;
+    padding: 10px 20px;
+    z-index: 10;
+    }
+
     </style>
 </head>
 
@@ -630,6 +641,9 @@ session_start();
     </div>
 
 </div>
+
+<a href="javascript:history.back()" class="btn btn-kembali">Kembali</a>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 

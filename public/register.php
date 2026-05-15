@@ -1,6 +1,5 @@
 <?php
-ini_set('session.cookie_path', '/');
-session_start();
+include __DIR__ . '/../actions/proses_register.php';
 ?>
 
 <!DOCTYPE html>
@@ -469,29 +468,8 @@ session_start();
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- ✅ NOTIF ERROR -->
-<?php if (isset($_GET['error'])): ?>
-<script>
-Swal.fire({
-    icon: 'error',
-    title: 'Gagal!',
-    text: '<?php echo htmlspecialchars($_GET['error']); ?>'
-});
-</script>
-<?php endif; ?>
-
-<!-- ✅ NOTIF SUCCESS -->
-<?php if (isset($_GET['success'])): ?>
-<script>
-Swal.fire({
-    icon: 'success',
-    title: 'Berhasil!',
-    text: '<?php echo htmlspecialchars($_GET['success']); ?>',
-    timer: 2000,
-    showConfirmButton: false
-});
-</script>
-<?php endif; ?>
+<!-- ✅ NOTIF -->
+<?php echo getRegisterAlertScript(); ?>
 
 <script>
 if (window.history.replaceState) {
@@ -557,7 +535,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             name="full_name"
                             class="field-input"
                             placeholder="Masukkan nama lengkap"
-                            value="<?php echo isset($_GET['old_full_name']) ? htmlspecialchars($_GET['old_full_name']) : ''; ?>"
+                            value="<?php echo getOldRegisterValue('old_full_name'); ?>"
                             required
                         >
 
@@ -574,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             name="email"
                             class="field-input"
                             placeholder="Masukkan email"
-                            value="<?php echo isset($_GET['old_email']) ? htmlspecialchars($_GET['old_email']) : ''; ?>"
+                            value="<?php echo getOldRegisterValue('old_email'); ?>"
                             required
                         >
 
@@ -591,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             name="username"
                             class="field-input"
                             placeholder="Masukkan username"
-                            value="<?php echo isset($_GET['old_username']) ? htmlspecialchars($_GET['old_username']) : ''; ?>"
+                            value="<?php echo getOldRegisterValue('old_username'); ?>"
                             required
                         >
 

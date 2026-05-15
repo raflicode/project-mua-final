@@ -16,6 +16,7 @@ session_start();
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lobster&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
 body{
@@ -386,10 +387,10 @@ body{
                 </ul>
             </div>
             <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart(1, 'Makeup Graduation', 800000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Graduation', 'makeup', 800000)" class="btn-cart-icon">
                     🛒
                     </button>
-                    <a href="booking.php" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <a href="booking.php?from=makeup&nama=Makeup+Graduation&harga=800000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                     Booking
                 </a>
             </div>
@@ -411,10 +412,10 @@ body{
                     </ul>
                 </div>
                 <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart(2, 'Makeup Wedding', 1500000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Wedding', 'makeup', 1500000)" class="btn-cart-icon">
                     🛒
                     </button>
-                    <a href="booking.php" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <a href="booking.php?from=makeup&nama=Makeup+Wedding&harga=1500000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                         Booking
                     </a>
                 </div>
@@ -436,10 +437,10 @@ body{
                     </ul>
                 </div>
                 <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart(3, 'Makeup Carnava', 1000000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Carnava', 'makeup', 1000000)" class="btn-cart-icon">
                     🛒
                     </button>
-                    <a href="booking.php" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <a href="booking.php?from=makeup&nama=Makeup+Carnaval&harga=1000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                         Booking
                     </a>
                 </div>
@@ -461,10 +462,10 @@ body{
                     </ul>
                 </div>
                 <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart(4, 'Makeup Natural', 2000000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Natural', 'makeup', 2000000)" class="btn-cart-icon">
                     🛒
                     </button>
-                    <a href="booking.php" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <a href="booking.php?from=makeup&nama=Makeup+Natural&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                         Booking
                     </a>
                 </div>
@@ -475,78 +476,40 @@ body{
 
 </div>
 
-<!-- Modal Login/Register -->
-<div class="modal fade" id="modalAuth" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content text-center p-4">
-      <h5 class="mb-3">Belum Login</h5>
-      <p>Kamu harus login atau register dulu sebelum booking</p>
-      
-      <div class="d-flex justify-content-center gap-2">
-        <a href="login.php" class="btn btn-dark">Login</a>
-        <a href="register.php" class="btn btn-primary">Register</a>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
 const isLoggedIn = <?php echo isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
 document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
     btn.addEventListener('click', function(e){
-        e.preventDefault();
-
-        if(!isLoggedIn){
-            let modal = new bootstrap.Modal(document.getElementById('modalAuth'));
-            modal.show();
-        } else {
-            window.location.href = "booking.php";
+        if (!isLoggedIn) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Login diperlukan',
+                text: 'Silakan login atau register terlebih dahulu sebelum melakukan booking.',
+                showCancelButton: true,
+                confirmButtonText: 'Login',
+                cancelButtonText: 'Register',
+                reverseButtons: true,
+                allowOutsideClick: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'login.php';
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    window.location.href = 'register.php';
+                }
+            });
         }
     });
 });
 </script>
 
 <!-- Tombol Kembali -->
-<a href="index.php" class="btn btn-danger btn-kembali shadow">
+<a href="service.php" class="btn btn-danger btn-kembali shadow">
     kembali ↩
 </a>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-function addToCart(id, nama, harga, foto) {
-    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
-    let foundIndex = cart.findIndex(item => item.id === id);
-
-    if (foundIndex > -1) {
-        cart[foundIndex].qty += 1;
-    } else {
-        cart.push({ id, nama, harga, foto, qty: 1 });
-    }
-
-    localStorage.setItem('yayuk_cart', JSON.stringify(cart));
-
-    // TARUH DI SINI: Agar angka di navbar langsung berubah saat tombol diklik
-    updateNavbarBadge(); 
-
-    alert(nama + " berhasil ditambah ke keranjang!");
-}
-
-// Jalankan ini agar saat halaman baru dibuka, angka keranjang tetap ada
-document.addEventListener('DOMContentLoaded', updateNavbarBadge);
-
-// Definisi fungsinya (Taruh di sini jika belum ada di navbar.php)
-function updateNavbarBadge() {
-    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
-    let totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-    const badge = document.getElementById('cart-badge');
-    
-    if (badge) {
-        badge.innerText = totalItems;
-        badge.style.display = totalItems > 0 ? 'inline-block' : 'none';
-    }
-}
-</script>
-
+<?php include 'include/add_to_cart_script.php'; ?>
 </body>
 </html>

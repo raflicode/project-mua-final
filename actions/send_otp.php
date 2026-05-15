@@ -72,8 +72,8 @@ try {
 
     $mail->send();
 
-    // Redirect langsung ke halaman verifikasi OTP tanpa menampilkan proses
-    header('Location: OTP_verifikasi.php');
+    // Redirect ke halaman reset password untuk verifikasi OTP
+    header('Location: ../public/otp_verifikasi.php');
     exit();
 
 } catch (Exception $e) {

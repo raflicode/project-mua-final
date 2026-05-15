@@ -1,7 +1,5 @@
 <?php
-
-ini_set('session.cookie_path', '/');
-session_start();
+include __DIR__ . '/../actions/proses_login.php';
 ?>
 
 <!DOCTYPE html>
@@ -534,34 +532,7 @@ session_start();
 <!-- ALERT -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <?php if (isset($_GET['success'])): ?>
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: '<?php echo htmlspecialchars($_GET['success'], ENT_QUOTES, 'UTF-8'); ?>',
-                timer: 2000,
-                showConfirmButton: false,
-                didOpen: () => {
-                    if (window.history.replaceState) {
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                    }
-                }
-            });
-        </script>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION['error'])): ?>
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Login Gagal',
-                text: '<?php echo htmlspecialchars($_SESSION['error'], ENT_QUOTES, 'UTF-8'); ?>'
-            });
-        </script>
-        <?php unset($_SESSION['error']); ?>
-    <?php endif; ?>
-
+    <?php echo getLoginAlertScript(); ?>
 
 <div class="login-card">
 

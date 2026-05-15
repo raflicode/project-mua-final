@@ -1,9 +1,5 @@
 <?php
-session_start();
-if (!isset($_SESSION['reg_email'])) {
-    header('Location: register.php?error=Silakan daftar terlebih dahulu');
-    exit();
-}
+include __DIR__ . '/../actions/proses_register_verify.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -41,7 +37,7 @@ if (!isset($_SESSION['reg_email'])) {
 
             <h4 class="fw-bold">Verifikasi Email</h4>
             <p class="text-muted small mb-4">
-                Kode OTP sudah dikirim ke <strong><?php echo htmlspecialchars($_SESSION['reg_email']); ?></strong>.
+                Kode OTP sudah dikirim ke <strong><?php echo getRegisterVerifyEmail(); ?></strong>.
             </p>
 
             <form id="verifyForm" action="../actions/proses_register_verify.php" method="POST">

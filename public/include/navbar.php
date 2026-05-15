@@ -76,23 +76,7 @@ if (session_status() === PHP_SESSION_NONE) {
     /* Warna ungu pas di hover biar senada sama login */
   }
 
-  /* Styling Dropdown Box */
-  .dropdown-menu-custom {
-    background-color: #ffffff;
-    border: none;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    margin-top: 10px !important;
-  }
-
-  .dropdown-item-custom {
-    color: #333 !important;
-    font-size: 14px;
-    padding: 8px 20px;
-  }
-
-  .dropdown-item-custom:hover {
-    background-color: #f8f9fa;
-  }
+  
 </style>
 
 <nav id="mainNavbar" class="navbar fixed-top px-3 transition-nav">
@@ -110,14 +94,18 @@ if (session_status() === PHP_SESSION_NONE) {
       <a class="nav-link" href="/project-mua-final/index.php">Home</a>
       <a class="nav-link" href="/project-mua-final/public/service.php">Service</a>
       <a class="nav-link" href="/project-mua-final/index.php#gallery">Gallery</a>
-      <a class="nav-link" href="/project-mua-final/public/booking.php"><i class="bi bi-cart3"></i> Keranjang</a>
+      
+      <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
+      <a class="nav-link position-relative" href="/project-mua-final/public/keranjang.php">
+        <i class="bi bi-cart3"></i> Keranjang
+        <span id="cart-count" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none; font-size:0.7rem;"></span>
+      </a>
+      <?php endif; ?>
 
     <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
-      <!-- DROPDRON PROFILE -->
       <div class="dropdown">
         <a class="nav-link dropdown-toggle d-flex align-items-center border-0" href="#" role="button"
           data-bs-toggle="dropdown" aria-expanded="false">
-          <!-- Icon Vector Umum (Kepala & Badan) -->
           <div class="profile-circle-icon">
             <i class="bi bi-person-circle"></i>
           </div>
@@ -125,13 +113,13 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom">
           <li>
-            <div class="dropdown-header text-muted">Halo, <strong><?= $_SESSION['username']; ?></strong></div>
+            <div class="dropdown-header text-muted">Halo, <strong><?= htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?></strong></div>
           </li>
           <li>
             <hr class="dropdown-divider">
           </li>
           <!-- Link Logout Backend Kamu -->
-          <li><a class="dropdown-item text-danger fw-bold" href="/project-mua-final/public/logout.php">Logout</a></li>
+          <li><a class="dropdown-item text-danger fw-bold" href="/project-mua-final/actions/logout.php">Logout</a></li>
         </ul>
       </div>
     <?php else: ?>
@@ -151,7 +139,9 @@ if (session_status() === PHP_SESSION_NONE) {
       <li><a class="nav-link text-white" href="/project-mua-final/index.php">🏠 Home</a></li>
       <li><a class="nav-link text-white" href="/project-mua-final/public/service.php">💄 Service</a></li>
       <li><a class="nav-link text-white" href="/project-mua-final/index.php#gallery">🖼️ Gallery</a></li>
-      <li><a class="nav-link text-white" href="/project-mua-final/public/booking.php"><i class="bi bi-cart3"></i> Keranjang</a></li>
+      <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
+      <li><a class="nav-link text-white position-relative" href="/project-mua-final/public/keranjang.php"><i class="bi bi-cart3"></i> Keranjang <span id="cart-count-mobile" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none; font-size:0.7rem;"></span></a></li>
+      <?php endif; ?>
     </ul>
 
     <div class="border-top pt-3 mt-4">
@@ -163,7 +153,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <small class="text-secondary"><?= $_SESSION['email'] ?? 'Member'; ?></small>
           </div>
         </div>
-        <a href="/project-mua-final/public/logout.php" class="text-danger d-block mt-3 fw-bold">Logout</a>
+        <a href="/project-mua-final/actions/logout.php" class="text-danger d-block mt-3 fw-bold">Logout</a>
       <?php else: ?>
         <a href="/project-mua-final/public/login.php" class="text-white">Login</a>
       <?php endif; ?>
@@ -183,4 +173,28 @@ if (session_status() === PHP_SESSION_NONE) {
       navbar.classList.remove('nav-scrolled');
     }
   };
+
+  // Function untuk update cart count dari database
+  function updateCartCount() {
+    fetch('/project-mua-final/actions/get_cart_count.php')
+      .then(response => response.json())
+      .then(data => {
+        const cartElements = document.querySelectorAll('#cart-count, #cart-count-mobile');
+        cartElements.forEach(el => {
+          if (data.cart_count > 0) {
+            el.innerText = data.cart_count;
+            el.style.display = 'inline-block';
+          } else {
+            el.style.display = 'none';
+          }
+        });
+      })
+      .catch(error => console.log('Error fetching cart count:', error));
+  }
+
+  // Update cart count saat halaman dimuat
+  document.addEventListener('DOMContentLoaded', updateCartCount);
+
+  // Emit custom event untuk update cart count
+  window.updateCartNavbar = updateCartCount;
 </script>

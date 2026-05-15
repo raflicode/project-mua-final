@@ -1,9 +1,10 @@
-﻿<?php session_start(); ?>
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="id">
 
 <head>
     <meta charset="UTF-8">
+<<<<<<< HEAD
     <title>Yayuk Makeover - Service</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -16,6 +17,13 @@
     <!-- FONT -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+=======
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yayuk Makeover - Pilih Paket</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+>>>>>>> 9310c5758ca07ef339566e4945dee26d3f4c99e4
     <style>
 
         *{
@@ -356,6 +364,7 @@
                 membuat acara spesial Anda semakin elegan dan berkesan.
             </p>
 
+<<<<<<< HEAD
         </div>
 
         <!-- SERVICE -->
@@ -377,6 +386,102 @@
                     <ul class="service-list">
                         <li>Makeup Premium</li>
                         <li>Hairdo Elegant</li>
+=======
+        <!-- PAKET 1: Makeup Wedding � col-12 = full width -->
+        <div class="col-12">
+            <div class="card-custom">
+                <img src="../assets/gallery_makeup/makeup_1.jpeg" alt="Makeup Wedding" class="card-img-left">
+                <div class="card-body-right">
+                    <div>
+                        <div class="package-header">
+                            <h5 class="mb-0">Makeup Wedding</h5>
+                            <span class="package-price">Rp 2.500.000</span>
+                        </div>
+                        <p class="small fw-bold mb-2">Include:</p>
+                        <ul class="text-start mt-3" style="font-size: 1.1rem;">
+                            <li>Makeup</li>
+                            <li>Softlens</li>
+                            <li>Hairdo</li>
+                            <li>dll</li>
+                        </ul>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="makeup.php" class="btn btn-outline-dark btn-booking flex-grow-1"><i class="bi bi-cart3"></i> Lihat Produk</a>
+                        <a href="makeup.php" class="btn btn-outline-dark btn-booking flex-grow-1">Booking</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAKET 2: Wedding Kostum � col-12 = full width -->
+        <div class="col-12">
+            <div class="card-custom">
+                <img src="../assets/gallery_makeup/makeup_2.jpeg" alt="Wedding Kostum" class="card-img-left">
+                <div class="card-body-right">
+                    <div>
+                        <div class="package-header">
+                            <h5 class="mb-0">Wedding Kostum</h5>
+                            <span class="package-price">Rp 4.000.000</span>
+                        </div>
+                        <p class="small fw-bold mb-2">Include:</p>
+                        <ul class="text-start mt-3" style="font-size: 1.1rem;">
+                            <li>Teks 1</li>
+                            <li>Teks 2</li>
+                            <li>Teks 3</li>
+                            <li>Teks 4</li>
+                        </ul>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="kostum.php" class="btn btn-outline-dark btn-booking flex-grow-1"><i class="bi bi-cart3"></i> Lihat Produk</a>
+                        <a href="kostum.php" class="btn btn-outline-dark btn-booking flex-grow-1">Booking</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAKET 3: Dekor/Terop � col-12 = full width -->
+        <div class="col-12">
+            <div class="card-custom">
+                <img src="../assets/gallery_makeup/makeup_3.jpeg" alt="Dekor Terop" class="card-img-left">
+                <div class="card-body-right">
+                    <div>
+                        <div class="package-header">
+                            <h5 class="mb-0">Dekor/Terop</h5>
+                            <span class="package-price">Rp 6.500.000</span>
+                        </div>
+                        <p class="small fw-bold mb-2">Include:</p>
+                        <ul class="text-start mt-3" style="font-size: 1.1rem;">
+                            <li>Teks 5</li>
+                            <li>Teks 6</li>
+                            <li>Teks 7</li>
+                            <li>Teks 8</li>
+                        </ul>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="dekor.php" class="btn btn-outline-dark btn-booking flex-grow-1"><i class="bi bi-cart3"></i> Lihat Produk</a>
+                        <a href="dekor.php" class="btn btn-outline-dark btn-booking flex-grow-1">Booking</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="text-center mt-5 mb-4">
+        <h3 class="fw-bold">Paket Wedding</h3>
+    </div>
+
+    <div class="row g-4 justify-content-center pb-5">
+
+        <!-- SILVER � dengan include lengkap -->
+        <div class="col-12 col-lg-6">
+            <div class="card wedding-card silver-card">
+                <div class="header-silver text-uppercase">Silver</div>
+                <div class="wedding-include">
+                    <div class="cat-label">Makeup</div>
+                    <ul>
+                        <li>Makeup</li>
+>>>>>>> 9310c5758ca07ef339566e4945dee26d3f4c99e4
                         <li>Softlens</li>
                         <li>Touch Up Wedding</li>
                     </ul>
@@ -459,11 +564,47 @@
 
         </div>
 
+<<<<<<< HEAD
         <!-- PAKET -->
         <div class="wedding-section">
 
             <div class="wedding-title">
                 <h2>Paket Wedding</h2>
+=======
+        <!-- GOLD � dengan include lengkap -->
+        <div class="col-12 col-lg-6">
+            <div class="card wedding-card gold-card">
+                <div class="header-gold text-uppercase">Gold</div>
+                <div class="wedding-include">
+                    <div class="cat-label">Makeup</div>
+                    <ul>
+                        <li>Makeup</li>
+                        <li>Softlens</li>
+                        <li>Hairdo</li>
+                        <li>dll</li>
+                    </ul>
+                    <div class="cat-label">Kostum</div>
+                    <ul>
+                        <li>Teks 1</li>
+                        <li>Teks 2</li>
+                        <li>Teks 3</li>
+                        <li>Teks 4</li>
+                    </ul>
+                    <div class="cat-label">Dekorasi</div>
+                    <ul>
+                        <li>Teks 5</li>
+                        <li>Teks 6</li>
+                        <li>Teks 7</li>
+                        <li>Teks 8</li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-white border-0 p-3">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-gold text-white" type="button"><i class="bi bi-cart3"></i></button>
+                        <a href="paket_gold.php" class="btn btn-gold w-100 text-white">Booking</a>
+                    </div>
+                </div>
+>>>>>>> 9310c5758ca07ef339566e4945dee26d3f4c99e4
             </div>
 
             <div class="row g-4 justify-content-center">
