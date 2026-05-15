@@ -1,3 +1,4 @@
+```php id="58561"
 <?php
 session_start();
 require_once __DIR__ . '/../config/koneksi.php';
@@ -14,33 +15,119 @@ if (!$draft) {
 }
 
 $errors = [];
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id_jadwal = filter_input(INPUT_POST, 'id_jadwal', FILTER_VALIDATE_INT);
-    if (!$id_jadwal) {
-        $errors[] = 'Silakan pilih jadwal terlebih dahulu.';
-    } else {
-        $stmt = $pdo->prepare('SELECT * FROM jadwal_kerja WHERE id_jadwal = ? AND status_slot = ? LIMIT 1');
-        $stmt->execute([$id_jadwal, 'tersedia']);
-        $jadwal = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$jadwal) {
-            $errors[] = 'Jadwal yang dipilih tidak tersedia.';
-        } else {
-            $_SESSION['draft_booking']['id_jadwal'] = $jadwal['id_jadwal'];
-            $_SESSION['draft_booking']['tanggal'] = $jadwal['tanggal'];
-            $_SESSION['draft_booking']['jam_mulai'] = $jadwal['jam_mulai'];
-            $_SESSION['draft_booking']['jam_selesai'] = $jadwal['jam_selesai'];
-            header('Location: pembayaran.php');
-            exit;
+    $selectedSlotRaw = trim($_POST['selected_slot'] ?? '');
+    $selectedId = filter_var($selectedSlotRaw, FILTER_VALIDATE_INT);
+    $jadwal = null;
+
+    if ($selectedSlotRaw !== '') {
+        if ($selectedId) {
+            $stmt = $pdo->prepare('SELECT * FROM jadwal_kerja WHERE id_jadwal = ? LIMIT 1');
+            $stmt->execute([$selectedId]);
+            $jadwal = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($jadwal) {
+                $bstmt = $pdo->prepare('SELECT COUNT(*) FROM booking WHERE id_jadwal = ? AND status_booking != ?');
+                $bstmt->execute([$jadwal['id_jadwal'], 'dibatalkan']);
+                $bookedSlot = intval($bstmt->fetchColumn());
+
+                $dbstmt = $pdo->prepare('SELECT COUNT(*) FROM booking b JOIN jadwal_kerja jk ON b.id_jadwal = jk.id_jadwal WHERE jk.tanggal = ? AND b.status_booking != ?');
+                $dbstmt->execute([$jadwal['tanggal'], 'dibatalkan']);
+                $bookedDate = intval($dbstmt->fetchColumn());
+
+                if ($jadwal['status_slot'] === 'tersedia' && $bookedSlot < intval($jadwal['kapasitas_max']) && $bookedDate < 3) {
+                    $_SESSION['draft_booking']['id_jadwal'] = $jadwal['id_jadwal'];
+                    $_SESSION['draft_booking']['tanggal'] = $jadwal['tanggal'];
+                    $_SESSION['draft_booking']['jam_mulai'] = $jadwal['jam_mulai'];
+                    $_SESSION['draft_booking']['jam_selesai'] = $jadwal['jam_selesai'];
+                    header('Location: pembayaran.php');
+                    exit;
+                }
+            }
+
+        } elseif (preg_match('/^default\|(\d{4}-\d{2}-\d{2})\|([0-2]\d:[0-5]\d)\|([0-2]\d:[0-5]\d)$/', $selectedSlotRaw, $matches)) {
+            $selectedDate = $matches[1];
+            $jamMulai = $matches[2];
+            $jamSelesai = $matches[3];
+
+            $dbstmt = $pdo->prepare('SELECT COUNT(*) FROM booking b JOIN jadwal_kerja jk ON b.id_jadwal = jk.id_jadwal WHERE jk.tanggal = ? AND b.status_booking != ?');
+            $dbstmt->execute([$selectedDate, 'dibatalkan']);
+            $bookedDate = intval($dbstmt->fetchColumn());
+
+            if ($bookedDate < 3) {
+                $insertStmt = $pdo->prepare('INSERT INTO jadwal_kerja (tanggal, jam_mulai, jam_selesai, kapasitas_max, status_slot) VALUES (?, ?, ?, ?, ?)');
+                $insertStmt->execute([$selectedDate, $jamMulai, $jamSelesai, 1, 'tersedia']);
+                $lastId = $pdo->lastInsertId();
+                $stmt = $pdo->prepare('SELECT * FROM jadwal_kerja WHERE id_jadwal = ? LIMIT 1');
+                $stmt->execute([$lastId]);
+                $jadwal = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($jadwal) {
+                    $_SESSION['draft_booking']['id_jadwal'] = $jadwal['id_jadwal'];
+                    $_SESSION['draft_booking']['tanggal'] = $jadwal['tanggal'];
+                    $_SESSION['draft_booking']['jam_mulai'] = $jadwal['jam_mulai'];
+                    $_SESSION['draft_booking']['jam_selesai'] = $jadwal['jam_selesai'];
+                    header('Location: pembayaran.php');
+                    exit;
+                }
+            }
         }
+
+        $errors[] = 'Slot yang dipilih telah terisi atau tanggal tidak tersedia. Silakan pilih lagi.';
+    } else {
+        $errors[] = 'Silakan pilih slot waktu terlebih dahulu.';
     }
 }
 
 try {
-    $stmt = $pdo->query("SELECT * FROM jadwal_kerja WHERE status_slot = 'tersedia' ORDER BY tanggal ASC, jam_mulai ASC");
+    $stmt = $pdo->query('SELECT * FROM jadwal_kerja ORDER BY tanggal ASC, jam_mulai ASC');
     $jadwals = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     $jadwals = [];
+}
+
+// Count how many jadwal rows exist per date (used for display/info)
+$dateSlotCounts = [];
+$jadwalByDate = [];
+foreach ($jadwals as $jadwal) {
+    $date = $jadwal['tanggal'];
+    $dateSlotCounts[$date] = ($dateSlotCounts[$date] ?? 0) + 1;
+    $jadwalByDate[$date][] = $jadwal;
+}
+
+// Count actual bookings per jadwal (slot) and per date so we can disable fully-booked slots/dates
+try {
+    $bookedByJadwal = [];
+    $bstmt = $pdo->query("SELECT b.id_jadwal, COUNT(*) AS cnt FROM booking b WHERE b.status_booking != 'dibatalkan' GROUP BY b.id_jadwal");
+    while ($r = $bstmt->fetch(PDO::FETCH_ASSOC)) {
+        $bookedByJadwal[$r['id_jadwal']] = intval($r['cnt']);
+    }
+
+    $bookedByDate = [];
+    $dbstmt = $pdo->query("SELECT jk.tanggal, COUNT(*) AS cnt FROM booking b JOIN jadwal_kerja jk ON b.id_jadwal = jk.id_jadwal WHERE b.status_booking != 'dibatalkan' GROUP BY jk.tanggal");
+    while ($r = $dbstmt->fetch(PDO::FETCH_ASSOC)) {
+        $bookedByDate[$r['tanggal']] = intval($r['cnt']);
+    }
+} catch (Exception $e) {
+    $bookedByJadwal = [];
+    $bookedByDate = [];
+}
+
+$currentMonth = !empty($jadwals) ? date('Y-m', strtotime($jadwals[0]['tanggal'])) : date('Y-m');
+$monthStart = new DateTime($currentMonth . '-01');
+$monthDays = intval($monthStart->format('t'));
+$startWeekday = intval($monthStart->format('N'));
+$weekDays = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+$calendarDays = [];
+for ($day = 1; $day <= $monthDays; $day++) {
+    $date = $currentMonth . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+    $calendarDays[$day] = [
+        'date' => $date,
+        'slot_count' => $dateSlotCounts[$date] ?? 0,
+        'hasData' => !empty($jadwalByDate[$date]),
+        'available' => (!empty($jadwalByDate[$date]) && ($dateSlotCounts[$date] ?? 0) < 3),
+        'booked_count' => $bookedByDate[$date] ?? 0
+    ];
 }
 
 $namaProduk = htmlspecialchars($draft['nama_layanan'] ?? 'Layanan', ENT_QUOTES, 'UTF-8');
@@ -51,276 +138,340 @@ $foto = htmlspecialchars($draft['foto'] ?? '../assets/foto_makeup.jpeg', ENT_QUO
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Penjadwalan - Yayuk Makeover</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-<style>
-:root {
-    --primary-color: #d07f26;
-    --primary-dark: #8a4c18;
-    --bg-soft: #fff5e7;
-    --text-dark: #2b1f15;
-    --text-muted: #5e4a37;
-    --card-bg: #ffffff;
-}
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
+<title>Booking MUA Yayuk</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
 body {
-    background: var(--bg-soft);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    color: var(--text-dark);
-    padding-top: 100px !important;
+    background: #f9f6f0;
+    font-family: 'Plus Jakarta Sans', Arial, Helvetica, sans-serif;
 }
 
 .wrapper {
     width: 100%;
-    max-width: 1180px;
+    max-width: 1200px;
     margin: auto;
 }
 
-.page-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-}
-
-.page-top h1 {
-    margin: 0;
-    font-size: 2rem;
-    font-weight: 800;
-}
-
-.page-top p {
-    margin: 4px 0 0;
-    color: var(--text-muted);
-}
-
-.btn-back {
-    width: 52px;
-    height: 52px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 18px;
-    background: var(--card-bg);
-    color: var(--text-dark);
-    border: 1px solid rgba(43, 31, 21, 0.12);
-    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.06);
-    transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.btn-back:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: translateX(-2px);
-}
-
 .card-custom {
-    border: 1px solid rgba(208, 127, 38, 0.16);
-    border-radius: 28px;
+    border: none;
+    border-radius: 26px;
     overflow: hidden;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.08);
-    background: var(--card-bg);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.08);
 }
 
 .header-booking {
-    background: linear-gradient(135deg, #f8dc9b, #e7b76f);
-    padding: 28px 26px;
-}
-
-.header-booking h2 {
-    margin: 0;
-    font-size: 1.55rem;
+    background: linear-gradient(135deg, #f9d26b, #d07f26);
+    padding: 24px;
+    text-align: center;
     font-weight: 800;
-    color: #3c2919;
+    font-size: 24px;
+    color: #3b2817;
 }
 
-.header-booking p {
-    margin: 8px 0 0;
-    color: var(--text-muted);
+.calendar-header {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 14px 18px;
+    border: 1px solid rgba(208, 127, 38, 0.18);
 }
 
-.slot-area {
-    background: #fff7ee;
-    border: 1px solid rgba(208, 127, 38, 0.16);
-    border-radius: 24px;
-    padding: 26px;
-    margin-top: 24px;
-}
-
-.slot-list {
+.calendar {
     display: grid;
-    gap: 16px;
-    margin-top: 18px;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.tgl {
+    border: none;
+    background: #fff;
+    padding: 14px 0;
+    border-radius: 14px;
+    font-size: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    min-height: 58px;
+    color: #4f3a25;
+    box-shadow: inset 0 0 0 1px rgba(208, 127, 38, 0.1);
+}
+
+.tgl:hover {
+    transform: translateY(-2px);
+    background: #fff3e0;
+}
+
+.tgl.active {
+    background: linear-gradient(135deg, #d07f26, #f0b062);
+    color: #fff;
+    box-shadow: 0 12px 20px rgba(208, 127, 38, 0.18);
+}
+
+.tgl.disabled {
+    background: #f4f0eb;
+    cursor: not-allowed;
+    opacity: 0.6;
+    color: #8d7c6a;
+    box-shadow: none;
 }
 
 .slot {
-    border: 1px solid rgba(208, 127, 38, 0.16);
-    border-radius: 18px;
-    padding: 18px;
     background: #ffffff;
+    padding: 16px;
+    border-radius: 16px;
     cursor: pointer;
-    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    margin-bottom: 12px;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(208, 127, 38, 0.14);
 }
 
 .slot:hover {
     transform: translateY(-2px);
-    border-color: var(--primary-color);
-    box-shadow: 0 12px 24px rgba(208, 127, 38, 0.14);
+    border-color: #d07f26;
 }
 
 .slot.selected {
-    background: var(--primary-color);
-    color: white;
-    border-color: #b15b12;
-    box-shadow: 0 14px 28px rgba(208, 127, 38, 0.24);
-}
-
-.slot input[type="radio"] {
-    display: none;
-}
-
-.summary-card {
-    border-radius: 22px;
-    padding: 20px 22px;
-    background: #fffaf2;
-    border: 1px solid rgba(208, 127, 38, 0.16);
-    margin-top: 24px;
-}
-
-.summary-card h5 {
-    margin-bottom: 16px;
-    font-size: 1rem;
-    font-weight: 800;
-    color: #3b2817;
-}
-
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-
-.summary-row span:last-child {
+    background: linear-gradient(135deg, #d07f26, #f0b062);
     font-weight: 700;
-    color: #3b2817;
+    color: #fff;
+    border-color: #b15b12;
+}
+
+.slot.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background: #f4f0eb;
+    border-color: rgba(208, 127, 38, 0.08);
 }
 
 .btn-lanjut {
-    background: linear-gradient(135deg, #d07f26, #ae5c16);
+    background: linear-gradient(135deg, #d07f26, #b15b12);
     border: none;
-    color: white;
-    padding: 14px 18px;
+    padding: 14px;
     font-weight: 700;
-    border-radius: 18px;
+    color: #fff;
     width: 100%;
-    box-shadow: 0 16px 30px rgba(208, 127, 38, 0.24);
-    transition: transform 0.22s ease;
+    border-radius: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-lanjut:hover {
+    background: linear-gradient(135deg, #b15b12, #8a4c18);
     transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
 }
 
-@media (max-width: 899px) {
-    .slot-list {
-        grid-template-columns: 1fr;
-    }
+.alert {
+    border-radius: 16px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.slot-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #3b2817;
+}
+
+.badge-info {
+    background: #f9e1bc;
+    color: #8a5b2f;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
 }
 </style>
 </head>
+
 <body>
+
+<!-- Navbar Include -->
 <?php include 'include/navbar.php'; ?>
 
-<div class="container my-4 wrapper">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <a href="booking.php" class="btn-back">
-            <i class="bi bi-chevron-left"></i>
-        </a>
-        <div>
-            <h1>Booking Layanan</h1>
-            <p class="text-muted small mb-0">Pilih tanggal dan jam yang tersedia untuk layanan Anda.</p>
+<div class="container-fluid mt-5 px-lg-5" style="padding-top: 50px;">
+    <div class="card card-custom">
+
+        <div class="header-booking">
+            Pilih Ketersediaan Tanggal
         </div>
-        <div style="width: 52px;"></div>
+
+
+        
+        <div class="card-body">
+
+            <?php if (!empty($errors)): ?>
+                <div class="alert alert-danger">
+                    <?php foreach ($errors as $error): ?>
+                        <div><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- Header Bulan -->
+            <div class="calendar-header d-flex justify-content-between align-items-center mb-3">
+                <button class="btn btn-sm btn-outline-dark" onclick="prevMonth()">❮</button>
+
+                <span class="fw-semibold" id="bulanTahun"></span>
+
+                <button class="btn btn-sm btn-outline-dark" onclick="nextMonth()">❯</button>
+            </div>
+
+            <!-- Kalender -->
+            <div class="calendar mb-4" id="calendar"></div>
+
+            <!-- Slot -->
+            <form id="slotForm" method="post" action="penjadwalan.php">
+                <div id="slotArea" style="display:none;">
+
+                    <h5 class="slot-title">Pilih Slot Waktu</h5>
+                    <p class="text-muted mb-4">Pilih slot yang tersedia untuk tanggal terpilih.</p>
+
+                    <input type="hidden" name="selected_slot" id="selected_slot" value="">
+                    <div id="slotList"></div>
+
+                    <button type="submit" class="btn btn-lanjut w-100 mt-3">
+                        LANJUTKAN BOOKING →
+                    </button>
+                </div>
+            </form>
+
+        </div>
     </div>
 
-    <?php if (!empty($errors)): ?>
-        <div class="alert alert-danger">
-            <?php foreach ($errors as $error): ?>
-                <div><?= htmlspecialchars($error) ?></div>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
-
-    <div class="row g-4">
-        <div class="col-lg-7">
-            <div class="card card-custom">
-                <div class="header-booking">
-                    <h2>Pilih Jadwal</h2>
-                    <p>Slot tersedia di bawah ini berasal langsung dari database jadwal kerja.</p>
-                </div>
-                <div class="slot-area">
-                    <form method="post" action="penjadwalan.php">
-                        <div class="slot-list">
-                            <?php if (!empty($jadwals)): ?>
-                                <?php foreach ($jadwals as $jadwal): ?>
-                                    <?php $slotLabel = date('d M Y', strtotime($jadwal['tanggal'])) . ' • ' . substr($jadwal['jam_mulai'], 0, 5) . ' - ' . substr($jadwal['jam_selesai'], 0, 5); ?>
-                                    <label class="slot" for="jadwal-<?= intval($jadwal['id_jadwal']) ?>">
-                                        <div>
-                                            <div class="fw-semibold"><?= htmlspecialchars($slotLabel) ?></div>
-                                            <div class="text-muted small">Kapasitas: <?= intval($jadwal['kapasitas_max']) ?> / Status: <?= htmlspecialchars($jadwal['status_slot']) ?></div>
-                                        </div>
-                                        <input type="radio" id="jadwal-<?= intval($jadwal['id_jadwal']) ?>" name="id_jadwal" value="<?= intval($jadwal['id_jadwal']) ?>">
-                                    </label>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <p class="text-muted">Belum ada jadwal tersedia saat ini. Silakan kembali lagi nanti.</p>
-                            <?php endif; ?>
-                        </div>
-                        <button type="submit" class="btn btn-lanjut mt-4">Konfirmasi Jadwal</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-5">
-            <div class="summary-card">
-                <h5>Ringkasan Layanan</h5>
-                <div class="summary-row">
-                    <span>Nama Layanan</span>
-                    <span><?= htmlspecialchars($namaProduk) ?></span>
-                </div>
-                <div class="summary-row">
-                    <span>Harga</span>
-                    <span><?= htmlspecialchars(number_format($hargaProduk, 0, ',', '.')) ?></span>
-                </div>
-                <div class="summary-row">
-                    <span>Estimasi Total</span>
-                    <span><?= htmlspecialchars(number_format($hargaProduk + 10000, 0, ',', '.')) ?></span>
-                </div>
-                <p class="text-muted small mt-3">Setelah jadwal dipilih, Anda akan diarahkan ke halaman pembayaran.</p>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script>
-const slots = document.querySelectorAll('.slot');
-slots.forEach(slot => {
-    const input = slot.querySelector('input[type="radio"]');
-    input.addEventListener('change', () => {
-        slots.forEach(item => item.classList.remove('selected'));
-        slot.classList.add('selected');
-    });
-});
+const jadwalData = <?= json_encode($jadwalByDate, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+const bookedByJadwal = <?= json_encode($bookedByJadwal ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+const bookedByDate = <?= json_encode($bookedByDate ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+let currentDate = new Date();
+
+function renderCalendar() {
+    const calendar = document.getElementById('calendar');
+    calendar.innerHTML = '';
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    const bulanNama = [
+        'Januari','Februari','Maret','April','Mei','Juni',
+        'Juli','Agustus','September','Oktober','November','Desember'
+    ];
+
+    document.getElementById('bulanTahun').innerText = bulanNama[month] + ' ' + year;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+
+    for (let i = 0; i < firstDay; i++) {
+        calendar.innerHTML += '<div></div>';
+    }
+
+    for (let i = 1; i <= totalDays; i++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        const isDisabled = (bookedByDate[dateStr] || 0) >= 3;
+        calendar.innerHTML += `
+            <button type="button" class="tgl${isDisabled ? ' disabled' : ''}" ${isDisabled ? 'disabled' : ''} data-date="${dateStr}" onclick="pilihTanggal(this)">
+                ${i}
+            </button>
+        `;
+    }
+}
+
+function prevMonth() {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    renderCalendar();
+    clearSlotSelection();
+}
+
+function nextMonth() {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar();
+    clearSlotSelection();
+}
+
+function pilihTanggal(el) {
+    document.querySelectorAll('.tgl').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    const selectedDate = el.dataset.date;
+    renderSlots(selectedDate);
+    document.getElementById('slotArea').style.display = 'block';
+}
+
+function renderSlots(date) {
+    const slots = jadwalData[date] || [];
+    const slotList = document.getElementById('slotList');
+    const fullDate = (bookedByDate[date] || 0) >= 3;
+
+    // If date is fully booked, show message
+    if (fullDate) {
+        slotList.innerHTML = '<p class="text-muted">Tanggal ini sudah penuh. Silakan pilih tanggal lain.</p>';
+        document.getElementById('selected_slot').value = '';
+        return;
+    }
+
+    let html = '';
+
+    if (!slots.length) {
+        const defaultSlots = [
+            { label: 'Pagi', start: '07:00', end: '10:00' },
+            { label: 'Siang', start: '11:00', end: '13:00' },
+            { label: 'Sore', start: '15:00', end: '18:00' }
+        ];
+
+        html = defaultSlots.map(slot => `
+            <div class="slot" data-id="default|${date}|${slot.start}|${slot.end}" onclick="pilihSlot(this)">
+                <div>
+                    <div>${slot.label} (${slot.start} - ${slot.end})</div>
+                    <div class="text-muted small">Tersedia</div>
+                </div>
+                <span class="badge-info">Open</span>
+            </div>
+        `).join('');
+    } else {
+        html = slots.map(slot => {
+            const bookedCount = bookedByJadwal[slot.id_jadwal] || 0;
+            const kapasitas = parseInt(slot.kapasitas_max || 1, 10);
+            const isAvailable = slot.status_slot === 'tersedia' && bookedCount < kapasitas && !fullDate;
+            return `
+                <div class="slot${isAvailable ? '' : ' disabled'}" data-id="${slot.id_jadwal}" onclick="pilihSlot(this)">
+                    <div>
+                        <div>${slot.jam_mulai.slice(0, 5)} - ${slot.jam_selesai.slice(0, 5)}</div>
+                        <div class="text-muted small">${isAvailable ? 'Tersedia' : 'Sudah terisi'}</div>
+                    </div>
+                    <span class="badge-info">${isAvailable ? 'Open' : 'Closed'}</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    slotList.innerHTML = html;
+    document.getElementById('selected_slot').value = '';
+}
+
+function pilihSlot(el) {
+    if (el.classList.contains('disabled')) {
+        return;
+    }
+    document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('selected_slot').value = el.dataset.id;
+}
+
+function clearSlotSelection() {
+    document.getElementById('slotArea').style.display = 'none';
+    document.getElementById('slotList').innerHTML = '';
+    document.getElementById('selected_slot').value = '';
+}
+
+renderCalendar();
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
+

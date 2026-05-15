@@ -20,9 +20,12 @@ if (!isset($_SESSION['draft_booking'])) {
 }
 
 $draft = $_SESSION['draft_booking'];
+// If booking details (jadwal/layanan) are missing, we will still accept the payment proof
+// but skip creating the booking record. This prevents redirecting user back to booking.php
+// and preserves the UX of redirecting to WhatsApp after upload.
+$canCreateBooking = true;
 if (empty($draft['id_jadwal']) || empty($draft['id_layanan'])) {
-    header('Location: ../public/booking.php');
-    exit;
+    $canCreateBooking = false;
 }
 
 // Check method POST dan ada file
@@ -96,35 +99,40 @@ $catatan = trim($pembayaran['alamat'] ?? '');
 try {
     $pdo->beginTransaction();
 
-    // Pastikan jadwal masih tersedia
-    $jadwalStmt = $pdo->prepare('SELECT kapasitas_max FROM jadwal_kerja WHERE id_jadwal = ? AND status_slot = ? LIMIT 1');
-    $jadwalStmt->execute([$id_jadwal, 'tersedia']);
-    $jadwalData = $jadwalStmt->fetch(PDO::FETCH_ASSOC);
-    if (!$jadwalData) {
-        throw new Exception('Jadwal tidak tersedia lagi. Silakan pilih jadwal lain.');
-    }
-
-    $bookingQuery = "INSERT INTO booking (id_user, id_layanan, id_jadwal, total_harga, status_booking, catatan) VALUES (?, ?, ?, ?, ?, ?)";
-    $stmt = $pdo->prepare($bookingQuery);
-    $stmt->execute([$id_user, $primaryLayananId, $id_jadwal, $total_harga, 'pending', $catatan]);
-    $id_booking = $pdo->lastInsertId();
-
-    $detailQuery = "INSERT INTO booking_detail (id_booking, id_layanan, harga_transaksi, catatan_item) VALUES (?, ?, ?, ?)";
-    $detailStmt = $pdo->prepare($detailQuery);
-
-    if ($isCartCheckout && !empty($draft['items']) && is_array($draft['items'])) {
-        foreach ($draft['items'] as $item) {
-            $detailStmt->execute([
-                $id_booking,
-                intval($item['id_layanan'] ?? 0),
-                floatval($item['item_total'] ?? (floatval($item['harga'] ?? 0) * intval($item['kuantitas'] ?? 1))),
-                null
-            ]);
+    // If we can create booking, verify jadwal is available and create booking + details
+    $id_booking = null;
+    if ($canCreateBooking) {
+        // Pastikan jadwal masih tersedia
+        $jadwalStmt = $pdo->prepare('SELECT kapasitas_max FROM jadwal_kerja WHERE id_jadwal = ? AND status_slot = ? LIMIT 1');
+        $jadwalStmt->execute([$id_jadwal, 'tersedia']);
+        $jadwalData = $jadwalStmt->fetch(PDO::FETCH_ASSOC);
+        if (!$jadwalData) {
+            throw new Exception('Jadwal tidak tersedia lagi. Silakan pilih jadwal lain.');
         }
-    } else {
-        $detailStmt->execute([$id_booking, $primaryLayananId, floatval($draft['harga'] ?? 0), null]);
+
+        $bookingQuery = "INSERT INTO booking (id_user, id_layanan, id_jadwal, total_harga, status_booking, catatan) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $pdo->prepare($bookingQuery);
+        $stmt->execute([$id_user, $primaryLayananId, $id_jadwal, $total_harga, 'pending', $catatan]);
+        $id_booking = $pdo->lastInsertId();
+
+        $detailQuery = "INSERT INTO booking_detail (id_booking, id_layanan, harga_transaksi, catatan_item) VALUES (?, ?, ?, ?)";
+        $detailStmt = $pdo->prepare($detailQuery);
+
+        if ($isCartCheckout && !empty($draft['items']) && is_array($draft['items'])) {
+            foreach ($draft['items'] as $item) {
+                $detailStmt->execute([
+                    $id_booking,
+                    intval($item['id_layanan'] ?? 0),
+                    floatval($item['item_total'] ?? (floatval($item['harga'] ?? 0) * intval($item['kuantitas'] ?? 1))),
+                    null
+                ]);
+            }
+        } else {
+            $detailStmt->execute([$id_booking, $primaryLayananId, floatval($draft['harga'] ?? 0), null]);
+        }
     }
 
+    // Always insert pembayaran record
     $query = "INSERT INTO pembayaran (id_user, nama, hp, metode, alamat, bukti_pembayaran, status) 
               VALUES (?, ?, ?, ?, ?, ?, ?)";
     $stmt = $pdo->prepare($query);
@@ -140,19 +148,24 @@ try {
         }
     }
 
-    // Update status jadwal jika kapasitas penuh
-    $countStmt = $pdo->prepare('SELECT COUNT(*) AS booked FROM booking WHERE id_jadwal = ? AND status_booking != ?');
-    $countStmt->execute([$id_jadwal, 'dibatalkan']);
-    $bookedCount = intval($countStmt->fetchColumn());
-    if ($bookedCount >= intval($jadwalData['kapasitas_max'])) {
-        $updateJadwal = $pdo->prepare('UPDATE jadwal_kerja SET status_slot = ? WHERE id_jadwal = ?');
-        $updateJadwal->execute(['penuh', $id_jadwal]);
+    // Update status jadwal jika kapasitas penuh (hanya jika booking dibuat)
+    if ($canCreateBooking) {
+        $countStmt = $pdo->prepare('SELECT COUNT(*) AS booked FROM booking WHERE id_jadwal = ? AND status_booking != ?');
+        $countStmt->execute([$id_jadwal, 'dibatalkan']);
+        $bookedCount = intval($countStmt->fetchColumn());
+        if ($bookedCount >= intval($jadwalData['kapasitas_max'])) {
+            $updateJadwal = $pdo->prepare('UPDATE jadwal_kerja SET status_slot = ? WHERE id_jadwal = ?');
+            $updateJadwal->execute(['penuh', $id_jadwal]);
+        }
     }
 
     $pdo->commit();
 
+    // Clear draft booking only if booking was created
     unset($_SESSION['pembayaran']);
-    unset($_SESSION['draft_booking']);
+    if ($canCreateBooking) {
+        unset($_SESSION['draft_booking']);
+    }
 
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
@@ -164,8 +177,15 @@ try {
         . "Nama: {$pembayaran['nama']}\n"
         . "No HP: {$pembayaran['hp']}\n"
         . "Metode Pembayaran: {$pembayaran['metode']}\n"
-        . "Link Bukti Pembayaran: {$buktiUrl}\n\n"
-        . "Saya sudah transfer dan mengirim bukti pembayaran.";
+        . "Link Bukti Pembayaran: {$buktiUrl}\n\n";
+
+    if ($canCreateBooking) {
+        $pesan .= "Booking berhasil dibuat dan menunggu verifikasi.\n";
+    } else {
+        $pesan .= "Catatan: Booking belum lengkap (tanggal/jam atau layanan belum dipilih). Mohon bantu verifikasi dan hubungi pemesan.\n";
+    }
+
+    $pesan .= "Saya sudah transfer dan mengirim bukti pembayaran.";
 
     $wa_url = 'https://wa.me/6281217857682?' . http_build_query(['text' => $pesan]);
 
