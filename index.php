@@ -98,7 +98,6 @@ include __DIR__ . '/actions/proses_index.php';
             line-height:1.65;
         }
 
-<<<<<<< HEAD
         .btn-booking{
 
             border:2px solid white;
@@ -125,39 +124,6 @@ include __DIR__ . '/actions/proses_index.php';
 
             background:white;
             color:#333;
-=======
-        .btn-booking,
-        .btn-gallery-action {
-            border: 2px solid #b5835a;
-            color: #b5835a;
-            padding: 8px 30px;
-            border-radius: 999px;
-            text-transform: uppercase;
-            font-size: 0.86rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            background: rgba(255, 255, 255, 0.12);
-            transition: all 0.25s ease;
-        }
-
-        .btn-booking:hover,
-        .btn-gallery-action:hover {
-            color: white;
-            transform: translateY(-2px);
-            border-color: #b5835a;
-            background: #b5835a;
-            box-shadow: 0 12px 24px rgba(181, 131, 90, 0.28);
-        }
-
-        .btn-booking {
-            border-color: white;
-            color: white;
-        }
-
-        .btn-gallery-action {
-            padding: 7px 24px;
-            font-size: 0.78rem;
->>>>>>> 9310c5758ca07ef339566e4945dee26d3f4c99e4
         }
 
         /* =====================================================
@@ -240,7 +206,6 @@ include __DIR__ . '/actions/proses_index.php';
             0 18px 40px rgba(0,0,0,.12);
         }
 
-<<<<<<< HEAD
         .gallery-img{
 
             height:400px;
@@ -248,17 +213,6 @@ include __DIR__ . '/actions/proses_index.php';
             object-fit:cover;
 
             transition:.4s ease;
-=======
-        @media (max-width: 576px) {
-            .animated-divider {
-                width: 300px;
-                height: 3px;
-            }
-        }
-
-        .soft-section {
-            background-color: #f1e8dd !important;
->>>>>>> 9310c5758ca07ef339566e4945dee26d3f4c99e4
         }
 
         .gallery-card:hover .gallery-img{
@@ -331,12 +285,8 @@ include __DIR__ . '/actions/proses_index.php';
 
 <body>
 
-<<<<<<< HEAD
 <!-- SWEET ALERT -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-=======
-    <?php echo getSuccessAlert(); ?>
->>>>>>> 9310c5758ca07ef339566e4945dee26d3f4c99e4
 
 <?php if(isset($_GET['success'])): ?>
 
@@ -456,7 +406,6 @@ include __DIR__ . '/actions/proses_index.php';
         <div class="row g-4">
 
             <div class="col-md-4">
-<<<<<<< HEAD
 
                 <i class="bi bi-stars fs-1 mb-3"></i>
 
@@ -471,21 +420,9 @@ include __DIR__ . '/actions/proses_index.php';
 
                 </p>
 
-=======
-                <div class="card gallery-card shadow-sm">
-                    <img src="assets/foto_makeup.jpeg" class="card-img-top gallery-img" alt="Gallery Makeup">
-                    <div class="card-body">
-                        <h6 class="fw-bold">Gallery Makeup</h6>
-                        <a href="public/gallery_makeup.php" class="btn btn-gallery-action">
-    LIHAT
-</a>
-                    </div>
-                </div>
->>>>>>> 9310c5758ca07ef339566e4945dee26d3f4c99e4
             </div>
 
             <div class="col-md-4">
-<<<<<<< HEAD
 
                 <i class="bi bi-brush fs-1 mb-3"></i>
 
@@ -500,21 +437,9 @@ include __DIR__ . '/actions/proses_index.php';
 
                 </p>
 
-=======
-                <div class="card gallery-card shadow-sm">
-                    <img src="assets/foto_dekor.jpeg" class="card-img-top gallery-img" alt="Gallery Dekor">
-                    <div class="card-body">
-                        <h6 class="fw-bold">Gallery Dekor</h6>
-                        <a href="public/gallery_dekor.php" class="btn btn-gallery-action">
-    LIHAT
-</a>
-                    </div>
-                </div>
->>>>>>> 9310c5758ca07ef339566e4945dee26d3f4c99e4
             </div>
 
             <div class="col-md-4">
-<<<<<<< HEAD
 
                 <i class="bi bi-person-check fs-1 mb-3"></i>
 
@@ -529,17 +454,6 @@ include __DIR__ . '/actions/proses_index.php';
 
                 </p>
 
-=======
-                <div class="card gallery-card shadow-sm">
-                    <img src="assets/foto_kostum.jpeg" class="card-img-top gallery-img" alt="Gallery Kostum">
-                    <div class="card-body">
-                        <h6 class="fw-bold">Gallery Kostum</h6>
-                       <a href="public/gallery_kostum.php" class="btn btn-gallery-action">
-    LIHAT
-</a>
-                    </div>
-                </div>
->>>>>>> 9310c5758ca07ef339566e4945dee26d3f4c99e4
             </div>
 
         </div>

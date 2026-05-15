@@ -136,11 +136,7 @@ $totalBayar = $totalHarga + $biayaLayanan;
 
 <div class="order-detail-container">
     <div class="mb-4">
-<<<<<<< HEAD
         <a href="#" onclick="history.back(); return false;" class="text-dark fs-3"><i class="bi bi-chevron-left"></i></a>
-=======
-        <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="text-dark fs-3"><i class="bi bi-chevron-left"></i></a>
->>>>>>> 9310c5758ca07ef339566e4945dee26d3f4c99e4
     </div>
 
     <h2 class="text-center fw-bold mb-5">Detail Pesanan</h2>
