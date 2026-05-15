@@ -119,9 +119,20 @@ if (!empty($errors)) {
                 </div>
 
                 <!-- Alamat -->
+                <div class="mb-3">
+                    <label class="form-label">Alamat Lengkap</label>
+                    <textarea name="alamat" rows="3" class="form-control" placeholder="Masukkan alamat lengkap..." required></textarea>
+                </div>
+
+                <!-- Catatan -->
                 <div class="mb-4">
+<<<<<<< HEAD
                     <label class="form-label">Alamat / Catatan</label>
                     <textarea name="alamat" rows="4" class="form-control" required></textarea>
+=======
+                    <label class="form-label">Catatan</label>
+                    <textarea name="catatan" rows="3" class="form-control" placeholder="Tambahkan catatan khusus jika ada..."></textarea>
+>>>>>>> 28f7c26 (Menambahkan foto di bagian gallery)
                 </div>
 
                 <!-- Total -->

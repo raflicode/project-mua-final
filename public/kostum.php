@@ -143,18 +143,48 @@ body{
         <div class="row g-4">
 
             <div class="col-md-6">
-                <div class="card card-custom h-100 p-3">
-                    <div class="card-body">
-                        <h5 class="mb-3">Kostum Baju Adat</h5>
-                        <img src="../assets/foto_kostum.jpeg" class="img-paket" alt="Kostum Baju Adat">
-                        
-                        <p class="fw-semibold">Include :</p>
-                        <ul>
-                            <li>Makeup</li>
-                            <li>Softlens</li>
-                            <li>Hairdo</li>
-                        </ul>
-                    </div>
+    <div class="card card-custom p-4 text-center">
+
+        <!-- Judul -->
+        <h5 class="fw-bold mb-4">
+            Baju Adat Jawa
+        </h5>
+
+        <!-- Foto -->
+        <div class="d-flex justify-content-center mb-4">
+            <img 
+                src="../assets/foto_makeup.jpeg" 
+                class="img-fluid rounded"
+                alt="Baju Adat Jawa"
+                style="
+                    width:250px;
+                    height:300px;
+                    object-fit:cover;
+                "
+            >
+        </div>
+
+        <!-- Button -->
+        <div class="d-flex gap-2">
+
+            <!-- Keranjang -->
+            <a href="keranjang.php" class="btn btn-dark">
+                <i class="bi bi-cart3"></i>
+            </a>
+
+            <!-- Booking -->
+            <a 
+    href="booking.php" 
+    class="btn btn-dark px-4"
+    style="width:140px;"
+>
+    Booking
+</a>
+
+        </div>
+
+    </div>
+</div>
                     <div class="d-flex gap-2 mt-auto">
                             <button onclick="addToCart('Kostum Baju Adat', 'kostum', 8000000)" class="btn-cart-icon">
                             🛒
@@ -168,18 +198,45 @@ body{
 
         <!-- Card 2 -->
         <div class="col-md-6">
-            <div class="card card-custom h-100 p-3">
-                <div class="card-body">
-                    <h5 class="mb-4">Kostum Wedding</h5>
-                    <img src="../assets/foto_kostum.jpeg" class="img-paket" alt="Kostum Wedding">
-                    <p class="fw-semibold">Include :</p>
-                    <ul>
-                        <li>Teks 1</li>
-                        <li>Teks 2</li>
-                        <li>Teks 3</li>
-                        <li>Teks 4</li>
-                    </ul>
-                </div>
+            <div class="col-md-6">
+    <div class="card card-custom p-4 text-center">
+
+        <!-- Judul -->
+        <h5 class="fw-bold mb-4">
+            Baju Adat Jawa
+        </h5>
+
+        <!-- Foto -->
+        <div class="d-flex justify-content-center mb-4">
+            <img 
+                src="../assets/foto_makeup.jpeg" 
+                class="img-fluid rounded"
+                alt="Baju Adat Jawa"
+                style="
+                    width:250px;
+                    height:300px;
+                    object-fit:cover;
+                "
+            >
+        </div>
+
+        <!-- Button -->
+        <div class="d-flex gap-2">
+
+            <!-- Keranjang -->
+            <a href="keranjang.php" class="btn btn-dark">
+                <i class="bi bi-cart3"></i>
+            </a>
+
+            <!-- Booking -->
+            <a href="booking.php" class="btn btn-dark w-100">
+                Booking
+            </a>
+
+        </div>
+
+    </div>
+</div>
                 <div class="d-flex gap-2 mt-auto">
                     <button onclick="addToCart('Kostum Wedding', 'kostum', 4000000)" class="btn-cart-icon">
                     🛒

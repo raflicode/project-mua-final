@@ -87,10 +87,32 @@ session_start();
 </head>
 <body>
 
+<<<<<<< HEAD
 <?php include 'include/navbar.php'; ?>
 <div class="container-fluid px-3 px-md-4 px-lg-5" style="padding-top: 65px;">
     <div class="hero-card mt-3">
         <img src="../assets/foto_muayayuk.jpeg" alt="Gallery Makeup">
+=======
+<div class="container py-2" style="max-width: 430px;">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-custom">
+        <div class="container-fluid px-0">
+            <a class="navbar-brand brand-text" href="#">
+                Yayuk <span>Makeover</span>
+            </a>
+
+            <button class="btn p-0 border-0">
+                <i class="bi bi-list" style="font-size: 38px; color: #222;"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="hero-card mt-2">
+        <img src="../assets/foto_muayayuk.jpeg" alt="Wedding">
+
+>>>>>>> 28f7c26 (Menambahkan foto di bagian gallery)
         <div class="hero-overlay">
             <div>
                 <h2 class="hero-title">Keindahan Makeup Profesional untuk Momen Istimewa Anda.</h2>
@@ -123,6 +145,7 @@ session_start();
                 ['src' => '../assets/gallery_makeup/makeup_9.jpeg', 'title' => 'Makeup Bridal',  'desc' => 'Riasan sempurna untuk pengantin impian Anda.'],
             ];
 
+<<<<<<< HEAD
             foreach ($photos as $i => $photo): ?>
             <div class="col-6 col-md-4 col-lg-3">
                 <div class="gallery-card" onclick="openLightbox(<?= $i ?>)">
@@ -138,6 +161,119 @@ session_start();
                 </div>
             </div>
             <?php endforeach; ?>
+=======
+            <!-- Card 1 -->
+            <div class="col-4">
+                <div class="gallery-card">
+                    <img src="../assets/foto_makeup.jpeg" class="gallery-img" alt="Makeup">
+
+                    <h6 class="blog-title">Blog Posts</h6>
+                    <p class="blog-desc">
+                        Menawarkan makeup dengan natural.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="col-4">
+                <div class="gallery-card">
+                    <img src="../assets/fotomakeup_9.png
+                    " class="gallery-img" alt="Makeup">
+
+                    <h6 class="blog-title">Blog Posts</h6>
+                    <p class="blog-desc">
+                        Menawarkan makeup dengan natural.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="col-4">
+                <div class="gallery-card">
+                    <img src="../assets/fotomakeup_1.jpeg" class="gallery-img" alt="Makeup">
+
+                    <h6 class="blog-title">Blog Posts</h6>
+                    <p class="blog-desc">
+                        Menawarkan makeup dengan natural.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="col-4">
+                <div class="gallery-card">
+                    <img src="../assets/fotomakeup_2.jpeg" class="gallery-img" alt="Makeup">
+
+                    <h6 class="blog-title">Blog Posts</h6>
+                    <p class="blog-desc">
+                        Menawarkan makeup dengan natural.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="col-4">
+                <div class="gallery-card">
+                    <img src="../assets/fotomakeup_3.jpeg" class="gallery-img" alt="Makeup">
+
+                    <h6 class="blog-title">Blog Posts</h6>
+                    <p class="blog-desc">
+                        Menawarkan makeup dengan natural.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="col-4">
+                <div class="gallery-card">
+                    <img src="../assets/fotomakeup_4.jpeg" class="gallery-img" alt="Makeup">
+
+                    <h6 class="blog-title">Blog Posts</h6>
+                    <p class="blog-desc">
+                        Menawarkan makeup dengan natural.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 7 -->
+            <div class="col-4">
+                <div class="gallery-card">
+                    <img src="../assets/fotomakeup_6.png" class="gallery-img" alt="Makeup">
+
+                    <h6 class="blog-title">Blog Posts</h6>
+                    <p class="blog-desc">
+                        Menawarkan makeup dengan natural.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 8 -->
+            <div class="col-4">
+                <div class="gallery-card">
+                    <img src="../assets/fotomakeup_7.png" class="gallery-img" alt="Makeup">
+
+                    <h6 class="blog-title">Blog Posts</h6>
+                    <p class="blog-desc">
+                        Menawarkan makeup dengan natural.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 9 -->
+            <div class="col-4">
+                <div class="gallery-card">
+                    <img src="../assets/fotomakeup_8.png" class="gallery-img" alt="Makeup">
+
+                    <h6 class="blog-title">Blog Posts</h6>
+                    <p class="blog-desc">
+                        Menawarkan makeup dengan natural.
+                    </p>
+                </div>
+            </div>
+
+            
+
+>>>>>>> 28f7c26 (Menambahkan foto di bagian gallery)
         </div>
     </section>
 
@@ -173,4 +309,8 @@ session_start();
     document.addEventListener('keydown',e=>{ const lb=document.getElementById('lightbox'); if(!lb.classList.contains('show'))return; if(e.key==='ArrowLeft')changePhoto(-1); if(e.key==='ArrowRight')changePhoto(1); if(e.key==='Escape')closeLightbox(); });
 </script>
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> 28f7c26 (Menambahkan foto di bagian gallery)
