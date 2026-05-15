@@ -2,6 +2,11 @@
 // konfirmasi.php
 session_start();
 
+if (!isset($_SESSION['id_user'])) {
+    header('Location: login.php');
+    exit;
+}
+
 // Check jika belum ada data pembayaran dari proses_pembayaran
 if (!isset($_SESSION['pembayaran'])) {
     header('Location: pembayaran.php');

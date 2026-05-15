@@ -542,7 +542,7 @@ include __DIR__ . '/actions/proses_index.php';
 
             <div class="card gallery-card shadow-sm">
 
-                <img src="assets/foto_kostum.jpeg"
+                <img src="assets/fotokostum1.jpeg"
                      class="card-img-top gallery-img"
                      alt="Gallery Kostum">
 

@@ -14,6 +14,17 @@ if (!isset($_SESSION['id_user'])) {
     exit;
 }
 
+// Pastikan draft booking sudah ada dan jadwal sudah dipilih
+if (!isset($_SESSION['draft_booking'])) {
+    header('Location: ../public/booking.php');
+    exit;
+}
+
+if (empty($_SESSION['draft_booking']['id_jadwal'])) {
+    header('Location: ../public/penjadwalan.php');
+    exit;
+}
+
 // Sanitize dan validasi input
 $nama = trim(filter_input(INPUT_POST, 'nama', FILTER_SANITIZE_STRING));
 $hp = trim(filter_input(INPUT_POST, 'hp', FILTER_SANITIZE_STRING));

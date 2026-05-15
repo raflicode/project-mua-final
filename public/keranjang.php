@@ -485,9 +485,28 @@ function checkoutSelected() {
         alert('Pilih minimal 1 item untuk checkout');
         return;
     }
-    
-    sessionStorage.setItem('checkout_items', JSON.stringify(selectedCartItems));
-    window.location.href = 'booking.php';
+
+    const formData = new FormData();
+    selectedCartItems.forEach(item => {
+        formData.append('id_keranjang[]', item.id_keranjang);
+    });
+
+    fetch('/project-mua-final/actions/checkout_cart.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = 'booking.php';
+        } else {
+            alert('Gagal checkout: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat checkout');
+    });
 }
 
 // Initialize display

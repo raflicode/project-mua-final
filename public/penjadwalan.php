@@ -1,256 +1,326 @@
 <?php
 session_start();
-$backHref = 'booking.php';
+require_once __DIR__ . '/../config/koneksi.php';
+
+if (!isset($_SESSION['id_user'])) {
+    header('Location: login.php');
+    exit;
+}
+
+$draft = $_SESSION['draft_booking'] ?? null;
+if (!$draft) {
+    header('Location: booking.php');
+    exit;
+}
+
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id_jadwal = filter_input(INPUT_POST, 'id_jadwal', FILTER_VALIDATE_INT);
+    if (!$id_jadwal) {
+        $errors[] = 'Silakan pilih jadwal terlebih dahulu.';
+    } else {
+        $stmt = $pdo->prepare('SELECT * FROM jadwal_kerja WHERE id_jadwal = ? AND status_slot = ? LIMIT 1');
+        $stmt->execute([$id_jadwal, 'tersedia']);
+        $jadwal = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$jadwal) {
+            $errors[] = 'Jadwal yang dipilih tidak tersedia.';
+        } else {
+            $_SESSION['draft_booking']['id_jadwal'] = $jadwal['id_jadwal'];
+            $_SESSION['draft_booking']['tanggal'] = $jadwal['tanggal'];
+            $_SESSION['draft_booking']['jam_mulai'] = $jadwal['jam_mulai'];
+            $_SESSION['draft_booking']['jam_selesai'] = $jadwal['jam_selesai'];
+            header('Location: pembayaran.php');
+            exit;
+        }
+    }
+}
+
+try {
+    $stmt = $pdo->query("SELECT * FROM jadwal_kerja WHERE status_slot = 'tersedia' ORDER BY tanggal ASC, jam_mulai ASC");
+    $jadwals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    $jadwals = [];
+}
+
+$namaProduk = htmlspecialchars($draft['nama_layanan'] ?? 'Layanan', ENT_QUOTES, 'UTF-8');
+$hargaProduk = intval($draft['total'] ?? $draft['harga'] ?? 0);
+$foto = htmlspecialchars($draft['foto'] ?? '../assets/foto_makeup.jpeg', ENT_QUOTES, 'UTF-8');
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Booking MUA Yayuk</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Penjadwalan - Yayuk Makeover</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 <style>
+:root {
+    --primary-color: #d07f26;
+    --primary-dark: #8a4c18;
+    --bg-soft: #fff5e7;
+    --text-dark: #2b1f15;
+    --text-muted: #5e4a37;
+    --card-bg: #ffffff;
+}
+
 body {
-    background: #ffffff;
-    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg-soft);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text-dark);
     padding-top: 100px !important;
 }
 
 .wrapper {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1180px;
     margin: auto;
 }
 
+.page-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.page-top h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.page-top p {
+    margin: 4px 0 0;
+    color: var(--text-muted);
+}
+
+.btn-back {
+    width: 52px;
+    height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: var(--card-bg);
+    color: var(--text-dark);
+    border: 1px solid rgba(43, 31, 21, 0.12);
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn-back:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateX(-2px);
+}
+
 .card-custom {
-    border: 1px solid #f0f0f0;
-    border-radius: 20px;
+    border: 1px solid rgba(208, 127, 38, 0.16);
+    border-radius: 28px;
     overflow: hidden;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.10);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.08);
+    background: var(--card-bg);
 }
 
 .header-booking {
-    background: #f1c40f;
-    padding: 18px;
-    text-align: center;
-    font-weight: bold;
-    font-size: 22px;
+    background: linear-gradient(135deg, #f8dc9b, #e7b76f);
+    padding: 28px 26px;
 }
 
-.calendar-header {
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 10px 15px;
+.header-booking h2 {
+    margin: 0;
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: #3c2919;
 }
 
-.calendar {
+.header-booking p {
+    margin: 8px 0 0;
+    color: var(--text-muted);
+}
+
+.slot-area {
+    background: #fff7ee;
+    border: 1px solid rgba(208, 127, 38, 0.16);
+    border-radius: 24px;
+    padding: 26px;
+    margin-top: 24px;
+}
+
+.slot-list {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-}
-
-.tgl {
-    border: none;
-    background: #eeeeee;
-    padding: 10px 0;
-    border-radius: 8px;
-    font-size: 18px;
-    transition: 0.2s;
-    min-height: 50px;
-}
-
-.tgl:hover,
-.tgl.active {
-    background: #f1c40f;
+    gap: 16px;
+    margin-top: 18px;
 }
 
 .slot {
-    background: #f8f9fa;
-    border: 1px solid #eee;
-    padding: 14px;
-    border-radius: 10px;
+    border: 1px solid rgba(208, 127, 38, 0.16);
+    border-radius: 18px;
+    padding: 18px;
+    background: #ffffff;
     cursor: pointer;
-    margin-bottom: 10px;
-    transition: 0.2s;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.slot:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary-color);
+    box-shadow: 0 12px 24px rgba(208, 127, 38, 0.14);
 }
 
 .slot.selected {
-    background: #f1c40f;
-    border-color: #f1c40f;
-    font-weight: bold;
+    background: var(--primary-color);
+    color: white;
+    border-color: #b15b12;
+    box-shadow: 0 14px 28px rgba(208, 127, 38, 0.24);
+}
+
+.slot input[type="radio"] {
+    display: none;
+}
+
+.summary-card {
+    border-radius: 22px;
+    padding: 20px 22px;
+    background: #fffaf2;
+    border: 1px solid rgba(208, 127, 38, 0.16);
+    margin-top: 24px;
+}
+
+.summary-card h5 {
+    margin-bottom: 16px;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #3b2817;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.summary-row span:last-child {
+    font-weight: 700;
+    color: #3b2817;
 }
 
 .btn-lanjut {
-    background: #5b7bd5;
+    background: linear-gradient(135deg, #d07f26, #ae5c16);
     border: none;
-    padding: 14px;
-    font-weight: bold;
-    border-radius: 10px;
+    color: white;
+    padding: 14px 18px;
+    font-weight: 700;
+    border-radius: 18px;
+    width: 100%;
+    box-shadow: 0 16px 30px rgba(208, 127, 38, 0.24);
+    transition: transform 0.22s ease;
 }
 
 .btn-lanjut:hover {
-    background: #4568c7;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 899px) {
+    .slot-list {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
 </head>
-
 <body>
-
-<!-- SWEETALERT2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <?php include 'include/navbar.php'; ?>
 
-<div class="container-fluid mt-5 px-lg-5 wrapper">
-
-<div class="mb-4">
-       <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="text-dark fs-3"><i class="bi bi-chevron-left"></i></a>
+<div class="container my-4 wrapper">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <a href="booking.php" class="btn-back">
+            <i class="bi bi-chevron-left"></i>
+        </a>
+        <div>
+            <h1>Booking Layanan</h1>
+            <p class="text-muted small mb-0">Pilih tanggal dan jam yang tersedia untuk layanan Anda.</p>
+        </div>
+        <div style="width: 52px;"></div>
     </div>
 
-    <div class="card card-custom">
-        <div class="header-booking">
-            Pilih Ketersediaan Tanggal
+    <?php if (!empty($errors)): ?>
+        <div class="alert alert-danger">
+            <?php foreach ($errors as $error): ?>
+                <div><?= htmlspecialchars($error) ?></div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card card-custom">
+                <div class="header-booking">
+                    <h2>Pilih Jadwal</h2>
+                    <p>Slot tersedia di bawah ini berasal langsung dari database jadwal kerja.</p>
+                </div>
+                <div class="slot-area">
+                    <form method="post" action="penjadwalan.php">
+                        <div class="slot-list">
+                            <?php if (!empty($jadwals)): ?>
+                                <?php foreach ($jadwals as $jadwal): ?>
+                                    <?php $slotLabel = date('d M Y', strtotime($jadwal['tanggal'])) . ' • ' . substr($jadwal['jam_mulai'], 0, 5) . ' - ' . substr($jadwal['jam_selesai'], 0, 5); ?>
+                                    <label class="slot" for="jadwal-<?= intval($jadwal['id_jadwal']) ?>">
+                                        <div>
+                                            <div class="fw-semibold"><?= htmlspecialchars($slotLabel) ?></div>
+                                            <div class="text-muted small">Kapasitas: <?= intval($jadwal['kapasitas_max']) ?> / Status: <?= htmlspecialchars($jadwal['status_slot']) ?></div>
+                                        </div>
+                                        <input type="radio" id="jadwal-<?= intval($jadwal['id_jadwal']) ?>" name="id_jadwal" value="<?= intval($jadwal['id_jadwal']) ?>">
+                                    </label>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p class="text-muted">Belum ada jadwal tersedia saat ini. Silakan kembali lagi nanti.</p>
+                            <?php endif; ?>
+                        </div>
+                        <button type="submit" class="btn btn-lanjut mt-4">Konfirmasi Jadwal</button>
+                    </form>
+                </div>
+            </div>
         </div>
 
-        <div class="card-body">
-            <div class="calendar-header d-flex justify-content-between align-items-center mb-3">
-                <button class="btn btn-sm btn-outline-dark" onclick="prevMonth()">&#10094;</button>
-                <span class="fw-semibold" id="bulanTahun"></span>
-                <button class="btn btn-sm btn-outline-dark" onclick="nextMonth()">&#10095;</button>
-            </div>
-
-            <div class="calendar mb-4" id="calendar"></div>
-
-            <div id="slotArea" style="display:none;">
-                <h5 class="mb-3 fw-bold">Pilih Slot Waktu</h5>
-
-                <div class="slot" onclick="pilihSlot(this)">
-                    Pagi (07:00 - 10:00)
+        <div class="col-lg-5">
+            <div class="summary-card">
+                <h5>Ringkasan Layanan</h5>
+                <div class="summary-row">
+                    <span>Nama Layanan</span>
+                    <span><?= htmlspecialchars($namaProduk) ?></span>
                 </div>
-
-                <div class="slot" onclick="pilihSlot(this)">
-                    Siang (11:00 - 13:00)
+                <div class="summary-row">
+                    <span>Harga</span>
+                    <span><?= htmlspecialchars(number_format($hargaProduk, 0, ',', '.')) ?></span>
                 </div>
-
-                <div class="slot" onclick="pilihSlot(this)">
-                    Sore (15:00 - 18:00)
+                <div class="summary-row">
+                    <span>Estimasi Total</span>
+                    <span><?= htmlspecialchars(number_format($hargaProduk + 10000, 0, ',', '.')) ?></span>
                 </div>
-
-                <button id="btnContinue" type="button" class="btn btn-primary btn-lanjut w-100 mt-3">
-                    LANJUTKAN BOOKING
-                </button>
+                <p class="text-muted small mt-3">Setelah jadwal dipilih, Anda akan diarahkan ke halaman pembayaran.</p>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-let date = new Date();
-let selectedDate = null;
-let selectedSlot = null;
-
-function renderCalendar() {
-    const calendar = document.getElementById("calendar");
-    calendar.innerHTML = "";
-
-    const year = date.getFullYear();
-    const month = date.getMonth();
-
-    const bulanNama = [
-        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-    ];
-
-    document.getElementById("bulanTahun").innerText = bulanNama[month] + " " + year;
-
-    const firstDay = new Date(year, month, 1).getDay();
-    const totalDays = new Date(year, month + 1, 0).getDate();
-
-    for (let i = 0; i < firstDay; i++) {
-        calendar.innerHTML += `<div></div>`;
-    }
-
-    for (let i = 1; i <= totalDays; i++) {
-        calendar.innerHTML += `
-            <button class="tgl" onclick="pilihTanggal(this)">
-                ${i}
-            </button>
-        `;
-    }
-}
-
-function prevMonth() {
-    date.setMonth(date.getMonth() - 1);
-    renderCalendar();
-}
-
-function nextMonth() {
-    date.setMonth(date.getMonth() + 1);
-    renderCalendar();
-}
-
-function pilihTanggal(el) {
-    document.querySelectorAll(".tgl").forEach(t => t.classList.remove("active"));
-    el.classList.add("active");
-    selectedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(el.innerText).padStart(2, '0')}`;
-    document.getElementById("slotArea").style.display = "block";
-    selectedSlot = null;
-    document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
-    const btnContinue = document.getElementById('btnContinue');
-    if (btnContinue) {
-        btnContinue.classList.add('btn-secondary');
-        btnContinue.classList.remove('btn-primary');
-    }
-}
-
-function pilihSlot(el) {
-    document.querySelectorAll(".slot").forEach(s => s.classList.remove("selected"));
-    el.classList.add("selected");
-    selectedSlot = el.innerText;
-    const btnContinue = document.getElementById('btnContinue');
-    if (btnContinue) {
-        btnContinue.classList.remove('btn-secondary');
-        btnContinue.classList.add('btn-primary');
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const btnContinue = document.getElementById('btnContinue');
-    if (btnContinue) {
-        btnContinue.addEventListener('click', function() {
-            if (!selectedDate) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Tanggal Belum Dipilih',
-                    text: 'Silakan pilih tanggal terlebih dahulu.',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#1943ff'
-                });
-                return;
-            }
-            if (!selectedSlot) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Slot Waktu Belum Dipilih',
-                    text: 'Silakan pilih slot waktu terlebih dahulu.',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#1943ff'
-                });
-                return;
-            }
-            sessionStorage.setItem('selectedSchedule', JSON.stringify({ date: selectedDate, slot: selectedSlot }));
-            window.location.href = 'pembayaran.php';
-        });
-    }
+const slots = document.querySelectorAll('.slot');
+slots.forEach(slot => {
+    const input = slot.querySelector('input[type="radio"]');
+    input.addEventListener('change', () => {
+        slots.forEach(item => item.classList.remove('selected'));
+        slot.classList.add('selected');
+    });
 });
-
-renderCalendar();
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
