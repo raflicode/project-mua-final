@@ -94,10 +94,13 @@ if (session_status() === PHP_SESSION_NONE) {
       <a class="nav-link" href="/project-mua-final/index.php">Home</a>
       <a class="nav-link" href="/project-mua-final/public/service.php">Service</a>
       <a class="nav-link" href="/project-mua-final/index.php#gallery">Gallery</a>
+      
+      <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
       <a class="nav-link position-relative" href="/project-mua-final/public/keranjang.php">
         <i class="bi bi-cart3"></i> Keranjang
         <span id="cart-count" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none; font-size:0.7rem;"></span>
       </a>
+      <?php endif; ?>
 
     <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
       <div class="dropdown">
@@ -136,7 +139,9 @@ if (session_status() === PHP_SESSION_NONE) {
       <li><a class="nav-link text-white" href="/project-mua-final/index.php">🏠 Home</a></li>
       <li><a class="nav-link text-white" href="/project-mua-final/public/service.php">💄 Service</a></li>
       <li><a class="nav-link text-white" href="/project-mua-final/index.php#gallery">🖼️ Gallery</a></li>
+      <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
       <li><a class="nav-link text-white position-relative" href="/project-mua-final/public/keranjang.php"><i class="bi bi-cart3"></i> Keranjang <span id="cart-count-mobile" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none; font-size:0.7rem;"></span></a></li>
+      <?php endif; ?>
     </ul>
 
     <div class="border-top pt-3 mt-4">
@@ -169,14 +174,27 @@ if (session_status() === PHP_SESSION_NONE) {
     }
   };
 
-  function updateNavbarBadge() {
-    const cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
-    const totalQty = cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
-    document.querySelectorAll('#cart-count, #cart-count-mobile').forEach(el => {
-      el.innerText = totalQty;
-      el.style.display = totalQty > 0 ? 'inline-block' : 'none';
-    });
+  // Function untuk update cart count dari database
+  function updateCartCount() {
+    fetch('/project-mua-final/actions/get_cart_count.php')
+      .then(response => response.json())
+      .then(data => {
+        const cartElements = document.querySelectorAll('#cart-count, #cart-count-mobile');
+        cartElements.forEach(el => {
+          if (data.cart_count > 0) {
+            el.innerText = data.cart_count;
+            el.style.display = 'inline-block';
+          } else {
+            el.style.display = 'none';
+          }
+        });
+      })
+      .catch(error => console.log('Error fetching cart count:', error));
   }
 
-  document.addEventListener('DOMContentLoaded', updateNavbarBadge);
+  // Update cart count saat halaman dimuat
+  document.addEventListener('DOMContentLoaded', updateCartCount);
+
+  // Emit custom event untuk update cart count
+  window.updateCartNavbar = updateCartCount;
 </script>

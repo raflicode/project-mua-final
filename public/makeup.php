@@ -156,7 +156,7 @@ body{
                 </ul>
             </div>
             <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart(1, 'Makeup Graduation', 800000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Graduation', 'makeup', 800000)" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=makeup&nama=Makeup+Graduation&harga=800000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -181,7 +181,7 @@ body{
                     </ul>
                 </div>
                 <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart(2, 'Makeup Wedding', 1500000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Wedding', 'makeup', 1500000)" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=makeup&nama=Makeup+Wedding&harga=1500000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -206,7 +206,7 @@ body{
                     </ul>
                 </div>
                 <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart(3, 'Makeup Carnava', 1000000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Carnava', 'makeup', 1000000)" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=makeup&nama=Makeup+Carnaval&harga=1000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -231,7 +231,7 @@ body{
                     </ul>
                 </div>
                 <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart(4, 'Makeup Natural', 2000000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Natural', 'makeup', 2000000)" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=makeup&nama=Makeup+Natural&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -279,40 +279,6 @@ document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-function addToCart(id, nama, harga, foto) {
-    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
-    let foundIndex = cart.findIndex(item => item.id === id);
-
-    if (foundIndex > -1) {
-        cart[foundIndex].qty += 1;
-    } else {
-        cart.push({ id, nama, harga, foto, qty: 1 });
-    }
-
-    localStorage.setItem('yayuk_cart', JSON.stringify(cart));
-    updateNavbarBadge();
-    Swal.fire({
-        icon: 'success',
-        title: 'Berhasil',
-        text: nama + ' berhasil ditambahkan ke keranjang.',
-        timer: 1500,
-        showConfirmButton: false
-    });
-}
-
-// Jalankan ini agar saat halaman baru dibuka, angka keranjang tetap ada
-document.addEventListener('DOMContentLoaded', updateNavbarBadge);
-
-function updateNavbarBadge() {
-    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
-    let totalItems = cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
-    document.querySelectorAll('#cart-count, #cart-count-mobile, #cart-badge').forEach(badge => {
-        badge.innerText = totalItems;
-        badge.style.display = totalItems > 0 ? 'inline-block' : 'none';
-    });
-}
-</script>
-
+<?php include 'include/add_to_cart_script.php'; ?>
 </body>
 </html>

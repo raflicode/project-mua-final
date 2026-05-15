@@ -7,6 +7,7 @@
     <title>Yayuk Makeover - Pilih Paket</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -209,7 +210,7 @@
 
     <div class="row g-4 justify-content-center mb-5">
 
-        <!-- PAKET 1: Makeup Wedding — col-12 = full width -->
+        <!-- PAKET 1: Makeup Wedding ï¿½ col-12 = full width -->
         <div class="col-12">
             <div class="card-custom">
                 <img src="../assets/gallery_makeup/makeup_1.jpeg" alt="Makeup Wedding" class="card-img-left">
@@ -228,14 +229,14 @@
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="keranjang.php" class="btn btn-outline-dark btn-booking flex-grow-1"><i class="bi bi-cart3"></i> Keranjang</a>
+                        <a href="makeup.php" class="btn btn-outline-dark btn-booking flex-grow-1"><i class="bi bi-cart3"></i> Lihat Produk</a>
                         <a href="makeup.php" class="btn btn-outline-dark btn-booking flex-grow-1">Booking</a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- PAKET 2: Wedding Kostum — col-12 = full width -->
+        <!-- PAKET 2: Wedding Kostum ï¿½ col-12 = full width -->
         <div class="col-12">
             <div class="card-custom">
                 <img src="../assets/gallery_makeup/makeup_2.jpeg" alt="Wedding Kostum" class="card-img-left">
@@ -254,14 +255,14 @@
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="keranjang.php" class="btn btn-outline-dark btn-booking flex-grow-1"><i class="bi bi-cart3"></i> Keranjang</a>
+                        <a href="kostum.php" class="btn btn-outline-dark btn-booking flex-grow-1"><i class="bi bi-cart3"></i> Lihat Produk</a>
                         <a href="kostum.php" class="btn btn-outline-dark btn-booking flex-grow-1">Booking</a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- PAKET 3: Dekor/Terop — col-12 = full width -->
+        <!-- PAKET 3: Dekor/Terop ï¿½ col-12 = full width -->
         <div class="col-12">
             <div class="card-custom">
                 <img src="../assets/gallery_makeup/makeup_3.jpeg" alt="Dekor Terop" class="card-img-left">
@@ -280,7 +281,7 @@
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="keranjang.php" class="btn btn-outline-dark btn-booking flex-grow-1"><i class="bi bi-cart3"></i> Keranjang</a>
+                        <a href="dekor.php" class="btn btn-outline-dark btn-booking flex-grow-1"><i class="bi bi-cart3"></i> Lihat Produk</a>
                         <a href="dekor.php" class="btn btn-outline-dark btn-booking flex-grow-1">Booking</a>
                     </div>
                 </div>
@@ -295,7 +296,7 @@
 
     <div class="row g-4 justify-content-center pb-5">
 
-        <!-- SILVER — dengan include lengkap -->
+        <!-- SILVER ï¿½ dengan include lengkap -->
         <div class="col-12 col-lg-6">
             <div class="card wedding-card silver-card">
                 <div class="header-silver text-uppercase">Silver</div>
@@ -326,7 +327,7 @@
             </div>
         </div>
 
-        <!-- GOLD — dengan include lengkap -->
+        <!-- GOLD ï¿½ dengan include lengkap -->
         <div class="col-12 col-lg-6">
             <div class="card wedding-card gold-card">
                 <div class="header-gold text-uppercase">Gold</div>
