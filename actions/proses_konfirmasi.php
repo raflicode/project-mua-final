@@ -57,7 +57,11 @@ if (!is_dir($uploadDir)) {
 }
 
 // Generate unique filename
-$ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+$extensionByMime = [
+    'image/jpeg' => 'jpg',
+    'image/png' => 'png',
+];
+$ext = $extensionByMime[$mimeType] ?? strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 $fileName = uniqid('bukti_') . '_' . $_SESSION['id_user'] . '.' . $ext;
 $uploadPath = $uploadDir . '/' . $fileName;
 
@@ -79,28 +83,25 @@ try {
     $stmt = $pdo->prepare($query);
     $stmt->execute([$id_user, $pembayaran['nama'], $pembayaran['hp'], $pembayaran['metode'], $pembayaran['alamat'], $fileName, $status]);
 
-    // Clear pembayaran session
-    // Clear pembayaran session
-unset($_SESSION['pembayaran']);
+    unset($_SESSION['pembayaran']);
 
-// Ambil data untuk WhatsApp
-$nama = urlencode($pembayaran['nama']);
-$hp = urlencode($pembayaran['hp']);
-$metode = urlencode($pembayaran['metode']);
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+    $projectBase = preg_replace('#/actions$#', '', $scriptDir);
+    $buktiUrl = $scheme . '://' . $host . $projectBase . '/assets/bukti_pembayaran/' . rawurlencode($fileName);
 
-// Pesan WhatsApp
-$pesan = "Halo Admin, saya ingin konfirmasi pembayaran booking makeup.%0A%0A"
-        . "Nama: $nama%0A"
-        . "No HP: $hp%0A"
-        . "Metode Pembayaran: $metode%0A%0A"
+    $pesan = "Halo Admin, saya ingin konfirmasi pembayaran booking makeup.\n\n"
+        . "Nama: {$pembayaran['nama']}\n"
+        . "No HP: {$pembayaran['hp']}\n"
+        . "Metode Pembayaran: {$pembayaran['metode']}\n"
+        . "Link Bukti Pembayaran: {$buktiUrl}\n\n"
         . "Saya sudah transfer dan mengirim bukti pembayaran.";
 
-// Link WhatsApp
-$wa_url = "https://wa.me/6281217857682?text=$pesan";
+    $wa_url = 'https://wa.me/6281217857682?' . http_build_query(['text' => $pesan]);
 
-// Redirect ke WhatsApp
-header("Location: $wa_url");
-exit;
+    header("Location: $wa_url");
+    exit;
 
 
 } catch (PDOException $e) {

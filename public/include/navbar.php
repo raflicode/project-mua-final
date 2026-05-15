@@ -115,6 +115,7 @@ if (session_status() === PHP_SESSION_NONE) {
           <li>
             <hr class="dropdown-divider">
           </li>
+          <!-- Link Logout Backend Kamu -->
           <li><a class="dropdown-item text-danger fw-bold" href="/project-mua-final/actions/logout.php">Logout</a></li>
         </ul>
       </div>

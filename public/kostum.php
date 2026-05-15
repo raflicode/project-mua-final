@@ -306,13 +306,11 @@ document.addEventListener('DOMContentLoaded', updateNavbarBadge);
 
 function updateNavbarBadge() {
     let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
-    let totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-    const badge = document.getElementById('cart-badge');
-    
-    if (badge) {
+    let totalItems = cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+    document.querySelectorAll('#cart-count, #cart-count-mobile, #cart-badge').forEach(badge => {
         badge.innerText = totalItems;
         badge.style.display = totalItems > 0 ? 'inline-block' : 'none';
-    }
+    });
 }
 </script>
 

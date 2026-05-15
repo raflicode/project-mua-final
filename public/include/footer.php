@@ -173,7 +173,19 @@
         </div>
     `;
 
-    marker.bindPopup(popupContent).openPopup();
+    marker.bindPopup(popupContent);
+
+    const isTouchDevice = window.matchMedia('(hover: none)').matches;
+
+    if (!isTouchDevice) {
+        marker.on('mouseover', function() {
+            marker.openPopup();
+        });
+
+        marker.on('mouseout', function() {
+            marker.closePopup();
+        });
+    }
 
     // OPSIONAL: Klik pada Marker langsung buka Google Maps (Tanpa Popup)
     // marker.on('click', function() {
