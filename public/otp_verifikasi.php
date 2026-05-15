@@ -1,4 +1,4 @@
-git commit -m "Remove duplicate public/OTP_verifikasi.php and keep public/otp_verifikasi.php"<?php
+<?php
 session_start();
 ?>
 

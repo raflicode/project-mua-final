@@ -7,12 +7,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm_password = $_POST['confirm_password'];
 
     if ($password !== $confirm_password) {
-        header("Location: ../public/reset_password.php?error=" . urlencode("Password tidak cocok"));
+        header("Location: ../public/reset_pw.php?error=" . urlencode("Password tidak cocok"));
         exit();
     }
 
     if (strlen($password) < 8) {
-        header("Location: ../public/reset_password.php?error=" . urlencode("Password minimal 8 karakter"));
+        header("Location: ../public/reset_pw.php?error=" . urlencode("Password minimal 8 karakter"));
         exit();
     }
 
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: ../public/login.php?success=" . urlencode("Password berhasil direset. Silakan login dengan password baru Anda."));
     exit();
 } else {
-    header("Location: ../public/reset_password.php");
+    header("Location: ../public/reset_pw.php");
     exit();
 }
 ?>
