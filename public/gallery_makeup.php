@@ -2,15 +2,16 @@
 session_start();
 
 $photos = [
-    ['src' => '../assets/gallery_makeup/makeup_1.jpeg', 'title' => 'Makeup Wedding Klasik', 'desc' => 'Riasan pengantin dengan konsep klasik dan elegan.'],
-    ['src' => '../assets/gallery_makeup/makeup_2.jpeg', 'title' => 'Makeup Modern Natural', 'desc' => 'Natural makeup look untuk tampilan sehari-hari.'],
-    ['src' => '../assets/gallery_makeup/makeup_3.jpeg', 'title' => 'Makeup Glamour', 'desc' => 'Riasan glamour dengan smokey eye yang memukau.'],
-    ['src' => '../assets/gallery_makeup/makeup_4.jpeg', 'title' => 'Makeup Pengantin Adat', 'desc' => 'Makeup tradisional dengan sentuhan modern.'],
-    ['src' => '../assets/gallery_makeup/makeup_5.jpeg', 'title' => 'Makeup Bold & Dramatic', 'desc' => 'Makeup berani dengan warna cerah menawan.'],
-    ['src' => '../assets/gallery_makeup/makeup_6.jpeg', 'title' => 'Makeup Engagement', 'desc' => 'Riasan cantik untuk acara tunangan spesial.'],
-    ['src' => '../assets/gallery_makeup/makeup_7.jpeg', 'title' => 'Makeup Airbrush', 'desc' => 'Makeup flawless dengan teknik airbrush terkini.'],
-    ['src' => '../assets/gallery_makeup/makeup_8.jpeg', 'title' => 'Makeup Editorial', 'desc' => 'Makeup profesional untuk keperluan fotografi.'],
-    ['src' => '../assets/gallery_makeup/makeup_9.jpeg', 'title' => 'Makeup Bridal', 'desc' => 'Riasan sempurna untuk pengantin impian Anda.'],
+    ['src' => '../assets/foto_makeup.jpeg', 'title' => 'Makeup Natural', 'desc' => 'Makeup natural untuk tampilan yang anggun.'],
+    ['src' => '../assets/fotomakeup_1.jpeg', 'title' => 'Makeup Wedding', 'desc' => 'Riasan pengantin untuk hari istimewa.'],
+    ['src' => '../assets/fotomakeup_2.jpeg', 'title' => 'Makeup Elegan', 'desc' => 'Riasan elegan dengan hasil akhir rapi.'],
+    ['src' => '../assets/fotomakeup_3.jpeg', 'title' => 'Makeup Glamour', 'desc' => 'Tampilan glamour yang tetap lembut.'],
+    ['src' => '../assets/fotomakeup_4.jpeg', 'title' => 'Makeup Adat', 'desc' => 'Makeup adat dengan sentuhan modern.'],
+    ['src' => '../assets/fotomakeup_5.jpeg', 'title' => 'Makeup Spesial', 'desc' => 'Riasan cantik untuk acara spesial.'],
+    ['src' => '../assets/fotomakeup_6.png', 'title' => 'Makeup Engagement', 'desc' => 'Makeup cantik untuk acara tunangan.'],
+    ['src' => '../assets/fotomakeup_7.png', 'title' => 'Makeup Soft Look', 'desc' => 'Look lembut yang menonjolkan kecantikan alami.'],
+    ['src' => '../assets/fotomakeup_8.png', 'title' => 'Makeup Bridal', 'desc' => 'Riasan bridal yang flawless dan tahan lama.'],
+    ['src' => '../assets/fotomakeup_9.png', 'title' => 'Makeup Premium', 'desc' => 'Riasan premium untuk momen terbaik Anda.'],
 ];
 ?>
 <!DOCTYPE html>

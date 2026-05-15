@@ -2,12 +2,21 @@
 session_start();
 
 $photos = [
+<<<<<<< HEAD
     ['src' => '../assets/fotodekor1.jpeg.png', 'title' => 'Pelaminan Modern', 'desc' => 'Dekorasi pelaminan tema modern minimalis.'],
     ['src' => '../assets/fotodekor2.jpeg.png', 'title' => 'Wedding Decoration', 'desc' => 'Dekorasi pernikahan full setup indoor.'],
     ['src' => '../assets/fotodekor3.jpeg.png', 'title' => 'Dekor Akad Nikah', 'desc' => 'Setup meja akad dengan floral premium.'],
     ['src' => '../assets/fotodekor4.jpeg.png', 'title' => 'Standing Flower', 'desc' => 'Rangkaian bunga segar untuk pelaminan.'],
     ['src' => '../assets/fotodekor5.jpeg.png', 'title' => 'Dekor Lamaran', 'desc' => 'Backdrop foto cantik untuk lamaran.'],
     ['src' => '../assets/fotodekor6.jpeg.jpeg', 'title' => 'Dekor Garden Party', 'desc' => 'Dekorasi outdoor nuansa alam terbuka.'],
+=======
+    ['src' => '../assets/fotodekor1.jpeg.png', 'title' => 'Dekor Outdoor', 'desc' => 'Dekorasi acara dengan nuansa elegan dan rapi.'],
+    ['src' => '../assets/fotodekor2.jpeg.png', 'title' => 'Dekor Indoor', 'desc' => 'Pelaminan cantik untuk momen istimewa.'],
+    ['src' => '../assets/fotodekor3.jpeg.png', 'title' => 'Dekor Indoor', 'desc' => 'Dekor akad yang hangat dan berkesan.'],
+    ['src' => '../assets/fotodekor4.jpeg.png', 'title' => 'Dekor Outdoor', 'desc' => 'Tampilan dekor resepsi yang anggun.'],
+    ['src' => '../assets/fotodekor5.jpeg.png', 'title' => 'Dekor Indoor', 'desc' => 'Dekorasi lamaran dengan sentuhan manis.'],
+    ['src' => '../assets/fotodekor6.jpeg.jpeg', 'title' => 'Dekor Outdoor', 'desc' => 'Dekorasi elegan untuk berbagai acara.'],
+>>>>>>> 86baf61 (merge remote changes)
 ];
 ?>
 <!DOCTYPE html>
