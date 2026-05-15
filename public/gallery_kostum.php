@@ -2,7 +2,6 @@
 session_start();
 
 $photos = [
-<<<<<<< HEAD
     ['src' => '../assets/fotokostum1.jpeg.jpeg', 'title' => 'Kostum Baju Adat', 'desc' => 'Kostum adat pengantin dengan detail elegan.'],
     ['src' => '../assets/fotokostum2.jpeg.jpg', 'title' => 'Kostum Wedding', 'desc' => 'Busana wedding dengan nuansa anggun.'],
     ['src' => '../assets/fotokostum3.jpeg.jpg', 'title' => 'Kostum Graduation', 'desc' => 'Pilihan kostum untuk momen wisuda.'],
@@ -11,16 +10,6 @@ $photos = [
     ['src' => '../assets/fotokostum6.jpeg.png', 'title' => 'Kostum Elegan', 'desc' => 'Tampilan elegan untuk acara formal.'],
     ['src' => '../assets/fotokostum7.jpeg.png', 'title' => 'Kostum Premium', 'desc' => 'Kostum premium untuk hari istimewa.'],
     ['src' => '../assets/fotokostum8.jpeg.png', 'title' => 'Kostum Custom', 'desc' => 'Pilihan kostum dengan penyesuaian ukuran.'],
-=======
-    ['src' => '../assets/fotokostum1.jpeg.jpeg', 'title' => 'Kostum Karnaval', 'desc' => 'Kostum untuk acara yang memanggil.'],
-    ['src' => '../assets/fotokostum2.jpeg.jpg', 'title' => 'Baju Adat', 'desc' => 'Pilihan kostum tradisional yang istimewa.'],
-    ['src' => '../assets/fotokostum3.jpeg.jpg', 'title' => 'Baju Adat', 'desc' => 'Pilihan kostum tradisional yang istimewa'],
-    ['src' => '../assets/fotokostum4.jpeg.jpg', 'title' => 'Baju Adat', 'desc' => 'Pilihan kostum tradisional yang istimewa.'],
-    ['src' => '../assets/fotokostum5.jpeg.jpeg', 'title' => 'Baju Adat', 'desc' => 'Pilihan kostum tradisional yang istimewa.'],
-    ['src' => '../assets/fotokostum6.jpeg.png', 'title' => 'Kostum Pengantin', 'desc' => 'Kostum terbaik untuk hari spesial.'],
-    ['src' => '../assets/fotokostum7.jpeg.png', 'title' => 'Kostum resepsi pengantin', 'desc' => 'Kostum terbaik untuk hari spesial.'],
-    ['src' => '../assets/fotokostum8.jpeg.png', 'title' => 'Kostum Akad', 'desc' => 'Kostum terbaik untuk hari spesial.'],
->>>>>>> 86baf61 (merge remote changes)
 ];
 ?>
 <!DOCTYPE html>

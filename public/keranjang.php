@@ -31,123 +31,143 @@ try {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
+        :root {
+            --primary-color: #d07f26;
+            --primary-dark: #8a4c18;
+            --bg-soft: #fff5e7;
+            --card-bg: #ffffff;
+            --text-dark: #2b1f15;
+            --text-muted: #5e4a37;
+            --border-soft: rgba(208, 127, 38, 0.22);
+        }
+
         body {
-            background-color: #f5f5f5;
+            background-color: var(--bg-soft);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-dark);
             padding-top: 100px !important;
-            padding-bottom: 110px;
+            padding-bottom: 140px;
+        }
+
+        .page-heading {
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #3a2a1e;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            margin-top: 6px;
         }
 
         .cart-header,
         .cart-item {
             width: 100%;
-            background: white;
-            padding: 20px;
-            border-radius: 4px;
-            margin-bottom: 12px;
+            background: var(--card-bg);
+            border-radius: 22px;
+            padding: 22px;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
-            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+            gap: 14px;
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.08);
         }
 
         .cart-header {
             position: sticky;
-            top: 86px;
+            top: 92px;
             z-index: 99;
-            border-bottom: 1px solid #eee;
-            font-size: 18px;
-            font-weight: 600;
+            border: 1px solid rgba(208, 127, 38, 0.12);
+            background: rgba(255,255,255,0.96);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #3f2d1f;
         }
 
-        .col-checkbox {
-            width: 5%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .col-produk {
-            width: 35%;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            text-align: left;
-        }
-
-        .col-include {
-            width: 15%;
-            position: relative;
-            text-align: center;
-        }
-
+        .col-checkbox { width: 5%; display: flex; justify-content: center; align-items: center; }
+        .col-produk { width: 35%; display: flex; gap: 18px; align-items: center; }
+        .col-include { width: 18%; text-align: center; }
         .col-harga,
         .col-kuantitas,
-        .col-total {
-            width: 15%;
-            text-align: center;
-        }
-
-        .col-total {
-            color: #ee4d2d;
-            font-weight: bold;
-        }
-
-        .col-aksi {
-            width: 10%;
-            text-align: center;
-        }
+        .col-total { width: 14%; text-align: center; }
+        .col-aksi { width: 10%; text-align: center; }
 
         .cart-item img {
-            width: 100px;
-            height: 100px;
+            width: 90px;
+            height: 90px;
             object-fit: cover;
-            border: 1px solid #eee;
-            border-radius: 6px;
+            border: 1px solid var(--border-soft);
+            border-radius: 18px;
         }
 
         .item-checkbox {
-            transform: scale(1.4);
+            transform: scale(1.3);
             cursor: pointer;
-            accent-color: #1943ff;
+            accent-color: var(--primary-color);
         }
 
-        .include-popover {
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            width: 180px;
-            z-index: 100;
-            font-size: 14px;
+        .badge-type {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: #fff1d8;
+            color: var(--primary-dark);
+            font-weight: 700;
+            font-size: 0.85rem;
         }
 
         .qty-input {
             width: 60px;
-            height: 42px;
+            height: 44px;
             text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            border: 1px solid #ddd;
+            font-size: 1rem;
+            font-weight: 700;
+            border: 1px solid #e7c59c;
             border-left: none;
             border-right: none;
+            background: transparent;
         }
 
         .btn-qty {
-            width: 42px;
-            height: 42px;
-            border: 1px solid #ddd;
-            background: white;
+            width: 45px;
+            height: 44px;
+            border: 1px solid #e7c59c;
+            background: var(--card-bg);
+            color: var(--text-dark);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 1.1rem;
+            transition: background 0.2s ease;
         }
 
         .btn-qty:hover {
-            background-color: #f8f8f8;
-            color: #ee4d2d;
+            background-color: #fff2d8;
+            color: var(--primary-dark);
+        }
+
+        .cart-item-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .item-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #3a2920;
+        }
+
+        .item-subtext {
+            color: var(--text-muted);
+            font-size: 0.9rem;
         }
 
         .checkout-footer {
@@ -155,73 +175,46 @@ try {
             bottom: 0;
             left: 0;
             width: 100%;
-            background: white;
+            background: #fff;
             padding: 18px 0;
-            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.10);
+            border-top: 1px solid rgba(208, 127, 38, 0.14);
+            box-shadow: 0 -14px 30px rgba(0, 0, 0, 0.08);
             z-index: 1000;
         }
 
         .total-price {
-            color: #ee4d2d;
-            font-size: 24px;
-            font-weight: 600;
+            color: var(--primary-dark);
+            font-size: 1.5rem;
+            font-weight: 800;
         }
 
         .btn-checkout {
-            background-color: #ee4d2d;
+            background: linear-gradient(135deg, #d07f26, #ae5c16);
             color: white;
-            padding: 10px 40px;
-            font-weight: bold;
-            border-radius: 2px;
+            padding: 14px 32px;
+            font-weight: 700;
+            border-radius: 16px;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: 0 16px 32px rgba(208, 127, 38, 0.25);
         }
 
         .btn-checkout:hover {
-            background-color: #d73211;
-            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 22px 38px rgba(208, 127, 38, 0.3);
         }
 
         @media (max-width: 991px) {
-            .cart-header {
-                display: none;
-            }
-
-            .btn-checkout {
-                font-size: 20px;
-            }
-
-            .cart-item {
-                align-items: flex-start;
-                gap: 12px;
-                flex-wrap: wrap;
-            }
-
-            .col-checkbox {
-                width: 8%;
-            }
-
-            .col-produk {
-                width: 87%;
-            }
-
+            .cart-header { display: none; }
+            .cart-item { flex-direction: column; align-items: stretch; }
+            .col-checkbox,
             .col-include,
             .col-harga,
             .col-kuantitas,
             .col-total,
-            .col-aksi {
-                width: 100%;
-                text-align: left;
-                padding-left: 12%;
-            }
-
-            .checkout-footer .container {
-                flex-direction: column;
-                gap: 14px;
-                align-items: stretch !important;
-            }
-
-            .checkout-footer .checkout-actions {
-                justify-content: space-between;
-            }
+            .col-aksi { width: 100%; text-align: left; padding-left: 0; }
+            .col-produk { width: 100%; }
+            .checkout-footer .container { flex-direction: column; gap: 16px; align-items: stretch; }
+            .btn-checkout { width: 100%; }
         }
     </style>
 </head>
@@ -230,16 +223,23 @@ try {
 <?php include 'include/navbar.php'; ?>
 
 <div class="container-fluid mt-4 px-lg-5">
-    <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="text-dark fs-3"><i class="bi bi-chevron-left"></i></a>
-    <h4 class="fw-bold mb-4">Keranjang Belanja</h4>
+    <div class="d-flex align-items-center justify-content-between flex-column flex-md-row page-heading">
+        <div>
+            <h2 class="section-title mb-1">Keranjang Belanja</h2>
+            <p class="section-subtitle mb-0">Kelola pesanan Anda sebelum checkout.</p>
+        </div>
+        <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="bi bi-chevron-left me-2"></i>Kembali
+        </a>
+    </div>
 
     <div class="cart-header d-none d-lg-flex">
         <div class="col-checkbox"><input type="checkbox" id="selectAll" class="item-checkbox" checked onchange="toggleSelectAll(this.checked)"></div>
         <div class="col-produk">Produk</div>
         <div class="col-include">Tipe</div>
-        <div class="col-harga">Harga Satuan</div>
+        <div class="col-harga">Harga</div>
         <div class="col-kuantitas">Kuantitas</div>
-        <div class="col-total">Total Harga</div>
+        <div class="col-total">Total</div>
         <div class="col-aksi">Aksi</div>
     </div>
 
@@ -247,18 +247,18 @@ try {
 </div>
 
 <div class="checkout-footer">
-    <div class="container d-flex align-items-center justify-content-between">
+    <div class="container d-flex align-items-center justify-content-between flex-column flex-md-row gap-3">
         <div class="d-flex align-items-center gap-3 checkout-actions">
             <input type="checkbox" id="selectAllBottom" class="item-checkbox" checked onchange="toggleSelectAll(this.checked)">
-            <span>Pilih Semua (<span id="count-selected">0</span>)</span>
-            <button class="btn btn-link text-danger text-decoration-none" onclick="removeSelected()">Hapus</button>
+            <span class="fw-semibold">Pilih Semua (<span id="count-selected">0</span>)</span>
+            <button class="btn btn-link text-dark text-decoration-none" onclick="removeSelected()">Hapus</button>
         </div>
-        <div class="d-flex align-items-center gap-4 justify-content-end checkout-actions">
+        <div class="d-flex align-items-center gap-4 justify-content-between checkout-actions w-100 w-md-auto">
             <div class="text-end">
-                <span class="text-muted">Total (<span id="item-total">0</span> produk): </span>
+                <span class="text-muted">Total (<span id="item-total">0</span> item)</span><br>
                 <span class="total-price" id="total-text">Rp 0</span>
             </div>
-            <a href="#" onclick="checkoutSelected()" class="btn btn-checkout">Checkout</a>
+            <a href="#" onclick="checkoutSelected(); return false;" class="btn btn-checkout">Checkout Sekarang</a>
         </div>
     </div>
 </div>
@@ -308,7 +308,7 @@ function updateDisplay() {
                 </div>
 
                 <div class="col-include">
-                    <span class="badge bg-secondary">${escapeHtml(item.tipe_layanan)}</span>
+                    <span class="badge-type">${escapeHtml(item.tipe_layanan)}</span>
                 </div>
 
                 <div class="col-harga">${formatRupiah(item.harga)}</div>
