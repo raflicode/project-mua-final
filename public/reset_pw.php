@@ -1,6 +1,18 @@
 
 <?php
 session_start();
+
+// Get errors and form data from session
+$errors = isset($_SESSION['errors']) ? $_SESSION['errors'] : [];
+$formData = isset($_SESSION['form_data']) ? $_SESSION['form_data'] : [];
+$success = isset($_SESSION['success']) ? $_SESSION['success'] : '';
+
+// Clear session after displaying
+if (!empty($errors) || !empty($success)) {
+    unset($_SESSION['errors']);
+    unset($_SESSION['form_data']);
+    unset($_SESSION['success']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -47,8 +59,26 @@ session_start();
             Silakan buat password Anda
         </p>
 
+        <!-- Success Message -->
+        <?php if (!empty($success)): ?>
+            <div class="alert alert-success alert-dismissible fade show w-100 mb-4" role="alert">
+                <?= htmlspecialchars($success) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
+        <!-- Error Messages -->
+        <?php if (!empty($errors)): ?>
+            <div class="alert alert-danger alert-dismissible fade show w-100 mb-4" role="alert">
+                <?php foreach ($errors as $error): ?>
+                    <div>• <?= htmlspecialchars($error) ?></div>
+                <?php endforeach; ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
         <!-- Form -->
-       <form action="login.php" method="POST">
+       <form action="../actions/proses_reset_password.php" method="POST">
 
             <!-- Email -->
             <div class="mb-4">
@@ -65,7 +95,7 @@ session_start();
             <div class="mb-4">
                 <input
                     type="password"
-                    name="password_baru"
+                    name="password"
                     class="form-control rounded-pill py-3 px-4 border-secondary-subtle bg-light"
                     placeholder="Password Baru"
                     required
@@ -76,7 +106,7 @@ session_start();
             <div class="mb-5">
                 <input
                     type="password"
-                    name="konfirmasi_password"
+                    name="confirm_password"
                     class="form-control rounded-pill py-3 px-4 border-secondary-subtle bg-light"
                     placeholder="Konfirmasi Password"
                     required

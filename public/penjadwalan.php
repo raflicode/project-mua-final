@@ -1,5 +1,6 @@
 <?php
 session_start();
+$backHref = 'booking.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -10,7 +11,7 @@ session_start();
 <title>Booking MUA Yayuk</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 <style>
 body {
     background: #ffffff;
@@ -98,9 +99,17 @@ body {
 
 <body>
 
+<!-- SWEETALERT2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <?php include 'include/navbar.php'; ?>
 
 <div class="container-fluid mt-5 px-lg-5 wrapper">
+
+<div class="mb-4">
+       <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="text-dark fs-3"><i class="bi bi-chevron-left"></i></a>
+    </div>
+
     <div class="card card-custom">
         <div class="header-booking">
             Pilih Ketersediaan Tanggal
@@ -130,9 +139,9 @@ body {
                     Sore (15:00 - 18:00)
                 </div>
 
-                <a href="pembayaran.php" class="btn btn-primary btn-lanjut w-100 mt-3">
+                <button id="btnContinue" type="button" class="btn btn-primary btn-lanjut w-100 mt-3">
                     LANJUTKAN BOOKING
-                </a>
+                </button>
             </div>
         </div>
     </div>
@@ -140,6 +149,8 @@ body {
 
 <script>
 let date = new Date();
+let selectedDate = null;
+let selectedSlot = null;
 
 function renderCalendar() {
     const calendar = document.getElementById("calendar");
@@ -184,13 +195,57 @@ function nextMonth() {
 function pilihTanggal(el) {
     document.querySelectorAll(".tgl").forEach(t => t.classList.remove("active"));
     el.classList.add("active");
+    selectedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(el.innerText).padStart(2, '0')}`;
     document.getElementById("slotArea").style.display = "block";
+    selectedSlot = null;
+    document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+    const btnContinue = document.getElementById('btnContinue');
+    if (btnContinue) {
+        btnContinue.classList.add('btn-secondary');
+        btnContinue.classList.remove('btn-primary');
+    }
 }
 
 function pilihSlot(el) {
     document.querySelectorAll(".slot").forEach(s => s.classList.remove("selected"));
     el.classList.add("selected");
+    selectedSlot = el.innerText;
+    const btnContinue = document.getElementById('btnContinue');
+    if (btnContinue) {
+        btnContinue.classList.remove('btn-secondary');
+        btnContinue.classList.add('btn-primary');
+    }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const btnContinue = document.getElementById('btnContinue');
+    if (btnContinue) {
+        btnContinue.addEventListener('click', function() {
+            if (!selectedDate) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Tanggal Belum Dipilih',
+                    text: 'Silakan pilih tanggal terlebih dahulu.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#1943ff'
+                });
+                return;
+            }
+            if (!selectedSlot) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Slot Waktu Belum Dipilih',
+                    text: 'Silakan pilih slot waktu terlebih dahulu.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#1943ff'
+                });
+                return;
+            }
+            sessionStorage.setItem('selectedSchedule', JSON.stringify({ date: selectedDate, slot: selectedSlot }));
+            window.location.href = 'pembayaran.php';
+        });
+    }
+});
 
 renderCalendar();
 </script>

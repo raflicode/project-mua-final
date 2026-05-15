@@ -1,5 +1,17 @@
 <?php
 // pembayaran.php
+session_start();
+$backHref = 'penjadwalan.php';
+
+// Check for errors from proses_pembayaran
+$errors = isset($_SESSION['errors']) ? $_SESSION['errors'] : [];
+$formData = isset($_SESSION['form_data']) ? $_SESSION['form_data'] : [];
+
+// Clear session after displaying
+if (!empty($errors)) {
+    unset($_SESSION['errors']);
+    unset($_SESSION['form_data']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -8,6 +20,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Proses Pembayaran</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
     <style>
         body {
@@ -53,9 +66,13 @@
 </head>
 <body>
 
-<!-- Bagian <?php // include 'include/navbar.php'; ?> telah dihapus agar menu navigasi tidak muncul -->
+<?php include 'include/navbar.php'; ?>
 
 <div class="container py-5 wrapper">
+
+    <div class="mb-4">
+       <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="text-dark fs-3"><i class="bi bi-chevron-left"></i></a>
+    </div>
 
     <!-- Judul -->
     <h2 class="text-center judul mb-4">Proses Pembayaran</h2>
@@ -64,18 +81,28 @@
     <div class="card card-custom">
         <div class="card-body p-4">
 
-            <form action="konfirmasi.php" method="post">
+            <!-- Error Messages -->
+            <?php if (!empty($errors)): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <?php foreach ($errors as $error): ?>
+                        <div>• <?= htmlspecialchars($error) ?></div>
+                    <?php endforeach; ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+
+            <form action="../actions/proses_pembayaran.php" method="post">
 
                 <!-- Nama -->
                 <div class="mb-3">
                     <label class="form-label">Nama Lengkap</label>
-                    <input type="text" name="nama" class="form-control" required>
+                    <input type="text" name="nama" class="form-control" required pattern="[a-zA-Z\s]+" title="Nama hanya boleh mengandung huruf dan spasi" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '');">
                 </div>
 
                 <!-- HP -->
                 <div class="mb-3">
                     <label class="form-label">No Handphone</label>
-                    <input type="text" name="hp" class="form-control" required>
+                    <input type="tel" inputmode="numeric" pattern="[0-9]*" name="hp" class="form-control" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                 </div>
 
                 <!-- Metode -->
@@ -94,7 +121,7 @@
                 <!-- Alamat -->
                 <div class="mb-4">
                     <label class="form-label">Alamat / Catatan</label>
-                    <textarea name="alamat" rows="4" class="form-control"></textarea>
+                    <textarea name="alamat" rows="4" class="form-control" required></textarea>
                 </div>
 
                 <!-- Total -->
@@ -115,6 +142,15 @@
 
 </div>
 
+<script>
+function goBack() {
+    if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+        window.history.back();
+    } else {
+        window.location.href = 'booking.php';
+    }
+}
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

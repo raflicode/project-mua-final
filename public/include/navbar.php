@@ -76,23 +76,7 @@ if (session_status() === PHP_SESSION_NONE) {
     /* Warna ungu pas di hover biar senada sama login */
   }
 
-  /* Styling Dropdown Box */
-  .dropdown-menu-custom {
-    background-color: #ffffff;
-    border: none;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    margin-top: 10px !important;
-  }
-
-  .dropdown-item-custom {
-    color: #333 !important;
-    font-size: 14px;
-    padding: 8px 20px;
-  }
-
-  .dropdown-item-custom:hover {
-    background-color: #f8f9fa;
-  }
+  
 </style>
 
 <nav id="mainNavbar" class="navbar fixed-top px-3 transition-nav">
@@ -110,14 +94,15 @@ if (session_status() === PHP_SESSION_NONE) {
       <a class="nav-link" href="/project-mua-final/index.php">Home</a>
       <a class="nav-link" href="/project-mua-final/public/service.php">Service</a>
       <a class="nav-link" href="/project-mua-final/index.php#gallery">Gallery</a>
-      <a class="nav-link" href="/project-mua-final/public/booking.php"><i class="bi bi-cart3"></i> Keranjang</a>
+      <a class="nav-link position-relative" href="/project-mua-final/public/keranjang.php">
+        <i class="bi bi-cart3"></i> Keranjang
+        <span id="cart-count" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none; font-size:0.7rem;"></span>
+      </a>
 
     <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
-      <!-- DROPDRON PROFILE -->
       <div class="dropdown">
         <a class="nav-link dropdown-toggle d-flex align-items-center border-0" href="#" role="button"
           data-bs-toggle="dropdown" aria-expanded="false">
-          <!-- Icon Vector Umum (Kepala & Badan) -->
           <div class="profile-circle-icon">
             <i class="bi bi-person-circle"></i>
           </div>
@@ -125,7 +110,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom">
           <li>
-            <div class="dropdown-header text-muted">Halo, <strong><?= $_SESSION['username']; ?></strong></div>
+            <div class="dropdown-header text-muted">Halo, <strong><?= htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?></strong></div>
           </li>
           <li>
             <hr class="dropdown-divider">
@@ -151,7 +136,7 @@ if (session_status() === PHP_SESSION_NONE) {
       <li><a class="nav-link text-white" href="/project-mua-final/index.php">🏠 Home</a></li>
       <li><a class="nav-link text-white" href="/project-mua-final/public/service.php">💄 Service</a></li>
       <li><a class="nav-link text-white" href="/project-mua-final/index.php#gallery">🖼️ Gallery</a></li>
-      <li><a class="nav-link text-white" href="/project-mua-final/public/booking.php"><i class="bi bi-cart3"></i> Keranjang</a></li>
+      <li><a class="nav-link text-white position-relative" href="/project-mua-final/public/keranjang.php"><i class="bi bi-cart3"></i> Keranjang <span id="cart-count-mobile" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none; font-size:0.7rem;"></span></a></li>
     </ul>
 
     <div class="border-top pt-3 mt-4">
@@ -183,4 +168,15 @@ if (session_status() === PHP_SESSION_NONE) {
       navbar.classList.remove('nav-scrolled');
     }
   };
+
+  function updateNavbarBadge() {
+    const cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
+    const totalQty = cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+    document.querySelectorAll('#cart-count, #cart-count-mobile').forEach(el => {
+      el.innerText = totalQty;
+      el.style.display = totalQty > 0 ? 'inline-block' : 'none';
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', updateNavbarBadge);
 </script>

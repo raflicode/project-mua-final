@@ -1,4 +1,4 @@
-ï»¿<?php session_start(); ?>
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -209,7 +209,7 @@
 
     <div class="row g-4 justify-content-center mb-5">
 
-        <!-- PAKET 1: Makeup Wedding â€” col-12 = full width -->
+        <!-- PAKET 1: Makeup Wedding — col-12 = full width -->
         <div class="col-12">
             <div class="card-custom">
                 <img src="../assets/gallery_makeup/makeup_1.jpeg" alt="Makeup Wedding" class="card-img-left">
@@ -228,14 +228,14 @@
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-outline-dark btn-booking flex-grow-1"><i class="bi bi-cart3"></i> Keranjang</button>
+                        <a href="keranjang.php" class="btn btn-outline-dark btn-booking flex-grow-1"><i class="bi bi-cart3"></i> Keranjang</a>
                         <a href="makeup.php" class="btn btn-outline-dark btn-booking flex-grow-1">Booking</a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- PAKET 2: Wedding Kostum â€” col-12 = full width -->
+        <!-- PAKET 2: Wedding Kostum — col-12 = full width -->
         <div class="col-12">
             <div class="card-custom">
                 <img src="../assets/gallery_makeup/makeup_2.jpeg" alt="Wedding Kostum" class="card-img-left">
@@ -254,14 +254,14 @@
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-outline-dark btn-booking flex-grow-1"><i class="bi bi-cart3"></i> Keranjang</button>
+                        <a href="keranjang.php" class="btn btn-outline-dark btn-booking flex-grow-1"><i class="bi bi-cart3"></i> Keranjang</a>
                         <a href="kostum.php" class="btn btn-outline-dark btn-booking flex-grow-1">Booking</a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- PAKET 3: Dekor/Terop â€” col-12 = full width -->
+        <!-- PAKET 3: Dekor/Terop — col-12 = full width -->
         <div class="col-12">
             <div class="card-custom">
                 <img src="../assets/gallery_makeup/makeup_3.jpeg" alt="Dekor Terop" class="card-img-left">
@@ -280,7 +280,7 @@
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-outline-dark btn-booking flex-grow-1"><i class="bi bi-cart3"></i> Keranjang</button>
+                        <a href="keranjang.php" class="btn btn-outline-dark btn-booking flex-grow-1"><i class="bi bi-cart3"></i> Keranjang</a>
                         <a href="dekor.php" class="btn btn-outline-dark btn-booking flex-grow-1">Booking</a>
                     </div>
                 </div>
@@ -295,7 +295,7 @@
 
     <div class="row g-4 justify-content-center pb-5">
 
-        <!-- SILVER â€” dengan include lengkap -->
+        <!-- SILVER — dengan include lengkap -->
         <div class="col-12 col-lg-6">
             <div class="card wedding-card silver-card">
                 <div class="header-silver text-uppercase">Silver</div>
@@ -326,7 +326,7 @@
             </div>
         </div>
 
-        <!-- GOLD â€” dengan include lengkap -->
+        <!-- GOLD — dengan include lengkap -->
         <div class="col-12 col-lg-6">
             <div class="card wedding-card gold-card">
                 <div class="header-gold text-uppercase">Gold</div>

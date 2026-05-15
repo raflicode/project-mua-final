@@ -73,6 +73,18 @@ session_start();
             .navbar-custom { padding: 20px 0; }
             .brand-text { font-size: 28px; }
         }
+
+           .btn-kembali {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 30px;
+    padding: 10px 20px;
+    z-index: 10;
+    }
+
     </style>
 </head>
 <body>
@@ -156,6 +168,8 @@ session_start();
     <button class="lightbox-next" onclick="event.stopPropagation();changePhoto(1)"><i class="bi bi-chevron-right"></i></button>
     <div class="lightbox-counter" id="lightboxCounter"></div>
 </div>
+
+<a href="javascript:history.back()" class="btn btn-kembali">Kembali</a>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>

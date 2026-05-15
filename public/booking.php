@@ -5,6 +5,43 @@ if (!isset($_SESSION['id_user'])) {
     header("Location: login.php");
     exit;
 }
+
+$allowedBack = [
+    'makeup' => 'makeup.php',
+    'dekor' => 'dekor.php',
+    'kostum' => 'kostum.php'
+];
+$fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_STRING);
+$backHref = 'service.php';
+if ($fromPage && isset($allowedBack[$fromPage])) {
+    $backHref = $allowedBack[$fromPage];
+}
+
+// Get product name and price from URL parameters
+$namaProduk = filter_input(INPUT_GET, 'nama', FILTER_SANITIZE_STRING);
+$hargaProduk = filter_input(INPUT_GET, 'harga', FILTER_VALIDATE_INT);
+
+// Determine foto berdasarkan kategori produk
+$foto = '../assets/foto_makeup.jpeg';
+if ($fromPage === 'dekor') {
+    $foto = '../assets/foto_dekor.jpeg';
+} elseif ($fromPage === 'kostum') {
+    $foto = '../assets/foto_kostum.jpeg';
+}
+
+// Default checkout items (fallback)
+$checkoutItems = [
+    [
+        'nama' => $namaProduk ?: 'Makeup Graduation',
+        'harga' => $hargaProduk ?: 800000,
+        'qty' => 1,
+        'foto' => $foto
+    ]
+];
+$totalItems = 1;
+$totalHarga = $hargaProduk ?: 800000;
+$biayaLayanan = 10000;
+$totalBayar = $totalHarga + $biayaLayanan;
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -99,25 +136,21 @@ if (!isset($_SESSION['id_user'])) {
 
 <div class="order-detail-container">
     <div class="mb-4">
-        <a href="service.php" class="text-dark fs-3"><i class="bi bi-chevron-left"></i></a>
+        <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="text-dark fs-3"><i class="bi bi-chevron-left"></i></a>
     </div>
 
     <h2 class="text-center fw-bold mb-5">Detail Pesanan</h2>
 
     <div class="order-card p-4">
-        <div class="d-flex align-items-start mb-4">
-            <div class="product-img-placeholder me-3"></div>
-            <div>
-                <h6 class="fw-bold mb-1">Makeup Graduation <span class="ms-2">x1</span></h6>
-                <p class="text-price mb-0">Rp. 800.000</p>
-            </div>
+        <div id="order-items-container">
+            <!-- Items akan diisi oleh JavaScript -->
         </div>
 
         <div class="divider"></div>
 
         <div class="d-flex justify-content-between mb-2">
-            <span class="label-muted">Total (1 item)</span>
-            <span class="text-price">Rp. 800.000</span>
+            <span class="label-muted">Total (<span id="total-items">1</span> item)</span>
+            <span class="text-price" id="subtotal-text">Rp. 800.000</span>
         </div>
         <div class="d-flex justify-content-between mb-4">
             <span class="label-muted">Biaya layanan</span>
@@ -132,7 +165,7 @@ if (!isset($_SESSION['id_user'])) {
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <span class="fw-bold">Total Bayar</span>
-            <span class="fw-bold text-price">Rp. 810.000</span>
+            <span class="fw-bold text-price" id="total-bayar-text">Rp. 810.000</span>
         </div>
 
         <a href="penjadwalan.php" class="btn btn-payment">
@@ -140,6 +173,51 @@ if (!isset($_SESSION['id_user'])) {
         </a>
     </div>
 </div>
+
+<script>
+function formatRupiah(value) {
+    return "Rp " + Number(value).toLocaleString('id-ID');
+}
+
+function loadCheckoutItems() {
+    const checkoutItems = JSON.parse(sessionStorage.getItem('checkout_items')) || <?php echo json_encode($checkoutItems); ?>;
+    
+    const container = document.getElementById('order-items-container');
+    let html = '';
+    let totalItems = 0;
+    let totalHarga = 0;
+    
+    checkoutItems.forEach((item, index) => {
+        const itemTotal = Number(item.harga) * Number(item.qty);
+        totalItems += Number(item.qty);
+        totalHarga += itemTotal;
+        
+        html += `
+            <div class="d-flex align-items-start mb-4">
+                <div class="product-img-placeholder me-3" style="background-image: url('${item.foto}'); background-size: cover; background-position: center;"></div>
+                <div>
+                    <h6 class="fw-bold mb-1">${item.nama} <span class="ms-2">x${item.qty}</span></h6>
+                    <p class="text-price mb-0">${formatRupiah(item.harga)}</p>
+                </div>
+            </div>
+        `;
+        
+        if (index < checkoutItems.length - 1) {
+            html += '<div class="divider mb-4"></div>';
+        }
+    });
+    
+    container.innerHTML = html;
+    
+    // Update totals
+    document.getElementById('total-items').innerText = totalItems;
+    document.getElementById('subtotal-text').innerText = formatRupiah(totalHarga);
+    document.getElementById('total-bayar-text').innerText = formatRupiah(totalHarga + 10000);
+}
+
+// Load items when page loads
+document.addEventListener('DOMContentLoaded', loadCheckoutItems);
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
