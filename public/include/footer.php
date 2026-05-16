@@ -15,7 +15,9 @@
 
     /* Footer Styling sesuai Gambar 2 */
     .custom-footer {
-        background-color: #A58459;
+        background:
+            linear-gradient(135deg, rgba(123, 93, 63, 0.98), rgba(165, 132, 89, 0.96)),
+            #A58459;
         color: white;
         padding: 60px 0 20px 0;
     }
@@ -26,13 +28,14 @@
     }
 
     .brand-footer {
+        font-family: 'Playfair Display', serif;
         font-size: 24px;
         font-weight: 600;
         margin-bottom: 20px;
     }
 
     .brand-footer span {
-        color: #FED03A; /* Warna kuning emas untuk kata Makeover */
+        color: #FED03A;
         font-style: italic;
         font-weight: 300;
     }
@@ -71,6 +74,7 @@
     }
 
     .social-icons a { color: white; text-decoration: none; }
+    .social-icons a:hover { color: #FED03A; transform: translateY(-2px); }
 
     .footer-bottom {
         border-top: 1px solid rgba(255,255,255,0.2);

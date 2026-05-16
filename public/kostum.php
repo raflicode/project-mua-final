@@ -150,7 +150,7 @@ body {
                 <div class="card card-custom p-3">
                     <div class="card-body d-flex flex-column">
                         <h5 class="fw-bold mb-4">Kostum Baju Adat</h5>
-                        <img src="../assets/fotokostum1.jpeg.jpeg" class="img-paket" alt="Kostum Baju Adat">
+                        <img src="../assets/fotokostum3.jpeg.jpg" class="img-paket" alt="Kostum Baju Adat">
                         <p class="fw-semibold">Include :</p>
                         <ul>
                             <li>Baju adat pengantin</li>
@@ -163,8 +163,8 @@ body {
                         <button onclick="addToCart('Kostum Baju Adat', 'kostum', 8000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
                             <i class="bi bi-cart3"></i>
                         </button>
-                        <a href="booking.php?from=kostum&nama=Kostum+Baju+Adat&harga=8000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
-                            Booking
+                        <a href="detail_kostum.php?from=kostum&nama=Kostum+Baju+Adat&harga=8000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                            Lihat lebih banyak
                         </a>
                     </div>
                 </div>
@@ -174,7 +174,7 @@ body {
                 <div class="card card-custom p-3">
                     <div class="card-body d-flex flex-column">
                         <h5 class="fw-bold mb-4">Kostum Wedding</h5>
-                        <img src="../assets/fotokostum2.jpeg.jpg" class="img-paket" alt="Kostum Wedding">
+                        <img src="../assets/fotokostum6.jpeg.png" class="img-paket" alt="Kostum Wedding">
                         <p class="fw-semibold">Include :</p>
                         <ul>
                             <li>Kostum pengantin utama</li>
@@ -187,8 +187,8 @@ body {
                         <button onclick="addToCart('Kostum Wedding', 'kostum', 4000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
                             <i class="bi bi-cart3"></i>
                         </button>
-                        <a href="booking.php?from=kostum&nama=Kostum+Wedding&harga=4000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
-                            Booking
+                        <a href="detailkostum_wedding.php?from=kostum&nama=Kostum+Wedding&harga=4000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                            Lihat lebih banyak
                         </a>
                     </div>
                 </div>
@@ -198,7 +198,8 @@ body {
                 <div class="card card-custom p-3">
                     <div class="card-body d-flex flex-column">
                         <h5 class="fw-bold mb-4">Kostum Graduation</h5>
-                        <img src="../assets/fotokostum3.jpeg.jpg" class="img-paket" alt="Kostum Graduation">
+                        <img src="../assets/fotograduation.jpeg
+                        " class="img-paket" alt="Kostum Graduation">
                         <p class="fw-semibold">Include :</p>
                         <ul>
                             <li>Kebaya graduation</li>
@@ -211,8 +212,8 @@ body {
                         <button onclick="addToCart('Kostum Graduation', 'kostum', 6000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
                             <i class="bi bi-cart3"></i>
                         </button>
-                        <a href="booking.php?from=kostum&nama=Kostum+Graduation&harga=6000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
-                            Booking
+                        <a href="detailkostum_graduation.php?from=kostum&nama=Kostum+Graduation&harga=6000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                           Lihat lebih banyak
                         </a>
                     </div>
                 </div>
@@ -221,22 +222,22 @@ body {
             <div class="col-md-6">
                 <div class="card card-custom p-3">
                     <div class="card-body d-flex flex-column">
-                        <h5 class="fw-bold mb-4">Kostum Kebaya</h5>
-                        <img src="../assets/fotokostum4.jpeg.jpg" class="img-paket" alt="Kostum Kebaya">
+                        <h5 class="fw-bold mb-4">Kostum Pahlawan</h5>
+                        <img src="../assets/fotopahlawan.jpeg" class="img-paket" alt="Kostum Kebaya">
                         <p class="fw-semibold">Include :</p>
                         <ul>
                             <li>Kebaya pilihan</li>
                             <li>Kain bawahan</li>
-                            <li>Aksesoris sederhana</li>
+                            <li>Kostum pahlawan for kids</li>
                             <li>Custom size</li>
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <button onclick="addToCart('Kostum Kebaya', 'kostum', 2000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
+                        <button onclick="addToCart('Kostum Pahlawan', 'kostum', 2000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
                             <i class="bi bi-cart3"></i>
                         </button>
-                        <a href="booking.php?from=kostum&nama=Kostum+Kebaya&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
-                            Booking
+                        <a href="detailkostum_pahlawan.php?from=kostum&nama=Kostum+Kebaya&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                           Lihat lebih banyak
                         </a>
                     </div>
                 </div>

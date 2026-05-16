@@ -33,7 +33,7 @@ body {
 }
 
 .header-booking {
-    background: #f1c40f;
+    background: #b5835a;
     padding: 18px;
     text-align: center;
     font-weight: bold;
@@ -64,7 +64,7 @@ body {
 
 .tgl:hover,
 .tgl.active {
-    background: #f1c40f;
+    background: #b5835a;
 }
 
 .slot {
@@ -78,13 +78,13 @@ body {
 }
 
 .slot.selected {
-    background: #f1c40f;
-    border-color: #f1c40f;
+    background: #b5835a;
+    border-color: #b5835a;
     font-weight: bold;
 }
 
 .btn-lanjut {
-    background: #5b7bd5;
+    background: #b5835a;
     border: none;
     padding: 14px;
     font-weight: bold;
@@ -92,7 +92,7 @@ body {
 }
 
 .btn-lanjut:hover {
-    background: #4568c7;
+    background: #b5835a;
 }
 </style>
 </head>
@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     title: 'Tanggal Belum Dipilih',
                     text: 'Silakan pilih tanggal terlebih dahulu.',
                     confirmButtonText: 'OK',
-                    confirmButtonColor: '#1943ff'
+                    confirmButtonColor: '#c19775'
                 });
                 return;
             }
@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     title: 'Slot Waktu Belum Dipilih',
                     text: 'Silakan pilih slot waktu terlebih dahulu.',
                     confirmButtonText: 'OK',
-                    confirmButtonColor: '#1943ff'
+                    confirmButtonColor: '#c19775'
                 });
                 return;
             }
