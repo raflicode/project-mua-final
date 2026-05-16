@@ -1,10 +1,5 @@
-
 <?php
 session_start();
-?>
-
-<?php
-// halaman_kostum.php
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -12,64 +7,82 @@ session_start();
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Makeup - Yayuk Makeover</title>
+<title>Kostum - Yayuk Makeover</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lobster&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
-body{
-    font-family:'Poppins', sans-serif;
-    background:#efefef;
+* {
+    box-sizing: border-box;
 }
 
-/* Judul */
-.judul h1{
-    font-family:'Lobster', cursive;
-    font-size:70px;
-    color:#b85a00;
-    text-shadow:3px 3px 6px rgba(0,0,0,0.25);
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #efefef;
+    color: #222;
 }
 
-.line{
-    width:220px;
-    height:2px;
-    background:#b85a00;
-    margin:auto;
+.page-wrap {
+    padding-top: 95px;
+    padding-bottom: 80px;
 }
 
-
-/* Card */
-.card-custom{
-    border:none;
-    border-radius:15px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.12);
-    transition:0.3s;
+.judul h1 {
+    font-family: 'Lobster', cursive;
+    font-size: 70px;
+    color: #b85a00;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.25);
 }
 
-.card-custom:hover{
-    transform:translateY(-5px);
+.line {
+    width: 220px;
+    height: 2px;
+    background: #b85a00;
+    margin: auto;
 }
 
-.card-custom ul{
-    padding-left:0;
-    list-style:none;
+.card-custom {
+    height: 100%;
+    border: none;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+    transition: 0.3s;
 }
 
-.card-custom ul li{
-    margin-bottom:8px;
-    color:#666;
+.card-custom:hover {
+    transform: translateY(-5px);
 }
 
-.card-custom ul li::before{
-    content:"✓ ";
-    font-weight:bold;
-    color:black;
+.img-paket {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 14px;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-custom ul {
+    padding-left: 0;
+    list-style: none;
+}
+
+.card-custom ul li {
+    margin-bottom: 8px;
+    color: #666;
+}
+
+.card-custom ul li::before {
+    content: "\2713 ";
+    font-weight: 700;
+    color: #111;
 }
 
 .btn-booking {
-    height: 45px; /* Samakan tinggi dengan tombol keranjang */
+    height: 45px;
     border-radius: 30px;
     font-weight: 600;
     display: flex;
@@ -82,42 +95,39 @@ body{
     width: 45px;
     height: 45px;
     background-color: #212529;
-    color: white;
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
+    border-radius: 12px;
     border: none;
-    flex-shrink: 0; /* Agar tidak tertekan/gepeng */
+    flex-shrink: 0;
 }
 
 .btn-cart-icon i {
-    font-size: 18px; /* Ukuran besar kecilnya logo keranjang */
-} 
-
-/* Styling Gambar Paket */
-.img-paket {
-    width: 100%;
-    height: 200px; /* Tinggi tetap agar card sejajar */
-    object-fit: cover; /* Memotong gambar secara proporsional agar memenuhi area */
-    border-radius: 12px;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    font-size: 18px;
 }
 
-/* Tombol kembali */
-.btn-kembali{
-    position:fixed;
-    bottom:20px;
-    left:20px;
-    border-radius:30px;
-    padding:10px 20px;
+.btn-kembali {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    border-radius: 30px;
+    padding: 10px 20px;
+    z-index: 1000;
 }
 
-/* Responsive */
-@media(max-width:768px){
-    .judul h1{
-        font-size:55px;
+@media (max-width: 768px) {
+    .page-wrap {
+        padding-top: 82px;
+    }
+
+    .judul h1 {
+        font-size: 55px;
+    }
+
+    .img-paket {
+        height: 220px;
     }
 }
 </style>
@@ -125,130 +135,121 @@ body{
 
 <body>
 
-<!-- Navbar Include -->
 <?php include 'include/navbar.php'; ?>
 
-<div class="container py-5">
+<main class="page-wrap">
+    <div class="container">
 
-    <!-- Judul -->
-    <div class="text-center mb-5 judul">
-        <h1>Kostum</h1>
-        <div class="line mt-2"></div>
-    </div>
+        <div class="text-center mb-5 judul">
+            <h1>Kostum</h1>
+            <div class="line mt-2"></div>
+        </div>
 
-    <!-- Card Produk -->
-    <div class="row g-4">
-
-        <!-- Card 1 -->
         <div class="row g-4">
-
             <div class="col-md-6">
-                <div class="card card-custom h-100 p-3">
-                    <div class="card-body">
-                        <h5 class="mb-3">Kostum Baju Adat</h5>
-                        <img src="../assets/foto_kostum.jpeg" class="img-paket" alt="Kostum Baju Adat">
-                        
+                <div class="card card-custom p-3">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="fw-bold mb-4">Kostum Baju Adat</h5>
+                        <img src="../assets/fotokostum1.jpeg.jpeg" class="img-paket" alt="Kostum Baju Adat">
                         <p class="fw-semibold">Include :</p>
                         <ul>
-                            <li>Makeup</li>
-                            <li>Softlens</li>
-                            <li>Hairdo</li>
+                            <li>Baju adat pengantin</li>
+                            <li>Aksesoris kepala</li>
+                            <li>Kalung dan detail pelengkap</li>
+                            <li>Custom fitting</li>
                         </ul>
                     </div>
-                    <div class="d-flex gap-2 mt-auto">
-                            <button onclick="addToCart('Kostum Baju Adat', 'kostum', 8000000)" class="btn-cart-icon">
-                            🛒
-                            </button>
-                            <a href="booking.php?from=kostum&nama=Kostum+Baju+Adat&harga=8000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                    <div class="d-flex gap-2">
+                        <button onclick="addToCart('Kostum Baju Adat', 'kostum', 8000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
+                            <i class="bi bi-cart3"></i>
+                        </button>
+                        <a href="booking.php?from=kostum&nama=Kostum+Baju+Adat&harga=8000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                             Booking
                         </a>
                     </div>
                 </div>
             </div>
 
-        <!-- Card 2 -->
-        <div class="col-md-6">
-            <div class="card card-custom h-100 p-3">
-                <div class="card-body">
-                    <h5 class="mb-4">Kostum Wedding</h5>
-                    <img src="../assets/foto_kostum.jpeg" class="img-paket" alt="Kostum Wedding">
-                    <p class="fw-semibold">Include :</p>
-                    <ul>
-                        <li>Teks 1</li>
-                        <li>Teks 2</li>
-                        <li>Teks 3</li>
-                        <li>Teks 4</li>
-                    </ul>
-                </div>
-                <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart('Kostum Wedding', 'kostum', 4000000)" class="btn-cart-icon">
-                    🛒
-                    </button>
-                    <a href="booking.php?from=kostum&nama=Kostum+Wedding&harga=4000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
-                        Booking
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="col-md-6">
-            <div class="card card-custom h-100 p-3">
-                <div class="card-body">
-                    <h5 class="mb-4">Kostum Graduation</h5>
-                    <img src="../assets/foto_kostum.jpeg" class="img-paket" alt="Kostum Graduation">
-                    <p class="fw-semibold">Include :</p>
-                    <ul>
-                        <li>Teks 1</li>
-                        <li>Teks 2</li>
-                        <li>Teks 3</li>
-                        <li>Teks 4</li>
-                    </ul>
-                </div>
-                <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart('Kostum Graduation', 'kostum', 6000000)" class="btn-cart-icon">
-                    🛒
-                    </button>
-                    <a href="booking.php?from=kostum&nama=Kostum+Graduation&harga=6000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
-                        Booking
-                    </a>
+            <div class="col-md-6">
+                <div class="card card-custom p-3">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="fw-bold mb-4">Kostum Wedding</h5>
+                        <img src="../assets/fotokostum2.jpeg.jpg" class="img-paket" alt="Kostum Wedding">
+                        <p class="fw-semibold">Include :</p>
+                        <ul>
+                            <li>Kostum pengantin utama</li>
+                            <li>Selendang dan veil</li>
+                            <li>Aksesoris lengkap</li>
+                            <li>Elegant design</li>
+                        </ul>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button onclick="addToCart('Kostum Wedding', 'kostum', 4000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
+                            <i class="bi bi-cart3"></i>
+                        </button>
+                        <a href="booking.php?from=kostum&nama=Kostum+Wedding&harga=4000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                            Booking
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Card 4 -->
-        <div class="col-md-6">
-            <div class="card card-custom h-100 p-3">
-                <div class="card-body">
-                    <h5 class="mb-4">Kostum Kebaya</h5>
-                    <img src="../assets/foto_kostum.jpeg" class="img-paket" alt="Kostum Kebaya">
-                    <p class="fw-semibold">Include :</p>
-                    <ul>
-                        <li>Teks 5</li>
-                        <li>Teks 6</li>
-                        <li>Teks 7</li>
-                        <li>Teks 8</li>
-                    </ul>
+            <div class="col-md-6">
+                <div class="card card-custom p-3">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="fw-bold mb-4">Kostum Graduation</h5>
+                        <img src="../assets/fotokostum3.jpeg.jpg" class="img-paket" alt="Kostum Graduation">
+                        <p class="fw-semibold">Include :</p>
+                        <ul>
+                            <li>Kebaya graduation</li>
+                            <li>Rok atau kain bawahan</li>
+                            <li>Aksesoris pendukung</li>
+                            <li>Penyesuaian ukuran</li>
+                        </ul>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button onclick="addToCart('Kostum Graduation', 'kostum', 6000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
+                            <i class="bi bi-cart3"></i>
+                        </button>
+                        <a href="booking.php?from=kostum&nama=Kostum+Graduation&harga=6000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                            Booking
+                        </a>
+                    </div>
                 </div>
-                <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart('Kostum Kebaya', 'kostum', 2000000)" class="btn-cart-icon">
-                    🛒
-                    </button>
-                    <a href="booking.php?from=kostum&nama=Kostum+Kebaya&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
-                        Booking
-                    </a>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card card-custom p-3">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="fw-bold mb-4">Kostum Kebaya</h5>
+                        <img src="../assets/fotokostum4.jpeg.jpg" class="img-paket" alt="Kostum Kebaya">
+                        <p class="fw-semibold">Include :</p>
+                        <ul>
+                            <li>Kebaya pilihan</li>
+                            <li>Kain bawahan</li>
+                            <li>Aksesoris sederhana</li>
+                            <li>Custom size</li>
+                        </ul>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button onclick="addToCart('Kostum Kebaya', 'kostum', 2000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
+                            <i class="bi bi-cart3"></i>
+                        </button>
+                        <a href="booking.php?from=kostum&nama=Kostum+Kebaya&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                            Booking
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
     </div>
-
-</div>
+</main>
 
 <script>
 const isLoggedIn = <?php echo isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
 document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
-    btn.addEventListener('click', function(e){
+    btn.addEventListener('click', function(e) {
         if (!isLoggedIn) {
             e.preventDefault();
             Swal.fire({
@@ -272,9 +273,8 @@ document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
 });
 </script>
 
-<!-- Tombol Kembali -->
 <a href="service.php" class="btn btn-danger btn-kembali shadow">
-    kembali ↩
+    Kembali
 </a>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

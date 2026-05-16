@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (isset($_SESSION['otp']) && $otp_input == $_SESSION['otp']) {
         // OTP benar, redirect ke halaman reset password
-        header('Location: ../public/reset_password.php?success=' . urlencode('OTP benar. Silakan atur ulang password Anda.'));
+        header('Location: ../public/reset_pw.php?success=' . urlencode('OTP benar. Silakan atur ulang password Anda.'));
         exit();
     } else {
         // OTP salah, kembali ke halaman verifikasi OTP
