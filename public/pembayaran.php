@@ -29,9 +29,15 @@ if (!empty($errors)) {
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        .wrapper {
-            max-width: 420px;
-            margin: auto;
+      .wrapper {
+    width: 100%;
+    max-width: 850px;
+    margin: auto;
+    .container.wrapper {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+}
         }
 
         .card-custom {
@@ -52,7 +58,7 @@ if (!empty($errors)) {
         }
 
         .btn-bayar {
-            background: #5a8dee;
+            background: #b5835a;
             border: none;
             font-weight: bold;
             padding: 14px;
@@ -60,7 +66,7 @@ if (!empty($errors)) {
         }
 
         .btn-bayar:hover {
-            background: #3d73dc;
+            background: #b5835a;
         }
     </style>
 </head>

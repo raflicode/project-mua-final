@@ -538,34 +538,32 @@ include __DIR__ . '/actions/proses_index.php';
         </div>
 
         <!-- KOSTUM -->
-        <div class="col-md-4">
+<div class="col-md-4">
 
-            <div class="card gallery-card shadow-sm">
+    <div class="card gallery-card shadow-sm">
 
-                <img src="assets/foto_kostum.jpeg"
-                     class="card-img-top gallery-img"
-                     alt="Gallery Kostum">
+        <img src="assets/fotokostum1.jpeg"
+             class="card-img-top gallery-img"
+             alt="Gallery Kostum">
 
-                <div class="card-body">
+        <div class="card-body">
 
-                    <h6 class="fw-bold">
-                        Gallery Kostum
-                    </h6>
+            <h6 class="fw-bold">
+                Gallery Kostum
+            </h6>
 
-                    <a href="public/gallery_kostum.php"
-                       class="btn gallery-btn">
+            <a href="public/gallery_kostum.php"
+               class="btn gallery-btn">
 
-                        LIHAT
+                LIHAT
 
-                    </a>
-
-                </div>
-
-            </div>
+            </a>
 
         </div>
 
     </div>
+
+</div>
 
 </section>
 
