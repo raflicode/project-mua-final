@@ -35,9 +35,14 @@ $backHref = 'pembayaran.php';
         }
 
         .wrapper {
-            max-width: 420px;
-            margin: auto;
-        }
+    width: 100%;
+    max-width: 900px;
+    margin: auto;
+    .container.wrapper {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+}
 
         .card-custom {
             /* Menambahkan border tipis agar card terlihat di background putih */
@@ -82,7 +87,7 @@ $backHref = 'pembayaran.php';
         }
 
         .btn-konfirmasi {
-            background: #5a8dee;
+            background: #b5835a;
             border: none;
             padding: 14px;
             font-weight: bold;
@@ -90,8 +95,7 @@ $backHref = 'pembayaran.php';
         }
 
         .btn-konfirmasi:hover {
-            background: #3d73dc;
-        }
+            background: #b5835a;
     </style>
 </head>
 

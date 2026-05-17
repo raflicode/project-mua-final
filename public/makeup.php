@@ -114,10 +114,241 @@ body{
     padding:10px 20px;
 }
 
-/* Responsive */
-@media(max-width:768px){
-    .judul h1{
-        font-size:55px;
+/* ======================================================
+   RESPONSIVE MOBILE
+====================================================== */
+
+@media (max-width:576px){
+
+    .mobile-wrapper{
+        width:100%;
+        min-height:100vh;
+    }
+
+    /* NAVBAR */
+    .topbar{
+        padding:16px 16px;
+    }
+
+    .brand{
+        font-size:.85rem;
+    }
+
+    .icon-btn{
+        width:40px;
+        height:40px;
+    }
+
+    .icon-btn i{
+        font-size:1.2rem;
+    }
+
+    /* HERO */
+    .hero{
+        padding:10px 18px 24px;
+    }
+
+    .hero-title{
+        font-size:3.9rem;
+    }
+
+    .hero-sub{
+        font-size:.72rem;
+        letter-spacing:3px;
+    }
+
+    .hero-line{
+        width:120px;
+        margin:10px 0 14px;
+    }
+
+    .hero-desc{
+        font-size:.82rem;
+        max-width:150px;
+        line-height:1.5;
+    }
+
+    .hero-image{
+        width:250px;
+        right:-70px;
+        top:10px;
+    }
+
+    /* CARD GRID */
+    .card-grid{
+        padding:0 14px 24px;
+        gap:14px;
+    }
+
+    .service-card{
+        padding:10px;
+        border-radius:20px;
+    }
+
+    .service-title{
+        font-size:.72rem;
+        margin-bottom:8px;
+    }
+
+    .service-image{
+        height:78px;
+        border-radius:12px;
+        margin-bottom:10px;
+    }
+
+    .include-title{
+        font-size:.72rem;
+    }
+
+    .include-list li{
+        font-size:.65rem;
+        margin-bottom:3px;
+    }
+
+    .card-bottom{
+        gap:6px;
+    }
+
+    .cart-btn{
+        width:32px;
+        height:32px;
+        border-radius:8px;
+    }
+
+    .booking-btn{
+        height:32px;
+        font-size:.68rem;
+        border-radius:8px;
+    }
+}
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (min-width:577px) and (max-width:991px){
+
+    .mobile-wrapper{
+        max-width:650px;
+    }
+
+    .hero{
+        padding:18px 26px 28px;
+    }
+
+    .hero-title{
+        font-size:5rem;
+    }
+
+    .hero-image{
+        width:340px;
+        right:-70px;
+    }
+
+    .hero-desc{
+        max-width:220px;
+    }
+
+    .card-grid{
+        gap:18px;
+    }
+
+    .service-image{
+        height:110px;
+    }
+}
+
+/* ======================================================
+   DESKTOP
+====================================================== */
+
+@media (min-width:992px){
+
+    body{
+        padding:30px;
+    }
+
+    .mobile-wrapper{
+        max-width:1200px;
+        border-radius:30px;
+        overflow:hidden;
+        box-shadow:
+        0 20px 60px rgba(0,0,0,.12);
+    }
+
+    .topbar{
+        padding:24px 34px;
+    }
+
+    .brand{
+        font-size:1.1rem;
+    }
+
+    .hero{
+        padding:10px 40px 10px;
+        min-height:360px;
+    }
+
+    .hero-title{
+        font-size:7rem;
+    }
+
+    .hero-sub{
+        font-size:.95rem;
+    }
+
+    .hero-line{
+        width:220px;
+    }
+
+    .hero-desc{
+        font-size:1.05rem;
+        max-width:280px;
+    }
+
+    .hero-image{
+        width:500px;
+        right:0;
+        top:-20px;
+    }
+
+    .card-grid{
+        grid-template-columns:
+        repeat(4,1fr);
+
+        padding:0 34px 40px;
+
+        gap:24px;
+    }
+
+    .service-card{
+        border-radius:28px;
+        padding:16px;
+    }
+
+    .service-title{
+        font-size:1rem;
+    }
+
+    .service-image{
+        height:150px;
+    }
+
+    .include-title{
+        font-size:.9rem;
+    }
+
+    .include-list li{
+        font-size:.8rem;
+    }
+
+    .booking-btn{
+        height:40px;
+    }
+
+    .cart-btn{
+        width:40px;
+        height:40px;
     }
 }
 </style>
@@ -156,7 +387,7 @@ body{
                 </ul>
             </div>
             <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart(1, 'Makeup Graduation', 800000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Graduation', 'makeup', 800000)" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=makeup&nama=Makeup+Graduation&harga=800000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -181,7 +412,7 @@ body{
                     </ul>
                 </div>
                 <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart(2, 'Makeup Wedding', 1500000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Wedding', 'makeup', 1500000)" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=makeup&nama=Makeup+Wedding&harga=1500000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -206,7 +437,7 @@ body{
                     </ul>
                 </div>
                 <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart(3, 'Makeup Carnava', 1000000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Carnava', 'makeup', 1000000)" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=makeup&nama=Makeup+Carnaval&harga=1000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -231,7 +462,7 @@ body{
                     </ul>
                 </div>
                 <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart(4, 'Makeup Natural', 2000000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Natural', 'makeup', 2000000)" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=makeup&nama=Makeup+Natural&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -279,40 +510,6 @@ document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-function addToCart(id, nama, harga, foto) {
-    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
-    let foundIndex = cart.findIndex(item => item.id === id);
-
-    if (foundIndex > -1) {
-        cart[foundIndex].qty += 1;
-    } else {
-        cart.push({ id, nama, harga, foto, qty: 1 });
-    }
-
-    localStorage.setItem('yayuk_cart', JSON.stringify(cart));
-    updateNavbarBadge();
-    Swal.fire({
-        icon: 'success',
-        title: 'Berhasil',
-        text: nama + ' berhasil ditambahkan ke keranjang.',
-        timer: 1500,
-        showConfirmButton: false
-    });
-}
-
-// Jalankan ini agar saat halaman baru dibuka, angka keranjang tetap ada
-document.addEventListener('DOMContentLoaded', updateNavbarBadge);
-
-function updateNavbarBadge() {
-    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
-    let totalItems = cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
-    document.querySelectorAll('#cart-count, #cart-count-mobile, #cart-badge').forEach(badge => {
-        badge.innerText = totalItems;
-        badge.style.display = totalItems > 0 ? 'inline-block' : 'none';
-    });
-}
-</script>
-
+<?php include 'include/add_to_cart_script.php'; ?>
 </body>
 </html>

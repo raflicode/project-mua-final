@@ -1,4 +1,4 @@
-```php
+
 <?php
 session_start();
 ?>
@@ -147,7 +147,7 @@ session_start();
 
     <!-- Back -->
     <div class="mt-2">
-        <a href="service.php" class="text-dark">
+        <a href="#" onclick="history.back(); return false;" class="text-dark">
             <i class="bi bi-chevron-left fs-2"></i>
         </a>
     </div>

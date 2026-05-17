@@ -1,5 +1,10 @@
 <?php
 include __DIR__ . '/../actions/proses_login.php';
+
+if (!headers_sent()) {
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Pragma: no-cache');
+}
 ?>
 
 <!DOCTYPE html>
@@ -566,7 +571,7 @@ include __DIR__ . '/../actions/proses_login.php';
 
 
                 <!-- FORM -->
-                <form action="../actions/proses_login.php" method="POST" id="loginForm">
+                <form action="../actions/proses_login.php" method="POST" id="loginForm" autocomplete="off">
 
                     <div class="mb-field">
 
@@ -577,8 +582,13 @@ include __DIR__ . '/../actions/proses_login.php';
                         <input
                             type="email"
                             name="email"
+                            id="loginEmail"
                             class="field-input"
                             placeholder="Masukkan email"
+                            autocomplete="off"
+                            autocapitalize="none"
+                            spellcheck="false"
+                            value=""
                             required
                         >
 
@@ -596,6 +606,8 @@ include __DIR__ . '/../actions/proses_login.php';
                             name="pass"
                             id="password"
                             class="field-input"
+                            autocomplete="new-password"
+                            value=""
                             placeholder="••••••••"
                             required
                         >
@@ -610,7 +622,7 @@ include __DIR__ . '/../actions/proses_login.php';
 
                         <div class="chk-wrap">
 
-                            <input type="checkbox" id="remember">
+                            <input type="checkbox" id="remember" autocomplete="off">
 
                             <label for="remember">
                                 Remember me
@@ -648,6 +660,47 @@ include __DIR__ . '/../actions/proses_login.php';
 
 
     <script>
+        function clearLoginForm() {
+            const form = document.getElementById('loginForm');
+            const passwordInput = document.getElementById('password');
+            const passwordToggle = document.querySelector('[data-toggle-password="password"] i');
+
+            if (!form) return;
+
+            form.reset();
+            form.querySelectorAll('input').forEach(function(input) {
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    input.checked = false;
+                    return;
+                }
+
+                if (input.type !== 'hidden' && input.type !== 'submit' && input.type !== 'button') {
+                    input.value = '';
+                }
+            });
+
+            if (passwordInput) {
+                passwordInput.type = 'password';
+            }
+
+            if (passwordToggle) {
+                passwordToggle.classList.add('bi-eye');
+                passwordToggle.classList.remove('bi-eye-slash');
+            }
+        }
+
+        window.addEventListener('pageshow', function() {
+            clearLoginForm();
+            setTimeout(clearLoginForm, 100);
+            setTimeout(clearLoginForm, 500);
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            clearLoginForm();
+            setTimeout(clearLoginForm, 100);
+            setTimeout(clearLoginForm, 500);
+        });
+
         document.querySelectorAll('[data-toggle-password]').forEach(function(button) {
             button.addEventListener('click', function() {
                 const input = document.getElementById(this.dataset.togglePassword);

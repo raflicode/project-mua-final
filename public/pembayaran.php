@@ -29,9 +29,15 @@ if (!empty($errors)) {
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        .wrapper {
-            max-width: 420px;
-            margin: auto;
+      .wrapper {
+    width: 100%;
+    max-width: 850px;
+    margin: auto;
+    .container.wrapper {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+}
         }
 
         .card-custom {
@@ -52,7 +58,7 @@ if (!empty($errors)) {
         }
 
         .btn-bayar {
-            background: #5a8dee;
+            background: #b5835a;
             border: none;
             font-weight: bold;
             padding: 14px;
@@ -60,7 +66,7 @@ if (!empty($errors)) {
         }
 
         .btn-bayar:hover {
-            background: #3d73dc;
+            background: #b5835a;
         }
     </style>
 </head>
@@ -119,9 +125,17 @@ if (!empty($errors)) {
                 </div>
 
                 <!-- Alamat -->
+                <div class="mb-3">
+                    <label class="form-label">Alamat Lengkap</label>
+                    <textarea name="alamat" rows="3" class="form-control" placeholder="Masukkan alamat lengkap..." required></textarea>
+                </div>
+
+                <!-- Catatan -->
                 <div class="mb-4">
-                    <label class="form-label">Alamat / Catatan</label>
-                    <textarea name="alamat" rows="4" class="form-control" required></textarea>
+
+                    <label class="form-label">Catatan</label>
+                    <textarea name="catatan" rows="3" class="form-control" placeholder="Tambahkan catatan khusus jika ada..."></textarea>
+
                 </div>
 
                 <!-- Total -->
