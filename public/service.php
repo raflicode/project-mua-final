@@ -215,7 +215,7 @@
     </div>
 </div>
 
-<a href="javascript:history.back()" class="btn btn-kembali">Kembali</a>
+<a href="../index.php" class="btn btn-kembali">Kembali</a>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

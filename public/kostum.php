@@ -160,9 +160,6 @@ body {
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <button onclick="addToCart('Kostum Baju Adat', 'kostum', 8000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
-                            <i class="bi bi-cart3"></i>
-                        </button>
                         <a href="detail_kostum.php?from=kostum&nama=Kostum+Baju+Adat&harga=8000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                             Lihat lebih banyak
                         </a>
@@ -184,9 +181,6 @@ body {
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <button onclick="addToCart('Kostum Wedding', 'kostum', 4000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
-                            <i class="bi bi-cart3"></i>
-                        </button>
                         <a href="detailkostum_wedding.php?from=kostum&nama=Kostum+Wedding&harga=4000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                             Lihat lebih banyak
                         </a>
@@ -198,8 +192,7 @@ body {
                 <div class="card card-custom p-3">
                     <div class="card-body d-flex flex-column">
                         <h5 class="fw-bold mb-4">Kostum Graduation</h5>
-                        <img src="../assets/fotograduation.jpeg
-                        " class="img-paket" alt="Kostum Graduation">
+                        <img src="../assets/fotograduation.jpeg" class="img-paket" alt="Kostum Graduation">
                         <p class="fw-semibold">Include :</p>
                         <ul>
                             <li>Kebaya graduation</li>
@@ -209,9 +202,6 @@ body {
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <button onclick="addToCart('Kostum Graduation', 'kostum', 6000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
-                            <i class="bi bi-cart3"></i>
-                        </button>
                         <a href="detailkostum_graduation.php?from=kostum&nama=Kostum+Graduation&harga=6000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                            Lihat lebih banyak
                         </a>
@@ -233,9 +223,6 @@ body {
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <button onclick="addToCart('Kostum Pahlawan', 'kostum', 2000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
-                            <i class="bi bi-cart3"></i>
-                        </button>
                         <a href="detailkostum_pahlawan.php?from=kostum&nama=Kostum+Kebaya&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                            Lihat lebih banyak
                         </a>

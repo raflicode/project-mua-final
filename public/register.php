@@ -30,8 +30,8 @@ include __DIR__ . '/../actions/proses_register.php';
             background:
             linear-gradient(
             135deg,
-            #8a9e8e,
-            #748678
+            #f8efe0,
+            #f2e5d5
             );
         }
 
@@ -75,10 +75,10 @@ include __DIR__ . '/../actions/proses_register.php';
         .field-input:focus{
             background:#fff;
 
-            border-color:#a660c3;
+            border-color:#b5835a;
 
             box-shadow:
-            0 0 0 4px rgba(166,96,195,.12);
+            0 0 0 4px rgba(181,131,90,.16);
         }
 
         .field-input::placeholder{
@@ -114,7 +114,7 @@ include __DIR__ . '/../actions/proses_register.php';
         }
 
         .toggle-password:hover{
-            color:#a660c3;
+            color:#7b5d3f;
         }
 
         /* =====================================================
@@ -130,8 +130,8 @@ include __DIR__ . '/../actions/proses_register.php';
             background:
             linear-gradient(
             135deg,
-            #9d5bd2,
-            #c85ab0
+            #a58459,
+            #7b5d3f
             );
 
             color:#fff;
@@ -144,7 +144,7 @@ include __DIR__ . '/../actions/proses_register.php';
             cursor:pointer;
 
             box-shadow:
-            0 10px 22px rgba(157,91,210,.35);
+            0 10px 22px rgba(165,132,89,.35);
 
             transition:all .25s ease;
         }
@@ -153,7 +153,7 @@ include __DIR__ . '/../actions/proses_register.php';
             transform:translateY(-2px);
 
             box-shadow:
-            0 14px 30px rgba(157,91,210,.45);
+            0 14px 30px rgba(165,132,89,.45);
         }
 
         /* =====================================================
@@ -170,7 +170,7 @@ include __DIR__ . '/../actions/proses_register.php';
         }
 
         .footer-txt a{
-            color:#9d5bd2;
+            color:#7b5d3f;
             font-weight:600;
         }
 

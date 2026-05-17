@@ -229,7 +229,7 @@ $biayaLayanan = 10000;
 
 <div class="container my-4">
     <div class="d-flex align-items-center justify-content-between mb-4 flex-column flex-md-row gap-3">
-        <a href="#" onclick="history.back(); return false;" class="back-nav">
+        <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="back-nav">
             <i class="bi bi-chevron-left"></i>
         </a>
         <div>

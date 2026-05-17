@@ -10,20 +10,24 @@ session_start();
 
 $gallery = [
     [
-        "foto" => "assets/fotokostum4.jpeg",
-        "judul" => "Baju Adat Jawa"
+        "foto" => "../assets/fotokostum4.jpeg",
+        "judul" => "Adat Jawa",
+        "harga" => 6000000
     ],
     [
-        "foto" => "assets/adatjawa.jpeg",
-        "judul" => "Baju Adat Sunda"
+        "foto" => "../assets/adatjawa.jpeg",
+        "judul" => "Adat Sunda",
+        "harga" => 6000000
     ],
     [
-        "foto" => "assets/fotokostum5.jpeg",
-        "judul" => "Baju Adat Bali"
+        "foto" => "../assets/fotokostum5.jpeg",
+        "judul" => "Adat Bali",
+        "harga" => 6000000
     ],
     [
-        "foto" => "assets/adatmadura.jpeg",
-        "judul" => "Baju Adat Madura"
+        "foto" => "../assets/adatmadura.jpeg",
+        "judul" => "Adat Madura",
+        "harga" => 6000000
     ],
 ];
 ?>
@@ -41,6 +45,7 @@ $gallery = [
 
 <!-- ICON -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../assets/css/mua-theme.css">
 
 <style>
 
@@ -229,6 +234,11 @@ body{
 </head>
 <body>
 
+<div class="container-fluid px-4 py-4">
+    <div class="mb-4">
+        <a href="kostum.php" class="btn btn-kembali shadow-sm">← Kembali</a>
+    </div>
+
 <div class="container-fluid">
 
     <div class="instagram-wrapper">
@@ -282,13 +292,13 @@ body{
                                            <div class="action-area">
 
     <!-- CART -->
-    <a href="keranjang.php" class="btn-cart d-flex align-items-center justify-content-center text-decoration-none">
+    <button type="button" onclick="addToCart(<?= json_encode($item['judul']); ?>, 'kostum', <?= $item['harga']; ?>)" class="btn-cart d-flex align-items-center justify-content-center text-decoration-none">
         <i class="bi bi-cart3"></i>
-    </a>
+    </button>
 
     <!-- BOOKING -->
-    <a href="booking.php"
-       class="btn-booking d-flex align-items-center justify-content-center text-decoration-none">
+    <a href="booking.php?from=kostum&nama=<?= urlencode($item['judul']); ?>&harga=<?= $item['harga']; ?>"
+       class="btn btn-booking flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none">
 
         Booking
 
@@ -338,8 +348,11 @@ body{
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+
+<?php include 'include/add_to_cart_script.php'; ?>
 </body>
 </html>
-```
+
