@@ -52,6 +52,7 @@ $gallery = [
 body{
     background:#f5f1eb;
     font-family:Arial, Helvetica, sans-serif;
+    padding-top:90px;
 }
 
 /* =========================================================
@@ -152,11 +153,14 @@ body{
 
     display:flex;
     gap:14px;
+    position: relative;
+    z-index: 10;
 }
 
 .btn-cart{
 
     width:60px;
+
     height:52px;
 
     border:none;
@@ -170,7 +174,12 @@ body{
     font-size:22px;
 
     transition:.3s;
+
+    position: relative;
+
+    z-index: 11;
 }
+
 
 .btn-cart:hover{
 
@@ -233,10 +242,11 @@ body{
 </style>
 </head>
 <body>
+    <?php include 'include/navbar.php'; ?>
 
 <div class="container-fluid px-4 py-4">
     <div class="mb-4">
-        <a href="kostum.php" class="btn btn-kembali shadow-sm">← Kembali</a>
+        <a href="kostum.php" class="btn btn-kembali shadow-sm"> Kembali</a>
     </div>
 
 <div class="container-fluid">
@@ -292,7 +302,9 @@ body{
                                            <div class="action-area">
 
     <!-- CART -->
-    <button type="button" onclick="addToCart(<?= json_encode($item['judul']); ?>, 'kostum', <?= $item['harga']; ?>)" class="btn-cart d-flex align-items-center justify-content-center text-decoration-none">
+    <button 
+        onclick="addToCart('<?= $item['judul']; ?>', 'kostum', <?= $item['harga']; ?>, '<?= $item['foto']; ?>')" 
+        class="btn-cart">
         <i class="bi bi-cart3"></i>
     </button>
 

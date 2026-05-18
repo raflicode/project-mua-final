@@ -60,7 +60,9 @@ try {
     }
 
     foreach ($cart_items as &$item) {
-        $item['foto'] = getCartImagePath($item);
+        if (empty($item['foto'])) {
+            $item['foto'] = getCartImagePath($item);
+        }
     }
     unset($item);
 } catch (Exception $e) {
@@ -524,13 +526,21 @@ function removeSelected() {
 }
 
 function checkoutSelected() {
-    const selectedCartItems = Array.from(selectedItems).map(index => cartData[index]);
-    
+    const selectedCartItems = Array.from(selectedItems).map(index => {
+        const it = cartData[index];
+        return {
+            nama: it.nama_layanan || it.nama || it.nama_produk || '',
+            harga: Number(it.harga) || 0,
+            qty: Number(it.kuantitas || it.qty || 1),
+            foto: it.foto || it.image || ''
+        };
+    });
+
     if (selectedCartItems.length === 0) {
         alert('Pilih minimal 1 item untuk checkout');
         return;
     }
-    
+
     sessionStorage.setItem('checkout_items', JSON.stringify(selectedCartItems));
     window.location.href = 'booking.php';
 }
