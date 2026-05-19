@@ -122,8 +122,8 @@ include __DIR__ . '/actions/proses_index.php';
 
         .btn-booking:hover{
 
-            background:white;
-            color:#333;
+            background:#b5835a;
+            color:#fff;
         }
 
         /* =====================================================

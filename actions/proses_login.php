@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 function getLoginAlertScript() {
     $script = '';
@@ -83,6 +85,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['id_user'] = $user['id_user'];
     $_SESSION['username'] = $user['username'];
     $_SESSION['role'] = $user['role'];
+
+    if (!empty($_POST['remember'])) {
+        $token = buildRememberToken($user['id_user'], $user['pass']);
+        $cookieValue = base64_encode($user['id_user'] . ':' . $token);
+        setcookie('remember_me', $cookieValue, time() + 60 * 60 * 24 * 30, '/', '', false, true);
+    } else {
+        setcookie('remember_me', '', time() - 3600, '/', '', false, true);
+    }
 
     if ($_SESSION['role'] === 'admin') {
         header("Location: ../admin/dashboard.php?success=Login berhasil");
