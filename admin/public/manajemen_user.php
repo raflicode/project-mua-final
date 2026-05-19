@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
     
     <style>
         /* Memberikan space di kiri agar konten tidak tertutup sidebar fixed */
@@ -23,6 +24,9 @@
             display: inline-block; /* Memastikan gradient ter-render dengan baik pada elemen block */
         }  
     </style>
+
+    <link href="../assets/admin-brown.css" rel="stylesheet">
+
 </head>
 
 <body class="bg-primary">
