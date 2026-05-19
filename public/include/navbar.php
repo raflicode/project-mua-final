@@ -82,6 +82,73 @@ if (session_status() === PHP_SESSION_NONE) {
     background: #fffaf4;
     box-shadow: 0 18px 40px rgba(73, 55, 40, 0.12);
   }
+
+  /* --- TAMBAHAN CSS UNTUK HOVER DROPDOWN KERANJANG ALA SHOPEE --- */
+  @media (min-width: 992px) {
+    .nav-item-cart {
+      position: relative;
+    }
+    /* Memunculkan dropdown saat pembungkus di-hover */
+    .nav-item-cart:hover .dropdown-cart-menu {
+      display: block;
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .dropdown-cart-menu {
+      display: block;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      position: absolute;
+      right: 0;
+      left: auto;
+      width: 320px;
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+  }
+
+  .cart-item-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 15px;
+    transition: background 0.2s;
+  }
+
+  .cart-item-preview:hover {
+    background-color: rgba(181, 131, 90, 0.08);
+  }
+
+  .cart-item-img {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  .cart-item-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cart-item-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+    color: #3b3028;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cart-item-price {
+    font-size: 0.8rem;
+    color: #b5835a;
+  }
 </style>
 
 <nav id="mainNavbar" class="navbar fixed-top px-3 transition-nav">
@@ -100,11 +167,25 @@ if (session_status() === PHP_SESSION_NONE) {
       <a class="nav-link" href="/project-mua-final/public/service.php">Service</a>
       <a class="nav-link" href="/project-mua-final/index.php#gallery">Gallery</a>
 
+      <!-- Modifikasi: Pembungkus Dropdown Keranjang -->
       <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
-        <a class="nav-link position-relative" href="/project-mua-final/public/keranjang.php">
-          <i class="bi bi-cart3"></i> Keranjang
-          <span id="cart-count" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none; font-size:0.7rem;"></span>
-        </a>
+        <div class="nav-item-cart">
+          <a class="nav-link position-relative" href="/project-mua-final/public/keranjang.php">
+            <i class="bi bi-cart3"></i> Keranjang
+            <span id="cart-count" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none; font-size:0.7rem;"></span>
+          </a>
+          
+          <!-- Box Dropdown List Barang (Shopee Style) -->
+          <ul class="dropdown-menu dropdown-menu-custom dropdown-cart-menu p-2">
+            <div id="cart-items-preview-container">
+              <div class="text-center py-3 text-muted"><small>Memuat keranjang...</small></div>
+            </div>
+            <li><hr class="dropdown-divider"></li>
+            <li class="text-center p-1">
+              <a href="/project-mua-final/public/keranjang.php" class="btn btn-sm btn-custom-gold w-100 py-1" style="font-size: 0.8rem;">Lihat Keranjang Belanja</a>
+            </li>
+          </ul>
+        </div>
       <?php endif; ?>
 
       <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
@@ -179,10 +260,12 @@ if (session_status() === PHP_SESSION_NONE) {
     }
   };
 
+  // Modifikasi: Ambil data jumlah sekaligus list item belanjaan
   function updateCartCount() {
     fetch('/project-mua-final/actions/get_cart_count.php')
       .then(response => response.json())
       .then(data => {
+        // 1. Update Badge Angka
         const cartElements = document.querySelectorAll('#cart-count, #cart-count-mobile');
         cartElements.forEach(el => {
           if (data.cart_count > 0) {
@@ -192,8 +275,33 @@ if (session_status() === PHP_SESSION_NONE) {
             el.style.display = 'none';
           }
         });
+
+        // 2. Render List Item di Dropdown (Shopee Style)
+        const previewContainer = document.getElementById('cart-items-preview-container');
+        if (previewContainer) {
+          if (data.items && data.items.length > 0) {
+            let htmlContent = '';
+            data.items.forEach(item => {
+              // Menangani fallback jika gambar kosong
+              let imgUrl = item.foto ? '/project-mua-final/assets/img/' + item.foto : '/project-mua-final/assets/img/default-service.jpg';
+              
+              htmlContent += `
+                <div class="cart-item-preview">
+                  <img src="${imgUrl}" class="cart-item-img" alt="${item.nama_layanan}">
+                  <div class="cart-item-info">
+                    <div class="cart-item-title" title="${item.nama_layanan}">${item.nama_layanan}</div>
+                    <div class="cart-item-price"><small>${item.qty || 1}x</small> Rp ${Number(item.harga).toLocaleString('id-ID')}</div>
+                  </div>
+                </div>
+              `;
+            });
+            previewContainer.innerHTML = htmlContent;
+          } else {
+            previewContainer.innerHTML = '<div class="text-center py-4 text-muted"><i class="bi bi-cart-x d-block fs-4 mb-1"></i><small>Keranjang masih kosong</small></div>';
+          }
+        }
       })
-      .catch(error => console.log('Error fetching cart count:', error));
+      .catch(error => console.log('Error fetching cart data:', error));
   }
 
   document.addEventListener('DOMContentLoaded', updateCartCount);
