@@ -178,7 +178,6 @@ if (!empty($errors)) {
             border: 1px solid #ecd4af;
         }
 
-<<<<<<< HEAD
         .btn-bayar {
             background: linear-gradient(135deg, var(--primary-color), #ae5c16);
             border: none;

@@ -597,10 +597,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     </div>
 
-                    <p style="font-size:.85rem; color:#555; margin-bottom:14px;">
-                        Registrasi ini hanya untuk membuat akun client. Akun admin tidak dapat dibuat dari halaman ini.
-                    </p>
-
                     <button id="registerButton" type="submit" class="btn-submit">
                         Register
                     </button>

@@ -314,7 +314,7 @@ include __DIR__ . '/actions/proses_index.php';
 
     <div class="container">
 
-        <h1 class="hero-title fw-bold">
+        <h1 class="hero-title fw-bold text-white">
             Keanggunan Abadi untuk Hari Istimewa Anda.
         </h1>
 

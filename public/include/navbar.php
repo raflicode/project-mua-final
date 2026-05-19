@@ -32,10 +32,43 @@ if (session_status() === PHP_SESSION_NONE) {
     transition: 0.3s;
   }
 
-  .navbar .nav-link:hover {
+  /* ==========================================================================
+     PERUBAHAN DI SINI: Efek Garis Bawah (Kecuali Menu Dropdown Profil)
+     ========================================================================== */
+  .navbar .nav-link:not(.dropdown-toggle) {
+    position: relative; /* Wajib ada sebagai patokan garis bawah */
+    padding-bottom: 4px;
+  }
+
+  /* Membuat garis hitam rahasia di bawah menu (Hanya untuk non-dropdown) */
+  .navbar .nav-link:not(.dropdown-toggle)::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%; /* Memulai garis dari tengah */
+    background-color: #b5835a; /* Warna garis hitam */
+    transition: all 0.3s ease; /* Efek animasi halus */
+    transform: translateX(-50%);
+  }
+
+  /* Saat di-hover, teks menu biasa berubah warna dan garis hitam memanjang keluar */
+  .navbar .nav-link:not(.dropdown-toggle):hover {
     color: #b5835a !important;
     text-decoration: none;
   }
+
+  .navbar .nav-link:not(.dropdown-toggle):hover::after {
+    width: 100%; /* Garis hitam melebar penuh sesuai panjang teks */
+  }
+
+  /* Khusus untuk hover tombol profil (hanya berubah warna, tanpa garis bawah) */
+  .navbar .nav-link.dropdown-toggle:hover {
+    color: #b5835a !important;
+    text-decoration: none;
+  }
+  /* ========================================================================== */
 
   .nav-scrolled {
     background-color: rgba(255, 250, 244, 0.94) !important;
