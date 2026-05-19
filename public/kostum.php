@@ -150,7 +150,7 @@ body {
                 <div class="card card-custom p-3">
                     <div class="card-body d-flex flex-column">
                         <h5 class="fw-bold mb-4">Kostum Baju Adat</h5>
-                        <img src="../assets/fotokostum3.jpeg.jpg" class="img-paket" alt="Kostum Baju Adat">
+                        <img src="../assets/fotokostum3.jpeg" class="img-paket" alt="Kostum Baju Adat">
                         <p class="fw-semibold">Include :</p>
                         <ul>
                             <li>Baju adat pengantin</li>
@@ -171,7 +171,7 @@ body {
                 <div class="card card-custom p-3">
                     <div class="card-body d-flex flex-column">
                         <h5 class="fw-bold mb-4">Kostum Wedding</h5>
-                        <img src="../assets/fotokostum6.jpeg.png" class="img-paket" alt="Kostum Wedding">
+                        <img src="../assets/fotokostum6.jpeg" class="img-paket" alt="Kostum Wedding">
                         <p class="fw-semibold">Include :</p>
                         <ul>
                             <li>Kostum pengantin utama</li>

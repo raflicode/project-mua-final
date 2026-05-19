@@ -254,16 +254,65 @@ try {
 
         @media (max-width: 991px) {
             .cart-header { display: none; }
-            .cart-item { flex-direction: column; align-items: stretch; }
+            .cart-item {
+                display: grid;
+                grid-template-columns: 34px minmax(0, 1fr);
+                align-items: start;
+                gap: 14px 12px;
+                padding: 18px;
+                border-radius: 18px;
+            }
             .col-checkbox,
             .col-include,
             .col-harga,
             .col-kuantitas,
             .col-total,
             .col-aksi { width: 100%; text-align: left; padding-left: 0; }
-            .col-produk { width: 100%; }
+            .col-checkbox {
+                grid-column: 1;
+                grid-row: 1;
+                justify-content: center;
+                padding-top: 34px;
+            }
+            .col-produk {
+                grid-column: 2;
+                grid-row: 1;
+                width: 100%;
+                min-width: 0;
+                align-items: center;
+            }
+            .col-include,
+            .col-harga,
+            .col-kuantitas,
+            .col-total,
+            .col-aksi {
+                grid-column: 1 / -1;
+            }
+            .col-kuantitas .d-flex {
+                justify-content: flex-start !important;
+            }
             .checkout-footer .container { flex-direction: column; gap: 16px; align-items: stretch; }
             .btn-checkout { width: 100%; }
+        }
+
+        @media (max-width: 575px) {
+            .cart-item img {
+                width: 76px;
+                height: 76px;
+                border-radius: 14px;
+            }
+
+            .col-produk {
+                gap: 12px;
+            }
+
+            .col-checkbox {
+                padding-top: 27px;
+            }
+
+            .item-title {
+                font-size: 0.95rem;
+            }
         }
     </style>
 </head>
