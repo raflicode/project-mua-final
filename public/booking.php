@@ -6,16 +6,8 @@ if (!isset($_SESSION['id_user'])) {
     exit;
 }
 
-$allowedBack = [
-    'makeup' => 'makeup.php',
-    'dekor' => 'dekor.php',
-    'kostum' => 'kostum.php'
-];
+$backHref = $_SERVER['HTTP_REFERER'] ?? 'service.php';
 $fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_STRING);
-$backHref = 'service.php';
-if ($fromPage && isset($allowedBack[$fromPage])) {
-    $backHref = $allowedBack[$fromPage];
-}
 
 $namaProduk = filter_input(INPUT_GET, 'nama', FILTER_SANITIZE_STRING);
 $hargaProduk = filter_input(INPUT_GET, 'harga', FILTER_VALIDATE_INT);
@@ -63,26 +55,6 @@ $biayaLayanan = 10000;
             color: var(--text-dark);
             min-height: 100vh;
             padding-top: 100px !important;
-        }
-
-        .back-nav {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 48px;
-            height: 48px;
-            background: var(--card-bg);
-            border-radius: 14px;
-            box-shadow: 0 10px 28px rgba(0,0,0,0.1);
-            color: var(--text-dark);
-            text-decoration: none;
-            transition: all 0.25s ease;
-        }
-
-        .back-nav:hover {
-            background: #d07f26;
-            color: white;
-            transform: translateX(-4px);
         }
 
         .order-card {
@@ -229,9 +201,9 @@ $biayaLayanan = 10000;
 
 <div class="container my-4">
     <div class="d-flex align-items-center justify-content-between mb-4 flex-column flex-md-row gap-3">
-        <a href="#" onclick="history.back(); return false;" class="back-nav">
-            <i class="bi bi-chevron-left"></i>
-        </a>
+        <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="text-dark fs-3">
+    <i class="bi bi-chevron-left"></i></a>
+    
         <div>
             <h2 class="section-title mb-1">Review Pesanan</h2>
             <p class="page-subtitle mb-0">Pastikan detail layanan sudah benar sebelum melanjutkan ke penjadwalan.</p>

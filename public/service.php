@@ -377,7 +377,7 @@
     </div>
 </div>
 
-<a href="javascript:history.back()" class="btn btn-kembali">Kembali</a>
+<a href="../index.php" class="btn btn-kembali">Kembali</a>
 
 <div class="modal fade" id="modalAuth" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">

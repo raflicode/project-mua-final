@@ -83,16 +83,28 @@ body {
     font-weight: bold;
 }
 
-.btn-lanjut {
-    background: #b5835a;
-    border: none;
-    padding: 14px;
-    font-weight: bold;
-    border-radius: 10px;
+.btn-lanjut{
+    background:#b5835a !important;
+    border:none !important;
+    padding:14px;
+    font-weight:bold;
+    border-radius:10px;
+    color:white !important;
+    transition:0.2s;
 }
 
-.btn-lanjut:hover {
-    background: #b5835a;
+.btn-lanjut:hover{
+    background:#9c6b45 !important;
+    color:white !important;
+}
+
+.btn-lanjut:focus,
+.btn-lanjut:active,
+.btn-lanjut:focus-visible{
+    background:#9c6b45 !important;
+    color:white !important;
+    box-shadow:none !important;
+    outline:none !important;
 }
 </style>
 </head>
@@ -200,10 +212,7 @@ function pilihTanggal(el) {
     selectedSlot = null;
     document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
     const btnContinue = document.getElementById('btnContinue');
-    if (btnContinue) {
-        btnContinue.classList.add('btn-secondary');
-        btnContinue.classList.remove('btn-primary');
-    }
+    
 }
 
 function pilihSlot(el) {
@@ -211,10 +220,7 @@ function pilihSlot(el) {
     el.classList.add("selected");
     selectedSlot = el.innerText;
     const btnContinue = document.getElementById('btnContinue');
-    if (btnContinue) {
-        btnContinue.classList.remove('btn-secondary');
-        btnContinue.classList.add('btn-primary');
-    }
+   
 }
 
 document.addEventListener('DOMContentLoaded', function() {

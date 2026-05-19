@@ -57,17 +57,25 @@ if (!empty($errors)) {
             padding: 15px;
         }
 
-        .btn-bayar {
-            background: #b5835a;
-            border: none;
-            font-weight: bold;
-            padding: 14px;
-            border-radius: 10px;
-        }
+       .btn-bayar{
+    background: #b5835a !important;
+    border: none !important;
+    font-weight: bold;
+    padding: 14px;
+    border-radius: 10px;
+    color: white !important;
+}
 
-        .btn-bayar:hover {
-            background: #b5835a;
-        }
+.btn-bayar:hover,
+.btn-bayar:focus,
+.btn-bayar:active,
+.btn-bayar.active,
+.btn-check:checked + .btn-bayar{
+    background: #b5835a !important;
+    border-color: #b5835a !important;
+    color: white !important;
+    box-shadow: none !important;
+}
     </style>
 </head>
 <body>

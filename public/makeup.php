@@ -387,7 +387,7 @@ body{
                 </ul>
             </div>
             <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart('Makeup Graduation', 'makeup', 800000)" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Graduation', 'makeup', 800000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=makeup&nama=Makeup+Graduation&harga=800000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -412,7 +412,7 @@ body{
                     </ul>
                 </div>
                 <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart('Makeup Wedding', 'makeup', 1500000)" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Wedding', 'makeup', 1500000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=makeup&nama=Makeup+Wedding&harga=1500000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -437,7 +437,7 @@ body{
                     </ul>
                 </div>
                 <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart('Makeup Carnava', 'makeup', 1000000)" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Carnava', 'makeup', 1000000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=makeup&nama=Makeup+Carnaval&harga=1000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -462,7 +462,7 @@ body{
                     </ul>
                 </div>
                 <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart('Makeup Natural', 'makeup', 2000000)" class="btn-cart-icon">
+                    <button onclick="addToCart('Makeup Natural', 'makeup', 2000000, '../assets/foto_makeup.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=makeup&nama=Makeup+Natural&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -505,7 +505,7 @@ document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
 
 <!-- Tombol Kembali -->
 <a href="service.php" class="btn btn-danger btn-kembali shadow">
-    kembali ↩
+    kembali 
 </a>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

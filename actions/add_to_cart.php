@@ -30,6 +30,7 @@ $nama_layanan = trim($_POST['nama_layanan'] ?? '');
 $tipe_layanan = trim($_POST['tipe_layanan'] ?? '');
 $harga = intval($_POST['harga'] ?? 0);
 $kuantitas = intval($_POST['kuantitas'] ?? 1);
+$foto = trim($_POST['foto'] ?? '');
 
 // Validasi input
 if (empty($nama_layanan) || empty($tipe_layanan) || $harga <= 0 || $kuantitas <= 0) {
@@ -71,12 +72,21 @@ try {
         ");
         $stmt_update->execute([$new_qty, $existing_item['id_keranjang']]);
     } else {
-        // Insert item baru
-        $stmt_insert = $pdo->prepare("
-            INSERT INTO keranjang (id_user, nama_layanan, tipe_layanan, harga, kuantitas)
-            VALUES (?, ?, ?, ?, ?)
-        ");
-        $stmt_insert->execute([$id_user, $nama_layanan, $tipe_layanan, $harga, $kuantitas]);
+        // Insert item baru (simpan path foto jika tersedia)
+        try {
+            $stmt_insert = $pdo->prepare("
+                INSERT INTO keranjang (id_user, nama_layanan, tipe_layanan, foto, harga, kuantitas)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ");
+            $stmt_insert->execute([$id_user, $nama_layanan, $tipe_layanan, $foto, $harga, $kuantitas]);
+        } catch (PDOException $e) {
+            // Jika kolom foto belum ada di DB, fallback ke insert tanpa kolom foto
+            $stmt_insert = $pdo->prepare("
+                INSERT INTO keranjang (id_user, nama_layanan, tipe_layanan, harga, kuantitas)
+                VALUES (?, ?, ?, ?, ?)
+            ");
+            $stmt_insert->execute([$id_user, $nama_layanan, $tipe_layanan, $harga, $kuantitas]);
+        }
     }
 
     // Get total cart count

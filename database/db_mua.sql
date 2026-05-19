@@ -104,6 +104,7 @@ CREATE TABLE IF NOT EXISTS `keranjang` (
   `id_user` int(11) NOT NULL,
   `nama_layanan` varchar(150) NOT NULL,
   `tipe_layanan` enum('makeup','dekor','kostum','paket') NOT NULL,
+  `foto` varchar(255) DEFAULT NULL,
   `harga` int(11) NOT NULL,
   `kuantitas` int(11) NOT NULL DEFAULT 1,
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,

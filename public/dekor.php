@@ -154,7 +154,7 @@ body{
                 </ul>
             </div>
             <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart('Dekor 1', 'dekor', 3000000)" class="btn-cart-icon">
+                    <button onclick="addToCart('Dekor 1', 'dekor', 3000000, '../assets/foto_dekor.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=dekor&nama=Dekor+1&harga=3000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -179,7 +179,7 @@ body{
                     </ul>
                 </div>
                 <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart('Dekor 2', 'dekor', 4000000)" class="btn-cart-icon">
+                    <button onclick="addToCart('Dekor 2', 'dekor', 4000000, '../assets/foto_dekor.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=dekor&nama=Dekor+2&harga=4000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -204,7 +204,7 @@ body{
                     </ul>
                 </div>
                 <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart('Dekor 3', 'dekor', 6000000)" class="btn-cart-icon">
+                    <button onclick="addToCart('Dekor 3', 'dekor', 6000000, '../assets/foto_dekor.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=dekor&nama=Dekor+3&harga=6000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -229,7 +229,7 @@ body{
                     </ul>
                 </div>
                 <div class="d-flex gap-2 mt-auto">
-                    <button onclick="addToCart('Dekor 4', 'dekor', 2000000)" class="btn-cart-icon">
+                    <button onclick="addToCart('Dekor 4', 'dekor', 2000000, '../assets/foto_dekor.jpeg')" class="btn-cart-icon">
                     🛒
                     </button>
                     <a href="booking.php?from=dekor&nama=Dekor+4&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
@@ -272,7 +272,7 @@ document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
 
 <!-- Tombol Kembali -->
 <a href="service.php" class="btn btn-danger btn-kembali shadow">
-    kembali ↩
+    kembali 
 </a>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

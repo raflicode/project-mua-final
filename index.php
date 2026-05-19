@@ -84,6 +84,7 @@ include __DIR__ . '/actions/proses_index.php';
             clamp(2rem,4vw,3rem);
 
             line-height:1.18;
+            color:#b5835a;
         }
 
         .hero-subtitle{
@@ -100,7 +101,7 @@ include __DIR__ . '/actions/proses_index.php';
 
         .btn-booking{
 
-            border:2px solid white;
+            border:2px solid #b5835a;
 
             color:white;
 
@@ -114,16 +115,15 @@ include __DIR__ . '/actions/proses_index.php';
 
             letter-spacing:.04em;
 
-            background:
-            rgba(255,255,255,.1);
+            background:linear-gradient(135deg,#a58459,#7b5d3f);
 
             transition:.3s;
         }
 
         .btn-booking:hover{
 
-            background:white;
-            color:#333;
+            background:#7b5d3f;
+            color:#fff;
         }
 
         /* =====================================================

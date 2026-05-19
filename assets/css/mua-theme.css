@@ -96,6 +96,36 @@ button {
   transform: translateY(-2px);
 }
 
+.btn-booking,
+.btn-booking.btn,
+.btn.btn-booking {
+  background: linear-gradient(135deg, var(--mua-primary), var(--mua-primary-deep)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.36) !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 30px rgba(165, 132, 89, 0.25) !important;
+}
+
+.btn-booking:hover,
+.btn-booking.btn:hover,
+.btn.btn-booking:hover {
+  background: linear-gradient(135deg, var(--mua-primary-deep), var(--mua-secondary)) !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+}
+
+.btn-cart,
+.btn-cart-icon {
+  background: var(--mua-primary) !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+.btn-cart:hover,
+.btn-cart-icon:hover {
+  background: var(--mua-primary-deep) !important;
+  color: #ffffff !important;
+}
+
 .btn-payment,
 .btn-gold,
 .btn-silver {

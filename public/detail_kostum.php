@@ -10,20 +10,24 @@ session_start();
 
 $gallery = [
     [
-        "foto" => "assets/fotokostum4.jpeg",
-        "judul" => "Baju Adat Jawa"
+        "foto" => "../assets/fotokostum4.jpeg",
+        "judul" => "Adat Jawa",
+        "harga" => 6000000
     ],
     [
-        "foto" => "assets/adatjawa.jpeg",
-        "judul" => "Baju Adat Sunda"
+        "foto" => "../assets/adatjawa.jpeg",
+        "judul" => "Adat Sunda",
+        "harga" => 6000000
     ],
     [
-        "foto" => "assets/fotokostum5.jpeg",
-        "judul" => "Baju Adat Bali"
+        "foto" => "../assets/fotokostum5.jpeg",
+        "judul" => "Adat Bali",
+        "harga" => 6000000
     ],
     [
-        "foto" => "assets/adatmadura.jpeg",
-        "judul" => "Baju Adat Madura"
+        "foto" => "../assets/adatmadura.jpeg",
+        "judul" => "Adat Madura",
+        "harga" => 6000000
     ],
 ];
 ?>
@@ -41,12 +45,14 @@ $gallery = [
 
 <!-- ICON -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../assets/css/mua-theme.css">
 
 <style>
 
 body{
     background:#f5f1eb;
     font-family:Arial, Helvetica, sans-serif;
+    padding-top:90px;
 }
 
 /* =========================================================
@@ -147,11 +153,14 @@ body{
 
     display:flex;
     gap:14px;
+    position: relative;
+    z-index: 10;
 }
 
 .btn-cart{
 
     width:60px;
+
     height:52px;
 
     border:none;
@@ -165,6 +174,10 @@ body{
     font-size:22px;
 
     transition:.3s;
+
+    position: relative;
+
+    z-index: 11;
 }
 
 .btn-cart:hover{
@@ -228,6 +241,12 @@ body{
 </style>
 </head>
 <body>
+    <?php include 'include/navbar.php'; ?>
+
+<div class="container-fluid px-4 py-4">
+    <div class="mb-4">
+        <a href="kostum.php" class="btn btn-kembali shadow-sm"> Kembali</a>
+    </div>
 
 <div class="container-fluid">
 
@@ -282,13 +301,15 @@ body{
                                            <div class="action-area">
 
     <!-- CART -->
-    <a href="keranjang.php" class="btn-cart d-flex align-items-center justify-content-center text-decoration-none">
+    <button 
+        onclick="addToCart('<?= $item['judul']; ?>', 'kostum', <?= $item['harga']; ?>, '<?= $item['foto']; ?>')" 
+        class="btn-cart">
         <i class="bi bi-cart3"></i>
-    </a>
+    </button>
 
     <!-- BOOKING -->
-    <a href="booking.php"
-       class="btn-booking d-flex align-items-center justify-content-center text-decoration-none">
+    <a href="booking.php?from=kostum&nama=<?= urlencode($item['judul']); ?>&harga=<?= $item['harga']; ?>"
+       class="btn btn-booking flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none">
 
         Booking
 
@@ -338,8 +359,11 @@ body{
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+
+<?php include 'include/add_to_cart_script.php'; ?>
 </body>
 </html>
-```
+
