@@ -122,7 +122,7 @@
                 </ul>
                 <div class="social-icons">
                     <a href="#"><i class="bi bi-facebook"></i></a>
-                    <a href="https://www.instagram.com/yayukmakeover_jbr?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="><i class="bi bi-instagram"></i></a>
+                    <a href="https://www.instagram.com/yayukmakeover_jbr?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==w"><i class="bi bi-instagram"></i></a>
                     <a href="#"><i class="bi bi-twitter-x"></i></a>
                 </div>
             </div>
