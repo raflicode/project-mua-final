@@ -84,6 +84,7 @@ include __DIR__ . '/actions/proses_index.php';
             clamp(2rem,4vw,3rem);
 
             line-height:1.18;
+            color:#b5835a;
         }
 
         .hero-subtitle{
@@ -100,7 +101,7 @@ include __DIR__ . '/actions/proses_index.php';
 
         .btn-booking{
 
-            border:2px solid white;
+            border:2px solid #b5835a;
 
             color:white;
 
@@ -114,16 +115,13 @@ include __DIR__ . '/actions/proses_index.php';
 
             letter-spacing:.04em;
 
-            background:
-            rgba(255,255,255,.1);
+            background:linear-gradient(135deg,#a58459,#7b5d3f);
 
             transition:.3s;
         }
 
         .btn-booking:hover{
-
             background:#b5835a;
-            color:#fff;
         }
 
         /* =====================================================
@@ -539,33 +537,20 @@ include __DIR__ . '/actions/proses_index.php';
 
         <!-- KOSTUM -->
         <div class="col-md-4">
-
             <div class="card gallery-card shadow-sm">
-
-                <img src="assets/fotokostum1.jpeg"
-                     class="card-img-top gallery-img"
-                     alt="Gallery Kostum">
-
+                <img src="assets/fotokostum1.jpeg" class="card-img-top gallery-img" alt="Gallery Kostum">
                 <div class="card-body">
-
-                    <h6 class="fw-bold">
-                        Gallery Kostum
-                    </h6>
-
-                    <a href="public/gallery_kostum.php"
-                       class="btn gallery-btn">
-
-                        LIHAT
-
-                    </a>
-
+                    <h6 class="fw-bold">Gallery Kostum</h6>
+                    <a href="public/gallery_kostum.php" class="btn gallery-btn">LIHAT</a>
                 </div>
-
             </div>
+        </div>
 
         </div>
 
     </div>
+
+</div>
 
 </section>
 

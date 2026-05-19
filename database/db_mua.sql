@@ -385,6 +385,21 @@ ALTER TABLE `booking_detail`
   ADD CONSTRAINT `fk_bd_booking` FOREIGN KEY (`id_booking`) REFERENCES `booking` (`id_booking`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_bd_layanan` FOREIGN KEY (`id_layanan`) REFERENCES `layanan` (`id_layanan`) ON UPDATE CASCADE;
 
+CREATE TABLE IF NOT EXISTS `keranjang` (
+  `id_keranjang` int(11) NOT NULL AUTO_INCREMENT,
+  `id_user` int(11) NOT NULL,
+  `nama_layanan` varchar(150) NOT NULL,
+  `tipe_layanan` enum('makeup','dekor','kostum','paket') NOT NULL,
+  `foto` varchar(255) DEFAULT NULL,
+  `harga` int(11) NOT NULL,
+  `kuantitas` int(11) NOT NULL DEFAULT 1,
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_keranjang`),
+  KEY `id_user` (`id_user`),
+  FOREIGN KEY (`id_user`) REFERENCES `user`(`id_user`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 --
 -- Constraints for table `keranjang`
 --

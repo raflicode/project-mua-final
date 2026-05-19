@@ -160,11 +160,8 @@ body {
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <button onclick="addToCart('Kostum Baju Adat', 'kostum', 8000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
-                            <i class="bi bi-cart3"></i>
-                        </button>
-                        <a href="booking.php?from=kostum&nama=Kostum+Baju+Adat&harga=8000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
-                            Booking
+                        <a href="detail_kostum.php?from=kostum&nama=Kostum+Baju+Adat&harga=8000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                            Lihat lebih banyak
                         </a>
                     </div>
                 </div>
@@ -184,11 +181,8 @@ body {
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <button onclick="addToCart('Kostum Wedding', 'kostum', 4000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
-                            <i class="bi bi-cart3"></i>
-                        </button>
-                        <a href="booking.php?from=kostum&nama=Kostum+Wedding&harga=4000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
-                            Booking
+                        <a href="detailkostum_wedding.php?from=kostum&nama=Kostum+Wedding&harga=4000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                            Lihat lebih banyak
                         </a>
                     </div>
                 </div>
@@ -208,11 +202,8 @@ body {
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <button onclick="addToCart('Kostum Graduation', 'kostum', 6000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
-                            <i class="bi bi-cart3"></i>
-                        </button>
-                        <a href="booking.php?from=kostum&nama=Kostum+Graduation&harga=6000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
-                            Booking
+                        <a href="detailkostum_graduation.php?from=kostum&nama=Kostum+Graduation&harga=6000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                           Lihat lebih banyak
                         </a>
                     </div>
                 </div>
@@ -227,16 +218,13 @@ body {
                         <ul>
                             <li>Kebaya pilihan</li>
                             <li>Kain bawahan</li>
-                            <li>Aksesoris sederhana</li>
+                            <li>Kostum pahlawan for kids</li>
                             <li>Custom size</li>
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <button onclick="addToCart('Kostum Kebaya', 'kostum', 2000000)" class="btn-cart-icon" type="button" aria-label="Tambah ke keranjang">
-                            <i class="bi bi-cart3"></i>
-                        </button>
-                        <a href="booking.php?from=kostum&nama=Kostum+Kebaya&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
-                            Booking
+                        <a href="detailkostum_pahlawan.php?from=kostum&nama=Kostum+Kebaya&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                           Lihat lebih banyak
                         </a>
                     </div>
                 </div>

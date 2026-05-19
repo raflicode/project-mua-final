@@ -63,9 +63,11 @@ if (!headers_sent()) {
             font-family: 'Poppins', sans-serif;
 
             background:
-                linear-gradient(135deg,
-                    #8a9e8e,
-                    #748678);
+            linear-gradient(
+            135deg,
+            #f8efe0,
+            #f2e5d5
+            );
         }
 
         a {
@@ -113,10 +115,10 @@ if (!headers_sent()) {
         .field-input:focus {
             background: #fff;
 
-            border-color: #a660c3;
+            border-color:#b5835a;
 
             box-shadow:
-                0 0 0 4px rgba(166, 96, 195, .12);
+            0 0 0 4px rgba(181,131,90,.16);
         }
 
         .field-input::placeholder {
@@ -183,9 +185,9 @@ if (!headers_sent()) {
             cursor: pointer;
         }
 
-        .forgot {
-            font-size: .74rem;
-            color: #a660c3;
+        .forgot{
+            font-size:.74rem;
+            color:#7b5d3f;
         }
 
         .forgot:hover {
@@ -203,9 +205,11 @@ if (!headers_sent()) {
             border-radius: 999px;
 
             background:
-                linear-gradient(135deg,
-                    #9d5bd2,
-                    #c85ab0);
+            linear-gradient(
+            135deg,
+            #a58459,
+            #7b5d3f
+            );
 
             color: #fff;
 
@@ -217,7 +221,7 @@ if (!headers_sent()) {
             cursor: pointer;
 
             box-shadow:
-                0 10px 22px rgba(157, 91, 210, .35);
+            0 10px 22px rgba(165,132,89,.35);
 
             transition: all .25s ease;
         }
@@ -226,7 +230,7 @@ if (!headers_sent()) {
             transform: translateY(-2px);
 
             box-shadow:
-                0 14px 30px rgba(157, 91, 210, .45);
+            0 14px 30px rgba(165,132,89,.45);
         }
 
         /* =====================================================
@@ -242,9 +246,9 @@ if (!headers_sent()) {
             color: #888;
         }
 
-        .footer-txt a {
-            color: #9d5bd2;
-            font-weight: 600;
+        .footer-txt a{
+            color:#7b5d3f;
+            font-weight:600;
         }
 
         .footer-txt a:hover {

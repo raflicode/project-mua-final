@@ -12,6 +12,9 @@ function formatRupiah($value)
     return 'Rp ' . number_format($value, 0, ',', '.');
 }
 
+$backHref = $_SERVER['HTTP_REFERER'] ?? 'service.php';
+$fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_STRING);
+
 function resolveImagePath($path, $default = '../assets/foto_makeup.jpeg')
 {
     if (empty($path)) {

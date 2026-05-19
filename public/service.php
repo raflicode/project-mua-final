@@ -3,216 +3,245 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Yayuk Makeover - Pilih Paket</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
-        :root {
-            --primary-color: #d07f26;
-            --primary-dark: #8a4c18;
-            --bg-soft: #fff5e7;
-            --text-dark: #2b1f15;
-            --text-muted: #5e4a37;
-            --card-bg: #ffffff;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-soft);
-            color: var(--text-dark);
-            padding-top: 100px !important;
-            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            color: #222;
+            padding-top: 80px;
         }
 
-        .wrapper {
-            max-width: 1160px;
+        a { text-decoration: none; }
+
+        .main-container {
+            width: 100%;
+            max-width: 1400px;
             margin: auto;
-        }
-
-        .back-nav {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 50px;
-            height: 50px;
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 14px 36px rgba(0,0,0,0.08);
-            color: var(--text-dark);
-            text-decoration: none;
-            transition: all 0.25s ease;
-        }
-
-        .back-nav:hover {
-            background: var(--primary-color);
-            color: white;
-            transform: translateX(-2px);
-        }
-
-        .page-title {
-            font-size: 2.1rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
-        }
-
-        .page-subtitle {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-bottom: 0;
+            padding: 24px 18px 70px;
         }
 
         .section-title {
-            font-size: 1.55rem;
-            font-weight: 800;
-            margin-bottom: 10px;
+            text-align: center;
+            margin-bottom: 45px;
         }
 
-        .card-custom {
-            border-radius: 28px;
-            border: 1px solid rgba(208, 127, 38, 0.16);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
-            background: var(--card-bg);
-            overflow: hidden;
-            transition: transform 0.25s ease;
-            height: 100%;
-        }
-
-        .card-custom:hover {
-            transform: translateY(-4px);
-        }
-
-        .package-card {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 30px;
-            min-height: 420px;
-        }
-
-        .package-card h5 {
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-        }
-
-        .package-card .package-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            color: var(--text-dark);
-        }
-
-        .package-card .package-list li {
-            position: relative;
-            padding-left: 28px;
-            margin-bottom: 0.9rem;
-            font-size: 1rem;
-        }
-
-        .package-card .package-list li::before {
-            content: '\f2db';
-            font-family: 'bootstrap-icons';
-            position: absolute;
-            left: 0;
-            top: 2px;
-            color: var(--primary-color);
-            font-size: 0.9rem;
-        }
-
-        .package-card p {
-            color: var(--text-muted);
-            margin-bottom: 1.75rem;
-        }
-
-        .btn-booking,
-        .btn-gold,
-        .btn-silver {
-            width: 100%;
-            border-radius: 18px;
-            padding: 14px 18px;
+        .section-title h1 {
+            font-size: 2.4rem;
             font-weight: 700;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            line-height: 1.15;
+            margin-bottom: 14px;
         }
 
-        .btn-booking {
-            background: linear-gradient(135deg, var(--primary-color), #ae5c16);
-            border: none;
-            color: white;
-            box-shadow: 0 14px 28px rgba(208, 127, 38, 0.24);
+        .section-title p {
+            font-size: .95rem;
+            color: #777;
+            max-width: 650px;
+            margin: auto;
         }
 
-        .btn-booking:hover,
-        .btn-gold:hover,
-        .btn-silver:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-silver {
-            background: #f7e6c5;
-            border: 1px solid rgba(208, 127, 38, 0.18);
-            color: var(--text-dark);
-        }
-
-        .btn-gold {
-            background: linear-gradient(135deg, var(--primary-color), #ae5c16);
-            border: none;
-            color: white;
-            box-shadow: 0 14px 28px rgba(208, 127, 38, 0.24);
-        }
-
-        .package-header {
-            padding: 22px 24px;
-            border-radius: 22px;
-            margin-bottom: 24px;
-            color: var(--primary-dark);
-            font-size: 1.3rem;
-            font-weight: 800;
-        }
-
-        .package-header.gold {
-            background: linear-gradient(135deg, #fff2d9, #f4d1a3);
-        }
-
-        .package-header.silver {
-            background: linear-gradient(135deg, #f8f1de, #e7d1a3);
-            color: #7f5a2f;
-        }
-
-        .wedding-card {
+        .service-card {
+            background: #fff;
             border-radius: 28px;
-            overflow: hidden;
-            transition: transform 0.25s ease;
+            padding: 20px;
             height: 100%;
+            box-shadow: 0 10px 28px rgba(0,0,0,.06);
+            transition: .25s;
             display: flex;
             flex-direction: column;
         }
 
+        .service-card:hover,
         .wedding-card:hover {
             transform: translateY(-4px);
         }
 
-        .wedding-card .card-body {
-            padding: 34px 28px;
+        .service-img {
+            width: 100%;
+            height: 320px;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 18px;
+            flex-shrink: 0;
+            background: #f0f0f0;
+        }
+
+        .service-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+        }
+
+        .service-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .service-list,
+        .wedding-card ul {
+            padding-left: 18px;
+            color: #666;
+            margin-bottom: 24px;
             flex: 1;
         }
 
-        .wedding-card .card-footer {
-            background: transparent;
-            border-top: none;
-            padding: 24px 28px 30px;
+        .service-list li,
+        .wedding-card ul li {
+            margin-bottom: 8px;
+            font-size: .92rem;
+        }
+
+        .service-bottom {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .btn-book {
+            flex: 1;
+            min-height: 44px;
+            border: none;
+            border-radius: 999px;
+            background: #111;
+            color: #fff;
+            font-size: .85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: .2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 16px;
+        }
+
+        .btn-book:hover {
+            background: #333;
+            color: #fff;
+        }
+
+        .btn-cart {
+            width: 46px;
+            min-width: 46px;
+            height: 44px;
+            border: none;
+            border-radius: 14px;
+            background: #f6b437;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .btn-cart:hover { background: #e0a020; }
+
+        .wedding-section { margin-top: 80px; }
+
+        .wedding-title {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .wedding-title h2 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .wedding-card {
+            position: relative;
+            background: #fff;
+            border-radius: 28px;
+            overflow: hidden;
+            padding: 18px;
+            height: 100%;
+            box-shadow: 0 12px 30px rgba(0,0,0,.08);
+            display: flex;
+            flex-direction: column;
+            transition: .25s;
+        }
+
+        .wedding-image {
+            width: 100%;
+            height: 280px;
+            border-radius: 22px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+            background: #f0f0f0;
+        }
+
+        .wedding-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+        }
+
+        .wedding-label {
+            position: absolute;
+            top: 28px;
+            left: 28px;
+            padding: 8px 18px;
+            border-radius: 999px;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            z-index: 1;
+        }
+
+        .silver-label { background: #e7e7e7; color: #666; }
+        .gold-label { background: #f6b437; color: #fff; }
+
+        .wedding-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .silver-card { border: 2px solid #ececec; }
+
+        .gold-card {
+            border: 2px solid #f6b437;
+            box-shadow: 0 0 25px rgba(246,180,55,.25);
         }
 
         .btn-kembali {
-            display: none;
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 30px;
+            padding: 10px 20px;
+            z-index: 10;
+            box-shadow: 0 10px 25px rgba(0,0,0,.18);
         }
 
-        @media (max-width: 991px) {
-            .package-card,
-            .wedding-card .card-body,
-            .wedding-card .card-footer {
-                padding: 24px;
+        .btn-kembali:hover {
+            background: #d94333;
+            color: white;
+        }
+
+        @media(max-width: 767px) {
+            body { padding-top: 90px; }
+            .section-title h1 { font-size: 2rem; }
+            .service-img { height: 180px; }
+            .wedding-image { height: 200px; }
+            .main-container { padding: 20px 14px 80px; }
+            .btn-kembali {
+                left: 16px;
+                bottom: 16px;
+                padding: 9px 16px;
             }
         }
     </style>
@@ -221,94 +250,184 @@
 
 <?php include 'include/navbar.php'; ?>
 
-<div class="container-fluid mt-3 px-lg-5 wrapper">
-    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
-        <a href="javascript:history.back()" class="back-nav">
-            <i class="bi bi-chevron-left"></i>
-        </a>
-        <div>
-            <h1 class="page-title">Pilih Paket Layanan</h1>
-            <p class="page-subtitle">Pilih paket makeup, kostum, atau dekor yang paling cocok untuk acara Anda.</p>
-        </div>
-        <div style="width:50px;"></div>
+<div class="main-container">
+    <div class="section-title">
+        <h1>Pilih paket yang sesuai <br>dengan tujuan Anda.</h1>
+        <p>Pilih layanan terbaik dari Yayuk Makeover untuk membuat acara spesial Anda semakin elegan dan berkesan.</p>
     </div>
 
-    <div class="row g-4 justify-content-center mb-5">
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card card-custom package-card">
-                <div>
-                    <h5>Makeup Wedding</h5>
-                    <p>Solusi lengkap untuk tampilan pengantin, keluarga, dan tamu spesial.</p>
-                    <ul class="package-list mb-0">
-                        <li>Wedding Akad</li>
-                        <li>Wedding Resepsi</li>
-                        <li>Graduation</li>
-                        <li>Natural Look</li>
-                    </ul>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="service-card">
+                <div class="service-img">
+                    <img src="../assets/gallery_makeup/makeup_1.jpeg" alt="Makeup Wedding">
                 </div>
-                <a href="makeup.php" class="btn btn-booking mt-4">Lihat Lebih Banyak</a>
+                <h3 class="service-title">Makeup Wedding</h3>
+                <ul class="service-list">
+                    <li>Wedding Akad</li>
+                    <li>Wedding Resepsi</li>
+                    <li>Graduation</li>
+                    <li>Natural look</li>
+                    <li>Touch Up Wedding</li>
+                </ul>
+                <div class="service-bottom">
+                    <a class="btn-book" href="makeup.php">Lihat Lebih Banyak</a>
+                    <button class="btn-cart" type="button" onclick="addToCart('Makeup Wedding', 'makeup', 2500000)">
+                        <i class="bi bi-bag-plus"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card card-custom package-card">
-                <div>
-                    <h5>Wedding Kostum</h5>
-                    <p>Kostum premium untuk pesta, adat, dan tema spesial Anda.</p>
-                    <ul class="package-list mb-0">
+        <div class="col-md-4">
+            <div class="service-card">
+                <div class="service-img">
+                    <img src="../assets/gallery_makeup/makeup_1.jpeg" alt="Wedding Kostum">
+                </div>
+                <h3 class="service-title">Wedding Kostum</h3>
+                <ul class="service-list">
+                    <li>Kostum Wedding</li>
+                    <li>Kostum Graduation</li>
+                    <li>Baju Adat</li>
+                    <li>Kostum Karnaval</li>
+                    <li>Aksesoris Lengkap</li>
+                </ul>
+                <div class="service-bottom">
+                    <a class="btn-book" href="kostum.php">Lihat Lebih Banyak</a>
+                    <button class="btn-cart" type="button" onclick="addToCart('Wedding Kostum', 'kostum', 4000000)">
+                        <i class="bi bi-bag-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="service-card">
+                <div class="service-img">
+                    <img src="../assets/gallery_makeup/makeup_1.jpeg" alt="Dekor/Terop">
+                </div>
+                <h3 class="service-title">Dekor/Terop</h3>
+                <ul class="service-list">
+                    <li>Outdoor</li>
+                    <li>Indoor</li>
+                    <li>Dekor Pelaminan</li>
+                    <li>Photo Booth</li>
+                    <li>Lighting Wedding</li>
+                </ul>
+                <div class="service-bottom">
+                    <a class="btn-book" href="dekor.php">Lihat Lebih Banyak</a>
+                    <button class="btn-cart" type="button" onclick="addToCart('Dekor/Terop', 'dekor', 6500000)">
+                        <i class="bi bi-bag-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="wedding-section">
+        <div class="wedding-title">
+            <h2>Paket Wedding</h2>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-5">
+                <div class="wedding-card silver-card">
+                    <div class="wedding-label silver-label">SILVER</div>
+                    <div class="wedding-image">
+                        <img src="../assets/gallery_makeup/makeup_1.jpeg" alt="Paket Silver">
+                    </div>
+                    <h3>Paket Silver</h3>
+                    <ul>
+                        <li>Makeup Wedding</li>
                         <li>Kostum Wedding</li>
-                        <li>Kostum Graduation</li>
-                        <li>Baju Adat</li>
-                        <li>Kostum Karnaval</li>
+                        <li>Dekor Basic</li>
+                        <li>Hairdo Elegant</li>
                     </ul>
+                    <div class="service-bottom">
+                        <a class="btn-book" href="paket_silver.php">Booking</a>
+                        <button class="btn-cart" type="button" onclick="addToCart('Paket Silver', 'paket', 10000000)">
+                            <i class="bi bi-bag-plus"></i>
+                        </button>
+                    </div>
                 </div>
-                <a href="kostum.php" class="btn btn-booking mt-4">Lihat Lebih Banyak</a>
             </div>
-        </div>
 
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card card-custom package-card">
-                <div>
-                    <h5>Dekor / Terop</h5>
-                    <p>Jasa dekorasi event untuk konsep indoor dan outdoor Anda.</p>
-                    <ul class="package-list mb-0">
-                        <li>Outdoor</li>
-                        <li>Indoor</li>
+            <div class="col-md-5">
+                <div class="wedding-card gold-card">
+                    <div class="wedding-label gold-label">GOLD</div>
+                    <div class="wedding-image">
+                        <img src="../assets/gallery_makeup/makeup_1.jpeg" alt="Paket Gold">
+                    </div>
+                    <h3>Paket Gold</h3>
+                    <ul>
+                        <li>Makeup Premium</li>
+                        <li>Kostum Exclusive</li>
+                        <li>Dekor Full Wedding</li>
+                        <li>Photo Booth + Lighting</li>
                     </ul>
-                </div>
-                <a href="dekor.php" class="btn btn-booking mt-4">Lihat Lebih Banyak</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="text-center mt-5 mb-4">
-        <h2 class="section-title">Paket Wedding</h2>
-        <p class="text-muted small">Pilih paket resmi untuk kebutuhan pernikahan Anda.</p>
-    </div>
-
-    <div class="row g-4 justify-content-center pb-5">
-        <div class="col-10 col-sm-6 col-md-4 col-lg-3">
-            <div class="card wedding-card silver-card">
-                <div class="package-header silver text-uppercase">Silver</div>
-                <div class="card-body text-center d-flex flex-column justify-content-center" style="min-height: 210px;">
-                    <p class="mb-4 text-muted">Paket hemat dengan layanan utama yang tetap lengkap.</p>
-                    <a href="paket_silver.php" class="btn btn-silver w-100">Booking</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-10 col-sm-6 col-md-4 col-lg-3">
-            <div class="card wedding-card gold-card">
-                <div class="package-header gold text-uppercase">Gold</div>
-                <div class="card-body text-center d-flex flex-column justify-content-center" style="min-height: 210px;">
-                    <p class="mb-4 text-muted">Paket premium dengan nilai tambah dan detail eksklusif.</p>
-                    <a href="paket_gold.php" class="btn btn-gold w-100">Booking</a>
+                    <div class="service-bottom">
+                        <a class="btn-book" href="paket_gold.php">Booking</a>
+                        <button class="btn-cart" type="button" onclick="addToCart('Paket Gold', 'paket', 18000000)">
+                            <i class="bi bi-bag-plus"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<a href="../index.php" class="btn btn-kembali">Kembali</a>
+
+<div class="modal fade" id="modalAuth" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-4">
+            <h5 class="mb-3">Belum Login</h5>
+            <p>Kamu harus login atau register dulu sebelum booking</p>
+            <div class="d-flex justify-content-center gap-2">
+                <a href="login.php" class="btn btn-dark">Login</a>
+                <a href="register.php" class="btn btn-primary">Register</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const isLoggedIn = <?php echo isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
+
+    document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
+        btn.addEventListener('click', function () {
+            if (!isLoggedIn) {
+                new bootstrap.Modal(document.getElementById('modalAuth')).show();
+                return;
+            }
+
+            window.location.href = this.dataset.href;
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.navbar *').forEach(el => {
+            if (el.children.length === 0 && el.textContent.trim().toLowerCase().includes('yayuk')) {
+                const parent = el.closest('.nav-item, .navbar-brand, li, a, span, div');
+                if (parent) parent.remove();
+            }
+        });
+
+        document.querySelectorAll(
+            '.navbar-toggler, [data-bs-toggle="dropdown"] .bi-three-dots, [data-bs-toggle="dropdown"] .bi-three-dots-vertical'
+        ).forEach(el => {
+            const parent = el.closest('.nav-item, button, .dropdown') || el;
+            parent.remove();
+        });
+    });
+
+    window.addEventListener('scroll', function () {
+        const navbar = document.querySelector('.navbar');
+        if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 10);
+    });
+</script>
+<?php include 'include/add_to_cart_script.php'; ?>
 </body>
 </html>

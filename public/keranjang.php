@@ -16,6 +16,55 @@ try {
     $stmt = $pdo->prepare("SELECT * FROM keranjang WHERE id_user = ? ORDER BY created_at DESC");
     $stmt->execute([$id_user]);
     $cart_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    function getCartImagePath(array $item): string {
+        $name = strtolower($item['nama_layanan'] ?? '');
+        $type = strtolower($item['tipe_layanan'] ?? '');
+
+        if ($type === 'kostum') {
+            if (str_contains($name, 'graduation')) {
+                return '../assets/fotograduation.jpeg';
+            }
+            if (str_contains($name, 'pahlawan')) {
+                return '../assets/fotopahlawan.jpeg';
+            }
+            if (str_contains($name, 'wedding')) {
+                return '../assets/fotokostum6.jpeg.png';
+            }
+            if (str_contains($name, 'baju adat jawa')) {
+                return '../assets/fotokostum4.jpeg';
+            }
+            if (str_contains($name, 'baju adat sunda')) {
+                return '../assets/adatjawa.jpeg';
+            }
+            if (str_contains($name, 'baju adat bali')) {
+                return '../assets/fotokostum5.jpeg';
+            }
+            if (str_contains($name, 'baju adat madura')) {
+                return '../assets/adatmadura.jpeg';
+            }
+            if (str_contains($name, 'baju adat') || str_contains($name, 'kostum')) {
+                return '../assets/fotokostum3.jpeg.jpg';
+            }
+        }
+
+        if ($type === 'makeup') {
+            return '../assets/foto_makeup.jpeg';
+        }
+
+        if ($type === 'dekor') {
+            return '../assets/foto_dekor.jpeg';
+        }
+
+        return '../assets/fotokostum1.jpeg';
+    }
+
+    foreach ($cart_items as &$item) {
+        if (empty($item['foto'])) {
+            $item['foto'] = getCartImagePath($item);
+        }
+    }
+    unset($item);
 } catch (Exception $e) {
     $cart_items = [];
 }
@@ -298,12 +347,10 @@ function updateDisplay() {
                     <input type="checkbox" class="item-checkbox cart-checkbox" ${checked} onchange="toggleItem(${index}, this.checked)">
                 </div>
                 <div class="col-produk">
-                    <div style="width: 100px; height: 100px; background: #f0f0f0; border-radius: 6px; display: flex; align-items: center; justify-content: center; border: 1px solid #eee;">
-                        <i class="bi bi-image" style="font-size: 2rem; color: #ccc;"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold fs-5 text-dark">${escapeHtml(item.nama_layanan)}</div>
-                        <div class="text-muted small">ID: ${item.id_keranjang}</div>
+                    <img src="${escapeHtml(item.foto)}" alt="${escapeHtml(item.nama_layanan)}" />
+                    <div class="cart-item-details">
+                        <div class="item-title">${escapeHtml(item.nama_layanan)}</div>
+                        <div class="item-subtext">ID: ${item.id_keranjang}</div>
                     </div>
                 </div>
 
@@ -479,8 +526,16 @@ function removeSelected() {
 }
 
 function checkoutSelected() {
-    const selectedCartItems = Array.from(selectedItems).map(index => cartData[index]);
-    
+    const selectedCartItems = Array.from(selectedItems).map(index => {
+        const it = cartData[index];
+        return {
+            nama: it.nama_layanan || it.nama || it.nama_produk || '',
+            harga: Number(it.harga) || 0,
+            qty: Number(it.kuantitas || it.qty || 1),
+            foto: it.foto || it.image || ''
+        };
+    });
+
     if (selectedCartItems.length === 0) {
         alert('Pilih minimal 1 item untuk checkout');
         return;

@@ -97,7 +97,7 @@ $backHref = 'pembayaran.php';
         .upload-box input { display: none; }
 
         .btn-konfirmasi {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: #b5835a;
             border: none;
             padding: 14px;
             font-weight: 800;
@@ -106,7 +106,17 @@ $backHref = 'pembayaran.php';
             width: 100%;
         }
 
-        .btn-konfirmasi:hover { transform: translateY(-3px); }
+        .btn-konfirmasi:hover,
+        .btn-konfirmasi:focus,
+        .btn-konfirmasi:active,
+        .btn-konfirmasi.active,
+        .btn-check:checked + .btn-konfirmasi {
+            background: #9c6d4e;
+            border-color: #9c6d4e;
+            color: white;
+            box-shadow: none;
+            transform: translateY(-3px);
+        }
 
         @media (min-width: 992px) {
             .grid-2 { display: grid; grid-template-columns: 1fr 420px; gap: 28px; align-items: start; }
