@@ -1,12 +1,51 @@
 <?php
 session_start();
-require_once '../config/koneksi.php';
-require_once '../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+function getRegisterAlertScript() {
+    $script = '';
+
+    if (isset($_GET['success'])) {
+        $successMessage = htmlspecialchars($_GET['success'], ENT_QUOTES, 'UTF-8');
+        $script = "
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{$successMessage}',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        </script>
+        ";
+    }
+
+    if (isset($_GET['error'])) {
+        $errorMessage = htmlspecialchars($_GET['error'], ENT_QUOTES, 'UTF-8');
+        $script = "
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: '{$errorMessage}'
+            });
+        </script>
+        ";
+    }
+
+    return $script;
+}
+
+function getOldRegisterValue($key) {
+    return isset($_GET[$key]) ? htmlspecialchars($_GET[$key], ENT_QUOTES, 'UTF-8') : '';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once __DIR__ . '/../config/koneksi.php';
+    require_once __DIR__ . '/../vendor/autoload.php';
+
     $full_name = trim($_POST['full_name']);
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
@@ -18,44 +57,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'old_username' => $username,
     ];
 
-    // 1. Validasi email Gmail
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/@gmail\.com$/i', $email)) {
         $queryData['error'] = 'Gunakan alamat Gmail yang valid';
         header("Location: ../public/register.php?" . http_build_query($queryData));
         exit();
     }
 
-    // 2. Cek apakah email sudah ada
     $checkEmail = $pdo->prepare("SELECT * FROM user WHERE email = ?");
     $checkEmail->execute([$email]);
-    
+
     if ($checkEmail->rowCount() > 0) {
         $queryData['error'] = 'Email sudah dipakai';
         header("Location: ../public/register.php?" . http_build_query($queryData));
         exit();
     }
 
-    // 3. Cek apakah username sudah ada
     $checkUsername = $pdo->prepare("SELECT * FROM user WHERE username = ?");
     $checkUsername->execute([$username]);
-    
+
     if ($checkUsername->rowCount() > 0) {
         $queryData['error'] = 'Username sudah ada';
         header("Location: ../public/register.php?" . http_build_query($queryData));
         exit();
     }
 
-    // 4. Validasi password minimal 8 karakter
     if (strlen($password) < 8) {
         $queryData['error'] = 'Password minimal 8 karakter';
         header("Location: ../public/register.php?" . http_build_query($queryData));
         exit();
     }
 
-    // 5. Hash Password (WAJIB, jangan simpan teks biasa!)
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-    // 6. Kirim OTP verifikasi email
     $otp = rand(1000, 9999);
 
     $mail = new PHPMailer(true);

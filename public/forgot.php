@@ -62,17 +62,11 @@
             </p>
 
             <!-- Form -->
-            <form action="send_otp.php" method="POST">
-                <div class="mb-3">
-                    <input type="email" name="email" class="form-control" placeholder="Email Address" required>
-                </div>
-
-                <button type="submit" class="btn btn-custom text-white w-100 py-2">
-                    Next
-                </button>
+            <form action="../actions/send_otp.php" method="POST">
+                <input type="email" name="email" class="form-control mb-4" placeholder="Masukkan email Anda" required>
+                <button type="submit" class="btn btn-custom text-white w-100 py-2">Kirim Kode OTP</button>
             </form>
-
-            <!-- PHP Handling -->
+            
             <?php
             // Dihapus karena sekarang form mengirim langsung ke send_otp.php
             ?>

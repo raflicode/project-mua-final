@@ -4,9 +4,9 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 ?>
 
-<!-- Link Icon ini ditaruh di sini supaya otomatis terbawa ke file mana pun yang meng-include navbar -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/project-mua-final/assets/css/mua-theme.css">
 
 <style>
   .btn-custom-gold {
@@ -17,223 +17,171 @@ if (session_status() === PHP_SESSION_NONE) {
   .btn-custom-gold:hover {
     background-color: #b5835a !important;
     border-color: #b5835a !important;
-    color: white !important;
+    color: #ffffff !important;
   }
 
-  /* 1. Pastikan transisi dipasang di class utama */
   .transition-nav {
     transition: all 0.5s ease-in-out !important;
-    background-color: transparent;
-    /* Awalnya transparan */
-
+    background-color: rgba(247, 242, 235, 0.72);
+    backdrop-filter: blur(14px);
   }
 
-  /* 2. Warna teks default saat di atas (Putih agar kontras dengan hero image) */
   .navbar .nav-link,
   .navbar .navbar-brand {
-    color: black !important;
+    color: #3b3028 !important;
     transition: 0.3s;
   }
 
-  /* 3. Class saat di-scroll (Warna background putih, teks jadi gelap) */
-  .nav-scrolled {
-    background-color: #ffffff !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+  /* ==========================================================================
+     PERUBAHAN DI SINI: Efek Garis Bawah (Kecuali Menu Dropdown Profil)
+     ========================================================================== */
+  .navbar .nav-link:not(.dropdown-toggle) {
+    position: relative; /* Wajib ada sebagai patokan garis bawah */
+    padding-bottom: 4px;
   }
 
-  /* Paksa teks jadi hitam/gelap saat background putih muncul */
+  /* Membuat garis hitam rahasia di bawah menu (Hanya untuk non-dropdown) */
+  .navbar .nav-link:not(.dropdown-toggle)::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%; /* Memulai garis dari tengah */
+    background-color: #b5835a; /* Warna garis hitam */
+    transition: all 0.3s ease; /* Efek animasi halus */
+    transform: translateX(-50%);
+  }
+
+  /* Saat di-hover, teks menu biasa berubah warna dan garis hitam memanjang keluar */
+  .navbar .nav-link:not(.dropdown-toggle):hover {
+    color: #b5835a !important;
+    text-decoration: none;
+  }
+
+  .navbar .nav-link:not(.dropdown-toggle):hover::after {
+    width: 100%; /* Garis hitam melebar penuh sesuai panjang teks */
+  }
+
+  /* Khusus untuk hover tombol profil (hanya berubah warna, tanpa garis bawah) */
+  .navbar .nav-link.dropdown-toggle:hover {
+    color: #b5835a !important;
+    text-decoration: none;
+  }
+  /* ========================================================================== */
+
+  .nav-scrolled {
+    background-color: rgba(255, 250, 244, 0.94) !important;
+    box-shadow: 0 12px 32px rgba(73, 55, 40, 0.11) !important;
+  }
+
   .nav-scrolled .nav-link,
   .nav-scrolled .navbar-brand {
-    color: #333 !important;
+    color: #3b3028 !important;
   }
 
-  /* Tombol login menyesuaikan warna emas kamu saat scroll */
   .nav-scrolled .btn-outline-dark {
-    color: #A58459 !important;
-    border-color: #A58459 !important;
+    color: #a58459 !important;
+    border-color: #a58459 !important;
   }
 
   .offcanvas-custom.offcanvas-top {
-    height: 50vh;
+    height: auto;
+    min-height: 48vh;
+    background: #a58459 !important;
     border-bottom: 2px solid #b5835a;
   }
 
-  /* Container Icon Profile */
   .profile-circle-icon {
     font-size: 1.8rem;
-    color: black;
+    color: #3b3028;
     transition: 0.3s;
     display: flex;
     align-items: center;
   }
 
   .profile-circle-icon:hover {
-    color: #a7a6a6;
-    /* Warna ungu pas di hover biar senada sama login */
+    color: #b5835a;
   }
 
-  /* Styling Dropdown Box */
+  .navbar-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+  }
+
   .dropdown-menu-custom {
-    background-color: #ffffff;
-    border: none;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    margin-top: 10px !important;
-  }
-
-  .dropdown-item-custom {
-    color: #333 !important;
-    font-size: 14px;
-    padding: 8px 20px;
-  }
-
-  .dropdown-item-custom:hover {
-    background-color: #f8f9fa;
+    border: 1px solid rgba(165, 132, 89, 0.22);
+    border-radius: 18px;
+    background: #fffaf4;
+    box-shadow: 0 18px 40px rgba(73, 55, 40, 0.12);
   }
 </style>
 
-<style>
-.nav-link i {
-        font-size: 1.5rem;
-        color: #333;
-    }
-    #cart-badge {
-        padding: 0.35em 0.5em;
-        line-height: 1;
-        z-index: 10;
-    }
+<nav id="mainNavbar" class="navbar fixed-top px-3 transition-nav">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="/project-mua-final/index.php">
+      Yayuk <span style="font-style: italic; font-weight: 300; color: #FED03A;">Makeover</span>
+    </a>
 
-/* Memastikan posisi dropdown relatif terhadap icon */
-.dropdown-cart {
-    position: relative;
-    display: inline-block;
-}
+    <button class="navbar-toggler border-0 d-lg-none" type="button" data-bs-toggle="offcanvas"
+      data-bs-target="#mobileMenu" aria-label="Buka menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-/* Kotak preview yang akan muncul */
-.cart-preview-box {
-    position: absolute;
-    top: 100%; /* Muncul tepat di bawah navbar */
-    right: 0;
-    width: 500px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    padding: 15px;
-    display: none; /* Sembunyikan dulu */
-    z-index: 9999;
-    border: 1px solid #eee;
-    margin-top: 10px;
-}
+    <div class="d-none d-lg-flex ms-auto align-items-center gap-4 text-dark">
+      <a class="nav-link" href="/project-mua-final/index.php">Home</a>
+      <a class="nav-link" href="/project-mua-final/public/service.php">Service</a>
+      <a class="nav-link" href="/project-mua-final/index.php#gallery">Gallery</a>
 
-.cart-preview-box img {
-        width: 100px !important; /* Ukuran gambar diperbesar */
-        height: 100px !important;
-        border-radius: 8px;
-    }
-
-/* Munculkan kotak saat kursor diarahkan ke area keranjang */
-.dropdown-cart:hover .cart-preview-box {
-    display: block;
-}
-
-
-/* Gaya item di dalam preview */
-.preview-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 15px;
-}
-
-.preview-item img {
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.navbar.bg-white {
-        background-color: #ffffff !important; /* Memastikan warna putih bersih */
-        transition: all 0.3s ease;
-    }
-
-    /* Mengatur warna teks link agar gelap (karena background putih) */
-    .navbar-light .nav-link {
-        color: #333333 !important;
-        font-weight: 500;
-    }
-
-    /* Warna saat kursor diarahkan ke menu (hover) */
-    .navbar-light .nav-link:hover {
-        color: #FED03A !important; /* Warna gold khas Yayuk Makeover */
-    }
-
-    /* Tambahkan bayangan halus agar navbar terpisah dari konten bawah */
-    .shadow-sm {
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
-    }
-</style>
-
-<nav id="mainNavbar" class="navbar navbar-expand-lg fixed-top px-3 transition-nav bg-white navbar-light shadow-sm">
-  <div class=" container-fluid ">
-    <a class=" navbar-brand fw-bold" href="/project-mua-final/index.php">
-  Yayuk <span style="font-style: italic; font-weight: 300; color: #FED03A;">Makeover</span>
-  </a>
-
-  <button class="navbar-toggler border-0 d-lg-none" type="button" data-bs-toggle="offcanvas"
-    data-bs-target="#mobileMenu">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <div class="d-none d-lg-flex ms-auto align-items-center gap-4 text-dark">
-
-    <a class="nav-link ]" href="/project-mua-final/index.php">Home</a>
-    <a class="nav-link " href="/project-mua-final/public/service.php">Service</a>
-    <a class="nav-link " href="/project-mua-final/index.php#gallery">Gallery</a>
-    <a class="nav-link " href="/project-mua-final/public/cart.php">Keranjang</a>
-
-
-    <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
-      <!-- DROPDRON PROFILE -->
-      <div class="dropdown">
-        <a class="nav-link dropdown-toggle d-flex align-items-center border-0" href="#" role="button"
-          data-bs-toggle="dropdown" aria-expanded="false">
-          <!-- Icon Vector Umum (Kepala & Badan) -->
-          <div class="profile-circle-icon">
-            <i class="bi bi-person-circle"></i>
-          </div>
+      <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
+        <a class="nav-link position-relative" href="/project-mua-final/public/keranjang.php">
+          <i class="bi bi-cart3"></i> Keranjang
+          <span id="cart-count" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none; font-size:0.7rem;"></span>
         </a>
+      <?php endif; ?>
 
-        
+      <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
+        <div class="dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center border-0" href="#" role="button"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="profile-circle-icon">
+              <i class="bi bi-person-circle"></i>
+            </div>
+          </a>
 
-        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom">
-          <li>
-            <div class="dropdown-header text-muted">Halo, <strong><?= $_SESSION['username']; ?></strong></div>
-          </li>
-          <li>
-            <hr class="dropdown-divider">
-          </li>
-          <!-- Link Logout Backend Kamu -->
-          <li><a class="dropdown-item text-danger fw-bold" href="../project-mua-final/public/logout.php">Logout</a></li>
-        </ul>
-      </div>
-    <?php else: ?>
-      <a class="btn btn-custom-gold border-2 ms-2" href="/project-mua-final/public/login.php">Login</a> <?php endif; ?>
-  </div>
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom">
+            <li>
+              <div class="dropdown-header text-muted">Halo, <strong><?= htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?></strong></div>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger fw-bold" href="/project-mua-final/actions/logout.php">Logout</a></li>
+          </ul>
+        </div>
+      <?php else: ?>
+        <a class="btn btn-custom-gold border-2 ms-2" href="/project-mua-final/public/login.php">Login</a>
+      <?php endif; ?>
+    </div>
   </div>
 </nav>
 
-<!-- OFF CANVAS (MOBILE) -->
-<div class="offcanvas offcanvas-top bg-dark text-white offcanvas-custom" tabindex="-1" id="mobileMenu">
+<div class="offcanvas offcanvas-top text-white offcanvas-custom" tabindex="-1" id="mobileMenu">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title">Menu</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Tutup menu"></button>
   </div>
   <div class="offcanvas-body">
     <ul class="navbar-nav gap-3">
-      <li><a class="nav-link text-white" href="../../project-mua-final/dasboard.php">🏠 Home</a></li>
-      <li><a class="nav-link text-white" href="../../project-mua-final/public/service.php">💄 Service</a></li>
-      <li><a class="nav-link text-white" href="../../project-mua-final/dasboard.php#gallery">🖼️ Gallery</a></li>
-      <li><a class="nav-link text-white" href="../../project-mua-final/public/cart.php">🛒 Keranjang</a></li>
+      <li><a class="nav-link text-white" href="/project-mua-final/index.php"><i class="bi bi-house-door me-2"></i>Home</a></li>
+      <li><a class="nav-link text-white" href="/project-mua-final/public/service.php"><i class="bi bi-brush me-2"></i>Service</a></li>
+      <li><a class="nav-link text-white" href="/project-mua-final/index.php#gallery"><i class="bi bi-images me-2"></i>Gallery</a></li>
+      <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
+        <li>
+          <a class="nav-link text-white position-relative" href="/project-mua-final/public/keranjang.php">
+            <i class="bi bi-cart3 me-2"></i>Keranjang
+            <span id="cart-count-mobile" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none; font-size:0.7rem;"></span>
+          </a>
+        </li>
+      <?php endif; ?>
     </ul>
 
     <div class="border-top pt-3 mt-4">
@@ -241,13 +189,13 @@ if (session_status() === PHP_SESSION_NONE) {
         <div class="d-flex align-items-center gap-3">
           <i class="bi bi-person-circle" style="font-size: 2rem;"></i>
           <div>
-            <div class="fw-bold"><?= $_SESSION['username']; ?></div>
-            <small class="text-secondary"><?= $_SESSION['email'] ?? 'Member'; ?></small>
+            <div class="fw-bold"><?= htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?></div>
+            <small class="text-white-50"><?= htmlspecialchars($_SESSION['email'] ?? 'Member', ENT_QUOTES, 'UTF-8'); ?></small>
           </div>
         </div>
-        <a href="../project-mua-final/public/logout.php" class="text-danger d-block mt-3 fw-bold">Logout</a>
+        <a href="/project-mua-final/actions/logout.php" class="text-white d-block mt-3 fw-bold">Logout</a>
       <?php else: ?>
-        <a href="/project-mua-final/public/login.php" class="text-white">Login</a>
+        <a href="/project-mua-final/public/login.php" class="btn btn-light">Login</a>
       <?php endif; ?>
     </div>
   </div>
@@ -257,87 +205,30 @@ if (session_status() === PHP_SESSION_NONE) {
   window.onscroll = function () {
     var navbar = document.getElementById('mainNavbar');
 
-    // Jika user scroll lebih dari 50px ke bawah
     if (window.pageYOffset > 50) {
       navbar.classList.add('nav-scrolled');
     } else {
-      // Jika balik lagi ke posisi paling atas
       navbar.classList.remove('nav-scrolled');
     }
   };
-</script>
 
-<script>
-function addToCart(id, nama, harga, foto) {
-    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
-    let foundIndex = cart.findIndex(item => item.id === id);
-
-    if (foundIndex > -1) {
-        cart[foundIndex].qty += 1;
-    } else {
-        cart.push({ id, nama, harga, foto, qty: 1 });
-    }
-
-    localStorage.setItem('yayuk_cart', JSON.stringify(cart));
-
-    // --- PENTING: Panggil fungsi ini agar angka di navbar langsung berubah ---
-    updateNavbarBadge(); 
-    // ------------------------------------------------------------------------
-
-    alert(nama + " berhasil ditambah ke keranjang!");
-}
-
-// Fungsi ini harus ada di file yang sama atau di navbar.php yang di-include
-function updateNavbarBadge() {
-    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
-    let totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-    const badge = document.getElementById('cart-badge');
-    
-    if (badge) {
-        badge.innerText = totalItems;
-        badge.style.display = totalItems > 0 ? 'inline-block' : 'none';
-    }
-}
-
-// Tetap jalankan ini agar saat pindah halaman angkanya tidak hilang
-document.addEventListener('DOMContentLoaded', updateNavbarBadge);
-</script>
-
-<script>
-function updateNavbarBadge() {
-    let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
-    let totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-    
-    // Update Badge Angka
-    const badge = document.getElementById('cart-badge');
-    if (badge) {
-        badge.innerText = totalItems;
-        badge.style.display = totalItems > 0 ? 'inline-block' : 'none';
-    }
-
-    // Update Isi Kotak Preview
-    const previewContainer = document.getElementById('cart-items-preview');
-    const previewFooter = document.getElementById('cart-preview-footer');
-    
-    if (cart.length > 0) {
-        let html = "";
-        cart.slice(0, 3).forEach(item => { // Tampilkan 3 produk terakhir saja
-            html += `
-                <div class="preview-item">
-                    <img src="${item.foto}">
-                    <div style="font-size: 13px;">
-                        <div class="fw-bold text-dark text-truncate" style="max-width: 180px;">${item.nama}</div>
-                        <div class="text-warning">${item.qty} x Rp ${item.harga.toLocaleString('id-ID')}</div>
-                    </div>
-                </div>`;
+  function updateCartCount() {
+    fetch('/project-mua-final/actions/get_cart_count.php')
+      .then(response => response.json())
+      .then(data => {
+        const cartElements = document.querySelectorAll('#cart-count, #cart-count-mobile');
+        cartElements.forEach(el => {
+          if (data.cart_count > 0) {
+            el.innerText = data.cart_count;
+            el.style.display = 'inline-block';
+          } else {
+            el.style.display = 'none';
+          }
         });
-        previewContainer.innerHTML = html;
-        previewFooter.style.display = 'block';
-    } else {
-        previewContainer.innerHTML = '<p class="text-center text-muted p-2">Belum Ada Produk</p>';
-        previewFooter.style.display = 'none';
-    }
-}
+      })
+      .catch(error => console.log('Error fetching cart count:', error));
+  }
 
-document.addEventListener('DOMContentLoaded', updateNavbarBadge);
+  document.addEventListener('DOMContentLoaded', updateCartCount);
+  window.updateCartNavbar = updateCartCount;
 </script>

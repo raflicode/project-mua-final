@@ -1,5 +1,73 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/koneksi.php';
+
+// Redirect jika belum login
+if (!isset($_SESSION['id_user'])) {
+    header('Location: login.php');
+    exit();
+}
+
+$id_user = $_SESSION['id_user'];
+$backHref = '../index.php';
+
+// Fetch keranjang data dari database
+try {
+    $stmt = $pdo->prepare("SELECT * FROM keranjang WHERE id_user = ? ORDER BY created_at DESC");
+    $stmt->execute([$id_user]);
+    $cart_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    function getCartImagePath(array $item): string {
+        $name = strtolower($item['nama_layanan'] ?? '');
+        $type = strtolower($item['tipe_layanan'] ?? '');
+
+        if ($type === 'kostum') {
+            if (str_contains($name, 'graduation')) {
+                return '../assets/fotograduation.jpeg';
+            }
+            if (str_contains($name, 'pahlawan')) {
+                return '../assets/fotopahlawan.jpeg';
+            }
+            if (str_contains($name, 'wedding')) {
+                return '../assets/fotokostum6.jpeg.png';
+            }
+            if (str_contains($name, 'baju adat jawa')) {
+                return '../assets/fotokostum4.jpeg';
+            }
+            if (str_contains($name, 'baju adat sunda')) {
+                return '../assets/adatjawa.jpeg';
+            }
+            if (str_contains($name, 'baju adat bali')) {
+                return '../assets/fotokostum5.jpeg';
+            }
+            if (str_contains($name, 'baju adat madura')) {
+                return '../assets/adatmadura.jpeg';
+            }
+            if (str_contains($name, 'baju adat') || str_contains($name, 'kostum')) {
+                return '../assets/fotokostum3.jpeg.jpg';
+            }
+        }
+
+        if ($type === 'makeup') {
+            return '../assets/foto_makeup.jpeg';
+        }
+
+        if ($type === 'dekor') {
+            return '../assets/foto_dekor.jpeg';
+        }
+
+        return '../assets/fotokostum1.jpeg';
+    }
+
+    foreach ($cart_items as &$item) {
+        if (empty($item['foto'])) {
+            $item['foto'] = getCartImagePath($item);
+        }
+    }
+    unset($item);
+} catch (Exception $e) {
+    $cart_items = [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -7,415 +75,499 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Keranjang Saya - Yayuk Makeover</title>
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-    body { background-color: #f5f5f5; }
-    
-    .cart-header {
-        position: sticky;
-        top: 100px; /* Jarak dari atas (sesuaikan dengan tinggi navbar putihmu) */
-        background-color: #ffffff; /* Supaya pas di-scroll, tulisan di bawahnya tidak kelihatan */
-        z-index: 99; /* Agar tetap di atas produk saat bergulir */
-        border-bottom: 1px solid #eee;
-        display: flex; /* Memastikan kolom sejajar horizontal */
-        padding: 15px 0;
-        font-size: 20px;
-    }
+        :root {
+            --primary-color: #d07f26;
+            --primary-dark: #8a4c18;
+            --bg-soft: #fff5e7;
+            --card-bg: #ffffff;
+            --text-dark: #2b1f15;
+            --text-muted: #5e4a37;
+            --border-soft: rgba(208, 127, 38, 0.22);
+        }
 
- 
+        body {
+            background-color: var(--bg-soft);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-dark);
+            padding-top: 100px !important;
+            padding-bottom: 140px;
+        }
 
-    /* Footer ala Shopee */
-    .checkout-footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background: white;
-        padding: 15px 0;
-        box-shadow: 0 -5px 10px rgba(0,0,0,0.10);
-        z-index: 1000;
-    }
+        .page-heading {
+            margin-bottom: 1rem;
+        }
 
-    .total-price {
-        color: #ee4d2d;
-        font-size: 24px;
-        font-weight: 500;
-    }
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #3a2a1e;
+        }
 
-    .btn-checkout {
-        background-color: #ee4d2d;
-        color: white;
-        padding: 10px 40px;
-        font-weight: bold;
-        border-radius: 2px;
-    }
+        .section-subtitle {
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
 
-    .btn-checkout:hover { background-color: #d73211; color: white; }
+        .cart-header,
+        .cart-item {
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 22px;
+            padding: 22px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.08);
+        }
 
-    /* Style Input Quantity */
-    .qty-input {
-        width: 40px;
-        text-align: center;
-        border: 1px solid #ddd;
-        border-left: none;
-        border-right: none;
-    }
-    .btn-qty {
-        border: 1px solid #ddd;
-        background: white;
-        width: 30px;
-    }
+        .cart-header {
+            position: sticky;
+            top: 92px;
+            z-index: 99;
+            border: 1px solid rgba(208, 127, 38, 0.12);
+            background: rgba(255,255,255,0.96);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #3f2d1f;
+        }
 
-    <style>
-    /* Membuat background abu-abu khas Shopee memenuhi layar */
-    body { 
-        background-color: #f5f5f5; 
-    }
+        .col-checkbox { width: 5%; display: flex; justify-content: center; align-items: center; }
+        .col-produk { width: 35%; display: flex; gap: 18px; align-items: center; }
+        .col-include { width: 18%; text-align: center; }
+        .col-harga,
+        .col-kuantitas,
+        .col-total { width: 14%; text-align: center; }
+        .col-aksi { width: 10%; text-align: center; }
 
-    /* Header dan Item dibuat Full Width */
-    .cart-header, .cart-item {
-        width: 100%;
-        background: white;
-        padding: 20px;
-        border-radius: 4px;
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        box-shadow: 0 1px 1px rgba(0,0,0,0.05);
-    }
+        .cart-item img {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border: 1px solid var(--border-soft);
+            border-radius: 18px;
+        }
 
-    /* Sesuaikan proporsi kolom agar lebih proporsional saat lebar */
-    .col-checkbox { width: 5%; text-align: center; }
-    .col-produk { width: 45%; display: flex; gap: 20px; align-items: center; }
-    .col-harga { width: 15%; text-align: center; }
-    .col-kuantitas { width: 15%; text-align: center; }
-    .col-total { width: 15%; text-align: center; color: #ee4d2d; font-weight: bold; }
-    .col-aksi { width: 5%; text-align: center; }
+        .item-checkbox {
+            transform: scale(1.3);
+            cursor: pointer;
+            accent-color: var(--primary-color);
+        }
 
-    /* Ukuran gambar diperbesar sedikit agar tidak kebanting dengan layar lebar */
-    .cart-item img { 
-        width: 100px; 
-        height: 100px; 
-        object-fit: cover; 
-        border: 1px solid #eee;
-    }
+        .badge-type {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: #fff1d8;
+            color: var(--primary-dark);
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
 
-    /* Footer checkout dibuat lebih rapi untuk layar lebar */
-    .checkout-footer {
-        padding: 20px 0;
-    }
+        .qty-input {
+            width: 60px;
+            height: 44px;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 700;
+            border: 1px solid #e7c59c;
+            border-left: none;
+            border-right: none;
+            background: transparent;
+        }
 
-    /* Pengaturan lebar kolom agar sejajar rata */
-    .col-checkbox { width: 10%; }
-    .col-produk   { width: 20%; display: flex; align-items: center; gap: 15px; text-align: left; }
-    .col-include  { width: 15%; position: relative; text-align: center; } /* Kolom Baru */
-    .col-harga    { width: 15%; text-align: center; }
-    .col-kuantitas{ width: 15%; text-align: center; }
-    .col-total    { width: 15%; text-align: center; color: #ee4d2d; font-weight: bold; }
-    .col-aksi     { width: 10%;  text-align: center; }
+        .btn-qty {
+            width: 45px;
+            height: 44px;
+            border: 1px solid #e7c59c;
+            background: var(--card-bg);
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: background 0.2s ease;
+        }
 
-    /* Styling Popover Include agar melayang di atas */
-    .include-popover {
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        width: 180px;
-        z-index: 100;
-        font-size: 20px;
-    }
+        .btn-qty:hover {
+            background-color: #fff2d8;
+            color: var(--primary-dark);
+        }
 
-    .dropdown-toggle::after {
-        color: #888;
-        vertical-align: middle;
-    }
+        .cart-item-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
 
-    /* Mengatur ukuran kotak centang */
-    .item-checkbox {
-        transform: scale(1.6); /* Ubah angka 1.5 jika ingin lebih besar lagi */
-        cursor: pointer;
-        margin-right: 10px; /* Jarak tambahan ke gambar/teks */
-    }
+        .item-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #3a2920;
+        }
 
-    /* Opsional: Mengubah warna centang saat aktif (aksen Shopee) */
-    .item-checkbox:checked {
-        accent-color: #1943ff;
-    }
+        .item-subtext {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
 
-    /* Menyesuaikan posisi kolom checkbox agar tetap di tengah */
-    .col-checkbox {
-        width: 5%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+        .checkout-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 18px 0;
+            border-top: 1px solid rgba(208, 127, 38, 0.14);
+            box-shadow: 0 -14px 30px rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+        }
 
-    <style>
-    /* Memperbesar Nama Produk */
-    .col-produk .fw-bold {
-        font-size: 20px !important; /* Ubah angka ini sesuai selera */
-    }
+        .total-price {
+            color: var(--primary-dark);
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
 
-    /* Memperbesar Teks Harga Satuan & Total */
-    .col-harga, .col-total {
-        font-size: 20px;
-    }
+        .btn-checkout {
+            background: linear-gradient(135deg, #d07f26, #ae5c16);
+            color: white;
+            padding: 14px 32px;
+            font-weight: 700;
+            border-radius: 16px;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: 0 16px 32px rgba(208, 127, 38, 0.25);
+        }
 
-    /* Memperbesar teks di Navbar (Home, Service, dll) */
-    .nav-link {
-        font-size: 20px !important;
-    }
-    
-    /* Memperbesar teks tombol Checkout */
-    .btn-checkout {
-        font-size: 20px;
-    }
+        .btn-checkout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 22px 38px rgba(208, 127, 38, 0.3);
+        }
 
-    /* Menargetkan teks di dalam kolom include */
-    .col-include .btn {
-        font-size: 1.2rem !important; /* Ukuran teks lebih besar */
-        font-weight: 600; /* Membuat tulisan sedikit lebih tebal */
-        color: #444 !important; /* Warna sedikit lebih gelap agar jelas */
-    }
-
-    /* Memperbesar icon segitiga (caret) agar mengikuti ukuran teks */
-    .col-include .dropdown-toggle::after {
-        border-top-width: 0.4em;
-        border-right-width: 0.4em;
-        border-left-width: 0.4em;
-        vertical-align: middle;
-    }
-
-    /* Mengatur lebar dan tinggi tombol serta input kuantitas */
-    .btn-qty {
-        width: 45px !important; /* Diperbesar dari standar */
-        height: 45px !important;
-        font-size: 45px !important; /* Memperbesar simbol + dan - */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding-bottom: 10px;
-        border: 1px solid #ddd;
-        background: white;
-    }
-
-    .qty-input {
-        width: 60px !important; /* Diperbesar agar angka jelas */
-        height: 45px !important;
-        text-align: center;
-        font-size: 18px !important; /* Memperbesar angka kuantitas */
-        font-weight: bold;
-        border: 1px solid #ddd;
-        border-left: none;
-        border-right: none;
-    }
-
-    /* Memberikan efek hover agar lebih interaktif */
-    .btn-qty:hover {
-        background-color: #f8f8f8;
-        color: #ee4d2d;
-    }
-
-    /* Menargetkan tombol hapus di dalam kolom aksi */
-    .col-aksi .btn {
-        font-size: 1.2rem !important; /* Sesuaikan angka ini untuk ukuran teks */
-        font-weight: 600; /* Membuat tulisan lebih tebal agar jelas */
-        transition: color 0.2s;
-    }
-
-    /* Memberikan efek saat kursor diarahkan ke tulisan Hapus */
-    .col-aksi .btn:hover {
-        color: #b22222 !important; /* Warna merah yang lebih gelap saat hover */
-        text-decoration: underline !important;
-    }
-</style>
-</style>
-</style>
-</style>
-</style>
+        @media (max-width: 991px) {
+            .cart-header { display: none; }
+            .cart-item { flex-direction: column; align-items: stretch; }
+            .col-checkbox,
+            .col-include,
+            .col-harga,
+            .col-kuantitas,
+            .col-total,
+            .col-aksi { width: 100%; text-align: left; padding-left: 0; }
+            .col-produk { width: 100%; }
+            .checkout-footer .container { flex-direction: column; gap: 16px; align-items: stretch; }
+            .btn-checkout { width: 100%; }
+        }
+    </style>
 </head>
 <body>
 
 <?php include 'include/navbar.php'; ?>
 
-<div class="container-fluid mt-5 pt-5 px-lg-5"> 
-    <h4 class="fw-bold mb-4">Keranjang Belanja</h4>
-    
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="cart-header d-none d-lg-flex"> 
-                <div class="col-checkbox"><input type="checkbox" id="selectAll" class="item-checkbox" checked onchange="calculateTotal()"></div>
-                <div class="col-produk">Produk</div>
-                <div class="col-include">Include</div>
-                <div class="col-harga">Harga Satuan</div>
-                <div class="col-kuantitas">Kuantitas</div>
-                <div class="col-total">Total Harga</div>
-                <div class="col-aksi">Aksi</div>
-            </div>
-
-            <div id="cart-items-container"></div>
+<div class="container-fluid mt-4 px-lg-5">
+    <div class="d-flex align-items-center justify-content-between flex-column flex-md-row page-heading">
+        <div>
+            <h2 class="section-title mb-1">Keranjang Belanja</h2>
+            <p class="section-subtitle mb-0">Kelola pesanan Anda sebelum checkout.</p>
         </div>
+        <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="bi bi-chevron-left me-2"></i>Kembali
+        </a>
     </div>
+
+    <div class="cart-header d-none d-lg-flex">
+        <div class="col-checkbox"><input type="checkbox" id="selectAll" class="item-checkbox" checked onchange="toggleSelectAll(this.checked)"></div>
+        <div class="col-produk">Produk</div>
+        <div class="col-include">Tipe</div>
+        <div class="col-harga">Harga</div>
+        <div class="col-kuantitas">Kuantitas</div>
+        <div class="col-total">Total</div>
+        <div class="col-aksi">Aksi</div>
+    </div>
+
+    <div id="cart-items-container"></div>
 </div>
 
 <div class="checkout-footer">
-    <div class="container d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center gap-3" >
-            <input type="checkbox" id="selectAllBottom" class="item-checkbox" checked onchange="calculateTotal()">
-            <span>Pilih Semua (<span id="count-selected" >0</span>)</span>
-            <button class="btn btn-link text-danger text-decoration-none">Hapus</button>
+    <div class="container d-flex align-items-center justify-content-between flex-column flex-md-row gap-3">
+        <div class="d-flex align-items-center gap-3 checkout-actions">
+            <input type="checkbox" id="selectAllBottom" class="item-checkbox" checked onchange="toggleSelectAll(this.checked)">
+            <span class="fw-semibold">Pilih Semua (<span id="count-selected">0</span>)</span>
+            <button class="btn btn-link text-dark text-decoration-none" onclick="removeSelected()">Hapus</button>
         </div>
-        <div class="d-flex align-items-center gap-4">
+        <div class="d-flex align-items-center gap-4 justify-content-between checkout-actions w-100 w-md-auto">
             <div class="text-end">
-                <span class="text-muted">Total (<span id="item-total">0</span> produk): </span>
+                <span class="text-muted">Total (<span id="item-total">0</span> item)</span><br>
                 <span class="total-price" id="total-text">Rp 0</span>
             </div>
-            <button class="btn btn-checkout">Checkout</button>
+            <a href="#" onclick="checkoutSelected(); return false;" class="btn btn-checkout">Checkout Sekarang</a>
         </div>
     </div>
 </div>
 
 <script>
-    // Ambil data yang dikirim dari halaman produk tadi
-    let cartData = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
+let cartData = <?= json_encode($cart_items); ?>;
+let selectedItems = new Set(cartData.map((_, index) => index));
 
-    function updateDisplay() {
-        const container = document.getElementById('cart-items-container');
-        container.innerHTML = '';
-        let subtotal = 0;
+function formatRupiah(value) {
+    return "Rp " + Number(value).toLocaleString('id-ID');
+}
 
-        if (cartData.length === 0) {
-            container.innerHTML = '<div class="text-center py-5"><h5>Keranjang kosong</h5></div>';
-        }
-
-        cartData.forEach((item, index) => {
-            subtotal += item.harga * item.qty;
-            container.innerHTML += `
-                <div class="cart-item">
-                    <img src="${item.foto}" alt="${item.nama}">
-                    <div class="item-details flex-grow-1">
-                        <h5>${item.nama}</h5>
-                        <div class="item-price">Rp. ${item.harga.toLocaleString('id-ID')}</div>
-                    </div>
-                    <div class="d-flex align-items-center gap-4">
-                        <div class="qty-wrapper">
-                            <button class="btn-qty" onclick="changeQty(${index}, -1)">-</button>
-                            <input type="text" class="qty-input" value="${item.qty}" readonly>
-                            <button class="btn-qty" onclick="changeQty(${index}, 1)">+</button>
-                        </div>
-                        <i class="fas fa-trash-alt text-danger" style="cursor:pointer" onclick="removeItem(${index})"></i>
-                    </div>
-                </div>`;
-        });
-
-        document.getElementById('subtotal-text').innerText = 'Rp. ' + subtotal.toLocaleString('id-ID');
-        document.getElementById('total-text').innerText = 'Rp. ' + (subtotal + 10000).toLocaleString('id-ID');
-    }
-
-    function changeQty(index, amount) {
-        if (cartData[index].qty + amount > 0) {
-            cartData[index].qty += amount;
-            localStorage.setItem('yayuk_cart', JSON.stringify(cartData)); // Simpan perubahan
-            updateDisplay();
-        }
-    }
-
-    function removeItem(index) {
-        cartData.splice(index, 1);
-        localStorage.setItem('yayuk_cart', JSON.stringify(cartData)); // Simpan perubahan
-        updateDisplay();
-    }
-
-    updateDisplay();
-
-    function updateDisplay() {
+function updateDisplay() {
     const container = document.getElementById('cart-items-container');
-    let cartData = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
     let html = "";
-    let subtotal = 0;
+
+    if (cartData.length === 0) {
+        html = `
+            <div class="text-center bg-white p-5 rounded">
+                <i class="bi bi-cart-x" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="text-muted mt-3">Keranjang Kosong</p>
+                <a href="service.php" class="btn btn-primary mt-2">Lihat Layanan</a>
+            </div>
+        `;
+        container.innerHTML = html;
+        calculateTotal();
+        return;
+    }
 
     cartData.forEach((item, index) => {
-    let totalHargaItem = item.harga * item.qty;
-    subtotal += totalHargaItem;
-    
-    html += ` 
+        const totalHargaItem = Number(item.harga) * Number(item.kuantitas);
+        const checked = selectedItems.has(index) ? 'checked' : '';
 
-    <div class="cart-item">
-        <div class="col-checkbox">
-        <input type="checkbox" class="item-checkbox" checked onchange="calculateTotal()"></div>
-        <div class="col-produk">
-            <img src="${item.foto}" class="img-thumbnail me-3"> 
-            <div>
-                <div class="fw-bold fs-4 text-dark">${item.nama}</div>
-            </div>
-        </div>
-
-            <div class="col-include">
-                <div class="dropdown">
-                    <button class="btn btn-sm dropdown-toggle border-0 text-muted fs-5 fw-medium" 
-        type="button" 
-        onclick="toggleInclude(${index})">
-    Include
-</button>
-                    <div class="include-popover shadow-sm" id="details-include-${index}" style="display: none;">
-                        <ul class="list-unstyled mb-0 p-2 text-start">
-                            <li><i class="fas fa-check text-success me-2"></i> Foundation</li>
-                            <li><i class="fas fa-check text-success me-2"></i> Bulu Mata</li>
-                            <li><i class="fas fa-check text-success me-2"></i> Hairdo/Hijab</li>
-                        </ul>
+        html += `
+            <div class="cart-item" data-id="${item.id_keranjang}">
+                <div class="col-checkbox">
+                    <input type="checkbox" class="item-checkbox cart-checkbox" ${checked} onchange="toggleItem(${index}, this.checked)">
+                </div>
+                <div class="col-produk">
+                    <img src="${escapeHtml(item.foto)}" alt="${escapeHtml(item.nama_layanan)}" />
+                    <div class="cart-item-details">
+                        <div class="item-title">${escapeHtml(item.nama_layanan)}</div>
+                        <div class="item-subtext">ID: ${item.id_keranjang}</div>
                     </div>
                 </div>
+
+                <div class="col-include">
+                    <span class="badge-type">${escapeHtml(item.tipe_layanan)}</span>
+                </div>
+
+                <div class="col-harga">${formatRupiah(item.harga)}</div>
+
+                <div class="col-kuantitas">
+                    <div class="d-flex justify-content-center justify-content-lg-center align-items-center">
+                        <button class="btn-qty" onclick="changeQty(${index}, -1)">-</button>
+                        <input type="text" class="qty-input" value="${item.kuantitas}" readonly>
+                        <button class="btn-qty" onclick="changeQty(${index}, 1)">+</button>
+                    </div>
+                </div>
+
+                <div class="col-total">${formatRupiah(totalHargaItem)}</div>
+
+                <div class="col-aksi">
+                    <button class="btn btn-link text-danger text-decoration-none fw-bold" onclick="removeItem(${index})">
+                        Hapus
+                    </button>
+                </div>
             </div>
+        `;
+    });
 
-            <div class="col-harga">Rp ${item.harga.toLocaleString('id-ID')}</div>
-            
-            <div class="col-kuantitas">
-            <div class="d-flex justify-content-center align-items-center">
-                <button class="btn-qty" onclick="changeQty(${index}, -1)">-</button>
-                
-                <input type="text" class="qty-input" value="${item.qty}" readonly>
-                
-                <button class="btn-qty" onclick="changeQty(${index}, 1)">+</button>
-            </div>
-        </div>
-
-            <div class="col-total">Rp ${totalHargaItem.toLocaleString('id-ID')}</div>
-            
-            <div class="col-aksi">
-        <button class="btn btn-link text-danger text-decoration-none fs-5 fw-bold" 
-                onclick="removeItem(${index})">
-            Hapus
-        </button>
-    </div>
-        </div>
-    `;
-});
-
-    container.innerHTML = html || "<div class='text-center p-5 white-bg'>Keranjang Kosong</div>";
-    
-    // Update angka di footer melayang
-    document.getElementById('item-total').innerText = cartData.length;
-    document.getElementById('count-selected').innerText = cartData.length;
-    document.getElementById('total-text').innerText = "Rp " + subtotal.toLocaleString('id-ID');
+    container.innerHTML = html;
+    calculateTotal();
 }
 
-function toggleInclude(index) {
-    const details = document.getElementById(`details-include-${index}`);
-    const icon = document.getElementById(`icon-include-${index}`);
-    
-    if (details.style.display === "none") {
-        details.style.display = "block";
-        icon.classList.add('icon-rotate');
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function calculateTotal() {
+    let subtotal = 0;
+    let count = 0;
+
+    cartData.forEach((item, index) => {
+        if (selectedItems.has(index)) {
+            subtotal += Number(item.harga) * Number(item.kuantitas);
+            count += 1;
+        }
+    });
+
+    document.getElementById('item-total').innerText = count;
+    document.getElementById('count-selected').innerText = count;
+    document.getElementById('total-text').innerText = formatRupiah(subtotal);
+
+    const allSelected = cartData.length > 0 && selectedItems.size === cartData.length;
+    document.getElementById('selectAll').checked = allSelected;
+    document.getElementById('selectAllBottom').checked = allSelected;
+}
+
+function toggleItem(index, checked) {
+    if (checked) {
+        selectedItems.add(index);
     } else {
-        details.style.display = "none";
-        icon.classList.remove('icon-rotate');
+        selectedItems.delete(index);
+    }
+    calculateTotal();
+}
+
+function toggleSelectAll(checked) {
+    selectedItems = checked ? new Set(cartData.map((_, index) => index)) : new Set();
+    updateDisplay();
+}
+
+function changeQty(index, amount) {
+    const item = cartData[index];
+    const nextQty = Number(item.kuantitas) + amount;
+    
+    if (nextQty > 0) {
+        // Send to backend
+        const formData = new FormData();
+        formData.append('id_keranjang', item.id_keranjang);
+        formData.append('kuantitas', nextQty);
+
+        fetch('/project-mua-final/actions/update_cart.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                item.kuantitas = nextQty;
+                updateDisplay();
+            } else {
+                alert('Gagal update kuantitas: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan');
+        });
     }
 }
+
+function removeItem(index) {
+    if (confirm('Hapus item ini?')) {
+        const item = cartData[index];
+        const formData = new FormData();
+        formData.append('id_keranjang', item.id_keranjang);
+
+        fetch('/project-mua-final/actions/remove_from_cart.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                cartData.splice(index, 1);
+                selectedItems = new Set(cartData.map((_, itemIndex) => itemIndex));
+                updateDisplay();
+                
+                // Update navbar cart count
+                if (typeof updateCartCount === 'function') {
+                    updateCartCount();
+                }
+            } else {
+                alert('Gagal hapus item: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan');
+        });
+    }
+}
+
+function removeSelected() {
+    if (selectedItems.size === 0) {
+        alert('Pilih minimal 1 item');
+        return;
+    }
+
+    if (confirm('Hapus item terpilih?')) {
+        const itemsToRemove = Array.from(selectedItems).sort((a, b) => b - a);
+        
+        let removeCount = 0;
+        let totalToRemove = itemsToRemove.length;
+
+        itemsToRemove.forEach(index => {
+            const item = cartData[index];
+            const formData = new FormData();
+            formData.append('id_keranjang', item.id_keranjang);
+
+            fetch('/project-mua-final/actions/remove_from_cart.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    removeCount++;
+                    if (removeCount === totalToRemove) {
+                        cartData = cartData.filter((_, i) => !itemsToRemove.includes(i));
+                        selectedItems = new Set();
+                        updateDisplay();
+                        
+                        if (typeof updateCartCount === 'function') {
+                            updateCartCount();
+                        }
+                    }
+                }
+            });
+        });
+    }
+}
+
+function checkoutSelected() {
+    const selectedCartItems = Array.from(selectedItems).map(index => {
+        const it = cartData[index];
+        return {
+            nama: it.nama_layanan || it.nama || it.nama_produk || '',
+            harga: Number(it.harga) || 0,
+            qty: Number(it.kuantitas || it.qty || 1),
+            foto: it.foto || it.image || ''
+        };
+    });
+
+    if (selectedCartItems.length === 0) {
+        alert('Pilih minimal 1 item untuk checkout');
+        return;
+    }
+
+    const formData = new FormData();
+    selectedCartItems.forEach(item => {
+        formData.append('id_keranjang[]', item.id_keranjang);
+    });
+
+    fetch('/project-mua-final/actions/checkout_cart.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = 'booking.php';
+        } else {
+            alert('Gagal checkout: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat checkout');
+    });
+}
+
+// Initialize display
+updateDisplay();
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

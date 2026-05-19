@@ -1,0 +1,292 @@
+:root {
+  --mua-bg: #f7f2eb;
+  --mua-bg-soft: #f1e8dd;
+  --mua-surface: #fffaf4;
+  --mua-surface-strong: #ffffff;
+  --mua-primary: #a58459;
+  --mua-primary-deep: #7b5d3f;
+  --mua-secondary: #b5835a;
+  --mua-accent: #fed03a;
+  --mua-text: #4a4a4a;
+  --mua-heading: #3b3028;
+  --mua-muted: #7b6b5d;
+  --mua-border: rgba(165, 132, 89, 0.22);
+  --mua-shadow: 0 18px 40px rgba(73, 55, 40, 0.12);
+  --mua-shadow-hover: 0 24px 52px rgba(73, 55, 40, 0.16);
+  --mua-radius: 22px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif !important;
+  color: var(--mua-text);
+  background:
+    radial-gradient(circle at top left, rgba(254, 208, 58, 0.12), transparent 32rem),
+    linear-gradient(180deg, var(--mua-bg) 0%, #fbf7f1 48%, var(--mua-bg-soft) 100%) !important;
+}
+
+h1,
+h2,
+h3,
+.serif,
+.section-title,
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  color: var(--mua-heading);
+}
+
+a {
+  transition: color 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.text-gold,
+.text-warning,
+.text-primary {
+  color: var(--mua-secondary) !important;
+}
+
+.section-title {
+  color: var(--mua-secondary) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0;
+}
+
+.page-subtitle,
+.text-muted,
+.blog-desc,
+.price-label {
+  color: var(--mua-muted) !important;
+}
+
+.btn,
+button {
+  border-radius: 999px;
+}
+
+.btn-custom-gold,
+.gallery-btn,
+.btn-booking,
+.btn-payment,
+.btn-gold,
+.btn-silver,
+.btn-kembali,
+.btn-outline-dark {
+  border-radius: 999px !important;
+  font-weight: 600;
+}
+
+.btn-custom-gold,
+.gallery-btn,
+.btn-outline-dark {
+  border-color: var(--mua-secondary) !important;
+  color: var(--mua-secondary) !important;
+  background: rgba(255, 255, 255, 0.34) !important;
+}
+
+.btn-custom-gold:hover,
+.gallery-btn:hover,
+.btn-outline-dark:hover {
+  background: var(--mua-secondary) !important;
+  border-color: var(--mua-secondary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 30px rgba(181, 131, 90, 0.26);
+  transform: translateY(-2px);
+}
+
+.btn-booking,
+.btn-booking.btn,
+.btn.btn-booking {
+  background: linear-gradient(135deg, var(--mua-primary), var(--mua-primary-deep)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.36) !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 30px rgba(165, 132, 89, 0.25) !important;
+}
+
+.btn-booking:hover,
+.btn-booking.btn:hover,
+.btn.btn-booking:hover {
+  background: linear-gradient(135deg, var(--mua-primary-deep), var(--mua-secondary)) !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+}
+
+.btn-cart,
+.btn-cart-icon {
+  background: var(--mua-primary) !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+.btn-cart:hover,
+.btn-cart-icon:hover {
+  background: var(--mua-primary-deep) !important;
+  color: #ffffff !important;
+}
+
+.btn-payment,
+.btn-gold,
+.btn-silver {
+  background: linear-gradient(135deg, var(--mua-primary), var(--mua-secondary)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.36) !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 30px rgba(165, 132, 89, 0.25) !important;
+}
+
+.btn-payment:hover,
+.btn-gold:hover,
+.btn-silver:hover {
+  background: linear-gradient(135deg, var(--mua-secondary), var(--mua-primary-deep)) !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+}
+
+.btn-kembali {
+  background: var(--mua-surface-strong) !important;
+  border: 1px solid var(--mua-border) !important;
+  color: var(--mua-primary-deep) !important;
+  box-shadow: var(--mua-shadow);
+}
+
+.btn-kembali:hover {
+  background: var(--mua-primary) !important;
+  color: #ffffff !important;
+}
+
+.card-custom,
+.wedding-card,
+.gallery-card,
+.order-card,
+.card-custom.card,
+.card {
+  border: 1px solid var(--mua-border) !important;
+  border-radius: var(--mua-radius) !important;
+  background: rgba(255, 250, 244, 0.94) !important;
+  box-shadow: var(--mua-shadow) !important;
+}
+
+.card-custom:hover,
+.wedding-card:hover,
+.gallery-card:hover,
+.order-card:hover {
+  box-shadow: var(--mua-shadow-hover) !important;
+  transform: translateY(-6px);
+}
+
+.card-footer,
+.modal-content {
+  background: var(--mua-surface) !important;
+  border-color: var(--mua-border) !important;
+}
+
+.header-silver,
+.header-gold {
+  background: linear-gradient(135deg, var(--mua-bg-soft), #fff8ed) !important;
+  color: var(--mua-primary-deep) !important;
+  border-bottom: 1px solid var(--mua-border);
+  font-family: 'Playfair Display', serif;
+}
+
+.silver-card,
+.gold-card {
+  border-color: var(--mua-border) !important;
+}
+
+.hero-card {
+  border-radius: 24px !important;
+  box-shadow: var(--mua-shadow) !important;
+}
+
+.hero-overlay {
+  background: linear-gradient(to top, rgba(59, 48, 40, 0.76), rgba(59, 48, 40, 0.2)) !important;
+}
+
+.gallery-img-wrapper,
+.product-img-wrapper {
+  background: #efe3d5 !important;
+  border: 1px solid var(--mua-border);
+  border-radius: 18px !important;
+}
+
+.blog-title,
+.product-info h6,
+.card-inside-title,
+.price-value {
+  color: var(--mua-heading) !important;
+}
+
+.form-control,
+.form-select,
+.request-box,
+input,
+select,
+textarea {
+  border-radius: 16px !important;
+  border-color: var(--mua-border) !important;
+  background-color: #fffaf4 !important;
+  color: var(--mua-heading) !important;
+}
+
+.form-control:focus,
+.form-select:focus,
+.request-box:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--mua-secondary) !important;
+  box-shadow: 0 0 0 4px rgba(181, 131, 90, 0.16) !important;
+  background-color: #ffffff !important;
+}
+
+.table {
+  --bs-table-bg: rgba(255, 250, 244, 0.9);
+  --bs-table-striped-bg: #f4eadf;
+  --bs-table-hover-bg: #efe0d1;
+  color: var(--mua-text);
+  border-color: var(--mua-border);
+}
+
+.table thead th {
+  background: var(--mua-primary) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.total-box-premium,
+.qty-badge {
+  background: #f4eadf !important;
+  border: 1px solid var(--mua-border) !important;
+  color: var(--mua-primary-deep) !important;
+}
+
+.divider {
+  background-color: var(--mua-border) !important;
+}
+
+.lightbox {
+  background: rgba(59, 48, 40, 0.94) !important;
+}
+
+.lightbox-close,
+.lightbox-prev,
+.lightbox-next {
+  background: rgba(255, 250, 244, 0.18) !important;
+}
+
+@media (max-width: 768px) {
+  .card-custom,
+  .wedding-card,
+  .gallery-card,
+  .order-card,
+  .hero-card {
+    border-radius: 18px !important;
+  }
+
+  .btn-kembali {
+    bottom: 18px !important;
+    left: 18px !important;
+    padding: 9px 16px !important;
+  }
+}

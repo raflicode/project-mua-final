@@ -1,6 +1,5 @@
 <?php
-ini_set('session.cookie_path', '/');
-session_start();
+include __DIR__ . '/../actions/proses_register.php';
 ?>
 
 <!DOCTYPE html>
@@ -15,6 +14,7 @@ session_start();
 
     <!-- BOOTSTRAP -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
 
@@ -30,8 +30,8 @@ session_start();
             background:
             linear-gradient(
             135deg,
-            #8a9e8e,
-            #748678
+            #f8efe0,
+            #f2e5d5
             );
         }
 
@@ -40,9 +40,7 @@ session_start();
         }
 
         
-        /* =====================================================
-           INPUT
-        ===================================================== */
+        
         .field-label{
             display:block;
 
@@ -77,10 +75,10 @@ session_start();
         .field-input:focus{
             background:#fff;
 
-            border-color:#a660c3;
+            border-color:#b5835a;
 
             box-shadow:
-            0 0 0 4px rgba(166,96,195,.12);
+            0 0 0 4px rgba(181,131,90,.16);
         }
 
         .field-input::placeholder{
@@ -89,6 +87,34 @@ session_start();
 
         .mb-field{
             margin-bottom:14px;
+        }
+
+        .password-wrap{
+            position:relative;
+        }
+
+        .password-wrap .field-input{
+            padding-right:44px;
+        }
+
+        .toggle-password{
+            position:absolute;
+            top:50%;
+            right:12px;
+            transform:translateY(-50%);
+
+            width:30px;
+            height:30px;
+
+            border:none;
+            background:transparent;
+
+            color:#777;
+            cursor:pointer;
+        }
+
+        .toggle-password:hover{
+            color:#7b5d3f;
         }
 
         /* =====================================================
@@ -104,8 +130,8 @@ session_start();
             background:
             linear-gradient(
             135deg,
-            #9d5bd2,
-            #c85ab0
+            #a58459,
+            #7b5d3f
             );
 
             color:#fff;
@@ -118,7 +144,7 @@ session_start();
             cursor:pointer;
 
             box-shadow:
-            0 10px 22px rgba(157,91,210,.35);
+            0 10px 22px rgba(165,132,89,.35);
 
             transition:all .25s ease;
         }
@@ -127,7 +153,7 @@ session_start();
             transform:translateY(-2px);
 
             box-shadow:
-            0 14px 30px rgba(157,91,210,.45);
+            0 14px 30px rgba(165,132,89,.45);
         }
 
         /* =====================================================
@@ -144,7 +170,7 @@ session_start();
         }
 
         .footer-txt a{
-            color:#9d5bd2;
+            color:#7b5d3f;
             font-weight:600;
         }
 
@@ -442,29 +468,8 @@ session_start();
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- ✅ NOTIF ERROR -->
-<?php if (isset($_GET['error'])): ?>
-<script>
-Swal.fire({
-    icon: 'error',
-    title: 'Gagal!',
-    text: '<?php echo htmlspecialchars($_GET['error']); ?>'
-});
-</script>
-<?php endif; ?>
-
-<!-- ✅ NOTIF SUCCESS -->
-<?php if (isset($_GET['success'])): ?>
-<script>
-Swal.fire({
-    icon: 'success',
-    title: 'Berhasil!',
-    text: '<?php echo htmlspecialchars($_GET['success']); ?>',
-    timer: 2000,
-    showConfirmButton: false
-});
-</script>
-<?php endif; ?>
+<!-- ✅ NOTIF -->
+<?php echo getRegisterAlertScript(); ?>
 
 <script>
 if (window.history.replaceState) {
@@ -530,7 +535,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             name="full_name"
                             class="field-input"
                             placeholder="Masukkan nama lengkap"
-                            value="<?php echo isset($_GET['old_full_name']) ? htmlspecialchars($_GET['old_full_name']) : ''; ?>"
+                            value="<?php echo getOldRegisterValue('old_full_name'); ?>"
                             required
                         >
 
@@ -547,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             name="email"
                             class="field-input"
                             placeholder="Masukkan email"
-                            value="<?php echo isset($_GET['old_email']) ? htmlspecialchars($_GET['old_email']) : ''; ?>"
+                            value="<?php echo getOldRegisterValue('old_email'); ?>"
                             required
                         >
 
@@ -564,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             name="username"
                             class="field-input"
                             placeholder="Masukkan username"
-                            value="<?php echo isset($_GET['old_username']) ? htmlspecialchars($_GET['old_username']) : ''; ?>"
+                            value="<?php echo getOldRegisterValue('old_username'); ?>"
                             required
                         >
 
@@ -576,19 +581,21 @@ document.addEventListener('DOMContentLoaded', function() {
                             Password
                         </label>
 
+                        <div class="password-wrap">
                         <input
                             type="password"
                             name="password"
+                            id="registerPassword"
                             class="field-input"
                             placeholder="••••••••"
                             required
                         >
+                        <button type="button" class="toggle-password" data-toggle-password="registerPassword" aria-label="Lihat password">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        </div>
 
                     </div>
-
-                    <p style="font-size:.85rem; color:#555; margin-bottom:14px;">
-                        Registrasi ini hanya untuk membuat akun client. Akun admin tidak dapat dibuat dari halaman ini.
-                    </p>
 
                     <button id="registerButton" type="submit" class="btn-submit">
                         Register
@@ -617,5 +624,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </div>
 
+<script>
+    document.querySelectorAll('[data-toggle-password]').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const input = document.getElementById(this.dataset.togglePassword);
+            const icon = this.querySelector('i');
+
+            if (!input) return;
+
+            const isHidden = input.type === 'password';
+            input.type = isHidden ? 'text' : 'password';
+            icon.classList.toggle('bi-eye', !isHidden);
+            icon.classList.toggle('bi-eye-slash', isHidden);
+            this.setAttribute('aria-label', isHidden ? 'Sembunyikan password' : 'Lihat password');
+        });
+    });
+</script>
 </body>
 </html>

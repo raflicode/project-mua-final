@@ -15,7 +15,9 @@
 
     /* Footer Styling sesuai Gambar 2 */
     .custom-footer {
-        background-color: #A58459;
+        background:
+            linear-gradient(135deg, rgba(123, 93, 63, 0.98), rgba(165, 132, 89, 0.96)),
+            #A58459;
         color: white;
         padding: 60px 0 20px 0;
     }
@@ -26,13 +28,14 @@
     }
 
     .brand-footer {
+        font-family: 'Playfair Display', serif;
         font-size: 24px;
         font-weight: 600;
         margin-bottom: 20px;
     }
 
     .brand-footer span {
-        color: #FED03A; /* Warna kuning emas untuk kata Makeover */
+        color: #FED03A;
         font-style: italic;
         font-weight: 300;
     }
@@ -71,6 +74,7 @@
     }
 
     .social-icons a { color: white; text-decoration: none; }
+    .social-icons a:hover { color: #FED03A; transform: translateY(-2px); }
 
     .footer-bottom {
         border-top: 1px solid rgba(255,255,255,0.2);
@@ -106,9 +110,9 @@
             <div class="col-md-3 footer-column">
                 <h5>Layanan Kami</h5>
                 <ul class="footer-link-list">
-                    <li>Makeup</li>
-                    <li>Kostum</li>
-                    <li>Dekor</li>
+                    <li><a href="public/makeup.php" style="color: white; text-decoration: none;">Makeup</a></li>
+                    <li><a href="public/kostum.php" style="color: white; text-decoration: none;">Kostum</a></li>
+                    <li><a href="public/dekor.php" style="color: white; text-decoration: none;">Dekor</a></li>
                 </ul>
             </div>
 
@@ -116,9 +120,9 @@
             <div class="col-md-4 footer-column">
                 <h5>Tautan Cepat</h5>
                 <ul class="footer-link-list">
-                    <li>Gallery Makeup</li>
-                    <li>Gallery Kostum</li>
-                    <li>Gallery Dekor</li>
+                    <li><a href="public/gallery_makeup.php" style="color: white; text-decoration: none;">Gallery Makeup</a></li>
+                    <li><a href="public/gallery_kostum.php" style="color: white; text-decoration: none;">Gallery Kostum</a></li>
+                    <li><a href="public/gallery_dekor.php" style="color: white; text-decoration: none;">Gallery Dekor</a></li>
                 </ul>
                 <div class="social-icons">
                     <a href="#"><i class="bi bi-facebook"></i></a>
@@ -132,7 +136,7 @@
         <div class="row mt-4">
             <div class="col-12">
                 <p style="font-size: 13px; opacity: 0.8;">
-                    <i class="bi bi-geo-alt-fill"></i> <span id="alamat-api">Mengambil alamat...</span>
+                    <span id="alamat-api">Mengambil alamat...</span>
                 </p>
             </div>
         </div>
@@ -173,12 +177,12 @@
         </div>
     `;
 
-    marker.bindPopup(popupContent).openPopup();
+    marker.bindPopup(popupContent);
 
-    // OPSIONAL: Klik pada Marker langsung buka Google Maps (Tanpa Popup)
-    // marker.on('click', function() {
-    //     window.open(gMapsUrl, '_blank');
-    // });
+    // Buka Google Maps langsung saat marker diklik
+    marker.on('click', function() {
+        window.open(gMapsUrl, '_blank');
+    });
 
     // API Nominatim untuk Teks Alamat (Tetap Ada)
     fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`, {
@@ -189,6 +193,14 @@
         document.getElementById('alamat-api').innerHTML = `
             <a href="${gMapsUrl}" target="_blank" style="color: white; text-decoration: none;">
                 <i class="bi bi-geo-alt-fill"></i> ${data.display_name}
+            </a>
+        `;
+        setTimeout(() => { map.invalidateSize(); }, 500);
+    })
+    .catch(() => {
+        document.getElementById('alamat-api').innerHTML = `
+            <a href="${gMapsUrl}" target="_blank" style="color: white; text-decoration: none;">
+                <i class="bi bi-geo-alt-fill"></i> Yayuk Makeover
             </a>
         `;
         setTimeout(() => { map.invalidateSize(); }, 500);

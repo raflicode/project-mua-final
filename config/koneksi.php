@@ -19,6 +19,16 @@ try {
 
     $pdo = new PDO($dsn, $username, $password, $options);
 
+    if (!defined('AUTH_REMEMBER_SECRET')) {
+        define('AUTH_REMEMBER_SECRET', 'mua-remember-secret-2026');
+    }
+
+    if (!function_exists('buildRememberToken')) {
+        function buildRememberToken($userId, $passwordHash) {
+            return hash_hmac('sha256', $userId . ':' . $passwordHash, AUTH_REMEMBER_SECRET);
+        }
+    }
+
     // Variabel $pdo ini yang bakal dipanggil di file action kamu nanti
 
 } catch (PDOException $e) {
