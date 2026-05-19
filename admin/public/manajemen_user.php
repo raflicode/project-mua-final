@@ -6,7 +6,6 @@
     <title>Yayuk Makeover - Manajemen User</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
     <style>
@@ -22,6 +21,60 @@
             -webkit-text-fill-color: transparent;
             display: inline-block; /* Memastikan gradient ter-render dengan baik pada elemen block */
         }  
+
+        /* --- STYLING MODAL CUSTOM POP-UP EDIT (SESUAI GAMBAR) --- */
+        .modal-custom-edit .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+            padding: 10px;
+        }
+        .modal-custom-edit .modal-header {
+            border-bottom: none;
+            padding-bottom: 5px;
+        }
+        .modal-custom-edit .modal-title {
+            color: #0b5fa5;
+            font-weight: 700;
+            font-size: 1.35rem;
+        }
+        .modal-custom-edit .form-label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+        .modal-custom-edit .form-control, 
+        .modal-custom-edit .form-select {
+            border-radius: 10px;
+            border: 1px solid #ced4da;
+            padding: 10px 15px;
+            background-color: #fdfdfd;
+        }
+        .modal-custom-edit .form-control:focus,
+        .modal-custom-edit .form-select:focus {
+            box-shadow: 0 0 0 0.25rem rgba(11, 95, 165, 0.15);
+            border-color: #0b5fa5;
+        }
+        .modal-custom-edit .btn-batal {
+            background-color: #cccccc;
+            color: #333333;
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 8px 20px;
+            border: none;
+        }
+        .modal-custom-edit .btn-simpan {
+            background-color: #005691;
+            color: #ffffff;
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 8px 22px;
+            border: none;
+        }
+        .modal-custom-edit .btn-simpan:hover {
+            background-color: #00406c;
+        }
     </style>
 </head>
 
@@ -70,7 +123,8 @@
         </div>
 
         <div class="card shadow rounded-4 p-4">
-            <div class="table-responsive"> <table class="table text-center align-middle">
+            <div class="table-responsive"> 
+                <table class="table text-center align-middle">
                     <thead class="table-light">
                         <tr>
                             <th class="text-start">Nama</th>
@@ -119,8 +173,14 @@
                             </td>
 
                             <td>
-                                <a href="#" class="text-primary mx-1"><i class="bi bi-pencil-square"></i></a>
-                                <a href="#" class="text-danger mx-1"><i class="bi bi-trash"></i></a>
+                                <a href="#" class="text-primary mx-1 btn-edit-user" 
+                                   data-nama="<?= $u[0] ?>"
+                                   data-username="<?= $u[1] ?>"
+                                   data-email="<?= $u[2] ?>"
+                                   data-role="<?= $u[3] ?>">
+                                    <i class="bi bi-pencil-square fs-5"></i>
+                                </a>
+                                <a href="#" class="text-danger mx-1"><i class="bi bi-trash fs-5"></i></a>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -130,7 +190,79 @@
         </div>
 
     </div>
-</div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</div>
 
+<div class="modal fade modal-custom-edit" id="editUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title d-flex align-items-center gap-2 fw-bold">
+                    <i class="bi bi-person-fill warnacustom"></i> Edit Informasi User: <span id="modalTargetName"></span>
+                </h5>
+            </div>
+            <div class="modal-body">
+                <form action="actions/update_user.php" method="POST">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Nama Lengkap</label>
+                            <input type="text" name="nama_lengkap" id="inputNama" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Username</label>
+                            <input type="text" name="username" id="inputUsername" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" id="inputEmail" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Role</label>
+                            <select name="role" id="selectRole" class="form-select">
+                                <option value="Admin">Admin</option>
+                                <option value="User">User</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-batal" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-simpan">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Inisialisasi object Modal Bootstrap 5
+        const editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+
+        // Ambil semua element tombol edit yang memiliki class .btn-edit-user
+        document.querySelectorAll('.btn-edit-user').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault(); // Mencegah link '#' melompat ke atas halaman
+
+                // Mengambil data dari atribut data-* baris yang di-klik
+                const nama = this.getAttribute('data-nama');
+                const username = this.getAttribute('data-username');
+                const email = this.getAttribute('data-email');
+                const role = this.getAttribute('data-role');
+
+                // Mengisi value komponen dalam modal secara dinamis
+                document.getElementById('modalTargetName').innerText = nama;
+                document.getElementById('inputNama').value = nama;
+                document.getElementById('inputUsername').value = username;
+                document.getElementById('inputEmail').value = email;
+                document.getElementById('selectRole').value = role;
+
+                // Tampilkan pop-up modalnya
+                editModal.show();
+            });
+        });
+    });
+</script>
 </body>
 </html>
