@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 15, 2026 at 02:14 PM
+-- Generation Time: May 19, 2026 at 05:28 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -89,6 +89,20 @@ CREATE TABLE `jadwal_kerja` (
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `jadwal_kerja`
+--
+
+INSERT INTO `jadwal_kerja` (`id_jadwal`, `tanggal`, `jam_mulai`, `jam_selesai`, `kapasitas_max`, `status_slot`, `created_at`, `updated_at`) VALUES
+(1, '2026-05-12', '07:00:00', '10:00:00', 1, 'tersedia', '2026-05-15 21:37:07', '2026-05-15 21:37:07'),
+(2, '2026-05-14', '15:00:00', '18:00:00', 1, 'tersedia', '2026-05-15 21:38:34', '2026-05-15 21:38:34'),
+(3, '2026-05-22', '15:00:00', '18:00:00', 1, 'tersedia', '2026-05-15 21:40:17', '2026-05-15 21:40:17'),
+(4, '2026-05-08', '15:00:00', '18:00:00', 1, 'tersedia', '2026-05-15 21:45:33', '2026-05-15 21:45:33'),
+(5, '2026-05-21', '11:00:00', '13:00:00', 1, 'tersedia', '2026-05-15 21:52:44', '2026-05-15 21:52:44'),
+(6, '2026-05-06', '07:00:00', '10:00:00', 1, 'tersedia', '2026-05-15 21:55:22', '2026-05-15 21:55:22'),
+(7, '2026-05-07', '11:00:00', '13:00:00', 1, 'tersedia', '2026-05-15 21:57:13', '2026-05-15 21:57:13'),
+(8, '2026-05-13', '07:00:00', '10:00:00', 1, 'tersedia', '2026-05-15 23:01:56', '2026-05-15 23:01:56');
 
 -- --------------------------------------------------------
 
@@ -193,7 +207,11 @@ INSERT INTO `pembayaran` (`id_pembayaran`, `id_user`, `nama`, `hp`, `metode`, `a
 (1, 1, 'lidya', '08125678910', 'Transfer Bank', 'assalamualaikum', 'bukti_6a05cd5294522_1.png', 'pending', '2026-05-14 13:25:38', '2026-05-14 13:25:38'),
 (2, 1, 'lidya', '08125678910', 'Transfer Bank', 'asaaafdx', 'bukti_6a05cf2660db4_1.png', 'pending', '2026-05-14 13:33:26', '2026-05-14 13:33:26'),
 (6, 1, 'Rafli', '08125678910', 'Transfer Bank', 'assalamualalikm', 'bukti_6a06c93a1bdd9_1.png', 'pending', '2026-05-15 07:20:26', '2026-05-15 07:20:26'),
-(7, 1, 'lidya', '08125678910', 'Transfer Bank', 'kerjlkesd', 'bukti_6a06df8847967_1.png', 'pending', '2026-05-15 08:55:36', '2026-05-15 08:55:36');
+(7, 1, 'lidya', '08125678910', 'Transfer Bank', 'kerjlkesd', 'bukti_6a06df8847967_1.png', 'pending', '2026-05-15 08:55:36', '2026-05-15 08:55:36'),
+(8, 1, 'Rafli Aulia Al Giffari', '08125678910', 'COD', 'dsfdsf', 'bukti_6a07335cc8e41_1.png', 'pending', '2026-05-15 14:53:16', '2026-05-15 14:53:16'),
+(9, 1, 'Rafli Aulia Al Giffari', '081256195884', 'Transfer Bank', 'jalan jalan', 'bukti_6a07340a18469_1.png', 'pending', '2026-05-15 14:56:10', '2026-05-15 14:56:10'),
+(10, 1, 'Rafli Aulia Al Giffari', '08125678910', 'DANA', '878787987n m,', 'bukti_6a074544b3d81_1.png', 'pending', '2026-05-15 16:09:40', '2026-05-15 16:09:40'),
+(11, 1, 'Rafli Aulia Al Giffari', '08125678910', 'DANA', 'n nm m', 'bukti_6a07460f07170_1.png', 'pending', '2026-05-15 16:13:03', '2026-05-15 16:13:03');
 
 -- --------------------------------------------------------
 
@@ -321,13 +339,13 @@ ALTER TABLE `booking_detail`
 -- AUTO_INCREMENT for table `jadwal_kerja`
 --
 ALTER TABLE `jadwal_kerja`
-  MODIFY `id_jadwal` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_jadwal` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `keranjang`
 --
 ALTER TABLE `keranjang`
-  MODIFY `id_keranjang` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id_keranjang` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `keranjang_detail`
@@ -351,7 +369,7 @@ ALTER TABLE `otp_codes`
 -- AUTO_INCREMENT for table `pembayaran`
 --
 ALTER TABLE `pembayaran`
-  MODIFY `id_pembayaran` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_pembayaran` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `user`
@@ -384,21 +402,6 @@ ALTER TABLE `booking_detail`
   ADD CONSTRAINT `fk_bd_addon` FOREIGN KEY (`id_addon`) REFERENCES `add_on` (`id_addon`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_bd_booking` FOREIGN KEY (`id_booking`) REFERENCES `booking` (`id_booking`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_bd_layanan` FOREIGN KEY (`id_layanan`) REFERENCES `layanan` (`id_layanan`) ON UPDATE CASCADE;
-
-CREATE TABLE IF NOT EXISTS `keranjang` (
-  `id_keranjang` int(11) NOT NULL AUTO_INCREMENT,
-  `id_user` int(11) NOT NULL,
-  `nama_layanan` varchar(150) NOT NULL,
-  `tipe_layanan` enum('makeup','dekor','kostum','paket') NOT NULL,
-  `foto` varchar(255) DEFAULT NULL,
-  `harga` int(11) NOT NULL,
-  `kuantitas` int(11) NOT NULL DEFAULT 1,
-  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_keranjang`),
-  KEY `id_user` (`id_user`),
-  FOREIGN KEY (`id_user`) REFERENCES `user`(`id_user`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Constraints for table `keranjang`
