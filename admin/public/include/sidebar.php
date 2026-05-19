@@ -1,3 +1,36 @@
+<style>
+    /* Sidebar */
+.sidebar{
+    width:260px;
+    height:100vh;
+    position:fixed;
+    background:linear-gradient(180deg,#4e73df,#224abe);
+    color:white;
+    padding-top:20px;
+}
+
+.sidebar h4{
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:30px;
+}
+
+.sidebar a{
+    display:block;
+    padding:14px 25px;
+    color:white;
+    text-decoration:none;
+    transition:0.3s;
+}
+
+.sidebar a:hover,
+.sidebar a.active{
+    background:rgba(255,255,255,0.15);
+    border-radius:10px;
+}
+</style>
+
+
 <div class="sidebar d-flex flex-column">
     <h4>Yayuk Makeover</h4>
 
@@ -14,7 +47,7 @@
     </a>
 
     <a href="manajemen_user.php" class="<?= ($page == 'user') ? 'active' : '' ?>">
-        <i class="bi bi-people me-2"></i> User
+        <i class="bi bi-people me-2"></i> Manajemen User
     </a>
 
     <a href="pembayaran.php" class="<?= ($page == 'pembayaran') ? 'active' : '' ?>">
