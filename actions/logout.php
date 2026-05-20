@@ -17,6 +17,9 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
+// Hapus remember me cookie juga
+setcookie('remember_me', '', time() - 3600, '/', '', false, true);
+
 // Redirect ke login / dashboard
 header("Location: ../index.php");
 exit;

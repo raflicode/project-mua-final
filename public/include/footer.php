@@ -110,9 +110,9 @@
             <div class="col-md-3 footer-column">
                 <h5>Layanan Kami</h5>
                 <ul class="footer-link-list">
-                    <li>Makeup</li>
-                    <li>Kostum</li>
-                    <li>Dekor</li>
+                    <li><a href="public/makeup.php" style="color: white; text-decoration: none;">Makeup</a></li>
+                    <li><a href="public/kostum.php" style="color: white; text-decoration: none;">Kostum</a></li>
+                    <li><a href="public/dekor.php" style="color: white; text-decoration: none;">Dekor</a></li>
                 </ul>
             </div>
 
@@ -120,13 +120,13 @@
             <div class="col-md-4 footer-column">
                 <h5>Tautan Cepat</h5>
                 <ul class="footer-link-list">
-                    <li>Gallery Makeup</li>
-                    <li>Gallery Kostum</li>
-                    <li>Gallery Dekor</li>
+                    <li><a href="public/gallery_makeup.php" style="color: white; text-decoration: none;">Gallery Makeup</a></li>
+                    <li><a href="public/gallery_kostum.php" style="color: white; text-decoration: none;">Gallery Kostum</a></li>
+                    <li><a href="public/gallery_dekor.php" style="color: white; text-decoration: none;">Gallery Dekor</a></li>
                 </ul>
                 <div class="social-icons">
                     <a href="#"><i class="bi bi-facebook"></i></a>
-                    <a href="https://www.instagram.com/yayukmakeover_jbr?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="><i class="bi bi-instagram"></i></a>
+                    <a href="https://www.instagram.com/yayukmakeover_jbr?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==w"><i class="bi bi-instagram"></i></a>
                     <a href="#"><i class="bi bi-twitter-x"></i></a>
                 </div>
             </div>
@@ -179,22 +179,10 @@
 
     marker.bindPopup(popupContent);
 
-    const isTouchDevice = window.matchMedia('(hover: none)').matches;
-
-    if (!isTouchDevice) {
-        marker.on('mouseover', function() {
-            marker.openPopup();
-        });
-
-        marker.on('mouseout', function() {
-            marker.closePopup();
-        });
-    }
-
-    // OPSIONAL: Klik pada Marker langsung buka Google Maps (Tanpa Popup)
-    // marker.on('click', function() {
-    //     window.open(gMapsUrl, '_blank');
-    // });
+    // Buka Google Maps langsung saat marker diklik
+    marker.on('click', function() {
+        window.open(gMapsUrl, '_blank');
+    });
 
     // API Nominatim untuk Teks Alamat (Tetap Ada)
     fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`, {
@@ -205,6 +193,14 @@
         document.getElementById('alamat-api').innerHTML = `
             <a href="${gMapsUrl}" target="_blank" style="color: white; text-decoration: none;">
                 <i class="bi bi-geo-alt-fill"></i> ${data.display_name}
+            </a>
+        `;
+        setTimeout(() => { map.invalidateSize(); }, 500);
+    })
+    .catch(() => {
+        document.getElementById('alamat-api').innerHTML = `
+            <a href="${gMapsUrl}" target="_blank" style="color: white; text-decoration: none;">
+                <i class="bi bi-geo-alt-fill"></i> Yayuk Makeover
             </a>
         `;
         setTimeout(() => { map.invalidateSize(); }, 500);

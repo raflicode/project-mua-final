@@ -580,6 +580,7 @@
         }
         .toast-msg.show { opacity:1; transform:translateY(0); }
     </style>
+    <link href="../assets/admin-brown.css" rel="stylesheet">
 </head>
 <body>
 

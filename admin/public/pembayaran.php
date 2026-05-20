@@ -7,22 +7,26 @@
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+        <style>
+        /* Memberikan space di kiri agar konten tidak tertutup sidebar fixed */
+        .main-content {
+            margin-left: 260px; /* Samakan dengan lebar sidebar */
+            min-height: 100vh;
+        }
+    </style>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="../assets/admin-brown.css" rel="stylesheet">
 </head>
 
-<body class="bg-primary">
 
 <div class="d-flex">
 
     <!-- Sidebar -->
-    <div class="bg-primary text-white vh-100 p-3" ">
         <?php include 'include/sidebar.php'; ?>
-    </div>
 
     <!-- Main Content -->
-    <div class="flex-grow-1 bg-light rounded-start-5 p-4">
+    <div class="flex-grow-1 bg-light rounded-start-5 p-4 main-content">
 
         <!-- Top Bar -->
         <div class="d-flex justify-content-between align-items-center mb-4">

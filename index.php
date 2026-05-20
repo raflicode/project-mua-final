@@ -121,9 +121,7 @@ include __DIR__ . '/actions/proses_index.php';
         }
 
         .btn-booking:hover{
-
-            background:#7b5d3f;
-            color:#fff;
+            background:#b5835a;
         }
 
         /* =====================================================
@@ -316,7 +314,7 @@ include __DIR__ . '/actions/proses_index.php';
 
     <div class="container">
 
-        <h1 class="hero-title fw-bold">
+        <h1 class="hero-title fw-bold text-white">
             Keanggunan Abadi untuk Hari Istimewa Anda.
         </h1>
 
@@ -397,9 +395,9 @@ include __DIR__ . '/actions/proses_index.php';
 <section class="soft-section py-5">
 
     <div class="container text-center p-5 rounded-4"
-         style="background-color:#A58459;color:white;">
+         style="background-color:#A58459; color:white;">
 
-        <h3 class="fw-bold mb-5">
+        <h3 class="fw-bold mb-5" style="color:white;">
             MENGAPA MEMILIH KAMI?
         </h3>
 
@@ -538,26 +536,15 @@ include __DIR__ . '/actions/proses_index.php';
         </div>
 
         <!-- KOSTUM -->
-<div class="col-md-4">
-
-    <div class="card gallery-card shadow-sm">
-
-        <img src="assets/fotokostum1.jpeg"
-             class="card-img-top gallery-img"
-             alt="Gallery Kostum">
-
-        <div class="card-body">
-
-            <h6 class="fw-bold">
-                Gallery Kostum
-            </h6>
-
-            <a href="public/gallery_kostum.php"
-               class="btn gallery-btn">
-
-                LIHAT
-
-            </a>
+        <div class="col-md-4">
+            <div class="card gallery-card shadow-sm">
+                <img src="assets/fotokostum1.jpeg" class="card-img-top gallery-img" alt="Gallery Kostum">
+                <div class="card-body">
+                    <h6 class="fw-bold">Gallery Kostum</h6>
+                    <a href="public/gallery_kostum.php" class="btn gallery-btn">LIHAT</a>
+                </div>
+            </div>
+        </div>
 
         </div>
 

@@ -801,6 +801,7 @@
             }
         }
     </style>
+    <link href="../assets/admin-brown.css" rel="stylesheet">
 </head>
 <body>
 

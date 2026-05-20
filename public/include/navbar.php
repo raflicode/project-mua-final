@@ -32,10 +32,43 @@ if (session_status() === PHP_SESSION_NONE) {
     transition: 0.3s;
   }
 
-  .navbar .nav-link:hover {
+  /* ==========================================================================
+     PERUBAHAN DI SINI: Efek Garis Bawah (Kecuali Menu Dropdown Profil)
+     ========================================================================== */
+  .navbar .nav-link:not(.dropdown-toggle) {
+    position: relative; /* Wajib ada sebagai patokan garis bawah */
+    padding-bottom: 4px;
+  }
+
+  /* Membuat garis hitam rahasia di bawah menu (Hanya untuk non-dropdown) */
+  .navbar .nav-link:not(.dropdown-toggle)::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%; /* Memulai garis dari tengah */
+    background-color: #b5835a; /* Warna garis hitam */
+    transition: all 0.3s ease; /* Efek animasi halus */
+    transform: translateX(-50%);
+  }
+
+  /* Saat di-hover, teks menu biasa berubah warna dan garis hitam memanjang keluar */
+  .navbar .nav-link:not(.dropdown-toggle):hover {
     color: #b5835a !important;
     text-decoration: none;
   }
+
+  .navbar .nav-link:not(.dropdown-toggle):hover::after {
+    width: 100%; /* Garis hitam melebar penuh sesuai panjang teks */
+  }
+
+  /* Khusus untuk hover tombol profil (hanya berubah warna, tanpa garis bawah) */
+  .navbar .nav-link.dropdown-toggle:hover {
+    color: #b5835a !important;
+    text-decoration: none;
+  }
+  /* ========================================================================== */
 
   .nav-scrolled {
     background-color: rgba(255, 250, 244, 0.94) !important;
@@ -119,6 +152,73 @@ if (session_status() === PHP_SESSION_NONE) {
   .logout-icon:hover {
     color: white;
   }
+
+  /* --- TAMBAHAN CSS UNTUK HOVER DROPDOWN KERANJANG ALA SHOPEE --- */
+  @media (min-width: 992px) {
+    .nav-item-cart {
+      position: relative;
+    }
+    /* Memunculkan dropdown saat pembungkus di-hover */
+    .nav-item-cart:hover .dropdown-cart-menu {
+      display: block;
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .dropdown-cart-menu {
+      display: block;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      position: absolute;
+      right: 0;
+      left: auto;
+      width: 320px;
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+  }
+
+  .cart-item-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 15px;
+    transition: background 0.2s;
+  }
+
+  .cart-item-preview:hover {
+    background-color: rgba(181, 131, 90, 0.08);
+  }
+
+  .cart-item-img {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  .cart-item-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cart-item-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+    color: #3b3028;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cart-item-price {
+    font-size: 0.8rem;
+    color: #b5835a;
+  }
 </style>
 
 <nav id="mainNavbar" class="navbar fixed-top px-3 transition-nav">
@@ -150,20 +250,25 @@ if (session_status() === PHP_SESSION_NONE) {
         Gallery
       </a>
 
+      <!-- Modifikasi: Pembungkus Dropdown Keranjang -->
       <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
-
-        <a class="nav-link position-relative"
-          href="/project-mua-final/public/keranjang.php">
-
-          <i class="bi bi-cart3"></i> Keranjang
-
-          <span id="cart-count"
-            class="badge bg-danger position-absolute top-0 start-100 translate-middle"
-            style="display:none; font-size:0.7rem;">
-          </span>
-
-        </a>
-
+        <div class="nav-item-cart">
+          <a class="nav-link position-relative" href="/project-mua-final/public/keranjang.php">
+            <i class="bi bi-cart3"></i> Keranjang
+            <span id="cart-count" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none; font-size:0.7rem;"></span>
+          </a>
+          
+          <!-- Box Dropdown List Barang (Shopee Style) -->
+          <ul class="dropdown-menu dropdown-menu-custom dropdown-cart-menu p-2">
+            <div id="cart-items-preview-container">
+              <div class="text-center py-3 text-muted"><small>Memuat keranjang...</small></div>
+            </div>
+            <li><hr class="dropdown-divider"></li>
+            <li class="text-center p-1">
+              <a href="/project-mua-final/public/keranjang.php" class="btn btn-sm btn-custom-gold w-100 py-1" style="font-size: 0.8rem;">Lihat Keranjang Belanja</a>
+            </li>
+          </ul>
+        </div>
       <?php endif; ?>
 
       <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
@@ -355,6 +460,39 @@ if (session_status() === PHP_SESSION_NONE) {
     }
   };
 
+  // Modifikasi: Ambil data jumlah sekaligus list item belanjaan
+  function resolveCartImageUrl(foto) {
+    if (!foto) {
+      return '/project-mua-final/assets/foto_makeup.jpeg';
+    }
+
+    if (/^(https?:)?\/\//.test(foto)) {
+      return foto;
+    }
+
+    const normalized = String(foto).replace(/\\/g, '/');
+
+    if (normalized.startsWith('/')) {
+      return normalized;
+    }
+
+    if (normalized.startsWith('../assets/')) {
+      return '/project-mua-final/' + normalized.replace('../', '');
+    }
+
+    if (normalized.startsWith('assets/')) {
+      return '/project-mua-final/' + normalized;
+    }
+
+    return '/project-mua-final/assets/' + normalized.replace(/^(\.\.\/|\.\/)+/, '');
+  }
+
+  function escapeCartText(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+  }
+
   function updateCartCount() {
 
     fetch('/project-mua-final/actions/get_cart_count.php')
@@ -362,11 +500,8 @@ if (session_status() === PHP_SESSION_NONE) {
       .then(response => response.json())
 
       .then(data => {
-
-        const cartElements = document.querySelectorAll(
-          '#cart-count, #cart-count-mobile'
-        );
-
+        // 1. Update Badge Angka
+        const cartElements = document.querySelectorAll('#cart-count, #cart-count-mobile');
         cartElements.forEach(el => {
 
           if (data.cart_count > 0) {
@@ -380,11 +515,35 @@ if (session_status() === PHP_SESSION_NONE) {
 
           }
         });
-      })
 
-      .catch(error =>
-        console.log('Error fetching cart count:', error)
-      );
+        // 2. Render List Item di Dropdown (Shopee Style)
+        const previewContainer = document.getElementById('cart-items-preview-container');
+        if (previewContainer) {
+          if (data.items && data.items.length > 0) {
+            let htmlContent = '';
+            data.items.forEach(item => {
+              const imgUrl = resolveCartImageUrl(item.foto);
+              const itemName = escapeCartText(item.nama_layanan);
+              const itemQty = Number(item.qty || item.kuantitas || 1);
+              const itemPrice = Number(item.harga || 0);
+              
+              htmlContent += `
+                <div class="cart-item-preview">
+                  <img src="${imgUrl}" class="cart-item-img" alt="${itemName}">
+                  <div class="cart-item-info">
+                    <div class="cart-item-title" title="${itemName}">${itemName}</div>
+                    <div class="cart-item-price"><small>${itemQty}x</small> Rp ${itemPrice.toLocaleString('id-ID')}</div>
+                  </div>
+                </div>
+              `;
+            });
+            previewContainer.innerHTML = htmlContent;
+          } else {
+            previewContainer.innerHTML = '<div class="text-center py-4 text-muted"><i class="bi bi-cart-x d-block fs-4 mb-1"></i><small>Keranjang masih kosong</small></div>';
+          }
+        }
+      })
+      .catch(error => console.log('Error fetching cart data:', error));
   }
 
   document.addEventListener('DOMContentLoaded', updateCartCount);

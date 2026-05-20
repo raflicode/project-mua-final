@@ -82,7 +82,7 @@ $photos = [
         <img src="../assets/foto_dekor.jpeg" alt="Gallery Dekor">
         <div class="hero-overlay">
             <div>
-                <h2 class="hero-title">Keanggunan Dekorasi untuk Hari Istimewa Anda.</h2>
+                <h2 class="hero-title" style="color:white;">Keanggunan Dekorasi untuk Hari Istimewa Anda.</h2>
                 <p class="hero-desc">Dekorasi pernikahan profesional dengan sentuhan terbaik yang menjadikan hari istimewa Anda semakin berkesan dan tak terlupakan.</p>
             </div>
         </div>

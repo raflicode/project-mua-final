@@ -578,20 +578,40 @@ function checkoutSelected() {
     const selectedCartItems = Array.from(selectedItems).map(index => {
         const it = cartData[index];
         return {
+            id_keranjang: Number(it.id_keranjang) || 0,
             nama: it.nama_layanan || it.nama || it.nama_produk || '',
             harga: Number(it.harga) || 0,
             qty: Number(it.kuantitas || it.qty || 1),
             foto: it.foto || it.image || ''
         };
-    });
+    }).filter(item => item.id_keranjang > 0);
 
     if (selectedCartItems.length === 0) {
         alert('Pilih minimal 1 item untuk checkout');
         return;
     }
 
-    sessionStorage.setItem('checkout_items', JSON.stringify(selectedCartItems));
-    window.location.href = 'booking.php';
+    const formData = new FormData();
+    selectedCartItems.forEach(item => {
+        formData.append('id_keranjang[]', item.id_keranjang);
+    });
+
+    fetch('/project-mua-final/actions/checkout_cart.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = 'booking.php';
+        } else {
+            alert('Gagal checkout: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat checkout');
+    });
 }
 
 // Initialize display
