@@ -84,7 +84,7 @@ $photos = [
         <img src="../assets/fotokostum1.jpeg" alt="Gallery Kostum">
         <div class="hero-overlay">
             <div>
-                <h2 class="hero-title">Koleksi Kostum Elegan untuk Momen Istimewa Anda.</h2>
+                <h2 class="hero-title" style="color:white;">Koleksi Kostum Elegan untuk Momen Istimewa Anda.</h2>
                 <p class="hero-desc">Pilihan busana wedding, adat, dan acara formal dengan detail cantik serta aksesoris lengkap.</p>
             </div>
         </div>

@@ -43,6 +43,15 @@ $foto = '../assets/foto_makeup.jpeg';
 $namaProduk = trim(filter_input(INPUT_GET, 'layanan', FILTER_SANITIZE_STRING));
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $hargaProduk = filter_input(INPUT_GET, 'harga', FILTER_VALIDATE_INT);
+$service = null;
+$layananTableExists = false;
+
+try {
+    $tableStmt = $pdo->query("SHOW TABLES LIKE 'layanan'");
+    $layananTableExists = (bool) $tableStmt->fetchColumn();
+} catch (Exception $e) {
+    $layananTableExists = false;
+}
 
 if ($checkout && !empty($checkout['items']) && is_array($checkout['items'])) {
     $checkoutMode = true;
@@ -64,7 +73,7 @@ if ($checkout && !empty($checkout['items']) && is_array($checkout['items'])) {
         'foto' => $foto
     ];
 } else {
-    if ($id) {
+    if ($id && $layananTableExists) {
         $stmt = $pdo->prepare('SELECT * FROM layanan WHERE id_layanan = ? LIMIT 1');
         $stmt->execute([$id]);
         $service = $stmt->fetch(PDO::FETCH_ASSOC);

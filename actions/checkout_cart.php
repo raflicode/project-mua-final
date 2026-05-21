@@ -47,6 +47,14 @@ $id_user = $_SESSION['id_user'];
 $placeholders = implode(',', array_fill(0, count($cartIds), '?'));
 
 try {
+    $layananTableExists = false;
+    try {
+        $tableStmt = $pdo->query("SHOW TABLES LIKE 'layanan'");
+        $layananTableExists = (bool) $tableStmt->fetchColumn();
+    } catch (Exception $e) {
+        $layananTableExists = false;
+    }
+
     $stmt = $pdo->prepare("SELECT * FROM keranjang WHERE id_user = ? AND id_keranjang IN ($placeholders)");
     $stmt->execute(array_merge([$id_user], $cartIds));
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -65,11 +73,13 @@ try {
 
     foreach ($rows as $row) {
         $serviceId = null;
-        $serviceStmt = $pdo->prepare('SELECT id_layanan FROM layanan WHERE nama_layanan = ? LIMIT 1');
-        $serviceStmt->execute([$row['nama_layanan']]);
-        $service = $serviceStmt->fetch(PDO::FETCH_ASSOC);
-        if ($service) {
-            $serviceId = $service['id_layanan'];
+        if ($layananTableExists) {
+            $serviceStmt = $pdo->prepare('SELECT id_layanan FROM layanan WHERE nama_layanan = ? LIMIT 1');
+            $serviceStmt->execute([$row['nama_layanan']]);
+            $service = $serviceStmt->fetch(PDO::FETCH_ASSOC);
+            if ($service) {
+                $serviceId = $service['id_layanan'];
+            }
         }
 
         $itemTotal = floatval($row['harga']) * intval($row['kuantitas']);
@@ -82,6 +92,7 @@ try {
             'harga' => floatval($row['harga']),
             'kuantitas' => intval($row['kuantitas']),
             'item_total' => $itemTotal,
+            'foto' => $row['foto'] ?? '',
             'id_layanan' => $serviceId,
         ];
     }

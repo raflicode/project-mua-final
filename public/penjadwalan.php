@@ -49,11 +49,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $jamMulai = $matches[2];
             $jamSelesai = $matches[3];
 
+            $existingStmt = $pdo->prepare('SELECT * FROM jadwal_kerja WHERE tanggal = ? AND jam_mulai = ? AND jam_selesai = ? LIMIT 1');
+            $existingStmt->execute([$selectedDate, $jamMulai, $jamSelesai]);
+            $existingJadwal = $existingStmt->fetch(PDO::FETCH_ASSOC);
+
             $dbstmt = $pdo->prepare('SELECT COUNT(*) FROM booking b JOIN jadwal_kerja jk ON b.id_jadwal = jk.id_jadwal WHERE jk.tanggal = ? AND b.status_booking != ?');
             $dbstmt->execute([$selectedDate, 'dibatalkan']);
             $bookedDate = intval($dbstmt->fetchColumn());
 
-            if ($bookedDate < 3) {
+            if ($existingJadwal) {
+                $bstmt = $pdo->prepare('SELECT COUNT(*) FROM booking WHERE id_jadwal = ? AND status_booking != ?');
+                $bstmt->execute([$existingJadwal['id_jadwal'], 'dibatalkan']);
+                $bookedSlot = intval($bstmt->fetchColumn());
+
+                if ($existingJadwal['status_slot'] === 'tersedia' && $bookedSlot < intval($existingJadwal['kapasitas_max']) && $bookedDate < 3) {
+                    $_SESSION['draft_booking']['id_jadwal'] = $existingJadwal['id_jadwal'];
+                    $_SESSION['draft_booking']['tanggal'] = $existingJadwal['tanggal'];
+                    $_SESSION['draft_booking']['jam_mulai'] = $existingJadwal['jam_mulai'];
+                    $_SESSION['draft_booking']['jam_selesai'] = $existingJadwal['jam_selesai'];
+                    header('Location: pembayaran.php');
+                    exit;
+                }
+            } elseif ($bookedDate < 3) {
                 $insertStmt = $pdo->prepare('INSERT INTO jadwal_kerja (tanggal, jam_mulai, jam_selesai, kapasitas_max, status_slot) VALUES (?, ?, ?, ?, ?)');
                 $insertStmt->execute([$selectedDate, $jamMulai, $jamSelesai, 1, 'tersedia']);
                 $lastId = $pdo->lastInsertId();
@@ -346,6 +363,11 @@ body {
 const jadwalData = <?= json_encode($jadwalByDate, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 const bookedByJadwal = <?= json_encode($bookedByJadwal ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 const bookedByDate = <?= json_encode($bookedByDate ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+const defaultSlots = [
+    { label: 'Pagi', start: '07:00', end: '10:00' },
+    { label: 'Siang', start: '11:00', end: '13:00' },
+    { label: 'Malam', start: '15:00', end: '18:00' }
+];
 let currentDate = new Date();
 
 function renderCalendar() {
@@ -414,38 +436,37 @@ function renderSlots(date) {
 
     let html = '';
 
-    if (!slots.length) {
-        const defaultSlots = [
-            { label: 'Pagi', start: '07:00', end: '10:00' },
-            { label: 'Siang', start: '11:00', end: '13:00' },
-            { label: 'Sore', start: '15:00', end: '18:00' }
-        ];
+    html = defaultSlots.map(defaultSlot => {
+        const existingSlot = slots.find(slot => {
+            return slot.jam_mulai.slice(0, 5) === defaultSlot.start
+                && slot.jam_selesai.slice(0, 5) === defaultSlot.end;
+        });
 
-        html = defaultSlots.map(slot => `
-            <div class="slot" data-id="default|${date}|${slot.start}|${slot.end}" onclick="pilihSlot(this)">
-                <div>
-                    <div>${slot.label} (${slot.start} - ${slot.end})</div>
-                    <div class="text-muted small">Tersedia</div>
-                </div>
-                <span class="badge-info">Open</span>
-            </div>
-        `).join('');
-    } else {
-        html = slots.map(slot => {
-            const bookedCount = bookedByJadwal[slot.id_jadwal] || 0;
-            const kapasitas = parseInt(slot.kapasitas_max || 1, 10);
-            const isAvailable = slot.status_slot === 'tersedia' && bookedCount < kapasitas && !fullDate;
+        if (existingSlot) {
+            const bookedCount = bookedByJadwal[existingSlot.id_jadwal] || 0;
+            const kapasitas = parseInt(existingSlot.kapasitas_max || 1, 10);
+            const isAvailable = existingSlot.status_slot === 'tersedia' && bookedCount < kapasitas;
             return `
-                <div class="slot${isAvailable ? '' : ' disabled'}" data-id="${slot.id_jadwal}" onclick="pilihSlot(this)">
+                <div class="slot${isAvailable ? '' : ' disabled'}" data-id="${existingSlot.id_jadwal}" onclick="pilihSlot(this)">
                     <div>
-                        <div>${slot.jam_mulai.slice(0, 5)} - ${slot.jam_selesai.slice(0, 5)}</div>
+                        <div>${defaultSlot.label} (${defaultSlot.start} - ${defaultSlot.end})</div>
                         <div class="text-muted small">${isAvailable ? 'Tersedia' : 'Sudah terisi'}</div>
                     </div>
                     <span class="badge-info">${isAvailable ? 'Open' : 'Closed'}</span>
                 </div>
             `;
-        }).join('');
-    }
+        }
+
+        return `
+            <div class="slot" data-id="default|${date}|${defaultSlot.start}|${defaultSlot.end}" onclick="pilihSlot(this)">
+                <div>
+                    <div>${defaultSlot.label} (${defaultSlot.start} - ${defaultSlot.end})</div>
+                    <div class="text-muted small">Tersedia</div>
+                </div>
+                <span class="badge-info">Open</span>
+            </div>
+        `;
+    }).join('');
 
     slotList.innerHTML = html;
     document.getElementById('selected_slot').value = '';

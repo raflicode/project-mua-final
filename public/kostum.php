@@ -65,6 +65,16 @@ body {
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
+.img-paket.carousel {
+    overflow: hidden;
+}
+
+.img-paket.carousel img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+}
+
 .card-custom ul {
     padding-left: 0;
     list-style: none;
@@ -150,7 +160,16 @@ body {
                 <div class="card card-custom p-3">
                     <div class="card-body d-flex flex-column">
                         <h5 class="fw-bold mb-4">Kostum Baju Adat</h5>
-                        <img src="../assets/fotokostum1.jpeg" class="img-paket" alt="Kostum Baju Adat">
+                        <div id="kostumAdatCarousel" class="carousel slide img-paket" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                <div class="carousel-item active">
+                                    <img src="../assets/fotokostum3.jpeg" alt="Kostum Baju Adat">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="../assets/fotokostum1.jpeg" alt="Kostum Baju Adat">
+                                </div>
+                            </div>
+                        </div>
                         <p class="fw-semibold">Include :</p>
                         <ul>
                             <li>Baju adat pengantin</li>
@@ -171,7 +190,16 @@ body {
                 <div class="card card-custom p-3">
                     <div class="card-body d-flex flex-column">
                         <h5 class="fw-bold mb-4">Kostum Wedding</h5>
-                        <img src="../assets/fotokostum2.jpg" class="img-paket" alt="Kostum Wedding">
+                        <div id="kostumWeddingCarousel" class="carousel slide img-paket" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                <div class="carousel-item active">
+                                    <img src="../assets/fotokostum6.jpeg" alt="Kostum Wedding">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="../assets/fotokostum2.jpg" alt="Kostum Wedding">
+                                </div>
+                            </div>
+                        </div>
                         <p class="fw-semibold">Include :</p>
                         <ul>
                             <li>Kostum pengantin utama</li>

@@ -1,144 +1,272 @@
 <?php
-$data_booking = [
-    ["paket"=>"Makeup Wedding","customer"=>"Rafli","tgl"=>"09 Januari 2026","status"=>"Lunas","alamat"=>"Jl. Mastrip","telp"=>"089766455"],
-    ["paket"=>"Makeup Birthday","customer"=>"Tegar","tgl"=>"05 Januari 2026","status"=>"Dp","alamat"=>"Jl. Mastrip","telp"=>"089766455"],
-    ["paket"=>"Makeup Artist","customer"=>"Andyn","tgl"=>"28 Januari 2026","status"=>"Proses","alamat"=>"Jl. Mastrip","telp"=>"089766455"],
-];
+session_start();
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Halaman Kostum</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-<link href="../assets/admin-brown.css" rel="stylesheet">
+<title>Kostum - Yayuk Makeover</title>
 
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lobster&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #efefef;
+    color: #222;
+}
+
+.page-wrap {
+    padding-top: 95px;
+    padding-bottom: 80px;
+}
+
+.judul h1 {
+    font-family: 'Lobster', cursive;
+    font-size: 70px;
+    color: #b85a00;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.25);
+}
+
+.line {
+    width: 220px;
+    height: 2px;
+    background: #b85a00;
+    margin: auto;
+}
+
+.card-custom {
+    height: 100%;
+    border: none;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+    transition: 0.3s;
+}
+
+.card-custom:hover {
+    transform: translateY(-5px);
+}
+
+.img-paket {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 14px;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-custom ul {
+    padding-left: 0;
+    list-style: none;
+}
+
+.card-custom ul li {
+    margin-bottom: 8px;
+    color: #666;
+}
+
+.card-custom ul li::before {
+    content: "\2713 ";
+    font-weight: 700;
+    color: #111;
+}
+
+.btn-booking {
+    height: 45px;
+    border-radius: 30px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.btn-cart-icon {
+    width: 45px;
+    height: 45px;
+    background-color: #212529;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    border: none;
+    flex-shrink: 0;
+}
+
+.btn-cart-icon i {
+    font-size: 18px;
+}
+
+.btn-kembali {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    border-radius: 30px;
+    padding: 10px 20px;
+    z-index: 1000;
+}
+
+@media (max-width: 768px) {
+    .page-wrap {
+        padding-top: 82px;
+    }
+
+    .judul h1 {
+        font-size: 55px;
+    }
+
+    .img-paket {
+        height: 220px;
+    }
+}
+</style>
 </head>
 
-<body class="bg-primary">
+<body>
 
-<div class="d-flex">
+<?php include 'include/navbar.php'; ?>
 
-    <!-- Sidebar -->
-    <div class="bg-primary text-white vh-100 p-3" style="width:260px;">
-        <?php include 'include/sidebar.php'; ?>
-    </div>
+<main class="page-wrap">
+    <div class="container">
 
-    <!-- Content -->
-    <div class="flex-grow-1 bg-light rounded-start-5 p-4">
+        <div class="text-center mb-5 judul">
+            <h1>Kostum</h1>
+            <div class="line mt-2"></div>
+        </div>
 
-        <!-- Topbar -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-
-            <!-- Search -->
-            <div class="input-group w-25">
-                <span class="input-group-text bg-white rounded-start-pill">
-                    <i class="bi bi-search"></i>
-                </span>
-                <input type="text" class="form-control rounded-end-pill" placeholder="Search">
-            </div>
-
-            <!-- Profile -->
-            <div class="d-flex align-items-center bg-white px-3 py-2 rounded-pill shadow-sm">
-                <i class="bi bi-person-circle fs-5 me-2"></i>
-                <div>
-                    <div class="fw-bold small">Hotman Paris</div>
-                    <div class="text-muted" style="font-size:12px;">Admin 1</div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card card-custom p-3">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="fw-bold mb-4">Kostum Baju Adat</h5>
+                        <img src="../assets/fotokostum1.jpeg" class="img-paket" alt="Kostum Baju Adat">
+                        <p class="fw-semibold">Include :</p>
+                        <ul>
+                            <li>Baju adat pengantin</li>
+                            <li>Aksesoris kepala</li>
+                            <li>Kalung dan detail pelengkap</li>
+                            <li>Custom fitting</li>
+                        </ul>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="detail_kostum.php?from=kostum&nama=Kostum+Baju+Adat&harga=8000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                            Lihat lebih banyak
+                        </a>
+                    </div>
                 </div>
-                <i class="bi bi-chevron-down ms-2"></i>
             </div>
-        </div>
 
-        <!-- Title -->
-        <h5 class="fw-bold text-primary mb-3">
-            <i class="bi bi-envelope-fill me-2"></i> Booking
-        </h5>
-
-        <!-- Quick Access -->
-        <h6 class="fw-bold mb-3">QUICK ACCESS</h6>
-
-        <div class="row g-3 mb-4">
-
-            <div class="col-md-4">
-                <a href="makeup_wedding.php" class="text-decoration-none">
-                    <div class="card text-center shadow-sm border-0">
-                        <div class="card-body">Makeup Wedding</div>
+            <div class="col-md-6">
+                <div class="card card-custom p-3">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="fw-bold mb-4">Kostum Wedding</h5>
+                        <img src="../assets/fotokostum2.jpg" class="img-paket" alt="Kostum Wedding">
+                        <p class="fw-semibold">Include :</p>
+                        <ul>
+                            <li>Kostum pengantin utama</li>
+                            <li>Selendang dan veil</li>
+                            <li>Aksesoris lengkap</li>
+                            <li>Elegant design</li>
+                        </ul>
                     </div>
-                </a>
-            </div>
-
-            <div class="col-md-4">
-                <a href="dekor.php" class="text-decoration-none">
-                    <div class="card text-center shadow-sm border-0">
-                        <div class="card-body">Dekor</div>
+                    <div class="d-flex gap-2">
+                        <a href="detailkostum_wedding.php?from=kostum&nama=Kostum+Wedding&harga=4000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                            Lihat lebih banyak
+                        </a>
                     </div>
-                </a>
+                </div>
             </div>
 
-            <div class="col-md-4">
-                <a href="kostum.php" class="text-decoration-none">
-                    <div class="card text-center shadow-sm border-0 bg-primary text-white">
-                        <div class="card-body">Kostum</div>
+            <div class="col-md-6">
+                <div class="card card-custom p-3">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="fw-bold mb-4">Kostum Graduation</h5>
+                        <img src="../assets/fotokostum3.jpg" class="img-paket" alt="Kostum Graduation">
+                        <p class="fw-semibold">Include :</p>
+                        <ul>
+                            <li>Kebaya graduation</li>
+                            <li>Rok atau kain bawahan</li>
+                            <li>Aksesoris pendukung</li>
+                            <li>Penyesuaian ukuran</li>
+                        </ul>
                     </div>
-                </a>
+                    <div class="d-flex gap-2">
+                        <a href="detailkostum_graduation.php?from=kostum&nama=Kostum+Graduation&harga=6000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                           Lihat lebih banyak
+                        </a>
+                    </div>
+                </div>
             </div>
 
-        </div>
-
-        <!-- Table -->
-        <h6 class="fw-bold mb-3">ALL FILES</h6>
-
-        <div class="card shadow rounded-4 p-3">
-
-            <div class="table-responsive">
-                <table class="table table-hover text-center align-middle mb-0">
-
-                    <thead class="table-primary">
-                        <tr>
-                            <th>Paket</th>
-                            <th>Customer</th>
-                            <th>Tanggal Booking</th>
-                            <th>Status</th>
-                            <th>Alamat</th>
-                            <th>No. Telp</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <?php foreach($data_booking as $row): ?>
-                        <tr>
-                            <td><?= $row['paket']; ?></td>
-                            <td><?= $row['customer']; ?></td>
-                            <td><?= $row['tgl']; ?></td>
-
-                            <!-- Status -->
-                            <td>
-                                <?php if($row['status'] == 'Lunas'): ?>
-                                    <span class="badge bg-success">Lunas</span>
-                                <?php elseif($row['status'] == 'Dp'): ?>
-                                    <span class="badge bg-warning text-dark">DP</span>
-                                <?php else: ?>
-                                    <span class="badge bg-secondary">Proses</span>
-                                <?php endif; ?>
-                            </td>
-
-                            <td><?= $row['alamat']; ?></td>
-                            <td><?= $row['telp']; ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-
-                </table>
+            <div class="col-md-6">
+                <div class="card card-custom p-3">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="fw-bold mb-4">Kostum Kebaya</h5>
+                        <img src="../assets/fotokostum4.jpg" class="img-paket" alt="Kostum Kebaya">
+                        <p class="fw-semibold">Include :</p>
+                        <ul>
+                            <li>Kebaya pilihan</li>
+                            <li>Kain bawahan</li>
+                            <li>Kostum pahlawan for kids</li>
+                            <li>Custom size</li>
+                        </ul>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="detailkostum_pahlawan.php?from=kostum&nama=Kostum+Kebaya&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                           Lihat lebih banyak
+                        </a>
+                    </div>
+                </div>
             </div>
-
         </div>
 
     </div>
+</main>
 
-</div>
+<script>
+const isLoggedIn = <?php echo isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
+document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        if (!isLoggedIn) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Login diperlukan',
+                text: 'Silakan login atau register terlebih dahulu sebelum melakukan booking.',
+                showCancelButton: true,
+                confirmButtonText: 'Login',
+                cancelButtonText: 'Register',
+                reverseButtons: true,
+                allowOutsideClick: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'login.php';
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    window.location.href = 'register.php';
+                }
+            });
+        }
+    });
+});
+</script>
 
+<a href="service.php" class="btn btn-danger btn-kembali shadow">
+    Kembali
+</a>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<?php include 'include/add_to_cart_script.php'; ?>
 </body>
 </html>
