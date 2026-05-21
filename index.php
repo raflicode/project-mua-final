@@ -395,9 +395,9 @@ include __DIR__ . '/actions/proses_index.php';
 <section class="soft-section py-5">
 
     <div class="container text-center p-5 rounded-4"
-         style="background-color:#A58459;color:white;">
+         style="background-color:#A58459; color:white;">
 
-        <h3 class="fw-bold mb-5">
+        <h3 class="fw-bold mb-5" style="color:white;">
             MENGAPA MEMILIH KAMI?
         </h3>
 

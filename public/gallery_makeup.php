@@ -86,7 +86,7 @@ $photos = [
         <img src="../assets/foto_muayayuk.jpeg" alt="Gallery Makeup">
         <div class="hero-overlay">
             <div>
-                <h2 class="hero-title">Keindahan Makeup Profesional untuk Momen Istimewa Anda.</h2>
+                <h2 class="hero-title" style="color:white;">Keindahan Makeup Profesional untuk Momen Istimewa Anda.</h2>
                 <p class="hero-desc">Makeup artistry profesional dengan produk berkualitas tinggi yang membuat penampilan Anda semakin percaya diri, cantik, dan memukau di setiap kesempatan.</p>
             </div>
         </div>

@@ -86,10 +86,19 @@ if (session_status() === PHP_SESSION_NONE) {
   }
 
   .offcanvas-custom.offcanvas-top {
-    height: auto;
-    min-height: 48vh;
     background: #a58459 !important;
     border-bottom: 2px solid #b5835a;
+    border-radius: 0 0 24px 24px;
+    height: 65vh;
+  }
+
+  .offcanvas-header,
+  .offcanvas-body {
+    background: #a58459 !important;
+  }
+
+  .offcanvas-body {
+    overflow-y: auto;
   }
 
   .profile-circle-icon {
@@ -114,6 +123,34 @@ if (session_status() === PHP_SESSION_NONE) {
     border-radius: 18px;
     background: #fffaf4;
     box-shadow: 0 18px 40px rgba(73, 55, 40, 0.12);
+  }
+
+  .account-box {
+    background: rgba(255,255,255,0.08);
+    padding: 14px 16px;
+    border-radius: 18px;
+  }
+
+  .account-icon {
+    width: 50px;
+    height: 50px;
+    background: #f1f1f1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-size: 1.5rem;
+  }
+
+  .logout-icon {
+    color: #ff3b30;
+    font-size: 1.6rem;
+    transition: 0.3s;
+  }
+
+  .logout-icon:hover {
+    color: white;
   }
 
   /* --- TAMBAHAN CSS UNTUK HOVER DROPDOWN KERANJANG ALA SHOPEE --- */
@@ -186,19 +223,32 @@ if (session_status() === PHP_SESSION_NONE) {
 
 <nav id="mainNavbar" class="navbar fixed-top px-3 transition-nav">
   <div class="container-fluid">
+
     <a class="navbar-brand fw-bold" href="/project-mua-final/index.php">
       Yayuk <span style="font-style: italic; font-weight: 300; color: #FED03A;">Makeover</span>
     </a>
 
-    <button class="navbar-toggler border-0 d-lg-none" type="button" data-bs-toggle="offcanvas"
-      data-bs-target="#mobileMenu" aria-label="Buka menu">
+    <button class="navbar-toggler border-0 d-lg-none"
+      type="button"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#mobileMenu"
+      aria-label="Buka menu">
+
       <span class="navbar-toggler-icon"></span>
+
     </button>
 
     <div class="d-none d-lg-flex ms-auto align-items-center gap-4 text-dark">
+
       <a class="nav-link" href="/project-mua-final/index.php">Home</a>
-      <a class="nav-link" href="/project-mua-final/public/service.php">Service</a>
-      <a class="nav-link" href="/project-mua-final/index.php#gallery">Gallery</a>
+
+      <a class="nav-link" href="/project-mua-final/public/service.php">
+        Service
+      </a>
+
+      <a class="nav-link" href="/project-mua-final/index.php#gallery">
+        Gallery
+      </a>
 
       <!-- Modifikasi: Pembungkus Dropdown Keranjang -->
       <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
@@ -222,68 +272,185 @@ if (session_status() === PHP_SESSION_NONE) {
       <?php endif; ?>
 
       <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
+
         <div class="dropdown">
-          <a class="nav-link dropdown-toggle d-flex align-items-center border-0" href="#" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
+
+          <a class="nav-link dropdown-toggle d-flex align-items-center border-0"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+
             <div class="profile-circle-icon">
               <i class="bi bi-person-circle"></i>
             </div>
+
           </a>
 
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom">
+
             <li>
-              <div class="dropdown-header text-muted">Halo, <strong><?= htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?></strong></div>
+              <div class="dropdown-header text-muted">
+                Halo,
+                <strong>
+                  <?= htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?>
+                </strong>
+              </div>
             </li>
+
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger fw-bold" href="/project-mua-final/actions/logout.php">Logout</a></li>
+
+            <li>
+              <a class="dropdown-item text-danger fw-bold"
+                href="/project-mua-final/actions/logout.php">
+
+                Logout
+
+              </a>
+            </li>
+
           </ul>
+
         </div>
+
       <?php else: ?>
-        <a class="btn btn-custom-gold border-2 ms-2" href="/project-mua-final/public/login.php">Login</a>
+
+        <a class="btn btn-custom-gold border-2 ms-2"
+          href="/project-mua-final/public/login.php">
+
+          Login
+
+        </a>
+
       <?php endif; ?>
+
     </div>
   </div>
 </nav>
 
-<div class="offcanvas offcanvas-top text-white offcanvas-custom" tabindex="-1" id="mobileMenu">
+<div class="offcanvas offcanvas-top text-white offcanvas-custom"
+  tabindex="-1"
+  id="mobileMenu">
+
   <div class="offcanvas-header">
+
     <h5 class="offcanvas-title">Menu</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Tutup menu"></button>
+
+    <button type="button"
+      class="btn-close btn-close-white"
+      data-bs-dismiss="offcanvas"
+      aria-label="Tutup menu">
+    </button>
+
   </div>
+
   <div class="offcanvas-body">
+
     <ul class="navbar-nav gap-3">
-      <li><a class="nav-link text-white" href="/project-mua-final/index.php"><i class="bi bi-house-door me-2"></i>Home</a></li>
-      <li><a class="nav-link text-white" href="/project-mua-final/public/service.php"><i class="bi bi-brush me-2"></i>Service</a></li>
-      <li><a class="nav-link text-white" href="/project-mua-final/index.php#gallery"><i class="bi bi-images me-2"></i>Gallery</a></li>
+
+      <li>
+        <a class="nav-link text-white"
+          href="/project-mua-final/index.php">
+
+          <i class="bi bi-house-door me-2"></i>Home
+
+        </a>
+      </li>
+
+      <li>
+        <a class="nav-link text-white"
+          href="/project-mua-final/public/service.php">
+
+          <i class="bi bi-brush me-2"></i>Service
+
+        </a>
+      </li>
+
+      <li>
+        <a class="nav-link text-white"
+          href="/project-mua-final/index.php#gallery">
+
+          <i class="bi bi-images me-2"></i>Gallery
+
+        </a>
+      </li>
+
       <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
+
         <li>
-          <a class="nav-link text-white position-relative" href="/project-mua-final/public/keranjang.php">
+
+          <a class="nav-link text-white position-relative"
+            href="/project-mua-final/public/keranjang.php">
+
             <i class="bi bi-cart3 me-2"></i>Keranjang
-            <span id="cart-count-mobile" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none; font-size:0.7rem;"></span>
+
+            <span id="cart-count-mobile"
+              class="badge bg-danger position-absolute top-0 start-100 translate-middle"
+              style="display:none; font-size:0.7rem;">
+            </span>
+
           </a>
+
         </li>
+
       <?php endif; ?>
+
     </ul>
 
-    <div class="border-top pt-3 mt-4">
+    <div class="mobile-account border-top pt-3 mt-4">
+
       <?php if (isset($_SESSION['id_user'])): ?>
-        <div class="d-flex align-items-center gap-3">
-          <i class="bi bi-person-circle" style="font-size: 2rem;"></i>
-          <div>
-            <div class="fw-bold"><?= htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?></div>
-            <small class="text-white-50"><?= htmlspecialchars($_SESSION['email'] ?? 'Member', ENT_QUOTES, 'UTF-8'); ?></small>
+
+        <div class="account-box d-flex justify-content-between align-items-center">
+
+          <div class="d-flex align-items-center gap-3">
+
+            <div class="account-icon">
+              <i class="bi bi-person-fill"></i>
+            </div>
+
+            <div>
+
+              <div class="fw-bold text-white">
+                <?= htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?>
+              </div>
+
+              <small class="text-white-50">
+                <?= htmlspecialchars($_SESSION['email'] ?? 'Member', ENT_QUOTES, 'UTF-8'); ?>
+              </small>
+
+            </div>
+
           </div>
+
+          <a href="/project-mua-final/actions/logout.php"
+            class="logout-icon">
+
+            <i class="bi bi-box-arrow-right"></i>
+
+          </a>
+
         </div>
-        <a href="/project-mua-final/actions/logout.php" class="text-white d-block mt-3 fw-bold">Logout</a>
+
       <?php else: ?>
-        <a href="/project-mua-final/public/login.php" class="btn btn-light">Login</a>
+
+        <a href="/project-mua-final/public/login.php"
+          class="btn btn-light">
+
+          Login
+
+        </a>
+
       <?php endif; ?>
+
     </div>
+
   </div>
 </div>
 
 <script>
   window.onscroll = function () {
+
     var navbar = document.getElementById('mainNavbar');
 
     if (window.pageYOffset > 50) {
@@ -294,18 +461,58 @@ if (session_status() === PHP_SESSION_NONE) {
   };
 
   // Modifikasi: Ambil data jumlah sekaligus list item belanjaan
+  function resolveCartImageUrl(foto) {
+    if (!foto) {
+      return '/project-mua-final/assets/foto_makeup.jpeg';
+    }
+
+    if (/^(https?:)?\/\//.test(foto)) {
+      return foto;
+    }
+
+    const normalized = String(foto).replace(/\\/g, '/');
+
+    if (normalized.startsWith('/')) {
+      return normalized;
+    }
+
+    if (normalized.startsWith('../assets/')) {
+      return '/project-mua-final/' + normalized.replace('../', '');
+    }
+
+    if (normalized.startsWith('assets/')) {
+      return '/project-mua-final/' + normalized;
+    }
+
+    return '/project-mua-final/assets/' + normalized.replace(/^(\.\.\/|\.\/)+/, '');
+  }
+
+  function escapeCartText(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+  }
+
   function updateCartCount() {
+
     fetch('/project-mua-final/actions/get_cart_count.php')
+
       .then(response => response.json())
+
       .then(data => {
         // 1. Update Badge Angka
         const cartElements = document.querySelectorAll('#cart-count, #cart-count-mobile');
         cartElements.forEach(el => {
+
           if (data.cart_count > 0) {
+
             el.innerText = data.cart_count;
             el.style.display = 'inline-block';
+
           } else {
+
             el.style.display = 'none';
+
           }
         });
 
@@ -315,15 +522,17 @@ if (session_status() === PHP_SESSION_NONE) {
           if (data.items && data.items.length > 0) {
             let htmlContent = '';
             data.items.forEach(item => {
-              // Menangani fallback jika gambar kosong
-              let imgUrl = item.foto ? '/project-mua-final/assets/img/' + item.foto : '/project-mua-final/assets/img/default-service.jpg';
+              const imgUrl = resolveCartImageUrl(item.foto);
+              const itemName = escapeCartText(item.nama_layanan);
+              const itemQty = Number(item.qty || item.kuantitas || 1);
+              const itemPrice = Number(item.harga || 0);
               
               htmlContent += `
                 <div class="cart-item-preview">
-                  <img src="${imgUrl}" class="cart-item-img" alt="${item.nama_layanan}">
+                  <img src="${imgUrl}" class="cart-item-img" alt="${itemName}">
                   <div class="cart-item-info">
-                    <div class="cart-item-title" title="${item.nama_layanan}">${item.nama_layanan}</div>
-                    <div class="cart-item-price"><small>${item.qty || 1}x</small> Rp ${Number(item.harga).toLocaleString('id-ID')}</div>
+                    <div class="cart-item-title" title="${itemName}">${itemName}</div>
+                    <div class="cart-item-price"><small>${itemQty}x</small> Rp ${itemPrice.toLocaleString('id-ID')}</div>
                   </div>
                 </div>
               `;
@@ -338,5 +547,6 @@ if (session_status() === PHP_SESSION_NONE) {
   }
 
   document.addEventListener('DOMContentLoaded', updateCartCount);
+
   window.updateCartNavbar = updateCartCount;
 </script>
