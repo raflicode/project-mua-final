@@ -298,7 +298,7 @@ if (!empty($errors)) {
                             </div>
 
                             <button type="submit" class="btn btn-bayar w-100">
-                                <i class="bi bi-shield-lock-fill me-2"></i> Bayar Sekarang
+                                <i class="bi bi-shield-lock-fill me-2"></i> Konfirmasi Ketersediaan
                             </button>
                         </div>
                     </div>
