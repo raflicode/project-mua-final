@@ -5,6 +5,17 @@ function getRegisterVerifyEmail() {
     return isset($_SESSION['reg_email']) ? htmlspecialchars($_SESSION['reg_email'], ENT_QUOTES, 'UTF-8') : '';
 }
 
+function userPasswordColumn(PDO $pdo): string {
+    static $column = null;
+    if ($column !== null) {
+        return $column;
+    }
+
+    $stmt = $pdo->query("SHOW COLUMNS FROM user LIKE 'password_hash'");
+    $column = $stmt->fetchColumn() ? 'password_hash' : 'pass';
+    return $column;
+}
+
 if (!isset($_SESSION['reg_email'])) {
     header('Location: ../public/register.php?error=' . urlencode('Silakan daftar terlebih dahulu'));
     exit();
@@ -31,7 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password_hash = $_SESSION['reg_password_hash'];
 
     try {
-        $stmt = $pdo->prepare('INSERT INTO user (full_name, username, email, password_hash, role) VALUES (?, ?, ?, ?, ?)');
+        $passwordColumn = userPasswordColumn($pdo);
+        $stmt = $pdo->prepare("INSERT INTO user (full_name, username, email, {$passwordColumn}, role) VALUES (?, ?, ?, ?, ?)");
         $stmt->execute([$full_name, $username, $email, $password_hash, 'client']);
 
         unset($_SESSION['reg_full_name']);

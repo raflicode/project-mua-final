@@ -87,7 +87,7 @@ if (!move_uploaded_file($file['tmp_name'], $uploadPath)) {
 $pembayaran = $_SESSION['pembayaran'];
 $id_user = $_SESSION['id_user'];
 $status = 'pending';
-$id_jadwal = $draft['id_jadwal'];
+$id_jadwal = $draft['id_jadwal'] ?? null;
 $isCartCheckout = isset($draft['source']) && $draft['source'] === 'cart';
 $primaryLayananId = intval($draft['id_layanan'] ?? ($draft['items'][0]['id_layanan'] ?? 0));
 $total_harga = floatval($draft['total'] ?? $draft['harga'] ?? 0) + 10000;
@@ -106,6 +106,29 @@ function normalizePaymentMethod(string $method): string
     }
 
     return 'transfer';
+}
+
+function tableColumns(PDO $pdo, string $table): array
+{
+    static $cache = [];
+    if (isset($cache[$table])) {
+        return $cache[$table];
+    }
+
+    $columns = [];
+    $stmt = $pdo->query("SHOW COLUMNS FROM {$table}");
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $columns[$row['Field']] = true;
+    }
+
+    $cache[$table] = $columns;
+    return $columns;
+}
+
+function tableHasColumn(PDO $pdo, string $table, string $column): bool
+{
+    $columns = tableColumns($pdo, $table);
+    return isset($columns[$column]);
 }
 
 function findOrCreateLayanan(PDO $pdo, string $nama, float $harga, string $foto = ''): int
@@ -131,6 +154,60 @@ function findOrCreateLayanan(PDO $pdo, string $nama, float $harga, string $foto 
     return (int) $pdo->lastInsertId();
 }
 
+function insertBooking(PDO $pdo, int $idUser, int $idJadwal, int $idLayanan, float $totalHarga, string $catatan): int
+{
+    $columns = ['id_user', 'id_jadwal', 'total_harga', 'status_booking', 'catatan'];
+    $values = [$idUser, $idJadwal, $totalHarga, 'pending', $catatan];
+
+    if (tableHasColumn($pdo, 'booking', 'id_layanan')) {
+        array_splice($columns, 2, 0, 'id_layanan');
+        array_splice($values, 2, 0, $idLayanan);
+    }
+
+    $placeholders = implode(', ', array_fill(0, count($columns), '?'));
+    $query = 'INSERT INTO booking (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')';
+    $stmt = $pdo->prepare($query);
+    $stmt->execute($values);
+
+    return (int) $pdo->lastInsertId();
+}
+
+function insertBookingDetail(PDO $pdo, int $idBooking, int $idLayanan, int $qty, float $harga, float $subtotal, ?string $catatan = null): void
+{
+    if (tableHasColumn($pdo, 'booking_detail', 'qty')) {
+        $query = 'INSERT INTO booking_detail (id_booking, id_layanan, qty, harga, subtotal, catatan_item) VALUES (?, ?, ?, ?, ?, ?)';
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([$idBooking, $idLayanan, $qty, $harga, $subtotal, $catatan]);
+        return;
+    }
+
+    $query = 'INSERT INTO booking_detail (id_booking, id_layanan, harga_transaksi, catatan_item) VALUES (?, ?, ?, ?)';
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([$idBooking, $idLayanan, $subtotal, $catatan]);
+}
+
+function insertPembayaran(PDO $pdo, int $idBooking, int $idUser, array $pembayaran, float $totalHarga, string $fileName, string $status): void
+{
+    if (tableHasColumn($pdo, 'pembayaran', 'id_booking')) {
+        $query = 'INSERT INTO pembayaran (id_booking, jumlah_bayar, metode_bayar, bukti_transfer, status_verifikasi) VALUES (?, ?, ?, ?, ?)';
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([$idBooking, $totalHarga, normalizePaymentMethod($pembayaran['metode'] ?? ''), $fileName, $status]);
+        return;
+    }
+
+    $query = 'INSERT INTO pembayaran (id_user, nama, hp, metode, alamat, bukti_pembayaran, status) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([
+        $idUser,
+        $pembayaran['nama'] ?? '',
+        $pembayaran['hp'] ?? '',
+        $pembayaran['metode'] ?? '',
+        $pembayaran['alamat'] ?? '',
+        $fileName,
+        $status
+    ]);
+}
+
 try {
     $pdo->beginTransaction();
 
@@ -154,13 +231,7 @@ try {
             );
         }
 
-        $bookingQuery = "INSERT INTO booking (id_user, id_jadwal, total_harga, status_booking, catatan) VALUES (?, ?, ?, ?, ?)";
-        $stmt = $pdo->prepare($bookingQuery);
-        $stmt->execute([$id_user, $id_jadwal, $total_harga, 'pending', $catatan]);
-        $id_booking = $pdo->lastInsertId();
-
-        $detailQuery = "INSERT INTO booking_detail (id_booking, id_layanan, qty, harga, subtotal, catatan_item) VALUES (?, ?, ?, ?, ?, ?)";
-        $detailStmt = $pdo->prepare($detailQuery);
+        $id_booking = insertBooking($pdo, (int) $id_user, (int) $id_jadwal, $primaryLayananId, $total_harga, $catatan);
 
         if ($isCartCheckout && !empty($draft['items']) && is_array($draft['items'])) {
             foreach ($draft['items'] as $item) {
@@ -178,18 +249,11 @@ try {
                     );
                 }
 
-                $detailStmt->execute([
-                    $id_booking,
-                    $itemLayananId,
-                    $qty,
-                    $hargaItem,
-                    $subtotal,
-                    null
-                ]);
+                insertBookingDetail($pdo, $id_booking, $itemLayananId, $qty, $hargaItem, $subtotal);
             }
         } else {
             $hargaItem = floatval($draft['harga'] ?? 0);
-            $detailStmt->execute([$id_booking, $primaryLayananId, 1, $hargaItem, $hargaItem, null]);
+            insertBookingDetail($pdo, $id_booking, $primaryLayananId, 1, $hargaItem, $hargaItem);
         }
     }
 
@@ -198,10 +262,7 @@ try {
     }
 
     // Insert pembayaran record sesuai schema aktif
-    $query = "INSERT INTO pembayaran (id_booking, jumlah_bayar, metode_bayar, bukti_transfer, status_verifikasi) 
-              VALUES (?, ?, ?, ?, ?)";
-    $stmt = $pdo->prepare($query);
-    $stmt->execute([$id_booking, $total_harga, normalizePaymentMethod($pembayaran['metode'] ?? ''), $fileName, $status]);
+    insertPembayaran($pdo, (int) $id_booking, (int) $id_user, $pembayaran, $total_harga, $fileName, $status);
 
     if ($isCartCheckout && !empty($draft['cart_item_ids']) && is_array($draft['cart_item_ids'])) {
         $cartIds = array_map('intval', $draft['cart_item_ids']);

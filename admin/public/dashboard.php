@@ -207,12 +207,12 @@ canvas {
 
     <a href="manajemen_user.php">
         <i class="bi bi-people"></i>
-        Pelanggan
+        Manajemen User
     </a>
 
     <a href="data_layanan.php">
         <i class="bi bi-bag-heart"></i>
-        Layanan
+        Data Layanan
     </a>
 
     <div class="sidebar-section">Laporan</div>
@@ -224,14 +224,7 @@ canvas {
 
     <a href="pembayaran.php">
         <i class="bi bi-cash-coin"></i>
-        Pendapatan
-    </a>
-
-    <div class="sidebar-section">Akun</div>
-
-    <a href="#">
-        <i class="bi bi-gear"></i>
-        Pengaturan
+        Pembayaran
     </a>
 
     <a href="logout.php">
