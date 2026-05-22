@@ -1,16 +1,58 @@
 <?php
 // konfirmasi.php
 session_start();
+require_once '../config/koneksi.php';
 
-if (!isset($_SESSION['id_user'])) {
-    header('Location: login.php');
-    exit;
-}
+$tokenMode = !empty($_GET['token']);
+$token = $tokenMode ? trim($_GET['token']) : '';
+$booking = null;
 
-// Check jika belum ada data pembayaran dari proses_pembayaran
-if (!isset($_SESSION['pembayaran'])) {
-    header('Location: pembayaran.php');
-    exit;
+if ($tokenMode) {
+    $stmt = $pdo->prepare("
+        SELECT
+            b.id_booking,
+            b.total_harga,
+            b.status_booking,
+            u.full_name,
+            u.username,
+            u.no_telp,
+            GROUP_CONCAT(DISTINCT l.nama_layanan ORDER BY l.nama_layanan SEPARATOR ', ') AS nama_layanan
+        FROM booking b
+        LEFT JOIN user u ON u.id_user = b.id_user
+        LEFT JOIN booking_detail bd ON bd.id_booking = b.id_booking
+        LEFT JOIN layanan l ON l.id_layanan = bd.id_layanan
+        WHERE b.konfirmasi_akhir_token = ?
+        GROUP BY b.id_booking
+        LIMIT 1
+    ");
+    $stmt->execute([$token]);
+    $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$booking) {
+        http_response_code(404);
+        die('Link pembayaran tidak valid.');
+    }
+
+    $pembayaran = [
+        'nama' => $booking['full_name'] ?: ($booking['username'] ?: 'Client'),
+        'hp' => $booking['no_telp'] ?: '-',
+        'metode' => 'Transfer Bank',
+    ];
+    $backHref = 'booking.php';
+} else {
+    if (!isset($_SESSION['id_user'])) {
+        header('Location: login.php');
+        exit;
+    }
+
+    // Check jika belum ada data pembayaran dari proses_pembayaran
+    if (!isset($_SESSION['pembayaran'])) {
+        header('Location: pembayaran.php');
+        exit;
+    }
+
+    $pembayaran = $_SESSION['pembayaran'];
+    $backHref = 'pembayaran.php';
 }
 
 // Check untuk errors dari proses_konfirmasi
@@ -18,9 +60,6 @@ $errors = isset($_SESSION['errors']) ? $_SESSION['errors'] : [];
 if (!empty($errors)) {
     unset($_SESSION['errors']);
 }
-
-$pembayaran = $_SESSION['pembayaran'];
-$backHref = 'pembayaran.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -148,6 +187,12 @@ $backHref = 'pembayaran.php';
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
+            <?php if (!empty($_GET['uploaded'])): ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    Bukti pembayaran berhasil dikirim. Silakan tunggu konfirmasi admin.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
 
             <div>
                 <div class="icon-box mb-3">💳</div>
@@ -163,6 +208,14 @@ $backHref = 'pembayaran.php';
 
                     <small class="text-muted d-block mb-2">Metode Pembayaran</small>
                     <h6 class="mb-0"><?= htmlspecialchars($pembayaran['metode']) ?></h6>
+
+                    <?php if ($tokenMode && $booking): ?>
+                        <small class="text-muted d-block mb-2 mt-3">Layanan</small>
+                        <h6 class="mb-2"><?= htmlspecialchars($booking['nama_layanan'] ?: 'Layanan Booking') ?></h6>
+
+                        <small class="text-muted d-block mb-2">Total Pembayaran</small>
+                        <h6 class="mb-0">Rp <?= number_format((float) $booking['total_harga'], 0, ',', '.') ?></h6>
+                    <?php endif; ?>
                 </div>
 
                 <p class="text-muted small">Silahkan transfer ke rekening berikut untuk melanjutkan pemesanan:</p>
@@ -174,6 +227,9 @@ $backHref = 'pembayaran.php';
                 </div>
 
                 <form action="../actions/proses_konfirmasi.php" method="post" enctype="multipart/form-data">
+                    <?php if ($tokenMode): ?>
+                        <input type="hidden" name="konfirmasi_akhir_token" value="<?= htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?>">
+                    <?php endif; ?>
                     <label class="upload-box w-100 mb-3" id="uploadBox">
                         <div class="fs-3">⇪</div>
                         <div class="small text-muted">Upload Bukti Pembayaran (.jpg, .png)</div>
