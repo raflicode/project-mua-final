@@ -259,7 +259,7 @@ session_start();
                     </a>
 
                     <!-- Booking -->
-                    <a href="booking.php"
+                    <a href="booking.php?from=paket&nama=Paket+Gold&harga=10000000"
                        class="btn btn-booking w-100 d-flex justify-content-center align-items-center">
 
                         Booking

@@ -2,14 +2,14 @@
 session_start();
 
 $photos = [
-    ['src' => '../assets/fotokostum1.jpeg', 'title' => 'Kostum Baju Adat', 'desc' => 'Kostum adat pengantin dengan detail elegan.'],
-    ['src' => '../assets/fotokostum2.jpeg', 'title' => 'Kostum Wedding', 'desc' => 'Busana wedding dengan nuansa anggun.'],
-    ['src' => '../assets/fotokostum3.jpeg', 'title' => 'Kostum Graduation', 'desc' => 'Pilihan kostum untuk momen wisuda.'],
-    ['src' => '../assets/fotokostum4.jpeg', 'title' => 'Kostum Kebaya', 'desc' => 'Kebaya cantik untuk acara spesial.'],
-    ['src' => '../assets/fotokostum5.jpeg', 'title' => 'Kostum Tradisional', 'desc' => 'Busana tradisional dengan aksesoris lengkap.'],
-    ['src' => '../assets/fotokostum6.jpeg', 'title' => 'Kostum Elegan', 'desc' => 'Tampilan elegan untuk acara formal.'],
-    ['src' => '../assets/fotokostum7.jpeg', 'title' => 'Kostum Premium', 'desc' => 'Kostum premium untuk hari istimewa.'],
-    ['src' => '../assets/fotokostum8.jpeg', 'title' => 'Kostum Custom', 'desc' => 'Pilihan kostum dengan penyesuaian ukuran.'],
+    ['src' => '../assets/gallery_kostum/kostum_4.jpeg', 'title' => 'Kostum Baju Adat', 'desc' => 'Kostum adat pengantin dengan detail elegan.'],
+    ['src' => '../assets/gallery_kostum/foto_resepsi.jpeg', 'title' => 'Kostum Wedding', 'desc' => 'Busana wedding dengan nuansa anggun.'],
+    ['src' => '../assets/fotograduation.jpeg', 'title' => 'Kostum Graduation', 'desc' => 'Pilihan kostum untuk momen wisuda.'],
+    ['src' => '../assets/gallery_kostum/kostum_5.jpeg', 'title' => 'Kostum Kebaya', 'desc' => 'Kebaya cantik untuk acara spesial.'],
+    ['src' => '../assets/gallery_kostum/kostum_6.jpeg', 'title' => 'Kostum Tradisional', 'desc' => 'Busana tradisional dengan aksesoris lengkap.'],
+    ['src' => '../assets/gallery_kostum/kostum_7.jpeg', 'title' => 'Kostum Elegan', 'desc' => 'Tampilan elegan untuk acara formal.'],
+    ['src' => '../assets/gallery_kostum/kostum_8.jpeg', 'title' => 'Kostum Premium', 'desc' => 'Kostum premium untuk hari istimewa.'],
+    ['src' => '../assets/gallery_kostum/foto_carnaval.jpeg', 'title' => 'Kostum Custom', 'desc' => 'Pilihan kostum dengan penyesuaian ukuran.'],
 ];
 ?>
 <!DOCTYPE html>
@@ -81,7 +81,7 @@ $photos = [
 
 <div class="container-fluid px-3 px-md-4 px-lg-5" style="padding-top: 65px;">
     <div class="hero-card mt-3">
-        <img src="../assets/fotokostum1.jpeg" alt="Gallery Kostum">
+        <img src="../assets/gallery_kostum/kostum_4.jpeg" alt="Gallery Kostum">
         <div class="hero-overlay">
             <div>
                 <h2 class="hero-title" style="color:white;">Koleksi Kostum Elegan untuk Momen Istimewa Anda.</h2>

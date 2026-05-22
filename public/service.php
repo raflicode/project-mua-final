@@ -288,6 +288,16 @@
     </div>
 
     <div class="row g-4 justify-content-center pb-5">
+<<<<<<< HEAD
+        <div class="col-10 col-sm-6 col-md-4 col-lg-3">
+            <div class="card wedding-card silver-card">
+                <div class="header-silver text-uppercase">Silver</div>
+                <div class="card-body py-5 text-center" style="min-height: 200px;"></div>
+                <div class="card-footer bg-white border-0 p-3">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-silver" type="button"><i class="bi bi-cart3"></i></button>
+                        <a href="booking.php?from=paket&nama=Paket+Silver&harga=7500000" class="btn btn-silver w-100">Booking</a>
+=======
         
         <div class="col-12 col-md-6 col-lg-4">
             <div class="card-premium card-silver-theme">
@@ -338,11 +348,22 @@
                         <button type="button" onclick="handleServiceBooking('Paket Silver', 5000000)" class="btn btn-action-silver flex-grow-1 text-center">
                             Booking Silver
                         </button>
+>>>>>>> 65cae70a766fd169153f85fd8400dee7f727dcab
                     </div>
                 </div>
             </div>
         </div>
 
+<<<<<<< HEAD
+        <div class="col-10 col-sm-6 col-md-4 col-lg-3">
+            <div class="card wedding-card gold-card">
+                <div class="header-gold text-uppercase">Gold</div>
+                <div class="card-body py-5 text-center" style="min-height: 200px;"></div>
+                <div class="card-footer bg-white border-0 p-3">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-gold text-white" type="button"><i class="bi bi-cart3"></i></button>
+                        <a href="booking.php?from=paket&nama=Paket+Gold&harga=10000000" class="btn btn-gold w-100 text-white">Booking</a>
+=======
         <div class="col-12 col-md-6 col-lg-4">
             <div class="card-premium card-gold-theme">
                 <div class="card-header-gold">
@@ -420,6 +441,7 @@
                         <button type="button" onclick="handleServiceBooking('Paket Gold', 7500000)" class="btn btn-action-gold flex-grow-1 text-center">
                             Booking Gold
                         </button>
+>>>>>>> 65cae70a766fd169153f85fd8400dee7f727dcab
                     </div>
                 </div>
             </div>

@@ -351,7 +351,7 @@ function statusBadge($status)
 
                 $foto = !empty($item['foto'])
                     ? $item['foto']
-                    : '../assets/fotokostum1.jpeg';
+                    : '../assets/gallery_kostum/kostum_4.jpeg';
 
                 $total = (float)$item['harga'] * (int)$item['kuantitas'];
 

@@ -7,7 +7,9 @@ $navbarCartCount = 0;
 $navbarCartItems = [];
 
 if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
-  require_once __DIR__ . '/../../config/koneksi.php';
+  if (!isset($pdo) || !$pdo instanceof PDO) {
+    require __DIR__ . '/../../config/koneksi.php';
+  }
 
   if (!function_exists('navbarTableHasColumn')) {
     function navbarTableHasColumn(PDO $pdo, string $table, string $column): bool
@@ -40,18 +42,18 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
       if ($type === 'kostum') {
         if ($hasName('graduation')) return '../assets/fotograduation.jpeg';
         if ($hasName('pahlawan')) return '../assets/fotopahlawan.jpeg';
-        if ($hasName('wedding')) return '../assets/fotokostum6.jpeg';
-        if ($hasName('baju adat jawa')) return '../assets/fotokostum4.jpeg';
+        if ($hasName('wedding')) return '../assets/gallery_kostum/foto_resepsi.jpeg';
+        if ($hasName('baju adat jawa')) return '../assets/gallery_kostum/kostum_4.jpeg';
         if ($hasName('baju adat sunda')) return '../assets/adatjawa.jpeg';
-        if ($hasName('baju adat bali')) return '../assets/fotokostum5.jpeg';
+        if ($hasName('baju adat bali')) return '../assets/gallery_kostum/kostum_5.jpeg';
         if ($hasName('baju adat madura')) return '../assets/adatmadura.jpeg';
-        if ($hasName('baju adat') || $hasName('kostum')) return '../assets/fotokostum3.jpeg';
+        if ($hasName('baju adat') || $hasName('kostum')) return '../assets/gallery_kostum/foto_carnaval.jpeg';
       }
 
       if ($type === 'makeup') return '../assets/foto_makeup.jpeg';
       if ($type === 'dekor') return '../assets/foto_dekor.jpeg';
 
-      return '../assets/fotokostum1.jpeg';
+      return '../assets/gallery_kostum/kostum_4.jpeg';
     }
   }
 
@@ -763,7 +765,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
 
   function updateCartCount() {
 
-    fetch('/project-mua-final/actions/get_cart_count.php')
+    fetch(new URL('../actions/get_cart_count.php', window.location.href))
 
       .then(response => response.json())
 

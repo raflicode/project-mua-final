@@ -200,7 +200,7 @@ session_start();
 
                     <!-- Booking -->
                     <a
-                        href="/project-mua/public/booking.php"
+                        href="booking.php?from=paket&nama=Paket+Silver&harga=7500000"
                         class="btn w-100 text-dark fw-semibold fs-5 py-3"
                         style="
                             background-color:#d9d9d9;

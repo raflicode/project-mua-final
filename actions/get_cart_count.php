@@ -30,22 +30,22 @@ function getCartImagePath(array $item): string
             return '../assets/fotopahlawan.jpeg';
         }
         if ($hasName('wedding')) {
-            return '../assets/fotokostum6.jpeg';
+            return '../assets/gallery_kostum/foto_resepsi.jpeg';
         }
         if ($hasName('baju adat jawa')) {
-            return '../assets/fotokostum4.jpeg';
+            return '../assets/gallery_kostum/kostum_4.jpeg';
         }
         if ($hasName('baju adat sunda')) {
             return '../assets/adatjawa.jpeg';
         }
         if ($hasName('baju adat bali')) {
-            return '../assets/fotokostum5.jpeg';
+            return '../assets/gallery_kostum/kostum_5.jpeg';
         }
         if ($hasName('baju adat madura')) {
             return '../assets/adatmadura.jpeg';
         }
         if ($hasName('baju adat') || $hasName('kostum')) {
-            return '../assets/fotokostum3.jpeg';
+            return '../assets/gallery_kostum/foto_carnaval.jpeg';
         }
     }
 
@@ -57,7 +57,7 @@ function getCartImagePath(array $item): string
         return '../assets/foto_dekor.jpeg';
     }
 
-    return '../assets/fotokostum1.jpeg';
+    return '../assets/gallery_kostum/kostum_4.jpeg';
 }
 
 function tableHasColumn(PDO $pdo, string $table, string $column): bool
