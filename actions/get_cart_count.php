@@ -56,14 +56,22 @@ function getCartImagePath(array $item): string
     return '../assets/fotokostum1.jpeg';
 }
 
+function tableHasColumn(PDO $pdo, string $table, string $column): bool
+{
+    $stmt = $pdo->prepare("SHOW COLUMNS FROM {$table} LIKE ?");
+    $stmt->execute([$column]);
+    return (bool) $stmt->fetchColumn();
+}
+
 try {
     $stmt = $pdo->prepare("SELECT SUM(kuantitas) as total FROM keranjang WHERE id_user = ?");
     $stmt->execute([$_SESSION['id_user']]);
     $result = $stmt->fetch();
     $cart_count = $result['total'] ?? 0;
 
+    $fotoSelect = tableHasColumn($pdo, 'keranjang', 'foto') ? 'foto' : "NULL AS foto";
     $itemStmt = $pdo->prepare("
-        SELECT id_keranjang, nama_layanan, tipe_layanan, foto, harga, kuantitas
+        SELECT id_keranjang, nama_layanan, tipe_layanan, {$fotoSelect}, harga, kuantitas
         FROM keranjang
         WHERE id_user = ?
         ORDER BY created_at DESC

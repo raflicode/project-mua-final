@@ -60,7 +60,7 @@ try {
     }
 
     foreach ($cart_items as &$item) {
-        if (empty($item['foto'])) {
+        if (empty($item['foto'] ?? '')) {
             $item['foto'] = getCartImagePath($item);
         }
     }

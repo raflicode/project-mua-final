@@ -2,6 +2,17 @@
 session_start();
 require_once '../config/koneksi.php';
 
+function userPasswordColumn(PDO $pdo): string {
+    static $column = null;
+    if ($column !== null) {
+        return $column;
+    }
+
+    $stmt = $pdo->query("SHOW COLUMNS FROM user LIKE 'password_hash'");
+    $column = $stmt->fetchColumn() ? 'password_hash' : 'pass';
+    return $column;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
@@ -28,7 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
     // Update password di database
-    $stmt = $pdo->prepare("UPDATE user SET password_hash = ? WHERE email = ?");
+    $passwordColumn = userPasswordColumn($pdo);
+    $stmt = $pdo->prepare("UPDATE user SET {$passwordColumn} = ? WHERE email = ?");
     $stmt->execute([$hashedPassword, $email]);
 
     // Hapus session
