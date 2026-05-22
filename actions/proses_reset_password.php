@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
     // Update password di database
-    $stmt = $pdo->prepare("UPDATE user SET pass = ? WHERE email = ?");
+    $stmt = $pdo->prepare("UPDATE user SET password_hash = ? WHERE email = ?");
     $stmt->execute([$hashedPassword, $email]);
 
     // Hapus session

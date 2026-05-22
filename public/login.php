@@ -13,13 +13,14 @@ if (!isset($_SESSION['id_user']) && !empty($_COOKIE['remember_me'])) {
             $stmt->execute([$rememberUserId]);
             $rememberUser = $stmt->fetch();
             if ($rememberUser) {
-                $expectedToken = buildRememberToken($rememberUser['id_user'], $rememberUser['pass']);
+                $passwordHash = $rememberUser['password_hash'] ?? $rememberUser['pass'] ?? '';
+                $expectedToken = buildRememberToken($rememberUser['id_user'], $passwordHash);
                 if (hash_equals($expectedToken, $rememberToken)) {
                     $_SESSION['id_user'] = $rememberUser['id_user'];
                     $_SESSION['username'] = $rememberUser['username'];
                     $_SESSION['role'] = $rememberUser['role'];
                     if ($_SESSION['role'] === 'admin') {
-                        header('Location: ../admin/dashboard.php?success=' . urlencode('Login berhasil'));
+                        header('Location: ../admin/public/dashboard.php?success=' . urlencode('Login berhasil'));
                     } else {
                         header('Location: ../index.php?success=' . urlencode('Login berhasil'));
                     }

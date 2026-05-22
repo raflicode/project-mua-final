@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password_hash = $_SESSION['reg_password_hash'];
 
     try {
-        $stmt = $pdo->prepare('INSERT INTO user (full_name, username, email, pass, role) VALUES (?, ?, ?, ?, ?)');
+        $stmt = $pdo->prepare('INSERT INTO user (full_name, username, email, password_hash, role) VALUES (?, ?, ?, ?, ?)');
         $stmt->execute([$full_name, $username, $email, $password_hash, 'client']);
 
         unset($_SESSION['reg_full_name']);
