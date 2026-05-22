@@ -816,25 +816,11 @@ include 'include/sidebar.php';
 <!-- MAIN -->
 <div class="main">
 
-    <!-- TOPBAR -->
-    <div class="topbar">
-        <div class="topbar-left">
-            <div>
-                <div class="page-title">Booking</div>
-                <div class="breadcrumb-nav">Admin / Booking</div>
-            </div>
-        </div>
-        <div class="topbar-right">
-            <div class="search-box">
-                <i class="bi bi-search"></i>
-                <input type="text" placeholder="Cari booking..." id="searchInput" oninput="filterTable()">
-            </div>
-            <div class="admin-badge">
-                <div class="admin-avatar">A</div>
-                <div class="admin-name">Admin</div>
-            </div>
-        </div>
-    </div>
+    <?php
+    $page_title = 'Booking';
+    $breadcrumb = 'Admin / Booking';
+    include 'include/header.php';
+    ?>
 
     <!-- CONTENT -->
     <div class="content">

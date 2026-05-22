@@ -39,27 +39,11 @@ $data_booking = [
     <!-- Content -->
     <div class="flex-grow-1 bg-light rounded-start-5 p-4 main-content">
 
-        <!-- Topbar -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-
-            <!-- Search -->
-            <div class="input-group w-25">
-                <span class="input-group-text bg-white rounded-start-pill">
-                    <i class="bi bi-search"></i>
-                </span>
-                <input type="text" class="form-control rounded-end-pill" placeholder="Search">
-            </div>
-
-            <!-- Profile -->
-            <div class="d-flex align-items-center bg-white px-3 py-2 rounded-pill shadow-sm">
-                <i class="bi bi-person-circle fs-5 me-2"></i>
-                <div>
-                    <div class="fw-bold small">Hotman Paris</div>
-                    <div class="text-muted" style="font-size:12px;">Admin 1</div>
-                </div>
-                <i class="bi bi-chevron-down ms-2"></i>
-            </div>
-        </div>
+        <?php
+        $page_title = 'Makeup Wedding';
+        $breadcrumb = 'Admin / Makeup Wedding';
+        include 'include/header.php';
+        ?>
 
         <!-- Title -->
         <h5 class="fw-bold text-primary mb-3">

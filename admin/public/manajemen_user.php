@@ -11,23 +11,11 @@ require_login(['admin']);
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="../assets/admin-brown.css" rel="stylesheet">
+    <link href="../assets/admin-layout.css" rel="stylesheet">
 
-    
     <style>
-        /* Memberikan space di kiri agar konten tidak tertutup sidebar fixed */
-        .main-content {
-            margin-left: 260px; /* Samakan dengan lebar sidebar */
-            min-height: 100vh;
-        }
-
-        .warnacustom {
-            background: linear-gradient(180deg, #4e73df, #224abe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: inline-block; /* Memastikan gradient ter-render dengan baik pada elemen block */
-        }  
-
-        /* --- STYLING MODAL CUSTOM POP-UP EDIT (SESUAI GAMBAR) --- */
         .modal-custom-edit .modal-content {
             border-radius: 20px;
             border: none;
@@ -39,7 +27,7 @@ require_login(['admin']);
             padding-bottom: 5px;
         }
         .modal-custom-edit .modal-title {
-            color: #0b5fa5;
+            color: var(--brown-dark);
             font-weight: 700;
             font-size: 1.35rem;
         }
@@ -58,8 +46,8 @@ require_login(['admin']);
         }
         .modal-custom-edit .form-control:focus,
         .modal-custom-edit .form-select:focus {
-            box-shadow: 0 0 0 0.25rem rgba(11, 95, 165, 0.15);
-            border-color: #0b5fa5;
+            box-shadow: 0 0 0 0.25rem rgba(196, 168, 130, 0.25);
+            border-color: var(--brown-light);
         }
         .modal-custom-edit .btn-batal {
             background-color: #cccccc;
@@ -70,7 +58,7 @@ require_login(['admin']);
             border: none;
         }
         .modal-custom-edit .btn-simpan {
-            background-color: #005691;
+            background-color: var(--brown-dark);
             color: #ffffff;
             border-radius: 8px;
             font-weight: 500;
@@ -78,59 +66,40 @@ require_login(['admin']);
             border: none;
         }
         .modal-custom-edit .btn-simpan:hover {
-            background-color: #00406c;
+            background-color: var(--brown-deep);
         }
     </style>
 
-    <link href="../assets/admin-brown.css" rel="stylesheet">
-
 </head>
 
-<body class="bg-primary">
-
-<div class="d-flex">
+<body>
 
     <?php 
     $page = 'user'; // Set variabel aktif agar menu sidebar menyala
     include 'include/sidebar.php'; 
     ?>
 
-    <div class="flex-grow-1 bg-light p-4 main-content">
+    <div class="main">
+        <?php
+        $page_title = 'Manajemen User';
+        $breadcrumb = 'Admin / Manajemen User';
+        include 'include/header.php';
+        ?>
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-
-            <div class="input-group w-50">
-                <input type="text" class="form-control rounded-start-pill" placeholder="Search">
-                <span class="input-group-text bg-white rounded-end-pill">
-                    <i class="bi bi-search"></i>
-                </span>
-            </div>
-
-            <div class="d-flex align-items-center bg-white px-3 py-2 rounded-pill shadow-sm">
-                <img src="https://ui-avatars.com/api/?name=Hotman+Paris&background=random" 
-                     class="rounded-circle me-2" width="30">
-
-                <div class="me-3 small">
-                    <div class="fw-bold">Hotman Paris</div>
-                    <div class="text-muted" style="font-size:12px;">Admin 1</div>
+        <div class="content">
+            <div class="content-header">
+                <div>
+                    <h2>Manajemen User</h2>
+                    <p>Kelola data user, role, dan status akun admin.</p>
                 </div>
 
-                <i class="bi bi-chevron-down"></i>
+                <button class="btn btn-outline-primary rounded-pill">
+                    <i class="bi bi-funnel me-2"></i> Filter
+                    <i class="bi bi-chevron-down ms-2"></i>
+                </button>
             </div>
-        </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold warnacustom">
-                <i class="bi bi-person-fill me-2"></i> Manajemen User
-            </h4>
-
-            <button class="btn btn-outline-primary rounded-pill">
-                <i class="bi bi-funnel me-2"></i> Filter 
-                <i class="bi bi-chevron-down ms-2"></i>
-            </button>
-        </div>
-
-        <div class="card shadow rounded-4 p-4">
+        <div class="admin-card">
             <div class="table-responsive"> 
                 <table class="table text-center align-middle">
                     <thead class="table-light">
@@ -205,7 +174,7 @@ require_login(['admin']);
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title d-flex align-items-center gap-2 fw-bold">
-                    <i class="bi bi-person-fill warnacustom"></i> Edit Informasi User: <span id="modalTargetName"></span>
+                    <i class="bi bi-person-fill"></i> Edit Informasi User: <span id="modalTargetName"></span>
                 </h5>
             </div>
             <div class="modal-body">

@@ -11,59 +11,38 @@ require_login(['admin']);
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <style>
-        /* Memberikan space di kiri agar konten tidak tertutup sidebar fixed */
-        .main-content {
-            margin-left: 260px; /* Samakan dengan lebar sidebar */
-            min-height: 100vh;
-        }
-    </style>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="../assets/admin-brown.css" rel="stylesheet">
+    <link href="../assets/admin-layout.css" rel="stylesheet">
 </head>
 
+<body>
 
-<div class="d-flex">
+    <?php
+    $page = 'pembayaran';
+    include 'include/sidebar.php';
+    ?>
 
-    <!-- Sidebar -->
-        <?php include 'include/sidebar.php'; ?>
+    <div class="main">
 
-    <!-- Main Content -->
-    <div class="flex-grow-1 bg-light rounded-start-5 p-4 main-content">
+            <?php
+            $page_title = 'Pembayaran';
+            $breadcrumb = 'Admin / Pembayaran';
+            include 'include/header.php';
+            ?>
 
-        <!-- Top Bar -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-
-            <!-- Search -->
-            <div class="input-group w-50">
-                <input type="text" class="form-control rounded-start-pill" placeholder="Search">
-                <span class="input-group-text bg-white rounded-end-pill">
-                    <i class="bi bi-search"></i>
-                </span>
-            </div>
-
-            <!-- Profile -->
-            <div class="d-flex align-items-center bg-white px-3 py-2 rounded-pill shadow-sm">
-                <img src="https://ui-avatars.com/api/?name=Hotman+Paris&background=random" 
-                     class="rounded-circle me-2" width="35">
-
-                <div class="me-3 small">
-                    <div class="fw-bold">Hotman Paris</div>
-                    <div class="text-muted" style="font-size:12px;">Admin 1</div>
+        <div class="content">
+            <div class="content-header">
+                <div>
+                    <h2>Pembayaran</h2>
+                    <p>Pantau status pembayaran dan nominal transaksi pelanggan.</p>
                 </div>
-
-                <i class="bi bi-chevron-down"></i>
             </div>
-        </div>
-
-        <!-- Title -->
-        <h4 class="fw-bold text-primary mb-4">
-            <i class="bi bi-cash-stack me-2"></i> Pembayaran
-        </h4>
 
         <!-- Table Card -->
-        <div class="card shadow rounded-4 overflow-hidden">
+        <div class="admin-card">
 
             <table class="table text-center mb-0 align-middle">
                 <thead class="table-light">

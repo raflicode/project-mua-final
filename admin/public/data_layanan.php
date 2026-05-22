@@ -595,23 +595,11 @@ include 'include/sidebar.php';
 <!-- MAIN -->
 <div class="main">
 
-    <!-- TOPBAR -->
-    <div class="topbar">
-        <div>
-            <div class="page-title">Data Layanan</div>
-            <div class="breadcrumb-nav">Admin / Data Layanan</div>
-        </div>
-        <div class="topbar-right">
-            <div class="search-box">
-                <i class="bi bi-search"></i>
-                <input type="text" placeholder="Cari layanan..." id="searchInput" oninput="renderCards()">
-            </div>
-            <div class="admin-badge">
-                <div class="admin-avatar">A</div>
-                <div class="admin-name">Admin</div>
-            </div>
-        </div>
-    </div>
+    <?php
+    $page_title = 'Data Layanan';
+    $breadcrumb = 'Admin / Data Layanan';
+    include 'include/header.php';
+    ?>
 
     <!-- CONTENT -->
     <div class="content">
