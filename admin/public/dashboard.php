@@ -1,6 +1,212 @@
 <?php
 require_once __DIR__ . '/../../config/auth.php';
 require_login(['admin']);
+require_once __DIR__ . '/../../config/koneksi.php';
+
+$monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+$monthlyIncome = [];
+$monthlyLabels = [];
+$firstMonth = new DateTime('first day of this month');
+$firstMonth->modify('-11 months');
+$currentMonthStart = (new DateTime('first day of this month'))->format('Y-m-01 00:00:00');
+$nextMonthStart = (new DateTime('first day of next month'))->format('Y-m-01 00:00:00');
+
+for ($i = 0; $i < 12; $i++) {
+    $month = (clone $firstMonth)->modify("+{$i} months");
+    $key = $month->format('Y-m');
+    $monthlyIncome[$key] = 0;
+    $monthlyLabels[] = $monthNames[((int) $month->format('n')) - 1] . ' ' . $month->format('y');
+}
+
+$incomeStmt = $pdo->prepare("
+    SELECT DATE_FORMAT(COALESCE(tgl_upload, created_at), '%Y-%m') AS bulan,
+           COALESCE(SUM(jumlah_bayar), 0) AS total
+    FROM pembayaran
+    WHERE status_verifikasi = 'diterima'
+      AND COALESCE(tgl_upload, created_at) >= :start_date
+    GROUP BY bulan
+    ORDER BY bulan
+");
+$incomeStmt->execute(['start_date' => $firstMonth->format('Y-m-01 00:00:00')]);
+foreach ($incomeStmt->fetchAll() as $row) {
+    if (array_key_exists($row['bulan'], $monthlyIncome)) {
+        $monthlyIncome[$row['bulan']] = (float) $row['total'];
+    }
+}
+
+$unfinishedBookingStmt = $pdo->query("
+    SELECT COUNT(*)
+    FROM booking
+    WHERE status_booking NOT IN ('selesai', 'dibatalkan')
+");
+$unfinishedBookingCount = (int) $unfinishedBookingStmt->fetchColumn();
+
+$monthlyRevenueStmt = $pdo->prepare("
+    SELECT COALESCE(SUM(jumlah_bayar), 0)
+    FROM pembayaran
+    WHERE status_verifikasi = 'diterima'
+      AND COALESCE(tgl_upload, created_at) >= :start_date
+      AND COALESCE(tgl_upload, created_at) < :end_date
+");
+$monthlyRevenueStmt->execute([
+    'start_date' => $currentMonthStart,
+    'end_date' => $nextMonthStart,
+]);
+$currentMonthRevenue = (float) $monthlyRevenueStmt->fetchColumn();
+
+$pendingPaymentStmt = $pdo->query("
+    SELECT COUNT(*)
+    FROM pembayaran
+    WHERE status_verifikasi = 'pending'
+");
+$pendingPaymentCount = (int) $pendingPaymentStmt->fetchColumn();
+
+$monthlyBookingStmt = $pdo->prepare("
+    SELECT COUNT(*)
+    FROM booking
+    WHERE created_at >= :start_date
+      AND created_at < :end_date
+      AND status_booking <> 'dibatalkan'
+");
+$monthlyBookingStmt->execute([
+    'start_date' => $currentMonthStart,
+    'end_date' => $nextMonthStart,
+]);
+$currentMonthBookingCount = (int) $monthlyBookingStmt->fetchColumn();
+
+$serviceStmt = $pdo->query("
+    SELECT kategori_layanan, COALESCE(SUM(qty), 0) AS total_pesanan
+    FROM (
+        SELECT
+            CASE
+                WHEN LOWER(l.nama_layanan) LIKE '%makeup%' THEN 'Makeup'
+                WHEN LOWER(l.nama_layanan) LIKE '%dekor%' OR LOWER(l.nama_layanan) LIKE '%terop%' THEN 'Dekor'
+                WHEN LOWER(l.nama_layanan) LIKE '%kostum%' THEN 'Kostum'
+                ELSE 'Paket'
+            END AS kategori_layanan,
+            bd.qty
+        FROM booking_detail bd
+        INNER JOIN layanan l ON l.id_layanan = bd.id_layanan
+        INNER JOIN booking b ON b.id_booking = bd.id_booking
+        WHERE b.status_booking <> 'dibatalkan'
+    ) kategori
+    GROUP BY kategori_layanan
+    ORDER BY total_pesanan DESC, kategori_layanan ASC
+");
+$serviceRows = $serviceStmt->fetchAll();
+$serviceLabels = array_column($serviceRows, 'kategori_layanan');
+$serviceTotals = array_map('intval', array_column($serviceRows, 'total_pesanan'));
+
+$paymentStmt = $pdo->query("
+    SELECT p.id_pembayaran,
+           p.jumlah_bayar,
+           p.metode_bayar,
+           COALESCE(p.tgl_upload, p.created_at) AS tanggal_bayar,
+           p.status_verifikasi,
+           p.bukti_transfer,
+           b.status_booking,
+           u.full_name,
+           COALESCE(ls.nama_layanan, '-') AS nama_layanan
+    FROM pembayaran p
+    INNER JOIN booking b ON b.id_booking = p.id_booking
+    INNER JOIN user u ON u.id_user = b.id_user
+    LEFT JOIN (
+        SELECT bd.id_booking, GROUP_CONCAT(l.nama_layanan ORDER BY l.nama_layanan SEPARATOR ', ') AS nama_layanan
+        FROM booking_detail bd
+        INNER JOIN layanan l ON l.id_layanan = bd.id_layanan
+        GROUP BY bd.id_booking
+    ) ls ON ls.id_booking = b.id_booking
+    ORDER BY COALESCE(p.tgl_upload, p.created_at) DESC
+    LIMIT 8
+");
+$paymentRows = $paymentStmt->fetchAll();
+
+function rupiah($value): string {
+    return 'Rp ' . number_format((float) $value, 0, ',', '.');
+}
+
+function payment_badge(string $status): array {
+    return match ($status) {
+        'diterima' => ['Lunas', 'bg-success'],
+        'ditolak' => ['Ditolak', 'bg-danger'],
+        default => ['Menunggu', 'bg-warning text-dark'],
+    };
+}
+
+function verification_message(?string $status): ?array {
+    return match ($status) {
+        'accepted' => ['success', 'Pembayaran berhasil diverifikasi sebagai diterima.'],
+        'rejected' => ['warning', 'Pembayaran berhasil ditandai ditolak.'],
+        'invalid' => ['danger', 'Data verifikasi tidak valid.'],
+        'failed' => ['danger', 'Verifikasi gagal diproses. Coba lagi.'],
+        default => null,
+    };
+}
+
+function format_tanggal_id($date): string {
+    if (!$date) {
+        return '-';
+    }
+
+    $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    $timestamp = strtotime($date);
+    if ($timestamp === false) {
+        return '-';
+    }
+
+    return date('d', $timestamp) . ' ' . $monthNames[((int) date('n', $timestamp)) - 1] . ' ' . date('Y', $timestamp);
+}
+
+function payment_proof_url(?string $fileName): string {
+    $fileName = trim((string) $fileName);
+    if ($fileName === '') {
+        return '';
+    }
+
+    if (preg_match('#^https?://#i', $fileName)) {
+        return $fileName;
+    }
+
+    $normalized = str_replace('\\', '/', $fileName);
+    if (str_contains($normalized, '/')) {
+        $normalized = basename($normalized);
+    }
+
+    return '../../assets/bukti_pembayaran/' . rawurlencode($normalized);
+}
+
+$summaryCards = [
+    [
+        'label' => 'Booking Belum Selesai',
+        'value' => number_format($unfinishedBookingCount, 0, ',', '.'),
+        'note' => 'Status pending, dibayar, atau diproses',
+        'icon' => 'bi-calendar-check',
+        'tone' => 'brown',
+    ],
+    [
+        'label' => 'Pendapatan Bulan Ini',
+        'value' => rupiah($currentMonthRevenue),
+        'note' => 'Dari pembayaran yang diterima',
+        'icon' => 'bi-cash-stack',
+        'tone' => 'green',
+    ],
+    [
+        'label' => 'Pembayaran Menunggu',
+        'value' => number_format($pendingPaymentCount, 0, ',', '.'),
+        'note' => 'Perlu verifikasi admin',
+        'icon' => 'bi-hourglass-split',
+        'tone' => 'gold',
+    ],
+    [
+        'label' => 'Booking Bulan Ini',
+        'value' => number_format($currentMonthBookingCount, 0, ',', '.'),
+        'note' => 'Booking baru dari client',
+        'icon' => 'bi-people',
+        'tone' => 'mauve',
+    ],
+];
+
+$verificationMessage = verification_message($_GET['verify'] ?? null);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -32,6 +238,129 @@ require_login(['admin']);
 canvas {
     max-height: 350px;
 }
+
+.chart-card h5,
+.report-card h5 {
+    color: var(--brown-dark);
+    font-weight: 700;
+}
+
+.chart-note {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+}
+
+.report-card {
+    margin-top: 24px;
+}
+
+.empty-row {
+    color: var(--text-muted);
+    padding: 28px !important;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.summary-card {
+    background: var(--white);
+    border: 1.5px solid var(--cream-deep);
+    border-radius: 18px;
+    padding: 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.summary-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 42px;
+    font-size: 1.1rem;
+}
+
+.summary-card.brown .summary-icon {
+    background: #efe4d8;
+    color: var(--brown-dark);
+}
+
+.summary-card.green .summary-icon {
+    background: #edf4e6;
+    color: #5f6f37;
+}
+
+.summary-card.gold .summary-icon {
+    background: #fff3d8;
+    color: #9a6b18;
+}
+
+.summary-card.mauve .summary-icon {
+    background: #efe5ea;
+    color: #8a5d6d;
+}
+
+.summary-label {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    margin-bottom: 4px;
+}
+
+.summary-value {
+    color: var(--brown-dark);
+    font-size: 1.28rem;
+    font-weight: 800;
+    line-height: 1.15;
+    word-break: break-word;
+}
+
+.summary-note {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    margin-top: 6px;
+}
+
+.payment-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.payment-actions form {
+    margin: 0;
+}
+
+.btn-verify {
+    border-radius: 10px;
+    font-size: 0.76rem;
+    padding: 5px 10px;
+    white-space: nowrap;
+}
+
+.proof-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+@media (max-width: 1199px) {
+    .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
 </head>
 
@@ -57,117 +386,201 @@ include 'include/sidebar.php';
         <p class="mb-0">Selamat datang kembali di dashboard Yayuk Makeover.</p>
     </div>
 
+    <?php if ($verificationMessage): ?>
+        <div class="alert alert-<?= htmlspecialchars($verificationMessage[0]) ?> mb-4">
+            <?= htmlspecialchars($verificationMessage[1]) ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="summary-grid">
+        <?php foreach ($summaryCards as $card): ?>
+            <div class="summary-card <?= htmlspecialchars($card['tone']) ?>">
+                <div class="summary-icon">
+                    <i class="bi <?= htmlspecialchars($card['icon']) ?>"></i>
+                </div>
+                <div>
+                    <div class="summary-label"><?= htmlspecialchars($card['label']) ?></div>
+                    <div class="summary-value"><?= htmlspecialchars($card['value']) ?></div>
+                    <div class="summary-note"><?= htmlspecialchars($card['note']) ?></div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
     <!-- Chart -->
     <div class="row g-4">
 
-        <!-- Multi Axis Chart -->
         <div class="col-lg-8">
-            <div class="card card-custom p-4">
+            <div class="card card-custom chart-card p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0" style="color: #5c4033;">Grafik Booking &amp; Pendapatan</h5>
-                    <button class="btn btn-brown btn-sm" onclick="randomizeData()">
-                        Randomize
-                    </button>
+                    <div>
+                        <h5 class="mb-1">Pemasukan Bulanan</h5>
+                        <div class="chart-note">Total pembayaran diterima dalam 12 bulan terakhir.</div>
+                    </div>
                 </div>
-                <canvas id="multiAxisChart"></canvas>
+                <canvas id="incomeBarChart"></canvas>
             </div>
         </div>
 
-        <!-- Doughnut -->
         <div class="col-lg-4">
-            <div class="card card-custom p-4">
-                <h5 class="mb-3" style="color: #5c4033;">Jenis Booking</h5>
-                <canvas id="pieChart"></canvas>
+            <div class="card card-custom chart-card p-4">
+                <h5 class="mb-1">Layanan Banyak Dipesan</h5>
+                <div class="chart-note mb-3">Berdasarkan kategori item booking.</div>
+                <canvas id="servicePieChart"></canvas>
             </div>
         </div>
 
+    </div>
+
+    <div class="card card-custom report-card" id="laporan-pembayaran">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="mb-1">Laporan Pembayaran</h5>
+                <div class="chart-note">Pembayaran terbaru langsung tampil di dashboard.</div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nama Pelanggan</th>
+                        <th>Layanan</th>
+                        <th>Tanggal Bayar</th>
+                        <th>Metode</th>
+                        <th>Bukti Transfer</th>
+                        <th>Status</th>
+                        <th class="text-end">Nominal</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if ($paymentRows === []): ?>
+                        <tr>
+                            <td colspan="8" class="text-center empty-row">Belum ada laporan pembayaran.</td>
+                        </tr>
+                    <?php endif; ?>
+
+                    <?php foreach ($paymentRows as $payment): ?>
+                        <?php [$statusLabel, $statusClass] = payment_badge($payment['status_verifikasi']); ?>
+                        <?php $proofUrl = payment_proof_url($payment['bukti_transfer']); ?>
+                        <tr>
+                            <td><?= htmlspecialchars($payment['full_name']) ?></td>
+                            <td><?= htmlspecialchars($payment['nama_layanan']) ?></td>
+                            <td><?= htmlspecialchars(format_tanggal_id($payment['tanggal_bayar'])) ?></td>
+                            <td><?= htmlspecialchars(ucfirst($payment['metode_bayar'])) ?></td>
+                            <td>
+                                <?php if ($proofUrl !== ''): ?>
+                                    <a href="<?= htmlspecialchars($proofUrl) ?>" target="_blank" class="btn btn-outline-primary btn-sm btn-verify proof-link">
+                                        <i class="bi bi-receipt"></i>
+                                        Cek Bukti
+                                    </a>
+                                <?php else: ?>
+                                    <span class="text-muted">Belum ada</span>
+                                <?php endif; ?>
+                            </td>
+                            <td><span class="badge <?= $statusClass ?> rounded-pill px-3"><?= $statusLabel ?></span></td>
+                            <td class="text-end fw-bold"><?= rupiah($payment['jumlah_bayar']) ?></td>
+                            <td>
+                                <div class="payment-actions">
+                                    <?php if ($payment['status_verifikasi'] === 'pending'): ?>
+                                        <form method="post" action="../../actions/verifikasi_pembayaran.php">
+                                            <input type="hidden" name="id_pembayaran" value="<?= (int) $payment['id_pembayaran'] ?>">
+                                            <input type="hidden" name="status_verifikasi" value="diterima">
+                                            <button type="submit" class="btn btn-success btn-sm btn-verify" onclick="return confirm('Terima pembayaran ini?')">Terima</button>
+                                        </form>
+                                        <form method="post" action="../../actions/verifikasi_pembayaran.php">
+                                            <input type="hidden" name="id_pembayaran" value="<?= (int) $payment['id_pembayaran'] ?>">
+                                            <input type="hidden" name="status_verifikasi" value="ditolak">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm btn-verify" onclick="return confirm('Tolak pembayaran ini?')">Tolak</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     </div>
 </div>
 
 <script>
-/* ========= MULTI AXIS CHART ========= */
+const incomeLabels = <?= json_encode($monthlyLabels) ?>;
+const incomeData = <?= json_encode(array_values($monthlyIncome)) ?>;
+const serviceLabels = <?= json_encode($serviceLabels !== [] ? $serviceLabels : ['Belum ada pesanan']) ?>;
+const serviceData = <?= json_encode($serviceTotals !== [] ? $serviceTotals : [1]) ?>;
+const serviceHasData = <?= json_encode($serviceTotals !== []) ?>;
 
-const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul'];
-
-const chartData = {
-    labels: labels,
-    datasets: [
-        {
-            label: 'Booking',
-            data: [10, 25, 15, 35, 28, 40, 32],
-            borderColor: '#a0522d', /* Sienna / Cokelat Terrakota */
-            backgroundColor: 'rgba(160, 82, 45, 0.2)',
-            tension: 0.4,
-            yAxisID: 'y'
-        },
-        {
-            label: 'Pendapatan (Juta)',
-            data: [4, 6, 5, 8, 7, 10, 9],
-            borderColor: '#cd853f', /* Peru / Cokelat Muda Keemasan */
-            backgroundColor: 'rgba(205, 133, 63, 0.2)',
-            tension: 0.4,
-            yAxisID: 'y1'
-        }
-    ]
-};
-
-const myChart = new Chart(document.getElementById('multiAxisChart'), {
-    type: 'line',
-    data: chartData,
+new Chart(document.getElementById('incomeBarChart'), {
+    type: 'bar',
+    data: {
+        labels: incomeLabels,
+        datasets: [{
+            label: 'Pemasukan',
+            data: incomeData,
+            backgroundColor: '#8b6b4a',
+            borderColor: '#5c3d1e',
+            borderWidth: 1,
+            borderRadius: 8,
+            maxBarThickness: 42
+        }]
+    },
     options: {
         responsive: true,
-        interaction: {
-            mode: 'index',
-            intersect: false
-        },
-        stacked: false,
         plugins: {
-            title: {
-                display: false
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return 'Pemasukan: Rp ' + new Intl.NumberFormat('id-ID').format(context.raw || 0);
+                    }
+                }
             }
         },
         scales: {
             y: {
-                type: 'linear',
-                display: true,
-                position: 'left'
-            },
-            y1: {
-                type: 'linear',
-                display: true,
-                position: 'right',
-                grid: {
-                    drawOnChartArea: false
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return 'Rp ' + new Intl.NumberFormat('id-ID', {
+                            notation: 'compact',
+                            compactDisplay: 'short'
+                        }).format(value);
+                    }
                 }
             }
         }
     }
 });
 
-function randomizeData() {
-    myChart.data.datasets.forEach(function(dataset) {
-        dataset.data = dataset.data.map(function() {
-            return Math.floor(Math.random() * 100);
-        });
-    });
-    myChart.update();
-}
-
-/* ========= PIE CHART ========= */
-
-new Chart(document.getElementById('pieChart'), {
-    type: 'doughnut',
+new Chart(document.getElementById('servicePieChart'), {
+    type: 'pie',
     data: {
-        labels: ['Makeup Wedding', 'Dekor', 'Kostum'],
+        labels: serviceLabels,
         datasets: [{
-            data: [40, 35, 25],
-            backgroundColor: ['#5c4033', '#8b5a2b', '#d4af37'] /* Deep Brown, Warm Brown, Gold */
+            data: serviceData,
+            backgroundColor: serviceHasData
+                ? ['#d4956a', '#8b6b4a', '#5c3d1e', '#6f7d45']
+                : ['#e0d5c5']
         }]
     },
     options: {
-        responsive: true
+        responsive: true,
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        if (!serviceHasData) return 'Belum ada data';
+                        return context.label + ': ' + context.raw + ' pesanan';
+                    }
+                }
+            }
+        }
     }
 });
 </script>

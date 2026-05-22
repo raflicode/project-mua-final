@@ -604,7 +604,7 @@ const kostumData = [
         },
         {
             nama:'Akad Kebaya',
-            foto:'../assets/gallery_kostum/kostum_2.jpeg',
+            foto:'../assets/gallery_kostum/kostum_4.jpeg',
             harga:'Rp 4.000.000',
             include:[
                 'Kebaya akad',
@@ -638,7 +638,7 @@ const kostumData = [
     variasi:[
         {
             nama:'Kebaya Wisuda',
-            foto:'../assets/gallery_kostum/kostum_2.jpeg',
+            foto:'../assets/gallery_kostum/kostum_5.jpeg',
             harga:'Rp 2.500.000',
             include:[
                 'Kebaya wisuda',
@@ -655,7 +655,7 @@ const kostumData = [
     variasi:[
         {
             nama:'Adat Jawa',
-            foto:'../assets/gallery_kostum/kostum_2.jpeg',
+            foto:'../assets/gallery_kostum/kostum_6.jpeg',
             harga:'Rp 5.100.000',
             include:[
                 'Kebaya jawa',
@@ -666,7 +666,7 @@ const kostumData = [
         },
         {
             nama:'Adat Bali',
-            foto:'../assets/gallery_kostum/kostum_2.jpeg',
+            foto:'../assets/gallery_kostum/kostum_7.jpeg',
             harga:'Rp 5.300.000',
             include:[
                 'Kebaya bali',
@@ -683,7 +683,7 @@ const kostumData = [
     variasi:[
         {
             nama:'Jas Formal',
-            foto:'../assets/gallery_kostum/kostum_2.jpeg',
+            foto:'../assets/gallery_kostum/kostum_8.jpeg',
             harga:'Rp 2.000.000',
             include:[
                 'Jas formal',

@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/../config/koneksi.php';
+require_once __DIR__ . '/../actions/proses_keranjang.php';
 
 // Redirect jika belum login
 if (!isset($_SESSION['id_user'])) {
@@ -8,66 +8,9 @@ if (!isset($_SESSION['id_user'])) {
     exit();
 }
 
-$id_user = $_SESSION['id_user'];
 $backHref = '../index.php';
-
-// Fetch keranjang data dari database
-try {
-    $stmt = $pdo->prepare("SELECT * FROM keranjang WHERE id_user = ? ORDER BY created_at DESC");
-    $stmt->execute([$id_user]);
-    $cart_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    function getCartImagePath(array $item): string {
-        $name = strtolower($item['nama_layanan'] ?? '');
-        $type = strtolower($item['tipe_layanan'] ?? '');
-
-        if ($type === 'kostum') {
-            if (str_contains($name, 'graduation')) {
-                return '../assets/fotograduation.jpeg';
-            }
-            if (str_contains($name, 'pahlawan')) {
-                return '../assets/fotopahlawan.jpeg';
-            }
-            if (str_contains($name, 'wedding')) {
-                return '../assets/fotokostum6.jpeg.png';
-            }
-            if (str_contains($name, 'baju adat jawa')) {
-                return '../assets/fotokostum4.jpeg';
-            }
-            if (str_contains($name, 'baju adat sunda')) {
-                return '../assets/adatjawa.jpeg';
-            }
-            if (str_contains($name, 'baju adat bali')) {
-                return '../assets/fotokostum5.jpeg';
-            }
-            if (str_contains($name, 'baju adat madura')) {
-                return '../assets/adatmadura.jpeg';
-            }
-            if (str_contains($name, 'baju adat') || str_contains($name, 'kostum')) {
-                return '../assets/fotokostum3.jpeg.jpg';
-            }
-        }
-
-        if ($type === 'makeup') {
-            return '../assets/foto_makeup.jpeg';
-        }
-
-        if ($type === 'dekor') {
-            return '../assets/foto_dekor.jpeg';
-        }
-
-        return '../assets/fotokostum1.jpeg';
-    }
-
-    foreach ($cart_items as &$item) {
-        if (empty($item['foto'] ?? '')) {
-            $item['foto'] = getCartImagePath($item);
-        }
-    }
-    unset($item);
-} catch (Exception $e) {
-    $cart_items = [];
-}
+$cart_items = loadCartItems();
+$actionBase = '../actions/';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -362,11 +305,16 @@ try {
 </div>
 
 <script>
-let cartData = <?= json_encode($cart_items); ?>;
+const actionBase = <?= json_encode($actionBase) ?>;
+let cartData = <?= json_encode($cart_items, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?: '[]'; ?>;
 let selectedItems = new Set(cartData.map((_, index) => index));
 
 function formatRupiah(value) {
     return "Rp " + Number(value).toLocaleString('id-ID');
+}
+
+function actionUrl(fileName) {
+    return actionBase + fileName;
 }
 
 function updateDisplay() {
@@ -396,15 +344,15 @@ function updateDisplay() {
                     <input type="checkbox" class="item-checkbox cart-checkbox" ${checked} onchange="toggleItem(${index}, this.checked)">
                 </div>
                 <div class="col-produk">
-                    <img src="${escapeHtml(item.foto)}" alt="${escapeHtml(item.nama_layanan)}" />
+                    <img src="${escapeHtml(item.foto || '../assets/foto_makeup.jpeg')}" alt="${escapeHtml(item.nama_layanan || 'Layanan')}" />
                     <div class="cart-item-details">
-                        <div class="item-title">${escapeHtml(item.nama_layanan)}</div>
+                        <div class="item-title">${escapeHtml(item.nama_layanan || 'Layanan')}</div>
                         <div class="item-subtext">ID: ${item.id_keranjang}</div>
                     </div>
                 </div>
 
                 <div class="col-include">
-                    <span class="badge-type">${escapeHtml(item.tipe_layanan)}</span>
+                    <span class="badge-type">${escapeHtml(item.tipe_layanan || '-')}</span>
                 </div>
 
                 <div class="col-harga">${formatRupiah(item.harga)}</div>
@@ -434,7 +382,7 @@ function updateDisplay() {
 
 function escapeHtml(text) {
     const div = document.createElement('div');
-    div.textContent = text;
+    div.textContent = text == null ? '' : String(text);
     return div.innerHTML;
 }
 
@@ -482,7 +430,7 @@ function changeQty(index, amount) {
         formData.append('id_keranjang', item.id_keranjang);
         formData.append('kuantitas', nextQty);
 
-        fetch('/project-mua-final/actions/update_cart.php', {
+        fetch(actionUrl('update_cart.php'), {
             method: 'POST',
             body: formData
         })
@@ -508,7 +456,7 @@ function removeItem(index) {
         const formData = new FormData();
         formData.append('id_keranjang', item.id_keranjang);
 
-        fetch('/project-mua-final/actions/remove_from_cart.php', {
+        fetch(actionUrl('remove_from_cart.php'), {
             method: 'POST',
             body: formData
         })
@@ -520,8 +468,8 @@ function removeItem(index) {
                 updateDisplay();
                 
                 // Update navbar cart count
-                if (typeof updateCartCount === 'function') {
-                    updateCartCount();
+                if (typeof window.updateCartNavbar === 'function') {
+                    window.updateCartNavbar();
                 }
             } else {
                 alert('Gagal hapus item: ' + data.message);
@@ -551,7 +499,7 @@ function removeSelected() {
             const formData = new FormData();
             formData.append('id_keranjang', item.id_keranjang);
 
-            fetch('/project-mua-final/actions/remove_from_cart.php', {
+            fetch(actionUrl('remove_from_cart.php'), {
                 method: 'POST',
                 body: formData
             })
@@ -564,8 +512,8 @@ function removeSelected() {
                         selectedItems = new Set();
                         updateDisplay();
                         
-                        if (typeof updateCartCount === 'function') {
-                            updateCartCount();
+                        if (typeof window.updateCartNavbar === 'function') {
+                            window.updateCartNavbar();
                         }
                     }
                 }
@@ -596,7 +544,7 @@ function checkoutSelected() {
         formData.append('id_keranjang[]', item.id_keranjang);
     });
 
-    fetch('/project-mua-final/actions/checkout_cart.php', {
+    fetch(actionUrl('checkout_cart.php'), {
         method: 'POST',
         body: formData
     })

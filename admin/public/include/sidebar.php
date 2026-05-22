@@ -139,13 +139,6 @@ $page = $page ?? pathinfo($_SERVER['SCRIPT_NAME'] ?? '', PATHINFO_FILENAME);
         Data Layanan
     </a>
 
-    <div class="sidebar-section">Laporan</div>
-
-    <a href="pembayaran.php" class="<?= ($page === 'pembayaran') ? 'active' : '' ?>">
-        <i class="bi bi-cash-coin"></i>
-        Pembayaran
-    </a>
-
     <a href="logout.php">
         <i class="bi bi-box-arrow-left"></i>
         Logout

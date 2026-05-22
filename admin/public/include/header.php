@@ -18,10 +18,6 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
         </div>
     </div>
     <div class="topbar-right">
-        <div class="search-box">
-            <i class="bi bi-search"></i>
-            <input type="text" placeholder="Cari..." id="searchInput" oninput="if(typeof filterTable === 'function') filterTable();">
-        </div>
         <div class="admin-badge">
             <div class="admin-avatar"><?php echo strtoupper(substr($admin_name, 0, 1)); ?></div>
             <div class="admin-name"><?php echo htmlspecialchars($admin_name); ?></div>

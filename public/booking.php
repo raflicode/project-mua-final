@@ -12,8 +12,14 @@ function formatRupiah($value)
     return 'Rp ' . number_format($value, 0, ',', '.');
 }
 
-$backHref = $_SERVER['HTTP_REFERER'] ?? 'service.php';
 $fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_STRING);
+$sourcePage = filter_input(INPUT_GET, 'source_page', FILTER_SANITIZE_STRING);
+$backMap = [
+    'makeup' => 'makeup.php',
+    'dekor' => 'dekor.php',
+    'kostum' => 'kostum.php'
+];
+$backHref = $backMap[$sourcePage] ?? $backMap[$fromPage] ?? 'service.php';
 
 function resolveImagePath($path, $default = '../assets/foto_makeup.jpeg')
 {
@@ -23,6 +29,10 @@ function resolveImagePath($path, $default = '../assets/foto_makeup.jpeg')
 
     $path = trim($path);
     if (preg_match('#^(https?://|/)#', $path)) {
+        return $path;
+    }
+
+    if (strpos($path, '../assets/') === 0) {
         return $path;
     }
 
@@ -39,22 +49,13 @@ function resolveImagePath($path, $default = '../assets/foto_makeup.jpeg')
 
 $checkout = $_SESSION['checkout_booking'] ?? null;
 $draft = $_SESSION['draft_booking'] ?? null;
-$backHref = 'price_list.php';
 $checkoutMode = false;
 $checkoutItems = [];
 $hargaProduk = 0;
 $foto = '../assets/foto_makeup.jpeg';
-$namaProduk = trim(filter_input(INPUT_GET, 'layanan', FILTER_SANITIZE_STRING) ?? '');
-if ($namaProduk === '') {
-    $namaProduk = trim(filter_input(INPUT_GET, 'nama', FILTER_SANITIZE_STRING) ?? '');
-}
+$namaProduk = trim(filter_input(INPUT_GET, 'layanan', FILTER_SANITIZE_STRING));
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $hargaProduk = filter_input(INPUT_GET, 'harga', FILTER_VALIDATE_INT);
-$fotoParam = trim(filter_input(INPUT_GET, 'foto', FILTER_SANITIZE_URL) ?? '');
-if ($fotoParam !== '') {
-    $foto = resolveImagePath($fotoParam);
-}
-$hasDirectSelection = $id || $namaProduk !== '' || $hargaProduk > 0 || $fotoParam !== '';
 $service = null;
 $layananTableExists = false;
 
@@ -110,8 +111,12 @@ if (!$hasDirectSelection && $checkout && !empty($checkout['items']) && is_array(
         $foto = $draft['foto'];
     }
 
+    if (!empty($fotoParam)) {
+        $foto = resolveImagePath($fotoParam);
+    }
+
     if (empty($namaProduk) || $hargaProduk <= 0) {
-        header('Location: price_list.php');
+        header('Location: service.php');
         exit;
     }
 
