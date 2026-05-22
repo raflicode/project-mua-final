@@ -1,5 +1,17 @@
 <?php
 session_start();
+
+$makeupPackages = [
+    ['name' => 'Makeup Graduation', 'price' => 800000, 'image' => '../assets/fotomakeup_1.jpeg', 'includes' => ['Makeup wisuda', 'Softlens', 'Hairdo natural']],
+    ['name' => 'Makeup Wedding', 'price' => 1500000, 'image' => '../assets/fotomakeup_2.jpeg', 'includes' => ['Makeup bridal', 'Softlens', 'Hairdo wedding', 'Retouch']],
+    ['name' => 'Makeup Carnaval', 'price' => 1000000, 'image' => '../assets/fotomakeup_3.jpeg', 'includes' => ['Makeup karakter', 'Glitter detail', 'Hairdo kreatif']],
+    ['name' => 'Makeup Natural', 'price' => 600000, 'image' => '../assets/fotomakeup_4.jpeg', 'includes' => ['Makeup soft natural', 'Softlens', 'Simple hairdo']],
+    ['name' => 'Makeup Engagement', 'price' => 900000, 'image' => '../assets/fotomakeup_5.jpeg', 'includes' => ['Makeup lamaran', 'Softlens', 'Hairdo elegan']],
+    ['name' => 'Makeup Party', 'price' => 700000, 'image' => '../assets/fotomakeup_6.png', 'includes' => ['Makeup pesta', 'Bulu mata', 'Hair styling']],
+    ['name' => 'Makeup Bridesmaid', 'price' => 650000, 'image' => '../assets/fotomakeup_7.png', 'includes' => ['Makeup bridesmaid', 'Softlens', 'Hairdo simple']],
+    ['name' => 'Makeup Photoshoot', 'price' => 750000, 'image' => '../assets/fotomakeup_8.png', 'includes' => ['Makeup camera ready', 'Touch up', 'Hair styling']],
+    ['name' => 'Makeup Prewedding', 'price' => 1200000, 'image' => '../assets/fotomakeup_9.png', 'includes' => ['Makeup prewedding', 'Softlens', 'Hairdo', 'Retouch']],
+];
 ?>
 
 <?php
@@ -368,6 +380,33 @@ body{
 
     <!-- Card Produk -->
     <div class="row g-4">
+        <?php foreach ($makeupPackages as $package): ?>
+            <div class="col-md-6 col-lg-4">
+                <div class="card card-custom h-100 p-3">
+                    <div class="card-body">
+                        <h5 class="mb-3"><?= htmlspecialchars($package['name'], ENT_QUOTES, 'UTF-8'); ?></h5>
+                        <img src="<?= htmlspecialchars($package['image'], ENT_QUOTES, 'UTF-8'); ?>" class="img-paket" alt="<?= htmlspecialchars($package['name'], ENT_QUOTES, 'UTF-8'); ?>">
+                        <p class="fw-semibold">Include :</p>
+                        <ul>
+                            <?php foreach ($package['includes'] as $include): ?>
+                                <li><?= htmlspecialchars($include, ENT_QUOTES, 'UTF-8'); ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                    <div class="d-flex gap-2 mt-auto">
+                        <button onclick="addToCart('<?= htmlspecialchars($package['name'], ENT_QUOTES, 'UTF-8'); ?>', 'makeup', <?= intval($package['price']); ?>, '<?= htmlspecialchars($package['image'], ENT_QUOTES, 'UTF-8'); ?>')" class="btn-cart-icon">
+                            <i class="bi bi-cart3"></i>
+                        </button>
+                        <a href="booking.php?from=makeup&nama=<?= urlencode($package['name']); ?>&harga=<?= intval($package['price']); ?>" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                            Booking
+                        </a>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+    <div class="d-none">
 
         <!-- Card 1 -->
         <div class="row g-4">
@@ -471,6 +510,7 @@ body{
             </div>
         </div>
 
+    </div>
     </div>
 
 </div>

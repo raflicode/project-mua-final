@@ -4,7 +4,15 @@
  * File ini menangani semua logika backend untuk halaman index.php
  */
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/../config/auth.php';
+
+if (isset($_SESSION['id_user']) && normalize_role($_SESSION['role'] ?? '') === 'admin') {
+    redirect_to_role_home('admin');
+}
 
 // Fungsi untuk menampilkan pesan sukses menggunakan SweetAlert
 function getSuccessAlert() {

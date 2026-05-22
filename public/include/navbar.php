@@ -540,13 +540,15 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
 
             <li>
               <div class="dropdown-header text-muted">
-                Halo,
+                Hallo,
                 <strong>
                   <?= htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?>
                 </strong>
               </div>
             </li>
-
+<a href="riwayat_pesanan.php" class="dropdown-item">
+    <i class="bi bi-clock-history me-2"></i>Riwayat Pesanan
+</a>
             <li><hr class="dropdown-divider"></li>
 
             <li>
