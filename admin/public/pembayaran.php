@@ -19,7 +19,6 @@ require_login(['admin']);
 </head>
 
 <body>
-
     <?php
     $page = 'pembayaran';
     include 'include/sidebar.php';
@@ -58,13 +57,13 @@ require_login(['admin']);
                 <tbody>
                     <?php
                     $data_bayar = [
-                        ["Yanti Sartika", "Makeup Artist", "12-8-2026", "Lunas", "Rp 1.500.000"],
-                        ["Humairoh", "Makeup Party", "12-6-2026", "Lunas", "Rp 1.000.000"],
-                        ["Feby Kurnia", "Dekoration", "19-7-2026", "Pending", "Rp 800.000"],
-                        ["Fanesa", "Kostum", "8-2-2026", "Pending", "Rp 2.500.000"],
-                        ["Tika Anggraini", "Makeup Birthday", "1-9-2026", "Lunas", "Rp 3.500.000"],
+                        ["Valentino Rosi", "Makeup Artist", "12-8-2026", "Lunas", "Rp 1.500.000"],
+                        ["Marques", "Makeup Party", "12-6-2026", "Lunas", "Rp 1.000.000"],
+                        ["Feby Guys", "Dekoration", "19-7-2026", "Pending", "Rp 800.000"],
+                        ["Difarom", "Kostum", "8-2-2026", "Pending", "Rp 2.500.000"],
+                        ["Mahendra", "Makeup Birthday", "1-9-2026", "Lunas", "Rp 3.500.000"],
                         ["Ajeng Febria", "Makeup Artist", "2-8-2026", "Pending", "Rp 400.000"],
-                        ["Ayu Rofalda", "Kostum", "30-2-2026", "Lunas", "Rp 1.800.000"],
+                        ["Adalah Pokoknya", "Kostum", "30-2-2026", "Lunas", "Rp 1.800.000"],
                     ];
 
                     foreach ($data_bayar as $row) :

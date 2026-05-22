@@ -24,8 +24,29 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
+$id_user = intval($_SESSION['id_user'] ?? 0);
+if ($id_user <= 0) {
+    http_response_code(401);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Sesi pengguna tidak valid. Silakan login ulang.'
+    ]);
+    exit();
+}
+
+// Cek apakah user benar-benar ada di database
+$stmt_user = $pdo->prepare('SELECT 1 FROM `user` WHERE id_user = ? LIMIT 1');
+$stmt_user->execute([$id_user]);
+if (!$stmt_user->fetchColumn()) {
+    http_response_code(401);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Data pengguna tidak ditemukan. Silakan login ulang.'
+    ]);
+    exit();
+}
+
 // Ambil data dari POST
-$id_user = $_SESSION['id_user'];
 $nama_layanan = trim($_POST['nama_layanan'] ?? '');
 $tipe_layanan = trim($_POST['tipe_layanan'] ?? '');
 $harga = intval($_POST['harga'] ?? 0);
