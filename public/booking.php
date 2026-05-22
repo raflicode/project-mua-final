@@ -49,10 +49,14 @@ $checkoutMode = false;
 $checkoutItems = [];
 $hargaProduk = 0;
 $foto = '../assets/foto_makeup.jpeg';
+<<<<<<< HEAD
 $namaProduk = trim((string) filter_input(INPUT_GET, 'layanan', FILTER_SANITIZE_STRING));
 if ($namaProduk === '') {
     $namaProduk = trim((string) filter_input(INPUT_GET, 'nama', FILTER_SANITIZE_STRING));
 }
+=======
+$namaProduk = trim(filter_input(INPUT_GET, 'layanan', FILTER_SANITIZE_STRING) ?: filter_input(INPUT_GET, 'nama', FILTER_SANITIZE_STRING));
+>>>>>>> 65cae70a766fd169153f85fd8400dee7f727dcab
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $hargaProduk = filter_input(INPUT_GET, 'harga', FILTER_VALIDATE_INT);
 $fotoParam = trim((string) filter_input(INPUT_GET, 'foto', FILTER_SANITIZE_STRING));
