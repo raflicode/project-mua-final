@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['konfirmasi_akhir_tok
 
         $updateBooking = $pdo->prepare("
             UPDATE booking
-            SET status_booking = 'menunggu_konfirmasi',
+            SET status_booking = 'lunas',
                 bukti_pembayaran = ?,
                 tanggal_upload = NOW()
             WHERE id_booking = ?

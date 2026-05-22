@@ -40,12 +40,15 @@ function ensureBookingAdminColumns(PDO $pdo): void
         $pdo->exec("ALTER TABLE booking ADD tanggal_upload datetime DEFAULT NULL AFTER bukti_pembayaran");
     }
 
-    $pdo->exec("ALTER TABLE booking MODIFY status_booking enum('pending','menunggu_pembayaran','menunggu_konfirmasi','pesanan_dibuat','dibayar','diproses','selesai','dibatalkan') DEFAULT 'pending'");
+    $pdo->exec("ALTER TABLE booking MODIFY status_booking enum('pending','menunggu_pembayaran','menunggu_konfirmasi','pesanan_dibuat','lunas','dibayar','diproses','selesai','dibatalkan') DEFAULT 'pending'");
+    $pdo->exec("UPDATE booking SET status_booking = 'lunas' WHERE status_booking IN ('menunggu_konfirmasi','pesanan_dibuat','dibayar','diproses','selesai')");
+    $pdo->exec("DELETE FROM booking WHERE status_booking = 'dibatalkan'");
+    $pdo->exec("ALTER TABLE booking MODIFY status_booking enum('pending','menunggu_pembayaran','lunas') DEFAULT 'pending'");
 }
 
 function paymentLink(string $token): string
 {
-    return '../../public/konfirmasi_akhir.php?token=' . rawurlencode($token);
+    return 'payment.php?token=' . rawurlencode($token);
 }
 
 function redirectBooking(string $message = '', string $type = 'success'): void
@@ -68,6 +71,11 @@ try {
     ];
 }
 
+$paymentColumns = tableColumns($pdo, 'pembayaran');
+$proofColumn = isset($paymentColumns['bukti_transfer']) ? 'bukti_transfer' : (isset($paymentColumns['bukti_pembayaran']) ? 'bukti_pembayaran' : null);
+$uploadColumn = isset($paymentColumns['tgl_upload']) ? 'tgl_upload' : (isset($paymentColumns['tanggal_upload']) ? 'tanggal_upload' : (isset($paymentColumns['created_at']) ? 'created_at' : null));
+$paymentStatusColumn = isset($paymentColumns['status_verifikasi']) ? 'status_verifikasi' : (isset($paymentColumns['status']) ? 'status' : null);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $idBooking = (int) ($_POST['id_booking'] ?? 0);
@@ -85,31 +93,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($action === 'tolak_pesanan') {
-            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'dibatalkan' WHERE id_booking = ? AND status_booking = 'pending'");
+            $stmt = $pdo->prepare("DELETE FROM booking WHERE id_booking = ? AND status_booking = 'pending'");
             $stmt->execute([$idBooking]);
-            redirectBooking('Pesanan ditolak.');
+            redirectBooking('Pesanan ditolak dan dihapus dari daftar.');
         }
 
         if ($action === 'konfirmasi_pembayaran') {
-            $pdo->beginTransaction();
-            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'pesanan_dibuat' WHERE id_booking = ? AND status_booking = 'menunggu_konfirmasi'");
-            $stmt->execute([$idBooking]);
-
-            $pay = $pdo->prepare("UPDATE pembayaran SET status_verifikasi = 'diterima' WHERE id_booking = ?");
-            $pay->execute([$idBooking]);
-            $pdo->commit();
-            redirectBooking('Pembayaran dikonfirmasi. Pesanan berhasil dibuat.');
+            if ($paymentStatusColumn) {
+                $pay = $pdo->prepare("UPDATE pembayaran SET `$paymentStatusColumn` = 'diterima' WHERE id_booking = ?");
+                $pay->execute([$idBooking]);
+            }
+            redirectBooking('Pembayaran dikonfirmasi. Booking sudah diverifikasi.');
         }
 
         if ($action === 'tolak_pembayaran') {
-            $pdo->beginTransaction();
-            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'dibatalkan' WHERE id_booking = ? AND status_booking = 'menunggu_konfirmasi'");
+            $stmt = $pdo->prepare("DELETE FROM booking WHERE id_booking = ? AND status_booking = 'lunas'");
             $stmt->execute([$idBooking]);
-
-            $pay = $pdo->prepare("UPDATE pembayaran SET status_verifikasi = 'ditolak' WHERE id_booking = ?");
-            $pay->execute([$idBooking]);
-            $pdo->commit();
-            redirectBooking('Pembayaran ditolak dan booking dibatalkan.');
+            redirectBooking('Pembayaran ditolak dan booking dihapus dari daftar.');
         }
 
         redirectBooking('Aksi tidak dikenali.', 'danger');
@@ -121,16 +121,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$paymentColumns = tableColumns($pdo, 'pembayaran');
-$proofColumn = isset($paymentColumns['bukti_transfer']) ? 'bukti_transfer' : (isset($paymentColumns['bukti_pembayaran']) ? 'bukti_pembayaran' : null);
-$uploadColumn = isset($paymentColumns['tgl_upload']) ? 'tgl_upload' : (isset($paymentColumns['tanggal_upload']) ? 'tanggal_upload' : (isset($paymentColumns['created_at']) ? 'created_at' : null));
-$paymentStatusColumn = isset($paymentColumns['status_verifikasi']) ? 'status_verifikasi' : (isset($paymentColumns['status']) ? 'status' : null);
-
 if ($proofColumn && $uploadColumn && $paymentStatusColumn && tableHasColumn($pdo, 'booking', 'bukti_pembayaran') && tableHasColumn($pdo, 'booking', 'tanggal_upload')) {
     $syncStmt = $pdo->prepare("
         UPDATE booking b
         JOIN pembayaran p ON p.id_booking = b.id_booking
-        SET b.status_booking = 'menunggu_konfirmasi',
+        SET b.status_booking = 'lunas',
             b.bukti_pembayaran = COALESCE(b.bukti_pembayaran, p.`$proofColumn`),
             b.tanggal_upload = COALESCE(b.tanggal_upload, p.`$uploadColumn`)
         WHERE b.status_booking = 'menunggu_pembayaran'
@@ -146,6 +141,7 @@ $bookingUploadSelect = tableHasColumn($pdo, 'booking', 'tanggal_upload') ? 'b.ta
 $bookingTokenSelect = tableHasColumn($pdo, 'booking', 'konfirmasi_akhir_token') ? 'b.konfirmasi_akhir_token' : 'NULL';
 $paymentProofSelect = $proofColumn ? "p.`$proofColumn`" : 'NULL';
 $paymentUploadSelect = $uploadColumn ? "p.`$uploadColumn`" : 'NULL';
+$paymentStatusSelect = $paymentStatusColumn ? "p.`$paymentStatusColumn`" : 'NULL';
 $userNameSelect = tableHasColumn($pdo, 'user', 'full_name') ? 'u.full_name' : (tableHasColumn($pdo, 'user', 'nama_lengkap') ? 'u.nama_lengkap' : 'NULL');
 $userPhoneSelect = tableHasColumn($pdo, 'user', 'no_telp') ? 'u.no_telp' : (tableHasColumn($pdo, 'user', 'hp') ? 'u.hp' : 'NULL');
 
@@ -159,6 +155,7 @@ $bookingStmt = $pdo->query("
         $bookingTokenSelect AS konfirmasi_akhir_token,
         COALESCE($bookingProofSelect, $paymentProofSelect) AS bukti_pembayaran,
         COALESCE($bookingUploadSelect, $paymentUploadSelect) AS tanggal_upload,
+        $paymentStatusSelect AS status_pembayaran,
         $userNameSelect AS full_name,
         u.username,
         $userPhoneSelect AS no_telp,
@@ -182,6 +179,7 @@ $bookingStmt = $pdo->query("
             GROUP BY id_booking
         ) latest_p ON latest_p.id_pembayaran = p1.id_pembayaran
     ) p ON p.id_booking = b.id_booking
+    WHERE b.status_booking IN ('pending','menunggu_pembayaran','lunas')
     ORDER BY b.tgl_booking DESC
 ");
 
@@ -213,6 +211,7 @@ foreach ($bookingStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         'bukti_pembayaran' => $bukti,
         'bukti_url' => $bukti ? '../../assets/bukti_pembayaran/' . rawurlencode($bukti) : '',
         'tanggal_upload' => $row['tanggal_upload'] ? date('d F Y H:i', strtotime($row['tanggal_upload'])) : '',
+        'status_pembayaran' => $row['status_pembayaran'] ?: '',
     ];
 }
 
@@ -454,8 +453,10 @@ unset($_SESSION['booking_admin_flash']);
 
         /* ===== PAGE CONTENT ===== */
         .content {
-            padding: 32px;
+            padding: 24px;
             flex: 1;
+            max-width: 100%;
+            overflow-x: hidden;
         }
 
         .content-header {
@@ -488,21 +489,22 @@ unset($_SESSION['booking_admin_flash']);
         .folders-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 36px;
+            gap: 12px;
+            margin-bottom: 24px;
             max-width: 100%;
         }
 
         .folder-card {
             background: var(--white);
             border: 1.5px solid var(--cream-deep);
-            border-radius: 16px;
-            padding: 20px 18px;
+            border-radius: 14px;
+            padding: 14px 16px;
             cursor: pointer;
             transition: all 0.22s;
             text-decoration: none;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            flex-direction: row;
             gap: 12px;
             position: relative;
             overflow: hidden;
@@ -533,12 +535,13 @@ unset($_SESSION['booking_admin_flash']);
         }
 
         .folder-icon {
-            width: 48px;
-            height: 40px;
+            width: 42px;
+            height: 35px;
             position: relative;
+            flex: 0 0 auto;
         }
 
-        .folder-icon svg { width: 48px; height: 40px; }
+        .folder-icon svg { width: 42px; height: 35px; }
 
         .folder-name {
             font-size: 0.82rem;
@@ -558,15 +561,17 @@ unset($_SESSION['booking_admin_flash']);
             border-radius: 20px;
             border: 1.5px solid var(--cream-deep);
             overflow: hidden;
+            max-width: 100%;
         }
 
         .table-header {
-            padding: 20px 24px;
+            padding: 14px 18px;
             border-bottom: 1px solid var(--cream-deep);
             display: flex;
             align-items: center;
             justify-content: space-between;
             background: var(--cream);
+            gap: 12px;
         }
 
         .table-header-left {
@@ -594,18 +599,22 @@ unset($_SESSION['booking_admin_flash']);
         .filter-tabs {
             display: flex;
             gap: 6px;
+            overflow-x: auto;
+            max-width: 100%;
+            padding-bottom: 2px;
         }
 
         .filter-tab {
-            padding: 6px 14px;
+            padding: 6px 10px;
             border-radius: 8px;
-            font-size: 0.78rem;
+            font-size: 0.74rem;
             font-weight: 500;
             cursor: pointer;
             border: 1px solid var(--cream-deep);
             background: var(--white);
             color: var(--text-muted);
             transition: all 0.2s;
+            white-space: nowrap;
         }
 
         .filter-tab.active, .filter-tab:hover {
@@ -617,27 +626,28 @@ unset($_SESSION['booking_admin_flash']);
         /* TABLE */
         .booking-table {
             width: 100%;
+            min-width: 980px;
             border-collapse: collapse;
         }
 
+        .table-scroll {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         .booking-table thead th {
-            padding: 12px 20px;
-            font-size: 0.72rem;
+            padding: 10px 12px;
+            font-size: 0.68rem;
             font-weight: 600;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
             color: var(--text-muted);
             background: var(--cream);
             border-bottom: 1px solid var(--cream-deep);
             text-align: left;
             white-space: nowrap;
-        }
-
-        @media (max-width: 1199px) {
-            .booking-table thead th,
-            .booking-table tbody td {
-                white-space: normal;
-            }
         }
 
         .booking-table tbody tr {
@@ -650,8 +660,8 @@ unset($_SESSION['booking_admin_flash']);
         .booking-table tbody tr:hover { background: var(--cream); }
 
         .booking-table tbody td {
-            padding: 14px 20px;
-            font-size: 0.85rem;
+            padding: 10px 12px;
+            font-size: 0.78rem;
             color: var(--text-main);
             vertical-align: middle;
         }
@@ -665,7 +675,7 @@ unset($_SESSION['booking_admin_flash']);
         .paket-name {
             font-weight: 600;
             color: var(--brown-dark);
-            font-size: 0.85rem;
+            font-size: 0.78rem;
         }
 
         .paket-type {
@@ -699,9 +709,9 @@ unset($_SESSION['booking_admin_flash']);
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             font-weight: 600;
         }
 
@@ -737,20 +747,12 @@ unset($_SESSION['booking_admin_flash']);
         .status-batal::before { background: #E53935; }
 
         .status-pending,
-        .status-menunggu_pembayaran,
-        .status-menunggu_konfirmasi {
+        .status-menunggu_pembayaran {
             background: #FFF8E1;
             color: #E65100;
         }
         .status-pending::before,
-        .status-menunggu_pembayaran::before,
-        .status-menunggu_konfirmasi::before { background: #FF8F00; }
-
-        .status-pesanan_dibuat {
-            background: #EDF7ED;
-            color: #2E7D32;
-        }
-        .status-pesanan_dibuat::before { background: #43A047; }
+        .status-menunggu_pembayaran::before { background: #FF8F00; }
 
         /* ACTION BTNS */
         .action-btns {
@@ -769,11 +771,11 @@ unset($_SESSION['booking_admin_flash']);
             justify-content: center;
             gap: 6px;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.74rem;
             color: var(--text-muted);
             transition: all 0.2s;
             text-decoration: none;
-            padding: 6px 10px;
+            padding: 6px 8px;
             white-space: nowrap;
         }
 
@@ -802,8 +804,30 @@ unset($_SESSION['booking_admin_flash']);
 
         .muted-action {
             color: var(--text-muted);
-            font-size: 0.8rem;
+            font-size: 0.74rem;
             white-space: nowrap;
+        }
+
+        .copy-toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 9999;
+            background: var(--brown-dark);
+            color: var(--cream);
+            border-radius: 12px;
+            padding: 10px 14px;
+            box-shadow: 0 10px 30px rgba(44, 26, 14, 0.22);
+            font-size: 0.82rem;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: opacity 0.22s ease, transform 0.22s ease;
+        }
+
+        .copy-toast.show {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .payment-proof-img {
@@ -880,13 +904,13 @@ unset($_SESSION['booking_admin_flash']);
 
             .booking-table {
                 width: 100%;
-                min-width: unset;
+                min-width: 920px;
                 table-layout: auto;
             }
 
             .booking-table thead th,
             .booking-table tbody td {
-                white-space: normal;
+                white-space: nowrap;
             }
         }
 
@@ -1029,7 +1053,7 @@ unset($_SESSION['booking_admin_flash']);
 
             .booking-table thead th,
             .booking-table tbody td {
-                padding: 12px 14px;
+                padding: 9px 10px;
             }
         }
 
@@ -1198,13 +1222,11 @@ include 'include/sidebar.php';
                     <div class="filter-tab active" onclick="filterStatus('semua', this)">Semua</div>
                     <div class="filter-tab" onclick="filterStatus('pending', this)">Pending</div>
                     <div class="filter-tab" onclick="filterStatus('menunggu_pembayaran', this)">Menunggu Pembayaran</div>
-                    <div class="filter-tab" onclick="filterStatus('menunggu_konfirmasi', this)">Menunggu Konfirmasi</div>
-                    <div class="filter-tab" onclick="filterStatus('pesanan_dibuat', this)">Pesanan Dibuat</div>
-                    <div class="filter-tab" onclick="filterStatus('dibatalkan', this)">Dibatalkan</div>
+                    <div class="filter-tab" onclick="filterStatus('lunas', this)">Lunas</div>
                 </div>
             </div>
 
-            <div style="overflow-x:auto;">
+            <div class="table-scroll">
                 <table class="booking-table" id="bookingTable">
                     <thead>
                         <tr>
@@ -1258,6 +1280,8 @@ include 'include/sidebar.php';
     </div>
 </div>
 
+<div class="copy-toast" id="copyToast">Link berhasil disalin</div>
+
 <script>
 const bookingData = <?= json_encode($bookingRows, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
 
@@ -1270,12 +1294,7 @@ let currentPage    = 1;
 const statusLabels = {
     pending:               { label:'Pending', cls:'status-pending' },
     menunggu_pembayaran:   { label:'Menunggu Pembayaran', cls:'status-menunggu_pembayaran' },
-    menunggu_konfirmasi:   { label:'Menunggu Konfirmasi', cls:'status-menunggu_konfirmasi' },
-    pesanan_dibuat:        { label:'Pesanan Dibuat', cls:'status-pesanan_dibuat' },
-    dibatalkan:            { label:'Dibatalkan', cls:'status-batal' },
-    dibayar:               { label:'Dibayar', cls:'status-lunas' },
-    diproses:              { label:'Diproses', cls:'status-proses' },
-    selesai:               { label:'Selesai', cls:'status-lunas' },
+    lunas:                 { label:'Lunas', cls:'status-lunas' },
 };
 
 function escapeHtml(value) {
@@ -1300,26 +1319,23 @@ function actionForm(id, action, label, icon, cls = '') {
 }
 
 function renderPaymentTools(b) {
-    if (!b.payment_link) {
-        return '<span class="muted-action">Link belum dibuat</span>';
+    if (b.status !== 'menunggu_pembayaran' || !b.payment_link) {
+        return '';
     }
 
     const link = escapeHtml(b.payment_link);
     return `
         <div class="action-btns">
             <button type="button" class="btn-action copy" onclick="copyPaymentLink('${link}')">
-                <i class="bi bi-clipboard"></i> Salin
+                <i class="bi bi-clipboard"></i> Salin Link
             </button>
-            <a href="${link}" target="_blank" class="btn-action">
-                <i class="bi bi-box-arrow-up-right"></i> Buka
-            </a>
         </div>
     `;
 }
 
 function renderProofTools(b) {
     if (!b.bukti_url) {
-        return '<span class="muted-action">Belum ada bukti</span>';
+        return '';
     }
 
     const url = escapeHtml(b.bukti_url);
@@ -1347,16 +1363,20 @@ function renderActions(b) {
     }
 
     if (b.status === 'menunggu_pembayaran') {
-        return '<span class="muted-action">Menunggu Pembayaran</span>';
+        return '<span class="muted-action">Menunggu Client Upload Bukti</span>';
     }
 
-    if (b.status === 'menunggu_konfirmasi') {
+    if (b.status === 'lunas' && b.bukti_url && b.status_pembayaran !== 'diterima') {
         return `
             <div class="action-btns">
                 ${actionForm(b.id, 'konfirmasi_pembayaran', 'Konfirmasi Pembayaran', 'bi-check2-circle', 'accept')}
                 ${actionForm(b.id, 'tolak_pembayaran', 'Tolak Pembayaran', 'bi-x-circle', 'reject')}
             </div>
         `;
+    }
+
+    if (b.status === 'lunas' && b.status_pembayaran === 'diterima') {
+        return '<span class="muted-action">Terverifikasi</span>';
     }
 
     return '<span class="muted-action">Tidak ada aksi</span>';
@@ -1476,10 +1496,17 @@ function lihat(id) {
 
 function copyPaymentLink(link) {
     navigator.clipboard.writeText(link).then(() => {
-        alert('Link pembayaran berhasil disalin.');
+        showCopyToast();
     }).catch(() => {
         prompt('Salin link pembayaran:', link);
     });
+}
+
+function showCopyToast() {
+    const toast = document.getElementById('copyToast');
+    toast.classList.add('show');
+    clearTimeout(window.copyToastTimer);
+    window.copyToastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
 }
 
 function showBukti(url) {
