@@ -45,11 +45,13 @@ body{
     margin:auto;
 }
 
-/* CARD */
+/* =========================
+   CARD
+========================= */
 
 .card-custom{
     border:none;
-    border-radius:18px;
+    border-radius:20px;
     overflow:hidden;
     background:#fff;
     box-shadow:0 5px 15px rgba(0,0,0,.12);
@@ -72,7 +74,7 @@ body{
     width:100%;
     aspect-ratio:4/5;
     overflow:hidden;
-    border-radius:12px;
+    border-radius:14px;
     margin-bottom:14px;
     background:#f3f3f3;
 }
@@ -114,20 +116,22 @@ body{
     color:#b85a00;
     border:1px solid #f0c080;
     border-radius:20px;
-    padding:3px 12px;
+    padding:4px 12px;
     font-size:.72rem;
     margin-bottom:12px;
 }
 
-/* MODAL */
+/* =========================
+   MODAL
+========================= */
 
 .modal-kostum .modal-dialog{
-    max-width:520px;
+    max-width:760px;
 }
 
 .modal-kostum .modal-content{
     border:none;
-    border-radius:22px;
+    border-radius:24px;
     overflow:hidden;
 }
 
@@ -148,7 +152,7 @@ body{
 
 .modal-title{
     color:#fff;
-    font-size:1.1rem;
+    font-size:1.2rem;
     font-weight:700;
     text-align:center;
 }
@@ -161,8 +165,8 @@ body{
 }
 
 .nav-btn{
-    width:34px;
-    height:34px;
+    width:38px;
+    height:38px;
     border:none;
     border-radius:50%;
     background:rgba(255,255,255,.18);
@@ -186,8 +190,8 @@ body{
 }
 
 .var-btn{
-    width:28px;
-    height:28px;
+    width:30px;
+    height:30px;
     border:none;
     border-radius:50%;
     background:rgba(255,255,255,.18);
@@ -199,7 +203,7 @@ body{
     flex:1;
     text-align:center;
     color:#fff;
-    font-size:.82rem;
+    font-size:.85rem;
     font-weight:600;
 }
 
@@ -209,14 +213,21 @@ body{
 }
 
 .modal-kostum .modal-body{
-    padding:18px 20px 8px;
+    padding:24px;
+}
+
+.modal-content-wrap{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:24px;
+    align-items:start;
 }
 
 .variant-dots{
     display:flex;
     justify-content:center;
     gap:6px;
-    margin-bottom:10px;
+    margin-bottom:12px;
 }
 
 .variant-dot{
@@ -228,15 +239,14 @@ body{
 
 .variant-dot.active{
     background:#b85a00;
-    transform:scale(1.25);
+    transform:scale(1.2);
 }
 
 .modal-img-wrap{
     width:100%;
-    aspect-ratio:4/5;
+    aspect-ratio:1/1;
     overflow:hidden;
-    border-radius:14px;
-    margin-bottom:14px;
+    border-radius:16px;
     background:#f3f3f3;
     position:relative;
 }
@@ -251,8 +261,8 @@ body{
     position:absolute;
     top:50%;
     transform:translateY(-50%);
-    width:34px;
-    height:34px;
+    width:36px;
+    height:36px;
     border:none;
     border-radius:50%;
     background:rgba(0,0,0,.35);
@@ -269,38 +279,38 @@ body{
 }
 
 .modal-var-name{
-    font-size:1rem;
+    font-size:1.15rem;
     font-weight:700;
-    margin-bottom:6px;
+    margin-bottom:10px;
 }
 
 .modal-include-label{
-    font-size:.88rem;
+    font-size:.92rem;
     font-weight:600;
     margin-bottom:6px;
 }
 
 .modal-include-ol{
     padding-left:20px;
-    font-size:.88rem;
+    font-size:.9rem;
     color:#444;
-    margin-bottom:14px;
+    margin-bottom:18px;
 }
 
 .modal-harga-label{
-    font-size:.75rem;
+    font-size:.78rem;
     color:#999;
 }
 
 .modal-harga-val{
-    font-size:1.08rem;
+    font-size:1.2rem;
     color:#b85a00;
     font-weight:700;
 }
 
 .modal-kostum .modal-footer{
     border:none;
-    padding:0 20px 18px;
+    padding:0 24px 24px;
     gap:10px;
 }
 
@@ -313,10 +323,129 @@ body{
     z-index:1000;
 }
 
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:992px){
+
+    .modal-kostum .modal-dialog{
+        max-width:650px;
+    }
+
+}
+
 @media(max-width:768px){
 
     .judul h1{
         font-size:54px;
+    }
+
+}
+
+@media(max-width:576px){
+
+    .modal-kostum .modal-dialog{
+        width:86%;
+        max-width:360px;
+        margin:.75rem auto;
+    }
+
+    .modal-kostum .modal-content{
+        border-radius:18px;
+        max-height:88vh;
+    }
+
+    .modal-kostum .modal-header{
+        padding:11px 12px;
+    }
+
+    .modal-title{
+        font-size:.98rem;
+    }
+
+    .counter1{
+        font-size:.65rem;
+    }
+
+    .nav-btn{
+        width:30px;
+        height:30px;
+    }
+
+    .modal-level2-bar{
+        margin-top:8px;
+        padding-top:8px;
+        gap:6px;
+    }
+
+    .var-btn{
+        width:26px;
+        height:26px;
+    }
+
+    .var-label{
+        font-size:.76rem;
+    }
+
+    .counter2{
+        font-size:.64rem;
+    }
+
+    .modal-content-wrap{
+        grid-template-columns:1fr;
+        gap:12px;
+    }
+
+    .modal-kostum .modal-body{
+        padding:12px;
+    }
+
+    .modal-img-wrap{
+        max-height:38vh;
+        aspect-ratio:1/1;
+        border-radius:12px;
+    }
+
+    .foto-nav{
+        width:30px;
+        height:30px;
+    }
+
+    .variant-dots{
+        margin-bottom:8px;
+    }
+
+    .modal-var-name{
+        font-size:.95rem;
+        margin-bottom:6px;
+    }
+
+    .modal-include-label{
+        font-size:.82rem;
+        margin-bottom:4px;
+    }
+
+    .modal-include-ol{
+        font-size:.78rem;
+        margin-bottom:10px;
+    }
+
+    .modal-harga-label{
+        font-size:.7rem;
+    }
+
+    .modal-harga-val{
+        font-size:1rem;
+    }
+
+    .modal-kostum .modal-footer{
+        padding:0 12px 12px;
+    }
+
+    .modal-kostum .modal-footer .btn{
+        padding:7px 10px;
+        font-size:.84rem;
     }
 
 }
@@ -346,7 +475,7 @@ body{
 
 <div class="modal fade modal-kostum" id="modalKostum" tabindex="-1">
 
-<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+<div class="modal-dialog modal-dialog-centered">
 
 <div class="modal-content">
 
@@ -391,19 +520,23 @@ body{
 
 <div class="variant-dots" id="variantDots"></div>
 
+<div class="modal-content-wrap">
+
 <div class="modal-img-wrap">
 
-<button class="foto-nav foto-prev" id="fotoPrev" onclick="navigasi2(-1)">
+<button class="foto-nav foto-prev" onclick="navigasi2(-1)">
 <i class="bi bi-chevron-left"></i>
 </button>
 
-<button class="foto-nav foto-next" id="fotoNext" onclick="navigasi2(1)">
+<button class="foto-nav foto-next" onclick="navigasi2(1)">
 <i class="bi bi-chevron-right"></i>
 </button>
 
 <img id="modalImg" src="" alt="">
 
 </div>
+
+<div>
 
 <div class="modal-var-name" id="modalVarName"></div>
 
@@ -421,9 +554,13 @@ Harga
 
 </div>
 
+</div>
+
+</div>
+
 <div class="modal-footer">
 
-<button type="button" class="btn btn-dark flex-grow-1" id="btnKeranjang">
+<button type="button" class="btn btn-dark flex-grow-1">
 🛒 Keranjang
 </button>
 
@@ -484,7 +621,7 @@ const kostumData = [
     variasi:[
         {
             nama:'Resepsi Putih',
-            foto:'../assets/gallery_kostum/kostum_2.jpeg',
+            foto:'../assets/gallery_kostum/foto_resepsi.jpeg',
             harga:'Rp 4.500.000',
             include:[
                 'Gaun resepsi putih',
@@ -495,163 +632,66 @@ const kostumData = [
         }
     ]
 },
-/* =========================
-   KOSTUM GRADUATION
-========================= */
 
 {
     jenis:'Kostum Graduation',
     variasi:[
-
         {
-            nama:'Kebaya Wisuda Putih',
-            foto:'assets/gallery_kostum/kostum_2.jpeg',
+            nama:'Kebaya Wisuda',
+            foto:'../assets/gallery_kostum/kostum_2.jpeg',
             harga:'Rp 2.500.000',
             include:[
-                'Kebaya putih elegan',
+                'Kebaya wisuda',
                 'Rok batik',
-                'Aksesoris wisuda',
+                'Aksesoris',
                 'Free steam'
-            ]
-        },
-
-        {
-            nama:'Kebaya Wisuda Nude',
-            foto:'assets/gallery_kostum/kostum_2.jpeg',
-            harga:'Rp 2.700.000',
-            include:[
-                'Kebaya nude premium',
-                'Rok satin',
-                'Selendang',
-                'Free steam'
-            ]
-        },
-
-        {
-            nama:'Dress Graduation',
-            foto:'assets/gallery_kostum/kostum_2.jpeg',
-            harga:'Rp 3.200.000',
-            include:[
-                'Dress graduation',
-                'Inner premium',
-                'Aksesoris simple',
-                'Custom fitting'
-            ]
-        },
-
-        {
-            nama:'Set Toga Wisuda',
-            foto:'assets/gallery_kostum/kostum_2.jpeg',
-            harga:'Rp 1.500.000',
-            include:[
-                'Toga wisuda',
-                'Topi toga',
-                'Selempang',
-                'Free steam'
-            ]
-        },
-
-        {
-            nama:'Jas Graduation',
-            foto:'assets/gallery_kostum/kostum_2.jpeg',
-            harga:'Rp 2.300.000',
-            include:[
-                'Jas formal',
-                'Kemeja putih',
-                'Dasi',
-                'Celana formal'
             ]
         }
-
     ]
 },
+
 {
     jenis:'Kostum Adat Indonesia',
     variasi:[
-
         {
             nama:'Adat Jawa',
             foto:'../assets/gallery_kostum/kostum_2.jpeg',
             harga:'Rp 5.100.000',
             include:[
-                'Kebaya hitam',
-                'Jarik batik',
-                'Sanggul jawa',
+                'Kebaya jawa',
+                'Jarik',
+                'Sanggul',
                 'Custom fitting'
             ]
         },
-
-        {
-            nama:'Adat Kalimantan',
-            foto:'../assets/gallery_kostum/kostum_2.jpeg',
-            harga:'Rp 5.200.000',
-            include:[
-                'Baju dayak merah',
-                'Mahkota bulu',
-                'Aksesoris manik',
-                'Custom fitting'
-            ]
-        },
-
-        {
-            nama:'Adat Sulawesi',
-            foto:'../assets/gallery_kostum/kostum_2.jpeg',
-            harga:'Rp 5.000.000',
-            include:[
-                'Baju bodo hijau',
-                'Sarung sutra',
-                'Aksesoris kepala',
-                'Custom fitting'
-            ]
-        },
-
         {
             nama:'Adat Bali',
             foto:'../assets/gallery_kostum/kostum_2.jpeg',
             harga:'Rp 5.300.000',
             include:[
                 'Kebaya bali',
-                'Selendang bali',
-                'Kamen bali',
+                'Selendang',
+                'Kamen',
                 'Custom fitting'
             ]
         }
-
     ]
 },
-
-/* =========================
-   JAS & SETELAN
-========================= */
 
 {
     jenis:'Jas & Setelan',
     variasi:[
-
         {
-            nama:'Jas Hitam',
-            foto:'assets/gallery_kostum/kostum_2.jpeg',
-            harga:'Rp 1.800.000',
+            nama:'Jas Formal',
+            foto:'../assets/gallery_kostum/kostum_2.jpeg',
+            harga:'Rp 2.000.000',
             include:[
-                'Jas formal hitam',
-                'Kemeja putih',
-                'Dasi',
-                'Free steam'
-            ]
-        },
-
-        {
-            nama:'Jas Lengkap + Celana',
-            foto:'assets/gallery_kostum/kostum_2.jpeg',
-            harga:'Rp 2.800.000',
-            include:[
-                'Jas hitam',
-                'Celana formal',
-                'Kemeja putih',
-                'Dasi lengkap'
+                'Jas formal',
+                'Celana',
+                'Kemeja',
+                'Dasi'
             ]
         }
-
     ]
 }
 
@@ -670,7 +710,7 @@ function renderCards(){
         const first = k.variasi[0];
 
         return `
-        <div class="col-md-6">
+        <div class="col-12 col-md-6 col-lg-3">
 
             <div class="card card-custom p-3" onclick="bukaModal(${i})">
 
@@ -725,6 +765,7 @@ function bukaModal(i){
     }
 
     bsModal.show();
+
 }
 
 function renderModal(){
