@@ -633,6 +633,13 @@ unset($_SESSION['booking_admin_flash']);
             white-space: nowrap;
         }
 
+        @media (max-width: 1199px) {
+            .booking-table thead th,
+            .booking-table tbody td {
+                white-space: normal;
+            }
+        }
+
         .booking-table tbody tr {
             border-bottom: 1px solid var(--cream-dark);
             transition: background 0.15s;
@@ -872,7 +879,14 @@ unset($_SESSION['booking_admin_flash']);
             }
 
             .booking-table {
-                min-width: 920px;
+                width: 100%;
+                min-width: unset;
+                table-layout: auto;
+            }
+
+            .booking-table thead th,
+            .booking-table tbody td {
+                white-space: normal;
             }
         }
 
