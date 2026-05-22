@@ -12,6 +12,7 @@ session_start();
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lobster&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
@@ -136,47 +137,11 @@ body{
 }
 
 .modal-kostum .modal-header{
-    background:#b85a00;
+    background:#a88656;
     border:none;
     padding:16px 18px;
     flex-direction:column;
     align-items:stretch;
-}
-
-.modal-level1{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-}
-
-.modal-title{
-    color:#fff;
-    font-size:1.2rem;
-    font-weight:700;
-    text-align:center;
-}
-
-.counter1{
-    text-align:center;
-    color:rgba(255,255,255,.75);
-    font-size:.72rem;
-    margin-top:3px;
-}
-
-.nav-btn{
-    width:38px;
-    height:38px;
-    border:none;
-    border-radius:50%;
-    background:rgba(255,255,255,.18);
-    color:#fff;
-    cursor:pointer;
-    transition:.2s;
-}
-
-.nav-btn:hover{
-    background:rgba(255,255,255,.35);
 }
 
 .modal-level2-bar{
@@ -308,19 +273,39 @@ body{
     font-weight:700;
 }
 
-.modal-kostum .modal-footer{
+.modal-kostum .modal-footer .btn-dark{
+    background:#a88656;
     border:none;
-    padding:0 24px 24px;
-    gap:10px;
+    border-radius:30px;
+    color:#fff;
+    height:45px;
+    font-weight:600;
 }
 
-.btn-kembali{
-    position:fixed;
-    bottom:20px;
-    left:20px;
+.modal-kostum .modal-footer .btn-dark:hover{
+    background:#967447;
+}
+
+.modal-kostum .modal-footer .btn-warning{
+    background:#a88656;
+    color:#fff;
+    border:none;
     border-radius:30px;
-    padding:10px 20px;
-    z-index:1000;
+    font-weight:600;
+    height:45px;
+}
+
+.modal-kostum .modal-footer .btn-warning:hover{
+    background:#967447;
+    color:#fff;
+}
+.btn-kembali {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    border-radius: 30px;
+    padding: 10px 20px;
+    z-index: 1030;
 }
 
 /* =========================
@@ -358,19 +343,6 @@ body{
 
     .modal-kostum .modal-header{
         padding:11px 12px;
-    }
-
-    .modal-title{
-        font-size:.98rem;
-    }
-
-    .counter1{
-        font-size:.65rem;
-    }
-
-    .nav-btn{
-        width:30px;
-        height:30px;
     }
 
     .modal-level2-bar{
@@ -481,23 +453,6 @@ body{
 
 <div class="modal-header">
 
-<div class="modal-level1">
-
-<button class="nav-btn" id="btnPrev1" onclick="navigasi1(-1)">
-<i class="bi bi-chevron-left"></i>
-</button>
-
-<div style="flex:1;">
-<div class="modal-title" id="modalJudul"></div>
-<div class="counter1" id="counter1"></div>
-</div>
-
-<button class="nav-btn" id="btnNext1" onclick="navigasi1(1)">
-<i class="bi bi-chevron-right"></i>
-</button>
-
-</div>
-
 <div class="modal-level2-bar">
 
 <button class="var-btn" id="btnPrev2" onclick="navigasi2(-1)">
@@ -559,9 +514,8 @@ Harga
 </div>
 
 <div class="modal-footer">
-
-<button type="button" class="btn btn-dark flex-grow-1">
-🛒 Keranjang
+<button type="button" id="modalCartBtn" class="btn btn-dark flex-grow-1">
+    <i class="bi bi-cart3"></i> Keranjang
 </button>
 
 <button type="button" class="btn btn-warning flex-grow-1" id="modalBookingBtn">
@@ -577,7 +531,7 @@ Booking
 </div>
 
 <a href="service.php" class="btn btn-danger btn-kembali shadow">
-Kembali
+    Kembali
 </a>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -773,9 +727,6 @@ function renderModal(){
     const kostum = kostumData[idxKostum];
     const varian = kostum.variasi[idxVariasi];
 
-    document.getElementById('modalJudul').textContent = kostum.jenis;
-    document.getElementById('counter1').textContent = `${idxKostum+1}/${kostumData.length}`;
-
     document.getElementById('varLabel').textContent = varian.nama;
     document.getElementById('counter2').textContent = `${idxVariasi+1}/${kostum.variasi.length}`;
 
@@ -796,20 +747,7 @@ function renderModal(){
 }
 
 function hargaKeAngka(harga){
-    return String(harga).replace(/[^\d]/g, '');
-}
-
-function navigasi1(arah){
-
-    const next = idxKostum + arah;
-
-    if(next < 0 || next >= kostumData.length) return;
-
-    idxKostum = next;
-    idxVariasi = 0;
-
-    renderModal();
-
+    return Number(String(harga).replace(/[^0-9]/g, '')) || 0;
 }
 
 function navigasi2(arah){
@@ -825,6 +763,25 @@ function navigasi2(arah){
     renderModal();
 
 }
+
+document.getElementById('modalCartBtn').addEventListener('click', () => {
+    if (!isLoggedIn) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Login diperlukan',
+            text: 'Silakan login terlebih dahulu'
+        });
+        return;
+    }
+
+    const kostum = kostumData[idxKostum];
+    const varian = kostum.variasi[idxVariasi];
+    const nama = `${kostum.jenis} - ${varian.nama}`;
+    const harga = hargaKeAngka(varian.harga);
+    const foto = varian.foto;
+
+    addToCart(nama, 'kostum', harga, foto);
+});
 
 document.getElementById('modalBookingBtn').addEventListener('click',()=>{
 
@@ -844,7 +801,7 @@ document.getElementById('modalBookingBtn').addEventListener('click',()=>{
         const harga = hargaKeAngka(varian.harga);
         const foto = varian.foto;
 
-        window.location.href = `booking.php?from=kostum&nama=${encodeURIComponent(nama)}&harga=${harga}&foto=${encodeURIComponent(foto)}`;
+        window.location.href = `booking.php?from=kostum&layanan=${encodeURIComponent(nama)}&harga=${harga}&foto=${encodeURIComponent(foto)}`;
 
     }
 
@@ -853,6 +810,8 @@ document.getElementById('modalBookingBtn').addEventListener('click',()=>{
 renderCards();
 
 </script>
+
+<?php include 'include/add_to_cart_script.php'; ?>
 
 </body>
 </html>

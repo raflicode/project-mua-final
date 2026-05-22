@@ -40,10 +40,6 @@ function resolveImagePath($path, $default = '../assets/foto_makeup.jpeg')
         return '../' . $path;
     }
 
-    if (strpos($path, '../assets/') === 0) {
-        return $path;
-    }
-
     return '../' . ltrim($path, '/');
 }
 
@@ -53,9 +49,17 @@ $checkoutMode = false;
 $checkoutItems = [];
 $hargaProduk = 0;
 $foto = '../assets/foto_makeup.jpeg';
-$namaProduk = trim(filter_input(INPUT_GET, 'layanan', FILTER_SANITIZE_STRING));
+$namaProduk = trim((string) filter_input(INPUT_GET, 'layanan', FILTER_SANITIZE_STRING));
+if ($namaProduk === '') {
+    $namaProduk = trim((string) filter_input(INPUT_GET, 'nama', FILTER_SANITIZE_STRING));
+}
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $hargaProduk = filter_input(INPUT_GET, 'harga', FILTER_VALIDATE_INT);
+$fotoParam = trim((string) filter_input(INPUT_GET, 'foto', FILTER_SANITIZE_STRING));
+if ($fotoParam !== '') {
+    $foto = resolveImagePath($fotoParam);
+}
+$hasDirectSelection = $id || $namaProduk !== '' || $hargaProduk > 0 || $fotoParam !== '';
 $service = null;
 $layananTableExists = false;
 
@@ -382,7 +386,7 @@ body {
                 <div class="order-card">
                     <h5 class="card-inside-title"><i class="bi bi-calendar-check me-2 text-warning"></i>Langkah Selanjutnya</h5>
                     <p class="text-muted small mb-4">Pilih tanggal dan jam yang tersedia pada langkah berikutnya.</p>
-                    <a href="penjadwalan.php" class="btn btn-payment">
+                    <a href="penjadwalan.php<?= $fromPage ? '?from=' . urlencode($fromPage) : '' ?>" class="btn btn-payment">
                         Lanjut ke Penjadwalan <i class="bi bi-arrow-right ms-2"></i>
                     </a>
                 </div>

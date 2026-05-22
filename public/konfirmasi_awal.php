@@ -1,24 +1,39 @@
 <?php
 session_start();
 
+$fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_STRING);
+$backMap = [
+    'makeup' => 'makeup.php',
+    'dekor' => 'dekor.php',
+    'kostum' => 'kostum.php'
+];
+
 if (!isset($_SESSION['id_user'])) {
     header('Location: login.php');
     exit;
 }
 
 if (!isset($_SESSION['draft_booking'])) {
-    header('Location: booking.php');
+    $redirectUrl = 'booking.php';
+    if ($fromPage) {
+        $redirectUrl .= '?from=' . urlencode($fromPage);
+    }
+    header('Location: ' . $redirectUrl);
     exit;
 }
 
 if (!isset($_SESSION['pembayaran'])) {
-    header('Location: pembayaran.php');
+    $redirectUrl = 'pembayaran.php';
+    if ($fromPage) {
+        $redirectUrl .= '?from=' . urlencode($fromPage);
+    }
+    header('Location: ' . $redirectUrl);
     exit;
 }
 
 $draft = $_SESSION['draft_booking'];
 $pembayaran = $_SESSION['pembayaran'];
-$backHref = 'pembayaran.php';
+$backHref = $backMap[$fromPage] ?? 'pembayaran.php';
 
 function formatRupiah($value)
 {
@@ -68,6 +83,7 @@ $waUrl = 'https://wa.me/6281333273119?' . http_build_query(['text' => $pesan]);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
         body {
             background: #fff5e7;
@@ -130,17 +146,40 @@ $waUrl = 'https://wa.me/6281333273119?' . http_build_query(['text' => $pesan]);
             background: #1fb85a;
             color: white;
         }
+        .back-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.1);
+    color: #2b1f15;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.back-nav:hover {
+    background: #d07f26;
+    color: white;
+    transform: translateX(-4px);
+}
+
+.back-container {
+    margin-bottom: 20px;
+}
     </style>
 </head>
 <body>
 <?php include 'include/navbar.php'; ?>
 
 <div class="wrapper">
-    <div class="mb-3">
-        <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-secondary">
-            <i class="bi bi-chevron-left me-1"></i>Kembali
-        </a>
-    </div>
+    <div class="back-container">
+    <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="back-nav">
+        <i class="bi bi-chevron-left"></i>
+    </a>
+</div>
 
     <div class="card card-custom">
         <div class="hero">

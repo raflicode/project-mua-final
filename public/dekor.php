@@ -129,7 +129,7 @@ body{
 }
 
 .modal-dekor .modal-header{
-    background:#b85a00;
+    background:#a88656;
     border:none;
     padding:16px 18px;
     flex-direction:column;
@@ -168,8 +168,31 @@ body{
     transition:.2s;
 }
 
-.nav-btn:hover{
-    background:rgba(255,255,255,.35);
+.modal-dekor .modal-footer .btn-dark{
+    background:#a88656;
+    border:none;
+    border-radius:30px;
+    color:#fff;
+    height:45px;
+    font-weight:600;
+}
+
+.modal-dekor .modal-footer .btn-dark:hover{
+    background:#967447;
+}
+
+.modal-dekor .modal-footer .btn-warning{
+    background:#a88656;
+    color:#fff;
+    border:none;
+    border-radius:30px;
+    font-weight:600;
+    height:45px;
+}
+
+.modal-dekor .modal-footer .btn-warning:hover{
+    background:#967447;
+    color:#fff;
 }
 
 .modal-level2-bar{
@@ -314,6 +337,52 @@ body{
     .judul h1{
         font-size:54px;
     }
+}
+@media(max-width:576px){
+
+    .modal-dekor .modal-dialog{
+        width:86%;
+        max-width:360px;
+        margin:.75rem auto;
+    }
+
+    .modal-dekor .modal-content{
+        border-radius:18px;
+        max-height:88vh;
+    }
+
+    .modal-content-wrap{
+        grid-template-columns:1fr;
+        gap:12px;
+    }
+
+    .modal-dekor .modal-body{
+        padding:12px;
+    }
+
+    .modal-img-wrap{
+        max-height:38vh;
+        aspect-ratio:1/1;
+        border-radius:12px;
+    }
+
+    .foto-nav{
+        width:30px;
+        height:30px;
+    }
+
+    .modal-var-name{
+        font-size:.95rem;
+    }
+
+    .modal-include-ol{
+        font-size:.78rem;
+    }
+
+    .modal-harga-val{
+        font-size:1rem;
+    }
+
 }
 </style>
 </head>
@@ -701,7 +770,8 @@ document.getElementById('modalBookingBtn').addEventListener('click', () => {
             text: 'Silakan login terlebih dahulu'
         });
     } else {
-        window.location.href = `booking.php?from=dekor&layanan=${encodeURIComponent(selected.nama)}&harga=${harga}`;
+        const foto = encodeURIComponent(selected.foto || '');
+        window.location.href = `booking.php?from=dekor&layanan=${encodeURIComponent(selected.nama)}&harga=${harga}&foto=${foto}`;
     }
 });
 

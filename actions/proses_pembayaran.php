@@ -8,6 +8,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// Ambil parameter from
+$fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_STRING);
+$fromParam = $fromPage ? '?from=' . urlencode($fromPage) : '';
+
 // Check login
 if (!isset($_SESSION['id_user'])) {
     header('Location: ../public/login.php');
@@ -16,12 +20,12 @@ if (!isset($_SESSION['id_user'])) {
 
 // Pastikan draft booking sudah ada dan jadwal sudah dipilih
 if (!isset($_SESSION['draft_booking'])) {
-    header('Location: ../public/booking.php');
+    header('Location: ../public/booking.php' . $fromParam);
     exit;
 }
 
 if (empty($_SESSION['draft_booking']['id_jadwal'])) {
-    header('Location: ../public/penjadwalan.php');
+    header('Location: ../public/penjadwalan.php' . $fromParam);
     exit;
 }
 
@@ -69,7 +73,7 @@ if (!empty($errors)) {
         'metode' => $metode,
         'alamat' => $alamat
     ];
-    header('Location: ../public/pembayaran.php');
+    header('Location: ../public/pembayaran.php' . $fromParam);
     exit;
 }
 
@@ -83,6 +87,6 @@ $_SESSION['pembayaran'] = [
 ];
 
 // Redirect ke halaman konfirmasi awal melalui WhatsApp
-header('Location: ../public/konfirmasi_awal.php');
+header('Location: ../public/konfirmasi_awal.php' . $fromParam);
 exit;
 ?>
