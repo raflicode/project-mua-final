@@ -754,6 +754,10 @@ function renderModal(){
 
 }
 
+function hargaKeAngka(harga){
+    return String(harga).replace(/[^\d]/g, '');
+}
+
 function navigasi1(arah){
 
     const next = idxKostum + arah;
@@ -793,7 +797,13 @@ document.getElementById('modalBookingBtn').addEventListener('click',()=>{
 
     }else{
 
-        window.location.href='booking.php';
+        const kostum = kostumData[idxKostum];
+        const varian = kostum.variasi[idxVariasi];
+        const nama = `${kostum.jenis} - ${varian.nama}`;
+        const harga = hargaKeAngka(varian.harga);
+        const foto = varian.foto;
+
+        window.location.href = `booking.php?from=kostum&nama=${encodeURIComponent(nama)}&harga=${harga}&foto=${encodeURIComponent(foto)}`;
 
     }
 

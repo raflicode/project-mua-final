@@ -230,7 +230,7 @@ $dekor_photos = [
 
             <div class="d-flex gap-2">
                 <button onclick="addToCart('Dekor Indoor', 'dekor', 1000000, '../assets/foto_dekor.jpeg')" class="btn-cart-icon">🛒</button>
-                <a href="booking.php?from=dekor&nama=Dekor+Indoor&harga=1000000" class="btn btn-booking flex-grow-1 btn-booking-trigger">
+                <a href="booking.php?from=dekor&nama=Dekor+Indoor&harga=1000000&foto=<?= urlencode($dekor_photos[0]['src']) ?>" class="btn btn-booking flex-grow-1 btn-booking-trigger">
                     Booking 
                 </a>
             </div>
@@ -259,7 +259,7 @@ $dekor_photos = [
                         </div>
                         <div class="d-flex gap-2 mt-auto">
                             <button onclick="addToCart('Dekor Outdoor (4 Meter)', 'dekor', 2000000, '../assets/fotodekor13.jpeg')" class="btn-cart-icon">🛒</button>
-                            <a href="booking.php?from=dekor&nama=Dekor+Outdoor+(4+Meter)&harga=2000000" class="btn btn-booking flex-grow-1 btn-booking-trigger">Booking 4m</a>
+                            <a href="booking.php?from=dekor&nama=Dekor+Outdoor+(4+Meter)&harga=2000000&foto=<?= urlencode($dekor_photos[13]['src']) ?>" class="btn btn-booking flex-grow-1 btn-booking-trigger">Booking 4m</a>
                         </div>
                     </div>
                 </div>
@@ -280,7 +280,7 @@ $dekor_photos = [
                         </div>
                         <div class="d-flex gap-2 mt-auto">
                             <button onclick="addToCart('Dekor Outdoor (6 Meter)', 'dekor', 3000000, '../assets/fotodekor14.jpeg')" class="btn-cart-icon">🛒</button>
-                            <a href="booking.php?from=dekor&nama=Dekor+Outdoor+(6+Meter)&harga=3000000" class="btn btn-booking flex-grow-1 btn-booking-trigger">Booking 6m</a>
+                            <a href="booking.php?from=dekor&nama=Dekor+Outdoor+(6+Meter)&harga=3000000&foto=<?= urlencode($dekor_photos[14]['src']) ?>" class="btn btn-booking flex-grow-1 btn-booking-trigger">Booking 6m</a>
                         </div>
                     </div>
                 </div>
@@ -288,7 +288,7 @@ $dekor_photos = [
 
             <div class="col-md-4">
                 <div class="card card-custom h-100 p-3">
-                    <img src="<?= $dekor_photos[7]['src'] ?>" class="img-paket-thumbnail" alt="Dekor Outdoor 8 Meter" onclick="openLightbox(7)">
+                    <img src="<?= $dekor_photos[14]['src'] ?>" class="img-paket-thumbnail" alt="Dekor Outdoor 8 Meter" onclick="openLightbox(14)">
                     <div class="card-body p-1 d-flex flex-column">
                         <h6 class="fw-bold text-dark">Dekor Outdoor — Ukuran 8 Meter</h6>
                         <ul class="small my-2 flex-grow-1">
@@ -301,7 +301,7 @@ $dekor_photos = [
                         </div>
                         <div class="d-flex gap-2 mt-auto">
                             <button onclick="addToCart('Dekor Outdoor (8 Meter)', 'dekor', 4500000, '../assets/fotodekor15.jpeg')" class="btn-cart-icon">🛒</button>
-                            <a href="booking.php?from=dekor&nama=Dekor+Outdoor+(8+Meter)&harga=4500000" class="btn btn-booking flex-grow-1 btn-booking-trigger">Booking 8m</a>
+                            <a href="booking.php?from=dekor&nama=Dekor+Outdoor+(8+Meter)&harga=4500000&foto=<?= urlencode($dekor_photos[14]['src']) ?>" class="btn btn-booking flex-grow-1 btn-booking-trigger">Booking 8m</a>
                         </div>
                     </div>
                 </div>

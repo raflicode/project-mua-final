@@ -780,7 +780,7 @@ include __DIR__ . '/actions/proses_index.php';
             <div class="col-md-4">
                 <article class="gallery-card reveal reveal-delay-1">
                     <div class="gallery-img-wrap">
-                        <img src="assets/foto_makeup.jpeg" class="gallery-img" alt="Gallery Makeup">
+                        <img src="assets/fotomakeup_1.jpeg" class="gallery-img" alt="Gallery Makeup">
                     </div>
                     <div class="gallery-body">
                         <h3>Gallery Makeup</h3>
@@ -808,7 +808,7 @@ include __DIR__ . '/actions/proses_index.php';
             <div class="col-md-4">
                 <article class="gallery-card reveal reveal-delay-3">
                     <div class="gallery-img-wrap">
-                        <img src="assets/fotokostum1.jpeg" class="gallery-img" alt="Gallery Kostum">
+                        <img src="assets/fotocarnaval2.jpg" class="gallery-img" alt="Gallery Kostum">
                     </div>
                     <div class="gallery-body">
                         <h3>Gallery Kostum</h3>

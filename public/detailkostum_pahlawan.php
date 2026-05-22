@@ -309,7 +309,7 @@ body{
     </button>
 
     <!-- BOOKING -->
-    <a href="booking.php?from=kostum&nama=<?= urlencode($item['judul']); ?>&harga=<?= $item['harga']; ?>"
+    <a href="booking.php?from=kostum&nama=<?= urlencode($item['judul']); ?>&harga=<?= $item['harga']; ?>&foto=<?= urlencode($item['foto']); ?>"
        class="btn btn-booking flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none">
 
         Booking

@@ -30,6 +30,10 @@ function resolveImagePath($path, $default = '../assets/foto_makeup.jpeg')
         return '../' . $path;
     }
 
+    if (strpos($path, '../assets/') === 0) {
+        return $path;
+    }
+
     return '../' . ltrim($path, '/');
 }
 
@@ -40,9 +44,17 @@ $checkoutMode = false;
 $checkoutItems = [];
 $hargaProduk = 0;
 $foto = '../assets/foto_makeup.jpeg';
-$namaProduk = trim(filter_input(INPUT_GET, 'layanan', FILTER_SANITIZE_STRING));
+$namaProduk = trim(filter_input(INPUT_GET, 'layanan', FILTER_SANITIZE_STRING) ?? '');
+if ($namaProduk === '') {
+    $namaProduk = trim(filter_input(INPUT_GET, 'nama', FILTER_SANITIZE_STRING) ?? '');
+}
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $hargaProduk = filter_input(INPUT_GET, 'harga', FILTER_VALIDATE_INT);
+$fotoParam = trim(filter_input(INPUT_GET, 'foto', FILTER_SANITIZE_URL) ?? '');
+if ($fotoParam !== '') {
+    $foto = resolveImagePath($fotoParam);
+}
+$hasDirectSelection = $id || $namaProduk !== '' || $hargaProduk > 0 || $fotoParam !== '';
 $service = null;
 $layananTableExists = false;
 
@@ -53,7 +65,7 @@ try {
     $layananTableExists = false;
 }
 
-if ($checkout && !empty($checkout['items']) && is_array($checkout['items'])) {
+if (!$hasDirectSelection && $checkout && !empty($checkout['items']) && is_array($checkout['items'])) {
     $checkoutMode = true;
     $checkoutItems = $checkout['items'];
     $hargaProduk = floatval($checkout['total_price']);
@@ -73,6 +85,10 @@ if ($checkout && !empty($checkout['items']) && is_array($checkout['items'])) {
         'foto' => $foto
     ];
 } else {
+    if ($hasDirectSelection) {
+        unset($_SESSION['checkout_booking']);
+    }
+
     if ($id && $layananTableExists) {
         $stmt = $pdo->prepare('SELECT * FROM layanan WHERE id_layanan = ? LIMIT 1');
         $stmt->execute([$id]);
@@ -101,7 +117,7 @@ if ($checkout && !empty($checkout['items']) && is_array($checkout['items'])) {
 
     $_SESSION['draft_booking'] = [
         'source' => 'single',
-        'id_layanan' => $service['id_layanan'] ?? ($draft['id_layanan'] ?? null),
+        'id_layanan' => $service['id_layanan'] ?? null,
         'nama_layanan' => $namaProduk,
         'harga' => $hargaProduk,
         'foto' => $foto
@@ -311,7 +327,7 @@ body {
                     <?php foreach ($checkoutItems as $item): ?>
                         <div class="product-item">
                             <div class="product-img-wrapper">
-                                <img src="<?= htmlspecialchars($foto, ENT_QUOTES, 'UTF-8'); ?>" class="product-img" alt="<?= htmlspecialchars($item['nama_layanan'], ENT_QUOTES, 'UTF-8'); ?>">
+                                <img src="<?= htmlspecialchars(resolveImagePath($item['foto'] ?? '', $foto), ENT_QUOTES, 'UTF-8'); ?>" class="product-img" alt="<?= htmlspecialchars($item['nama_layanan'], ENT_QUOTES, 'UTF-8'); ?>">
                             </div>
                             <div class="product-info flex-grow-1">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -348,13 +364,8 @@ body {
                             <span class="price-value"><?= htmlspecialchars(formatRupiah($hargaProduk), ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
                         <div class="price-row">
-                            <span class="price-label">Biaya layanan</span>
-                            <span class="price-value">Rp 10.000</span>
-                        </div>
-                        <div class="divider"></div>
-                        <div class="price-row">
                             <span class="fw-bold">Total Bayar</span>
-                            <span class="fw-bold"><?= htmlspecialchars(formatRupiah($hargaProduk + 10000), ENT_QUOTES, 'UTF-8'); ?></span>
+                            <span class="fw-bold"><?= htmlspecialchars(formatRupiah($hargaProduk), ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
                     </div>
                 </div>
