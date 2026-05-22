@@ -16,9 +16,9 @@
     </style>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="../assets/admin-brown.css" rel="stylesheet">
 </head>
 
+<link href="../assets/admin-brown.css" rel="stylesheet">
 
 <div class="d-flex">
 
@@ -32,12 +32,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
 
             <!-- Search -->
-            <div class="input-group w-50">
-                <input type="text" class="form-control rounded-start-pill" placeholder="Search">
-                <span class="input-group-text bg-white rounded-end-pill">
-                    <i class="bi bi-search"></i>
-                </span>
-            </div>
+            <div class="input-group w-50"></div>
 
             <!-- Profile -->
             <div class="d-flex align-items-center bg-white px-3 py-2 rounded-pill shadow-sm">
@@ -75,13 +70,13 @@
                 <tbody>
                     <?php
                     $data_bayar = [
-                        ["Yanti Sartika", "Makeup Artist", "12-8-2026", "Lunas", "Rp 1.500.000"],
-                        ["Humairoh", "Makeup Party", "12-6-2026", "Lunas", "Rp 1.000.000"],
-                        ["Feby Kurnia", "Dekoration", "19-7-2026", "Pending", "Rp 800.000"],
-                        ["Fanesa", "Kostum", "8-2-2026", "Pending", "Rp 2.500.000"],
-                        ["Tika Anggraini", "Makeup Birthday", "1-9-2026", "Lunas", "Rp 3.500.000"],
+                        ["Valentino Rosi", "Makeup Artist", "12-8-2026", "Lunas", "Rp 1.500.000"],
+                        ["Marques", "Makeup Party", "12-6-2026", "Lunas", "Rp 1.000.000"],
+                        ["Feby Guys", "Dekoration", "19-7-2026", "Pending", "Rp 800.000"],
+                        ["Difarom", "Kostum", "8-2-2026", "Pending", "Rp 2.500.000"],
+                        ["Mahendra", "Makeup Birthday", "1-9-2026", "Lunas", "Rp 3.500.000"],
                         ["Ajeng Febria", "Makeup Artist", "2-8-2026", "Pending", "Rp 400.000"],
-                        ["Ayu Rofalda", "Kostum", "30-2-2026", "Lunas", "Rp 1.800.000"],
+                        ["Adalah Pokoknya", "Kostum", "30-2-2026", "Lunas", "Rp 1.800.000"],
                     ];
 
                     foreach ($data_bayar as $row) :

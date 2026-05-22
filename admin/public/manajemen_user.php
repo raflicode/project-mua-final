@@ -17,7 +17,7 @@
         }
 
         .warnacustom {
-            background: linear-gradient(180deg, #4e73df, #224abe);
+            background: #3c2b0c;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             display: inline-block; /* Memastikan gradient ter-render dengan baik pada elemen block */
@@ -78,9 +78,9 @@
         }
     </style>
 
-    <link href="../assets/admin-brown.css" rel="stylesheet">
-
 </head>
+
+<link href="../assets/admin-brown.css" rel="stylesheet">
 
 <body class="bg-primary">
 
@@ -95,12 +95,7 @@
 
         <div class="d-flex justify-content-between align-items-center mb-4">
 
-            <div class="input-group w-50">
-                <input type="text" class="form-control rounded-start-pill" placeholder="Search">
-                <span class="input-group-text bg-white rounded-end-pill">
-                    <i class="bi bi-search"></i>
-                </span>
-            </div>
+            <div class="input-group w-50"></div>
 
             <div class="d-flex align-items-center bg-white px-3 py-2 rounded-pill shadow-sm">
                 <img src="https://ui-avatars.com/api/?name=Hotman+Paris&background=random" 
@@ -116,7 +111,7 @@
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold warnacustom">
+            <h4 class="fw-bold text-primary mb-4">
                 <i class="bi bi-person-fill me-2"></i> Manajemen User
             </h4>
 

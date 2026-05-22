@@ -4,7 +4,7 @@
     width:260px;
     height:100vh;
     position:fixed;
-    background:linear-gradient(180deg,#4e73df,#224abe);
+    background: #513c2c;
     color:white;
     padding-top:20px;
 }
@@ -53,6 +53,10 @@
     <a href="pembayaran.php" class="<?= ($page == 'pembayaran') ? 'active' : '' ?>">
         <i class="bi bi-cash me-2"></i> Pembayaran
     </a>
+
+    <a href="laporan.php" class="<?= ($page == 'laporan') ? 'active' : '' ?>">
+        <i class="bi bi-file-earmark-text me-2"></i> Laporan
+    </a>    
 
     <div class="mt-auto mb-3">
         <a href="logout.php">
