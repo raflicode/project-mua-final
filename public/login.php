@@ -3,6 +3,11 @@ session_start();
 
 require_once __DIR__ . '/../config/koneksi.php';
 require_once __DIR__ . '/../actions/proses_login.php';
+require_once __DIR__ . '/../config/auth.php';
+
+if (isset($_SESSION['id_user'])) {
+    redirect_to_role_home($_SESSION['role'] ?? 'client');
+}
 
 if (!isset($_SESSION['id_user']) && !empty($_COOKIE['remember_me'])) {
     $rememberValue = base64_decode($_COOKIE['remember_me'], true);
@@ -18,13 +23,10 @@ if (!isset($_SESSION['id_user']) && !empty($_COOKIE['remember_me'])) {
                 if (hash_equals($expectedToken, $rememberToken)) {
                     $_SESSION['id_user'] = $rememberUser['id_user'];
                     $_SESSION['username'] = $rememberUser['username'];
-                    $_SESSION['role'] = $rememberUser['role'];
-                    if ($_SESSION['role'] === 'admin') {
-                        header('Location: ../admin/public/dashboard.php?success=' . urlencode('Login berhasil'));
-                    } else {
-                        header('Location: ../index.php?success=' . urlencode('Login berhasil'));
-                    }
-                    exit();
+                    $_SESSION['role'] = normalize_role($rememberUser['role'] ?? 'client');
+                    $_SESSION['email'] = $rememberUser['email'] ?? '';
+                    $_SESSION['full_name'] = $rememberUser['full_name'] ?? '';
+                    redirect_to_role_home($_SESSION['role'], 'Login berhasil');
                 }
             }
         }

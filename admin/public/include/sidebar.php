@@ -30,6 +30,7 @@
 }
 </style>
 
+<?php $page = $page ?? ''; ?>
 
 <div class="sidebar d-flex flex-column">
     <h4>Yayuk Makeover</h4>
@@ -38,11 +39,11 @@
         <i class="bi bi-grid me-2"></i> Dashboard
     </a>
 
-    <a href="../admin/public/booking.php" class="<?= ($page == 'booking') ? 'active' : '' ?>">
+    <a href="booking.php" class="<?= ($page == 'booking') ? 'active' : '' ?>">
         <i class="bi bi-calendar me-2"></i> Booking
     </a>
 
-    <a href="../admin/public/data_layanan.php" class="<?= ($page == 'layanan') ? 'active' : '' ?>">
+    <a href="data_layanan.php" class="<?= ($page == 'layanan') ? 'active' : '' ?>">
         <i class="bi bi-folder me-2"></i> Data Layanan
     </a>
 

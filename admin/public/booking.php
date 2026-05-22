@@ -1,4 +1,7 @@
-<?php session_start(); ?>
+<?php
+require_once __DIR__ . '/../../config/auth.php';
+require_login(['admin']);
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -815,28 +818,28 @@
     <nav class="sidebar-nav">
         <div class="nav-label">Menu</div>
         <div class="nav-item">
-            <a href="admin_dashboard.php">
+            <a href="dashboard.php">
                 <i class="bi bi-grid-1x2"></i> Dashboard
             </a>
         </div>
         <div class="nav-item">
-            <a href="admin_booking.php" class="active">
+            <a href="booking.php" class="active">
                 <i class="bi bi-calendar-check"></i> Booking
             </a>
         </div>
         <div class="nav-item">
-            <a href="admin_layanan.php">
+            <a href="data_layanan.php">
                 <i class="bi bi-stars"></i> Data Layanan
             </a>
         </div>
         <div class="nav-label">Pengguna</div>
         <div class="nav-item">
-            <a href="admin_user.php">
+            <a href="manajemen_user.php">
                 <i class="bi bi-people"></i> Manajemen User
             </a>
         </div>
         <div class="nav-item">
-            <a href="admin_pembayaran.php">
+            <a href="pembayaran.php">
                 <i class="bi bi-credit-card"></i> Pembayaran
             </a>
         </div>
@@ -1087,8 +1090,8 @@ function renderTable() {
                 <td>${b.telp}</td>
                 <td>
                     <div class="action-btns">
-                        <a href="detail_booking.php?id=${b.id}" class="btn-action" title="Detail"><i class="bi bi-eye"></i></a>
-                        <a href="edit_booking.php?id=${b.id}"   class="btn-action" title="Edit"><i class="bi bi-pencil"></i></a>
+                        <a href="#" onclick="lihat(${b.id}); return false;" class="btn-action" title="Detail"><i class="bi bi-eye"></i></a>
+                        <a href="#" onclick="edit(${b.id}); return false;" class="btn-action" title="Edit"><i class="bi bi-pencil"></i></a>
                         <a href="#" onclick="hapus(${b.id})"    class="btn-action" title="Hapus"><i class="bi bi-trash"></i></a>
                     </div>
                 </td>
@@ -1140,6 +1143,22 @@ function hapus(id) {
     if (confirm('Yakin hapus booking ini?')) {
         alert('Booking #' + id + ' dihapus (sambungkan ke PHP untuk fungsionalitas nyata)');
     }
+}
+
+function lihat(id) {
+    const booking = bookingData.find(b => b.id === id);
+    if (!booking) return;
+    alert(
+        'Detail Booking #' + id + '\n' +
+        'Paket: ' + booking.paket + '\n' +
+        'Customer: ' + booking.customer + '\n' +
+        'Tanggal: ' + booking.tgl + '\n' +
+        'Status: ' + booking.status
+    );
+}
+
+function edit(id) {
+    alert('Fitur edit booking #' + id + ' belum tersambung ke database.');
 }
 
 // INIT

@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../config/auth.php';
+require_login(['admin']);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -135,7 +136,7 @@ body {
 
 <body>
 
-<?php include 'include/navbar.php'; ?>
+<?php include '../../public/include/navbar.php'; ?>
 
 <main class="page-wrap">
     <div class="container">
@@ -150,7 +151,7 @@ body {
                 <div class="card card-custom p-3">
                     <div class="card-body d-flex flex-column">
                         <h5 class="fw-bold mb-4">Kostum Baju Adat</h5>
-                        <img src="../assets/fotokostum1.jpeg" class="img-paket" alt="Kostum Baju Adat">
+                        <img src="../../assets/fotokostum1.jpeg" class="img-paket" alt="Kostum Baju Adat">
                         <p class="fw-semibold">Include :</p>
                         <ul>
                             <li>Baju adat pengantin</li>
@@ -160,7 +161,7 @@ body {
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="detail_kostum.php?from=kostum&nama=Kostum+Baju+Adat&harga=8000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                        <a href="../../public/detail_kostum.php?from=kostum&nama=Kostum+Baju+Adat&harga=8000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                             Lihat lebih banyak
                         </a>
                     </div>
@@ -171,7 +172,7 @@ body {
                 <div class="card card-custom p-3">
                     <div class="card-body d-flex flex-column">
                         <h5 class="fw-bold mb-4">Kostum Wedding</h5>
-                        <img src="../assets/fotokostum2.jpg" class="img-paket" alt="Kostum Wedding">
+                        <img src="../../assets/fotokostum2.jpg" class="img-paket" alt="Kostum Wedding">
                         <p class="fw-semibold">Include :</p>
                         <ul>
                             <li>Kostum pengantin utama</li>
@@ -181,7 +182,7 @@ body {
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="detailkostum_wedding.php?from=kostum&nama=Kostum+Wedding&harga=4000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                        <a href="../../public/detailkostum_wedding.php?from=kostum&nama=Kostum+Wedding&harga=4000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                             Lihat lebih banyak
                         </a>
                     </div>
@@ -192,7 +193,7 @@ body {
                 <div class="card card-custom p-3">
                     <div class="card-body d-flex flex-column">
                         <h5 class="fw-bold mb-4">Kostum Graduation</h5>
-                        <img src="../assets/fotokostum3.jpg" class="img-paket" alt="Kostum Graduation">
+                        <img src="../../assets/fotokostum3.jpg" class="img-paket" alt="Kostum Graduation">
                         <p class="fw-semibold">Include :</p>
                         <ul>
                             <li>Kebaya graduation</li>
@@ -202,7 +203,7 @@ body {
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="detailkostum_graduation.php?from=kostum&nama=Kostum+Graduation&harga=6000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                        <a href="../../public/detailkostum_graduation.php?from=kostum&nama=Kostum+Graduation&harga=6000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                            Lihat lebih banyak
                         </a>
                     </div>
@@ -213,7 +214,7 @@ body {
                 <div class="card card-custom p-3">
                     <div class="card-body d-flex flex-column">
                         <h5 class="fw-bold mb-4">Kostum Kebaya</h5>
-                        <img src="../assets/fotokostum4.jpg" class="img-paket" alt="Kostum Kebaya">
+                        <img src="../../assets/fotokostum4.jpg" class="img-paket" alt="Kostum Kebaya">
                         <p class="fw-semibold">Include :</p>
                         <ul>
                             <li>Kebaya pilihan</li>
@@ -223,7 +224,7 @@ body {
                         </ul>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="detailkostum_pahlawan.php?from=kostum&nama=Kostum+Kebaya&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                        <a href="../../public/detailkostum_pahlawan.php?from=kostum&nama=Kostum+Kebaya&harga=2000000" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
                            Lihat lebih banyak
                         </a>
                     </div>
@@ -261,12 +262,12 @@ document.querySelectorAll('.btn-booking-trigger').forEach(btn => {
 });
 </script>
 
-<a href="service.php" class="btn btn-danger btn-kembali shadow">
+<a href="data_layanan.php" class="btn btn-danger btn-kembali shadow">
     Kembali
 </a>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<?php include 'include/add_to_cart_script.php'; ?>
+<?php include '../../public/include/add_to_cart_script.php'; ?>
 </body>
 </html>

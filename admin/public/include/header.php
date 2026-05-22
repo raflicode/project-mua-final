@@ -1,4 +1,3 @@
-```php id="2rpx2n"
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -20,4 +19,3 @@ body{
 
 </head>
 <body>
-```

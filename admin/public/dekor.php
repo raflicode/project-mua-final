@@ -1,5 +1,7 @@
-
 <?php
+require_once __DIR__ . '/../../config/auth.php';
+require_login(['admin']);
+
 $data_booking = [
     ["paket"=>"Makeup Wedding","customer"=>"Rafli","tgl"=>"09 Januari 2026","status"=>"Lunas","alamat"=>"Jl. Mastrip","telp"=>"089766455"],
     ["paket"=>"Makeup Birthday","customer"=>"Tegar","tgl"=>"05 Januari 2026","status"=>"Dp","alamat"=>"Jl. Mastrip","telp"=>"089766455"],

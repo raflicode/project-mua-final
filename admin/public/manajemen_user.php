@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . '/../../config/auth.php';
+require_login(['admin']);
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -205,7 +209,7 @@
                 </h5>
             </div>
             <div class="modal-body">
-                <form action="actions/update_user.php" method="POST">
+                <form id="editUserForm" action="" method="POST">
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
                             <label class="form-label">Nama Lengkap</label>
@@ -242,7 +246,8 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // Inisialisasi object Modal Bootstrap 5
-        const editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+        const modalEl = document.getElementById('editUserModal');
+        const editModal = new bootstrap.Modal(modalEl);
 
         // Ambil semua element tombol edit yang memiliki class .btn-edit-user
         document.querySelectorAll('.btn-edit-user').forEach(button => {
@@ -265,6 +270,12 @@
                 // Tampilkan pop-up modalnya
                 editModal.show();
             });
+        });
+
+        document.getElementById('editUserForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            editModal.hide();
+            alert('Perubahan user tersimpan di tampilan demo. Sambungkan ke database untuk menyimpan permanen.');
         });
     });
 </script>

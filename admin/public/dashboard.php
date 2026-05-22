@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . '/../../config/auth.php';
+require_login(['admin']);
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -191,22 +195,22 @@ canvas {
 
     <div class="sidebar-section">Menu Utama</div>
 
-    <a href="#" class="active">
+    <a href="dashboard.php" class="active">
         <i class="bi bi-speedometer2"></i>
         Dashboard
     </a>
 
-    <a href="#">
+    <a href="booking.php">
         <i class="bi bi-calendar-check"></i>
         Booking
     </a>
 
-    <a href="#">
+    <a href="manajemen_user.php">
         <i class="bi bi-people"></i>
         Pelanggan
     </a>
 
-    <a href="#">
+    <a href="data_layanan.php">
         <i class="bi bi-bag-heart"></i>
         Layanan
     </a>
@@ -218,7 +222,7 @@ canvas {
         Statistik
     </a>
 
-    <a href="#">
+    <a href="pembayaran.php">
         <i class="bi bi-cash-coin"></i>
         Pendapatan
     </a>
@@ -230,7 +234,7 @@ canvas {
         Pengaturan
     </a>
 
-    <a href="#">
+    <a href="logout.php">
         <i class="bi bi-box-arrow-left"></i>
         Logout
     </a>

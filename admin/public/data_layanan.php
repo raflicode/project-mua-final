@@ -1,4 +1,7 @@
-<?php session_start(); ?>
+<?php
+require_once __DIR__ . '/../../config/auth.php';
+require_login(['admin']);
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -592,12 +595,12 @@
     </div>
     <nav class="sidebar-nav">
         <div class="nav-label">Menu</div>
-        <div class="nav-item"><a href="admin_dashboard.php"><i class="bi bi-grid-1x2"></i> Dashboard</a></div>
-        <div class="nav-item"><a href="admin_booking.php"><i class="bi bi-calendar-check"></i> Booking</a></div>
-        <div class="nav-item"><a href="admin_layanan.php" class="active"><i class="bi bi-stars"></i> Data Layanan</a></div>
+        <div class="nav-item"><a href="dashboard.php"><i class="bi bi-grid-1x2"></i> Dashboard</a></div>
+        <div class="nav-item"><a href="booking.php"><i class="bi bi-calendar-check"></i> Booking</a></div>
+        <div class="nav-item"><a href="data_layanan.php" class="active"><i class="bi bi-stars"></i> Data Layanan</a></div>
         <div class="nav-label">Pengguna</div>
-        <div class="nav-item"><a href="admin_user.php"><i class="bi bi-people"></i> Manajemen User</a></div>
-        <div class="nav-item"><a href="admin_pembayaran.php"><i class="bi bi-credit-card"></i> Pembayaran</a></div>
+        <div class="nav-item"><a href="manajemen_user.php"><i class="bi bi-people"></i> Manajemen User</a></div>
+        <div class="nav-item"><a href="pembayaran.php"><i class="bi bi-credit-card"></i> Pembayaran</a></div>
     </nav>
     <div class="sidebar-footer">
         <a href="logout.php" class="logout-btn"><i class="bi bi-box-arrow-left"></i> Log Out</a>

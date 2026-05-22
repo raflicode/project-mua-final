@@ -3,6 +3,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once __DIR__ . '/../config/auth.php';
+
 function getLoginAlertScript() {
     $script = '';
 
@@ -86,7 +88,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     unset($_SESSION['error']);
     $_SESSION['id_user'] = $user['id_user'];
     $_SESSION['username'] = $user['username'];
-    $_SESSION['role'] = $user['role'];
+    $_SESSION['role'] = normalize_role($user['role'] ?? 'client');
+    $_SESSION['email'] = $user['email'] ?? '';
+    $_SESSION['full_name'] = $user['full_name'] ?? '';
 
     if (!empty($_POST['remember'])) {
         $token = buildRememberToken($user['id_user'], $passwordHash);
@@ -96,11 +100,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         setcookie('remember_me', '', time() - 3600, '/', '', false, true);
     }
 
-    if ($_SESSION['role'] === 'admin') {
-        header("Location: ../admin/public/dashboard.php?success=Login berhasil");
-    } else {
-        header("Location: ../index.php?success=Login berhasil");
-    }
-    exit();
+    redirect_to_role_home($_SESSION['role'], 'Login berhasil');
 }
 ?>
