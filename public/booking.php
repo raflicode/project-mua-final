@@ -12,8 +12,14 @@ function formatRupiah($value)
     return 'Rp ' . number_format($value, 0, ',', '.');
 }
 
-$backHref = $_SERVER['HTTP_REFERER'] ?? 'service.php';
 $fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_STRING);
+$sourcePage = filter_input(INPUT_GET, 'source_page', FILTER_SANITIZE_STRING);
+$backMap = [
+    'makeup' => 'makeup.php',
+    'dekor' => 'dekor.php',
+    'kostum' => 'kostum.php'
+];
+$backHref = $backMap[$sourcePage] ?? $backMap[$fromPage] ?? 'price_list.php';
 
 function resolveImagePath($path, $default = '../assets/foto_makeup.jpeg')
 {
@@ -35,7 +41,6 @@ function resolveImagePath($path, $default = '../assets/foto_makeup.jpeg')
 
 $checkout = $_SESSION['checkout_booking'] ?? null;
 $draft = $_SESSION['draft_booking'] ?? null;
-$backHref = 'price_list.php';
 $checkoutMode = false;
 $checkoutItems = [];
 $hargaProduk = 0;

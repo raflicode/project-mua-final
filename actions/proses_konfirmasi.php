@@ -25,14 +25,28 @@ if (empty($draft['id_jadwal'])) {
     $canCreateBooking = false;
 }
 
-// Check method POST dan ada file
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_FILES['bukti_pembayaran'])) {
+// Check method POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: ../public/konfirmasi.php');
+    exit;
+}
+
+$errors = [];
+
+// Pastikan file dikirim
+if (!isset($_FILES['bukti_pembayaran']) || $_FILES['bukti_pembayaran']['error'] === UPLOAD_ERR_NO_FILE) {
+    $errors[] = 'Silakan upload bukti pembayaran terlebih dahulu.';
+}
+
+if (!empty($errors)) {
+    $_SESSION['errors'] = $errors;
     header('Location: ../public/konfirmasi.php');
     exit;
 }
 
 $file = $_FILES['bukti_pembayaran'];
-$errors = [];
+
+$file = $_FILES['bukti_pembayaran'];
 
 // Validasi file
 if ($file['error'] !== UPLOAD_ERR_OK) {
