@@ -18,6 +18,12 @@ $data_booking = [
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 <link href="../assets/admin-brown.css" rel="stylesheet">
+<style>
+.main-content {
+    margin-left: 260px;
+    min-height: 100vh;
+}
+</style>
 
 </head>
 
@@ -25,13 +31,13 @@ $data_booking = [
 
 <div class="d-flex">
 
-    <!-- Sidebar -->
-    <div class="bg-primary text-white vh-100 p-3" style="width:260px;">
-        <?php include 'include/sidebar.php'; ?>
-    </div>
+    <?php
+    $page = 'booking';
+    include 'include/sidebar.php';
+    ?>
 
     <!-- Content -->
-    <div class="flex-grow-1 bg-light rounded-start-5 p-4">
+    <div class="flex-grow-1 bg-light rounded-start-5 p-4 main-content">
 
         <!-- Topbar -->
         <div class="d-flex justify-content-between align-items-center mb-3">

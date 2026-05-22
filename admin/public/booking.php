@@ -25,7 +25,7 @@ require_login(['admin']);
             --white:       #FFFDF9;
             --accent:      #D4956A;
             --accent-soft: #F0DBC8;
-            --sidebar-w:   240px;
+            --sidebar-w:   260px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -808,49 +808,10 @@ require_login(['admin']);
 </head>
 <body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-    <div class="sidebar-logo">
-        <div class="brand">Yayuk <span>Makeover</span></div>
-        <div class="sub">Admin Panel</div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <div class="nav-label">Menu</div>
-        <div class="nav-item">
-            <a href="dashboard.php">
-                <i class="bi bi-grid-1x2"></i> Dashboard
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="booking.php" class="active">
-                <i class="bi bi-calendar-check"></i> Booking
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="data_layanan.php">
-                <i class="bi bi-stars"></i> Data Layanan
-            </a>
-        </div>
-        <div class="nav-label">Pengguna</div>
-        <div class="nav-item">
-            <a href="manajemen_user.php">
-                <i class="bi bi-people"></i> Manajemen User
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="pembayaran.php">
-                <i class="bi bi-credit-card"></i> Pembayaran
-            </a>
-        </div>
-    </nav>
-
-    <div class="sidebar-footer">
-        <a href="logout.php" class="logout-btn">
-            <i class="bi bi-box-arrow-left"></i> Log Out
-        </a>
-    </div>
-</aside>
+<?php
+$page = 'booking';
+include 'include/sidebar.php';
+?>
 
 <!-- MAIN -->
 <div class="main">

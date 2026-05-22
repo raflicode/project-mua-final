@@ -180,63 +180,10 @@ canvas {
 
 <body>
 
-<!-- ===== SIDEBAR ===== -->
-<div class="sidebar">
-
-    <div class="sidebar-brand">
-        <div class="brand-icon">
-            <i class="bi bi-stars"></i>
-        </div>
-        <div>
-            <h5>Yayuk Makeover</h5>
-            <small>Beauty & Decoration</small>
-        </div>
-    </div>
-
-    <div class="sidebar-section">Menu Utama</div>
-
-    <a href="dashboard.php" class="active">
-        <i class="bi bi-speedometer2"></i>
-        Dashboard
-    </a>
-
-    <a href="booking.php">
-        <i class="bi bi-calendar-check"></i>
-        Booking
-    </a>
-
-    <a href="manajemen_user.php">
-        <i class="bi bi-people"></i>
-        Manajemen User
-    </a>
-
-    <a href="data_layanan.php">
-        <i class="bi bi-bag-heart"></i>
-        Data Layanan
-    </a>
-
-    <div class="sidebar-section">Laporan</div>
-
-    <a href="#">
-        <i class="bi bi-bar-chart-line"></i>
-        Statistik
-    </a>
-
-    <a href="pembayaran.php">
-        <i class="bi bi-cash-coin"></i>
-        Pembayaran
-    </a>
-
-    <a href="logout.php">
-        <i class="bi bi-box-arrow-left"></i>
-        Logout
-    </a>
-
-    <div class="sidebar-footer">
-        &copy; 2025 Yayuk Makeover
-    </div>
-
-</div>
+<?php
+$page = 'dashboard';
+include 'include/sidebar.php';
+?>
 
 <!-- ===== CONTENT ===== -->
 <div class="content">
@@ -253,28 +200,6 @@ canvas {
     <div class="welcome mb-4">
         <h3>Hello, Yayuk MakeOver</h3>
         <p class="mb-0">Selamat datang kembali di dashboard Yayuk Makeover.</p>
-    </div>
-
-    <!-- Statistik -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card card-custom p-4">
-                <h6 class="text-muted mb-1">Total Pesanan</h6>
-                <h2 class="mb-0" style="color: #5c4033;">0</h2>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card card-custom p-4">
-                <h6 class="text-muted mb-1">Total Pengunjung</h6>
-                <h2 class="mb-0" style="color: #8b5a2b;">0</h2>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card card-custom p-4">
-                <h6 class="text-muted mb-1">Pendapatan</h6>
-                <h2 class="mb-0" style="color: #b8860b;">Rp 0</h2>
-            </div>
-        </div>
     </div>
 
     <!-- Chart -->
