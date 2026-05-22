@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 21, 2026 at 09:50 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Waktu pembuatan: 22 Bulan Mei 2026 pada 10.29
+-- Versi server: 10.4.32-MariaDB
+-- Versi PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,7 +24,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `booking`
+-- Struktur dari tabel `booking`
 --
 
 CREATE TABLE `booking` (
@@ -42,7 +42,7 @@ CREATE TABLE `booking` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `booking_detail`
+-- Struktur dari tabel `booking_detail`
 --
 
 CREATE TABLE `booking_detail` (
@@ -59,7 +59,7 @@ CREATE TABLE `booking_detail` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `jadwal_kerja`
+-- Struktur dari tabel `jadwal_kerja`
 --
 
 CREATE TABLE `jadwal_kerja` (
@@ -75,7 +75,7 @@ CREATE TABLE `jadwal_kerja` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `keranjang`
+-- Struktur dari tabel `keranjang`
 --
 
 CREATE TABLE `keranjang` (
@@ -93,7 +93,7 @@ CREATE TABLE `keranjang` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `layanan`
+-- Struktur dari tabel `layanan`
 --
 
 CREATE TABLE `layanan` (
@@ -110,7 +110,7 @@ CREATE TABLE `layanan` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `pembayaran`
+-- Struktur dari tabel `pembayaran`
 --
 
 CREATE TABLE `pembayaran` (
@@ -127,7 +127,7 @@ CREATE TABLE `pembayaran` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `user`
+-- Struktur dari tabel `user`
 --
 
 CREATE TABLE `user` (
@@ -147,7 +147,7 @@ CREATE TABLE `user` (
 --
 
 --
--- Indexes for table `booking`
+-- Indeks untuk tabel `booking`
 --
 ALTER TABLE `booking`
   ADD PRIMARY KEY (`id_booking`),
@@ -155,7 +155,7 @@ ALTER TABLE `booking`
   ADD KEY `idx_booking_jadwal` (`id_jadwal`);
 
 --
--- Indexes for table `booking_detail`
+-- Indeks untuk tabel `booking_detail`
 --
 ALTER TABLE `booking_detail`
   ADD PRIMARY KEY (`id_booking_detail`),
@@ -163,33 +163,33 @@ ALTER TABLE `booking_detail`
   ADD KEY `idx_bookingdetail_layanan` (`id_layanan`);
 
 --
--- Indexes for table `jadwal_kerja`
+-- Indeks untuk tabel `jadwal_kerja`
 --
 ALTER TABLE `jadwal_kerja`
   ADD PRIMARY KEY (`id_jadwal`);
 
 --
--- Indexes for table `keranjang`
+-- Indeks untuk tabel `keranjang`
 --
 ALTER TABLE `keranjang`
   ADD PRIMARY KEY (`id_keranjang`),
   ADD KEY `idx_keranjang_user` (`id_user`);
 
 --
--- Indexes for table `layanan`
+-- Indeks untuk tabel `layanan`
 --
 ALTER TABLE `layanan`
   ADD PRIMARY KEY (`id_layanan`);
 
 --
--- Indexes for table `pembayaran`
+-- Indeks untuk tabel `pembayaran`
 --
 ALTER TABLE `pembayaran`
   ADD PRIMARY KEY (`id_pembayaran`),
   ADD KEY `idx_pembayaran_booking` (`id_booking`);
 
 --
--- Indexes for table `user`
+-- Indeks untuk tabel `user`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`id_user`),
@@ -197,77 +197,77 @@ ALTER TABLE `user`
   ADD UNIQUE KEY `email` (`email`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT untuk tabel yang dibuang
 --
 
 --
--- AUTO_INCREMENT for table `booking`
+-- AUTO_INCREMENT untuk tabel `booking`
 --
 ALTER TABLE `booking`
   MODIFY `id_booking` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `booking_detail`
+-- AUTO_INCREMENT untuk tabel `booking_detail`
 --
 ALTER TABLE `booking_detail`
   MODIFY `id_booking_detail` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `jadwal_kerja`
+-- AUTO_INCREMENT untuk tabel `jadwal_kerja`
 --
 ALTER TABLE `jadwal_kerja`
   MODIFY `id_jadwal` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `keranjang`
+-- AUTO_INCREMENT untuk tabel `keranjang`
 --
 ALTER TABLE `keranjang`
   MODIFY `id_keranjang` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `layanan`
+-- AUTO_INCREMENT untuk tabel `layanan`
 --
 ALTER TABLE `layanan`
   MODIFY `id_layanan` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `pembayaran`
+-- AUTO_INCREMENT untuk tabel `pembayaran`
 --
 ALTER TABLE `pembayaran`
   MODIFY `id_pembayaran` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `user`
+-- AUTO_INCREMENT untuk tabel `user`
 --
 ALTER TABLE `user`
   MODIFY `id_user` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- Constraints for dumped tables
+-- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
 --
 
 --
--- Constraints for table `booking`
+-- Ketidakleluasaan untuk tabel `booking`
 --
 ALTER TABLE `booking`
   ADD CONSTRAINT `fk_booking_jadwal` FOREIGN KEY (`id_jadwal`) REFERENCES `jadwal_kerja` (`id_jadwal`) ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_booking_user` FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `booking_detail`
+-- Ketidakleluasaan untuk tabel `booking_detail`
 --
 ALTER TABLE `booking_detail`
   ADD CONSTRAINT `fk_bd_booking` FOREIGN KEY (`id_booking`) REFERENCES `booking` (`id_booking`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_bd_layanan` FOREIGN KEY (`id_layanan`) REFERENCES `layanan` (`id_layanan`) ON UPDATE CASCADE;
 
 --
--- Constraints for table `keranjang`
+-- Ketidakleluasaan untuk tabel `keranjang`
 --
 ALTER TABLE `keranjang`
   ADD CONSTRAINT `fk_keranjang_user` FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `pembayaran`
+-- Ketidakleluasaan untuk tabel `pembayaran`
 --
 ALTER TABLE `pembayaran`
   ADD CONSTRAINT `fk_pembayaran_booking` FOREIGN KEY (`id_booking`) REFERENCES `booking` (`id_booking`) ON DELETE CASCADE ON UPDATE CASCADE;

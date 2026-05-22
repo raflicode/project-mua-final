@@ -1,35 +1,9 @@
 
 <?php
 session_start();
+require_once __DIR__ . '/../actions/proses_detailkostum.php';
 
-/*
-|--------------------------------------------------------------------------
-| DATA FOTO + NAMA BAJU
-|--------------------------------------------------------------------------
-*/
-
-$gallery = [
-    [
-        "foto" => "../assets/fotokostum4.jpeg",
-        "judul" => "Baju Akad Nikah",
-        "harga" => 4000000
-    ],
-    [
-        "foto" => "../assets/adatjawa.jpeg",
-        "judul" => "Baju Resepsi",
-        "harga" => 4000000
-    ],
-    [
-        "foto" => "../assets/fotokostum5.jpeg",
-        "judul" => "Baju Akad Nikah",
-        "harga" => 4000000
-    ],
-    [
-        "foto" => "../assets/adatmadura.jpeg",
-        "judul" => "Baju Resepsi",
-        "harga" => 4000000
-    ],
-];
+$gallery = getDetailKostumGallery('detailkostum_wedding');
 ?>
 
 <!DOCTYPE html>
@@ -308,7 +282,7 @@ body{
     </button>
 
     <!-- BOOKING -->
-    <a href="booking.php?from=kostum&nama=<?= urlencode($item['judul']); ?>&harga=<?= $item['harga']; ?>"
+    <a href="booking.php?from=kostum&nama=<?= urlencode($item['judul']); ?>&harga=<?= $item['harga']; ?>&foto=<?= urlencode($item['foto']); ?>"
        class="btn btn-booking flex-grow-1 d-flex align-items-center justify-content-center text-decoration-none">
 
         Booking

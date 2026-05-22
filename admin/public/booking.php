@@ -270,10 +270,10 @@ require_login(['admin']);
 
         .folders-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
             margin-bottom: 36px;
-            max-width: 600px;
+            max-width: 100%;
         }
 
         .folder-card {

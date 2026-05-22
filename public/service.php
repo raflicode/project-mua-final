@@ -194,7 +194,7 @@
                 <div class="card-footer bg-white border-0 p-3">
                     <div class="d-flex gap-2">
                         <button class="btn btn-silver" type="button"><i class="bi bi-cart3"></i></button>
-                        <a href="paket_silver.php" class="btn btn-silver w-100">Booking</a>
+                        <a href="booking.php?from=paket&nama=Paket+Silver&harga=7500000" class="btn btn-silver w-100">Booking</a>
                     </div>
                 </div>
             </div>
@@ -207,7 +207,7 @@
                 <div class="card-footer bg-white border-0 p-3">
                     <div class="d-flex gap-2">
                         <button class="btn btn-gold text-white" type="button"><i class="bi bi-cart3"></i></button>
-                        <a href="paket_gold.php" class="btn btn-gold w-100 text-white">Booking</a>
+                        <a href="booking.php?from=paket&nama=Paket+Gold&harga=10000000" class="btn btn-gold w-100 text-white">Booking</a>
                     </div>
                 </div>
             </div>

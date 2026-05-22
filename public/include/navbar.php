@@ -7,7 +7,9 @@ $navbarCartCount = 0;
 $navbarCartItems = [];
 
 if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
-  require_once __DIR__ . '/../../config/koneksi.php';
+  if (!isset($pdo) || !$pdo instanceof PDO) {
+    require __DIR__ . '/../../config/koneksi.php';
+  }
 
   if (!function_exists('navbarTableHasColumn')) {
     function navbarTableHasColumn(PDO $pdo, string $table, string $column): bool
@@ -40,18 +42,18 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
       if ($type === 'kostum') {
         if ($hasName('graduation')) return '../assets/fotograduation.jpeg';
         if ($hasName('pahlawan')) return '../assets/fotopahlawan.jpeg';
-        if ($hasName('wedding')) return '../assets/fotokostum6.jpeg';
-        if ($hasName('baju adat jawa')) return '../assets/fotokostum4.jpeg';
+        if ($hasName('wedding')) return '../assets/gallery_kostum/foto_resepsi.jpeg';
+        if ($hasName('baju adat jawa')) return '../assets/gallery_kostum/kostum_4.jpeg';
         if ($hasName('baju adat sunda')) return '../assets/adatjawa.jpeg';
-        if ($hasName('baju adat bali')) return '../assets/fotokostum5.jpeg';
+        if ($hasName('baju adat bali')) return '../assets/gallery_kostum/kostum_5.jpeg';
         if ($hasName('baju adat madura')) return '../assets/adatmadura.jpeg';
-        if ($hasName('baju adat') || $hasName('kostum')) return '../assets/fotokostum3.jpeg';
+        if ($hasName('baju adat') || $hasName('kostum')) return '../assets/gallery_kostum/foto_carnaval.jpeg';
       }
 
       if ($type === 'makeup') return '../assets/foto_makeup.jpeg';
       if ($type === 'dekor') return '../assets/foto_dekor.jpeg';
 
-      return '../assets/fotokostum1.jpeg';
+      return '../assets/gallery_kostum/kostum_4.jpeg';
     }
   }
 
@@ -445,41 +447,9 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
         Service
       </a>
 
-      <div class="nav-cart-preview-trigger nav-item-gallery-cart">
-        <a class="nav-link" href="/project-mua-final/index.php#gallery">
-          Gallery
-        </a>
-
-        <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
-          <ul class="dropdown-menu dropdown-menu-custom dropdown-cart-menu p-2">
-            <div class="cart-items-preview-container">
-              <?php if (!empty($navbarCartItems)): ?>
-                <?php foreach ($navbarCartItems as $cartItem): ?>
-                  <?php
-                    $cartItemName = $cartItem['nama_layanan'] ?? '';
-                    $cartItemFoto = navbarCartImageUrl(navbarCartImagePath($cartItem));
-                    $cartItemQty = (int) ($cartItem['kuantitas'] ?? 1);
-                    $cartItemPrice = number_format((float) ($cartItem['harga'] ?? 0), 0, ',', '.');
-                  ?>
-                  <div class="cart-item-preview">
-                    <img src="<?= htmlspecialchars($cartItemFoto, ENT_QUOTES, 'UTF-8'); ?>" class="cart-item-img" alt="<?= htmlspecialchars($cartItemName, ENT_QUOTES, 'UTF-8'); ?>">
-                    <div class="cart-item-info">
-                      <div class="cart-item-title" title="<?= htmlspecialchars($cartItemName, ENT_QUOTES, 'UTF-8'); ?>"><?= htmlspecialchars($cartItemName, ENT_QUOTES, 'UTF-8'); ?></div>
-                      <div class="cart-item-price"><small><?= $cartItemQty; ?>x</small> Rp <?= $cartItemPrice; ?></div>
-                    </div>
-                  </div>
-                <?php endforeach; ?>
-              <?php else: ?>
-                <div class="text-center py-4 text-muted"><i class="bi bi-cart-x d-block fs-4 mb-1"></i><small>Keranjang masih kosong</small></div>
-              <?php endif; ?>
-            </div>
-            <li><hr class="dropdown-divider"></li>
-            <li class="text-center p-1">
-              <a href="/project-mua-final/public/keranjang.php" class="btn btn-sm btn-custom-gold w-100 py-1" style="font-size: 0.8rem;">Lihat Keranjang Belanja</a>
-            </li>
-          </ul>
-        <?php endif; ?>
-      </div>
+      <a class="nav-link" href="/project-mua-final/index.php#gallery">
+        Gallery
+      </a>
 
       <!-- Modifikasi: Pembungkus Dropdown Keranjang -->
       <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
@@ -795,7 +765,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
 
   function updateCartCount() {
 
-    fetch('/project-mua-final/actions/get_cart_count.php')
+    fetch(new URL('../actions/get_cart_count.php', window.location.href))
 
       .then(response => response.json())
 
