@@ -50,7 +50,7 @@ try {
     $mail->SMTPSecure = 'tls';
     $mail->Port = 587;
 
-    $mail->setFrom('projectmua@gmail.com', 'Project MUA');
+    $mail->setFrom('zaind377@gmail.com', 'Project MUA');
 
     // EMAIL TUJUAN (dinamis berdasarkan input)
     $mail->addAddress($email_tujuan);

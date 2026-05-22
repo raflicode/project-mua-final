@@ -12,67 +12,93 @@ if (session_status() === PHP_SESSION_NONE) {
   .btn-custom-gold {
     border-color: #b5835a !important;
     color: #b5835a !important;
+    background: rgba(255, 250, 244, 0.72) !important;
+    border-radius: 999px !important;
+    font-weight: 700;
+    padding: 9px 20px;
   }
 
   .btn-custom-gold:hover {
     background-color: #b5835a !important;
     border-color: #b5835a !important;
     color: #ffffff !important;
+    box-shadow: 0 14px 30px rgba(181, 131, 90, 0.24);
+    transform: translateY(-2px);
   }
 
   .transition-nav {
-    transition: all 0.5s ease-in-out !important;
-    background-color: rgba(247, 242, 235, 0.72);
-    backdrop-filter: blur(14px);
+    top: 14px;
+    transition: all 0.35s ease-in-out !important;
+    background-color: transparent;
+    animation: navDrop 0.7s ease both;
+  }
+
+  .navbar .container-fluid {
+    max-width: 1180px;
+    min-height: 66px;
+    padding: 10px 16px;
+    border: 1px solid rgba(165, 132, 89, 0.2);
+    border-radius: 999px;
+    background: rgba(255, 250, 244, 0.78);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 18px 44px rgba(73, 55, 40, 0.12);
+    transition: all 0.35s ease;
   }
 
   .navbar .nav-link,
   .navbar .navbar-brand {
     color: #3b3028 !important;
-    transition: 0.3s;
+    transition: color 0.25s ease, transform 0.25s ease, background 0.25s ease;
   }
 
-  /* ==========================================================================
-     PERUBAHAN DI SINI: Efek Garis Bawah (Kecuali Menu Dropdown Profil)
-     ========================================================================== */
   .navbar .nav-link:not(.dropdown-toggle) {
-    position: relative; /* Wajib ada sebagai patokan garis bawah */
-    padding-bottom: 4px;
+    position: relative;
+    padding: 9px 13px;
+    border-radius: 999px;
+    font-size: 0.94rem;
+    font-weight: 600;
   }
 
-  /* Membuat garis hitam rahasia di bawah menu (Hanya untuk non-dropdown) */
   .navbar .nav-link:not(.dropdown-toggle)::after {
     content: '';
     position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: 0;
+    width: 5px;
+    height: 5px;
+    bottom: 4px;
     left: 50%; /* Memulai garis dari tengah */
     background-color: #b5835a; /* Warna garis hitam */
-    transition: all 0.3s ease; /* Efek animasi halus */
-    transform: translateX(-50%);
+    border-radius: 50%;
+    opacity: 0;
+    transition: all 0.25s ease; /* Efek animasi halus */
+    transform: translate(-50%, 6px);
   }
 
-  /* Saat di-hover, teks menu biasa berubah warna dan garis hitam memanjang keluar */
   .navbar .nav-link:not(.dropdown-toggle):hover {
     color: #b5835a !important;
+    background: rgba(181, 131, 90, 0.09);
     text-decoration: none;
+    transform: translateY(-1px);
   }
 
   .navbar .nav-link:not(.dropdown-toggle):hover::after {
-    width: 100%; /* Garis hitam melebar penuh sesuai panjang teks */
+    opacity: 1;
+    transform: translate(-50%, 0);
   }
 
-  /* Khusus untuk hover tombol profil (hanya berubah warna, tanpa garis bawah) */
   .navbar .nav-link.dropdown-toggle:hover {
     color: #b5835a !important;
     text-decoration: none;
   }
-  /* ========================================================================== */
 
   .nav-scrolled {
+    top: 8px;
+    background-color: transparent !important;
+  }
+
+  .nav-scrolled .container-fluid {
+    min-height: 58px;
     background-color: rgba(255, 250, 244, 0.94) !important;
-    box-shadow: 0 12px 32px rgba(73, 55, 40, 0.11) !important;
+    box-shadow: 0 14px 34px rgba(73, 55, 40, 0.13) !important;
   }
 
   .nav-scrolled .nav-link,
@@ -86,15 +112,18 @@ if (session_status() === PHP_SESSION_NONE) {
   }
 
   .offcanvas-custom.offcanvas-top {
-    background: #a58459 !important;
-    border-bottom: 2px solid #b5835a;
-    border-radius: 0 0 24px 24px;
-    height: 65vh;
+    background:
+      linear-gradient(135deg, rgba(123, 93, 63, 0.98), rgba(165, 132, 89, 0.98)),
+      #a58459 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 0 0 28px 28px;
+    height: auto;
+    max-height: 82vh;
   }
 
   .offcanvas-header,
   .offcanvas-body {
-    background: #a58459 !important;
+    background: transparent !important;
   }
 
   .offcanvas-body {
@@ -102,9 +131,15 @@ if (session_status() === PHP_SESSION_NONE) {
   }
 
   .profile-circle-icon {
-    font-size: 1.8rem;
+    width: 42px;
+    height: 42px;
+    justify-content: center;
+    border: 1px solid rgba(165, 132, 89, 0.22);
+    border-radius: 50%;
+    background: rgba(255, 250, 244, 0.72);
+    font-size: 1.55rem;
     color: #3b3028;
-    transition: 0.3s;
+    transition: 0.25s;
     display: flex;
     align-items: center;
   }
@@ -115,7 +150,36 @@ if (session_status() === PHP_SESSION_NONE) {
 
   .navbar-brand {
     font-family: 'Playfair Display', serif;
-    font-size: 1.35rem;
+    font-size: 1.42rem;
+    letter-spacing: 0;
+    padding-left: 8px;
+  }
+
+  .navbar-brand span {
+    font-style: italic;
+    font-weight: 300;
+    color: #b5835a !important;
+  }
+
+  .brand-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: #FED03A;
+    box-shadow: 0 0 0 5px rgba(254, 208, 58, 0.18);
+  }
+
+  .navbar-toggler {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(181, 131, 90, 0.12);
+  }
+
+  .navbar-toggler:focus {
+    box-shadow: 0 0 0 4px rgba(181, 131, 90, 0.16);
   }
 
   .dropdown-menu-custom {
@@ -219,13 +283,53 @@ if (session_status() === PHP_SESSION_NONE) {
     font-size: 0.8rem;
     color: #b5835a;
   }
+
+  .mobile-menu-link {
+    padding: 12px 14px !important;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.08);
+    font-weight: 600;
+  }
+
+  .mobile-menu-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  @keyframes navDrop {
+    from {
+      opacity: 0;
+      transform: translateY(-16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 991.98px) {
+    .transition-nav {
+      top: 10px;
+      padding-left: 12px !important;
+      padding-right: 12px !important;
+    }
+
+    .navbar .container-fluid {
+      min-height: 58px;
+      padding: 8px 12px;
+    }
+
+    .navbar-brand {
+      font-size: 1.22rem;
+      padding-left: 4px;
+    }
+  }
 </style>
 
 <nav id="mainNavbar" class="navbar fixed-top px-3 transition-nav">
   <div class="container-fluid">
 
-    <a class="navbar-brand fw-bold" href="/project-mua-final/index.php">
-      Yayuk <span style="font-style: italic; font-weight: 300; color: #FED03A;">Makeover</span>
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="/project-mua-final/index.php">
+      Yayuk <span class="ms-1">Makeover</span><span class="brand-dot"></span>
     </a>
 
     <button class="navbar-toggler border-0 d-lg-none"
@@ -349,7 +453,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <ul class="navbar-nav gap-3">
 
       <li>
-        <a class="nav-link text-white"
+        <a class="nav-link text-white mobile-menu-link"
           href="/project-mua-final/index.php">
 
           <i class="bi bi-house-door me-2"></i>Home
@@ -358,7 +462,7 @@ if (session_status() === PHP_SESSION_NONE) {
       </li>
 
       <li>
-        <a class="nav-link text-white"
+        <a class="nav-link text-white mobile-menu-link"
           href="/project-mua-final/public/service.php">
 
           <i class="bi bi-brush me-2"></i>Service
@@ -367,7 +471,7 @@ if (session_status() === PHP_SESSION_NONE) {
       </li>
 
       <li>
-        <a class="nav-link text-white"
+        <a class="nav-link text-white mobile-menu-link"
           href="/project-mua-final/index.php#gallery">
 
           <i class="bi bi-images me-2"></i>Gallery
@@ -379,7 +483,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <li>
 
-          <a class="nav-link text-white position-relative"
+          <a class="nav-link text-white position-relative mobile-menu-link"
             href="/project-mua-final/public/keranjang.php">
 
             <i class="bi bi-cart3 me-2"></i>Keranjang

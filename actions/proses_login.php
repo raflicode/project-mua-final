@@ -76,7 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    if (!password_verify($pass, $user['pass'])) {
+    $passwordHash = $user['password_hash'] ?? $user['pass'] ?? '';
+
+    if (!password_verify($pass, $passwordHash)) {
         header("Location: ../public/login.php?error=" . urlencode("Password salah"));
         exit();
     }
@@ -87,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['role'] = $user['role'];
 
     if (!empty($_POST['remember'])) {
-        $token = buildRememberToken($user['id_user'], $user['pass']);
+        $token = buildRememberToken($user['id_user'], $passwordHash);
         $cookieValue = base64_encode($user['id_user'] . ':' . $token);
         setcookie('remember_me', $cookieValue, time() + 60 * 60 * 24 * 30, '/', '', false, true);
     } else {
@@ -95,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($_SESSION['role'] === 'admin') {
-        header("Location: ../admin/dashboard.php?success=Login berhasil");
+        header("Location: ../admin/public/dashboard.php?success=Login berhasil");
     } else {
         header("Location: ../index.php?success=Login berhasil");
     }
