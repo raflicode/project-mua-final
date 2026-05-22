@@ -1,6 +1,223 @@
 <?php
 require_once __DIR__ . '/../../config/auth.php';
 require_login(['admin']);
+require_once __DIR__ . '/../../config/koneksi.php';
+
+function tableHasColumn(PDO $pdo, string $table, string $column): bool
+{
+    return isset(tableColumns($pdo, $table)[$column]);
+}
+
+function tableColumns(PDO $pdo, string $table, bool $refresh = false): array
+{
+    static $cache = [];
+
+    if (!$refresh && isset($cache[$table])) {
+        return $cache[$table];
+    }
+
+    $columns = [];
+    $stmt = $pdo->query("SHOW COLUMNS FROM `$table`");
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $columns[$row['Field']] = true;
+    }
+
+    $cache[$table] = $columns;
+    return $columns;
+}
+
+function ensureBookingAdminColumns(PDO $pdo): void
+{
+    if (!tableHasColumn($pdo, 'booking', 'konfirmasi_akhir_token')) {
+        $pdo->exec("ALTER TABLE booking ADD konfirmasi_akhir_token varchar(64) DEFAULT NULL AFTER status_booking");
+    }
+
+    if (!tableHasColumn($pdo, 'booking', 'bukti_pembayaran')) {
+        $pdo->exec("ALTER TABLE booking ADD bukti_pembayaran varchar(255) DEFAULT NULL AFTER konfirmasi_akhir_token");
+    }
+
+    if (!tableHasColumn($pdo, 'booking', 'tanggal_upload')) {
+        $pdo->exec("ALTER TABLE booking ADD tanggal_upload datetime DEFAULT NULL AFTER bukti_pembayaran");
+    }
+
+    $pdo->exec("ALTER TABLE booking MODIFY status_booking enum('pending','menunggu_pembayaran','menunggu_konfirmasi','pesanan_dibuat','dibayar','diproses','selesai','dibatalkan') DEFAULT 'pending'");
+}
+
+function paymentLink(string $token): string
+{
+    return '../../public/konfirmasi_akhir.php?token=' . rawurlencode($token);
+}
+
+function redirectBooking(string $message = '', string $type = 'success'): void
+{
+    if ($message !== '') {
+        $_SESSION['booking_admin_flash'] = ['message' => $message, 'type' => $type];
+    }
+
+    header('Location: booking.php');
+    exit;
+}
+
+try {
+    ensureBookingAdminColumns($pdo);
+    tableColumns($pdo, 'booking', true);
+} catch (Throwable $e) {
+    $_SESSION['booking_admin_flash'] = [
+        'message' => 'Gagal menyiapkan kolom booking: ' . $e->getMessage(),
+        'type' => 'danger'
+    ];
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+    $idBooking = (int) ($_POST['id_booking'] ?? 0);
+
+    if ($idBooking <= 0) {
+        redirectBooking('Booking tidak valid.', 'danger');
+    }
+
+    try {
+        if ($action === 'terima_pesanan') {
+            $token = bin2hex(random_bytes(24));
+            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'menunggu_pembayaran', konfirmasi_akhir_token = ? WHERE id_booking = ? AND status_booking = 'pending'");
+            $stmt->execute([$token, $idBooking]);
+            redirectBooking('Pesanan diterima dan link pembayaran berhasil dibuat.');
+        }
+
+        if ($action === 'tolak_pesanan') {
+            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'dibatalkan' WHERE id_booking = ? AND status_booking = 'pending'");
+            $stmt->execute([$idBooking]);
+            redirectBooking('Pesanan ditolak.');
+        }
+
+        if ($action === 'konfirmasi_pembayaran') {
+            $pdo->beginTransaction();
+            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'pesanan_dibuat' WHERE id_booking = ? AND status_booking = 'menunggu_konfirmasi'");
+            $stmt->execute([$idBooking]);
+
+            $pay = $pdo->prepare("UPDATE pembayaran SET status_verifikasi = 'diterima' WHERE id_booking = ?");
+            $pay->execute([$idBooking]);
+            $pdo->commit();
+            redirectBooking('Pembayaran dikonfirmasi. Pesanan berhasil dibuat.');
+        }
+
+        if ($action === 'tolak_pembayaran') {
+            $pdo->beginTransaction();
+            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'dibatalkan' WHERE id_booking = ? AND status_booking = 'menunggu_konfirmasi'");
+            $stmt->execute([$idBooking]);
+
+            $pay = $pdo->prepare("UPDATE pembayaran SET status_verifikasi = 'ditolak' WHERE id_booking = ?");
+            $pay->execute([$idBooking]);
+            $pdo->commit();
+            redirectBooking('Pembayaran ditolak dan booking dibatalkan.');
+        }
+
+        redirectBooking('Aksi tidak dikenali.', 'danger');
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        redirectBooking('Gagal memproses aksi: ' . $e->getMessage(), 'danger');
+    }
+}
+
+$paymentColumns = tableColumns($pdo, 'pembayaran');
+$proofColumn = isset($paymentColumns['bukti_transfer']) ? 'bukti_transfer' : (isset($paymentColumns['bukti_pembayaran']) ? 'bukti_pembayaran' : null);
+$uploadColumn = isset($paymentColumns['tgl_upload']) ? 'tgl_upload' : (isset($paymentColumns['tanggal_upload']) ? 'tanggal_upload' : (isset($paymentColumns['created_at']) ? 'created_at' : null));
+$paymentStatusColumn = isset($paymentColumns['status_verifikasi']) ? 'status_verifikasi' : (isset($paymentColumns['status']) ? 'status' : null);
+
+if ($proofColumn && $uploadColumn && $paymentStatusColumn && tableHasColumn($pdo, 'booking', 'bukti_pembayaran') && tableHasColumn($pdo, 'booking', 'tanggal_upload')) {
+    $syncStmt = $pdo->prepare("
+        UPDATE booking b
+        JOIN pembayaran p ON p.id_booking = b.id_booking
+        SET b.status_booking = 'menunggu_konfirmasi',
+            b.bukti_pembayaran = COALESCE(b.bukti_pembayaran, p.`$proofColumn`),
+            b.tanggal_upload = COALESCE(b.tanggal_upload, p.`$uploadColumn`)
+        WHERE b.status_booking = 'menunggu_pembayaran'
+          AND p.`$proofColumn` IS NOT NULL
+          AND p.`$proofColumn` <> ''
+          AND p.`$paymentStatusColumn` = 'pending'
+    ");
+    $syncStmt->execute();
+}
+
+$bookingProofSelect = tableHasColumn($pdo, 'booking', 'bukti_pembayaran') ? 'b.bukti_pembayaran' : 'NULL';
+$bookingUploadSelect = tableHasColumn($pdo, 'booking', 'tanggal_upload') ? 'b.tanggal_upload' : 'NULL';
+$bookingTokenSelect = tableHasColumn($pdo, 'booking', 'konfirmasi_akhir_token') ? 'b.konfirmasi_akhir_token' : 'NULL';
+$paymentProofSelect = $proofColumn ? "p.`$proofColumn`" : 'NULL';
+$paymentUploadSelect = $uploadColumn ? "p.`$uploadColumn`" : 'NULL';
+$userNameSelect = tableHasColumn($pdo, 'user', 'full_name') ? 'u.full_name' : (tableHasColumn($pdo, 'user', 'nama_lengkap') ? 'u.nama_lengkap' : 'NULL');
+$userPhoneSelect = tableHasColumn($pdo, 'user', 'no_telp') ? 'u.no_telp' : (tableHasColumn($pdo, 'user', 'hp') ? 'u.hp' : 'NULL');
+
+$bookingStmt = $pdo->query("
+    SELECT
+        b.id_booking,
+        b.tgl_booking,
+        b.status_booking,
+        b.catatan,
+        b.total_harga,
+        $bookingTokenSelect AS konfirmasi_akhir_token,
+        COALESCE($bookingProofSelect, $paymentProofSelect) AS bukti_pembayaran,
+        COALESCE($bookingUploadSelect, $paymentUploadSelect) AS tanggal_upload,
+        $userNameSelect AS full_name,
+        u.username,
+        $userPhoneSelect AS no_telp,
+        layanan_booking.nama_layanan
+    FROM booking b
+    LEFT JOIN user u ON u.id_user = b.id_user
+    LEFT JOIN (
+        SELECT
+            bd.id_booking,
+            GROUP_CONCAT(DISTINCT l.nama_layanan ORDER BY l.nama_layanan SEPARATOR ', ') AS nama_layanan
+        FROM booking_detail bd
+        LEFT JOIN layanan l ON l.id_layanan = bd.id_layanan
+        GROUP BY bd.id_booking
+    ) layanan_booking ON layanan_booking.id_booking = b.id_booking
+    LEFT JOIN (
+        SELECT p1.*
+        FROM pembayaran p1
+        INNER JOIN (
+            SELECT id_booking, MAX(id_pembayaran) AS id_pembayaran
+            FROM pembayaran
+            GROUP BY id_booking
+        ) latest_p ON latest_p.id_pembayaran = p1.id_pembayaran
+    ) p ON p.id_booking = b.id_booking
+    ORDER BY b.tgl_booking DESC
+");
+
+$bookingRows = [];
+foreach ($bookingStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+    $paket = $row['nama_layanan'] ?: 'Layanan Booking';
+    $paketLower = strtolower($paket);
+    $kategori = 'makeup';
+    if (strpos($paketLower, 'dekor') !== false) {
+        $kategori = 'dekor';
+    } elseif (strpos($paketLower, 'kostum') !== false) {
+        $kategori = 'kostum';
+    }
+
+    $token = $row['konfirmasi_akhir_token'] ?? '';
+    $bukti = $row['bukti_pembayaran'] ?? '';
+
+    $bookingRows[] = [
+        'id' => (int) $row['id_booking'],
+        'paket' => $paket,
+        'kategori' => $kategori,
+        'customer' => $row['full_name'] ?: ($row['username'] ?: 'Client'),
+        'tgl' => $row['tgl_booking'] ? date('d F Y', strtotime($row['tgl_booking'])) : '-',
+        'status' => $row['status_booking'] ?: 'pending',
+        'alamat' => $row['catatan'] ?: '-',
+        'telp' => $row['no_telp'] ?: '-',
+        'token' => $token,
+        'payment_link' => $token ? paymentLink($token) : '',
+        'bukti_pembayaran' => $bukti,
+        'bukti_url' => $bukti ? '../../assets/bukti_pembayaran/' . rawurlencode($bukti) : '',
+        'tanggal_upload' => $row['tanggal_upload'] ? date('d F Y H:i', strtotime($row['tanggal_upload'])) : '',
+    ];
+}
+
+$flash = $_SESSION['booking_admin_flash'] ?? null;
+unset($_SESSION['booking_admin_flash']);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -416,6 +633,13 @@ require_login(['admin']);
             white-space: nowrap;
         }
 
+        @media (max-width: 1199px) {
+            .booking-table thead th,
+            .booking-table tbody td {
+                white-space: normal;
+            }
+        }
+
         .booking-table tbody tr {
             border-bottom: 1px solid var(--cream-dark);
             transition: background 0.15s;
@@ -512,32 +736,80 @@ require_login(['admin']);
         }
         .status-batal::before { background: #E53935; }
 
+        .status-pending,
+        .status-menunggu_pembayaran,
+        .status-menunggu_konfirmasi {
+            background: #FFF8E1;
+            color: #E65100;
+        }
+        .status-pending::before,
+        .status-menunggu_pembayaran::before,
+        .status-menunggu_konfirmasi::before { background: #FF8F00; }
+
+        .status-pesanan_dibuat {
+            background: #EDF7ED;
+            color: #2E7D32;
+        }
+        .status-pesanan_dibuat::before { background: #43A047; }
+
         /* ACTION BTNS */
         .action-btns {
             display: flex;
+            flex-wrap: wrap;
             gap: 6px;
         }
 
         .btn-action {
-            width: 30px;
-            height: 30px;
+            min-height: 30px;
             border-radius: 8px;
             border: 1px solid var(--cream-deep);
             background: var(--white);
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 6px;
             cursor: pointer;
             font-size: 0.8rem;
             color: var(--text-muted);
             transition: all 0.2s;
             text-decoration: none;
+            padding: 6px 10px;
+            white-space: nowrap;
+        }
+
+        .btn-action.icon-only {
+            width: 30px;
+            padding: 0;
         }
 
         .btn-action:hover {
             background: var(--brown);
             color: var(--cream);
             border-color: var(--brown);
+        }
+
+        .btn-action.accept {
+            color: #2E7D32;
+        }
+
+        .btn-action.reject {
+            color: #C62828;
+        }
+
+        .btn-action.copy {
+            color: #1565C0;
+        }
+
+        .muted-action {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .payment-proof-img {
+            max-width: 100%;
+            border-radius: 14px;
+            border: 1px solid var(--cream-deep);
         }
 
         /* EMPTY STATE */
@@ -607,7 +879,14 @@ require_login(['admin']);
             }
 
             .booking-table {
-                min-width: 920px;
+                width: 100%;
+                min-width: unset;
+                table-layout: auto;
+            }
+
+            .booking-table thead th,
+            .booking-table tbody td {
+                white-space: normal;
             }
         }
 
@@ -824,6 +1103,12 @@ include 'include/sidebar.php';
 
     <!-- CONTENT -->
     <div class="content">
+        <?php if ($flash): ?>
+            <div class="alert alert-<?= htmlspecialchars($flash['type'], ENT_QUOTES, 'UTF-8'); ?> alert-dismissible fade show" role="alert">
+                <?= htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
 
         <div class="content-header">
             <h2>Riwayat Booking</h2>
@@ -911,10 +1196,11 @@ include 'include/sidebar.php';
                 </div>
                 <div class="filter-tabs">
                     <div class="filter-tab active" onclick="filterStatus('semua', this)">Semua</div>
-                    <div class="filter-tab" onclick="filterStatus('lunas', this)">Lunas</div>
-                    <div class="filter-tab" onclick="filterStatus('proses', this)">Proses</div>
-                    <div class="filter-tab" onclick="filterStatus('dp', this)">DP</div>
-                    <div class="filter-tab" onclick="filterStatus('batal', this)">Batal</div>
+                    <div class="filter-tab" onclick="filterStatus('pending', this)">Pending</div>
+                    <div class="filter-tab" onclick="filterStatus('menunggu_pembayaran', this)">Menunggu Pembayaran</div>
+                    <div class="filter-tab" onclick="filterStatus('menunggu_konfirmasi', this)">Menunggu Konfirmasi</div>
+                    <div class="filter-tab" onclick="filterStatus('pesanan_dibuat', this)">Pesanan Dibuat</div>
+                    <div class="filter-tab" onclick="filterStatus('dibatalkan', this)">Dibatalkan</div>
                 </div>
             </div>
 
@@ -928,6 +1214,8 @@ include 'include/sidebar.php';
                             <th>Status</th>
                             <th>Alamat</th>
                             <th>No. Telp</th>
+                            <th>Buat Halaman Pembayaran</th>
+                            <th>Lihat Bukti Pembayaran</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -951,23 +1239,27 @@ include 'include/sidebar.php';
     </div>
 </div>
 
+<div class="modal fade" id="buktiModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="color: var(--brown-dark);">Bukti Pembayaran</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <img src="" alt="Bukti pembayaran" class="payment-proof-img" id="buktiPreview">
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-brown" id="buktiDownload" download>
+                    <i class="bi bi-download"></i> Download
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-// ===== DATA BOOKING (nanti ganti dengan fetch dari PHP/MySQL) =====
-const bookingData = [
-    { id:1, paket:'Makeup Birthday',    kategori:'makeup',  customer:'Tegar',  tgl:'05 Januari 2026', status:'dp',     alamat:'Jl. Mastrip blok 3', telp:'089764655' },
-    { id:2, paket:'Makeup Wedding',     kategori:'makeup',  customer:'Rafli',  tgl:'09 Januari 2026', status:'lunas',  alamat:'Jl. Mastrip blok 3', telp:'089764655' },
-    { id:3, paket:'Makeup Wisuda',      kategori:'makeup',  customer:'Lidya',  tgl:'15 Januari 2026', status:'lunas',  alamat:'Jl. Mastrip blok 3', telp:'089764655' },
-    { id:4, paket:'Makeup Natural',     kategori:'makeup',  customer:'Andyn',  tgl:'28 Januari 2026', status:'proses', alamat:'Jl. Mastrip blok 3', telp:'089764655' },
-    { id:5, paket:'Makeup Graduation',  kategori:'makeup',  customer:'Puput',  tgl:'28 Januari 2026', status:'lunas',  alamat:'Jl. Mastrip blok 3', telp:'089764655' },
-    { id:6, paket:'Dekor Pelaminan',    kategori:'dekor',   customer:'Tegar',  tgl:'05 Januari 2026', status:'dp',     alamat:'Jl. Mastrip blok 3', telp:'089764655' },
-    { id:7, paket:'Dekor Palam hen',    kategori:'dekor',   customer:'Rafli',  tgl:'09 Januari 2026', status:'lunas',  alamat:'Jl. Mastrip blok 3', telp:'089764655' },
-    { id:8, paket:'Dekor Karnaval',     kategori:'dekor',   customer:'Lidya',  tgl:'16 Januari 2026', status:'lunas',  alamat:'Jl. Mastrip blok 3', telp:'089764655' },
-    { id:9, paket:'Dekor Standing',     kategori:'dekor',   customer:'Andyn',  tgl:'28 Januari 2026', status:'proses', alamat:'Jl. Mastrip blok 3', telp:'089764655' },
-    { id:10,paket:'Dekor Pelaminan',    kategori:'dekor',   customer:'Puput',  tgl:'28 Januari 2026', status:'lunas',  alamat:'Jl. Mastrip blok 3', telp:'089764655' },
-    { id:11,paket:'Kostum Wedding',     kategori:'kostum',  customer:'Sari',   tgl:'03 Februari 2026',status:'lunas',  alamat:'Jl. Veteran no 12',  telp:'081234567' },
-    { id:12,paket:'Kostum Graduation',  kategori:'kostum',  customer:'Budi',   tgl:'10 Februari 2026',status:'proses', alamat:'Jl. Merdeka no 5',   telp:'082345678' },
-    { id:13,paket:'Kostum Karnaval',    kategori:'kostum',  customer:'Rini',   tgl:'15 Februari 2026',status:'dp',     alamat:'Jl. Sudirman no 8',  telp:'083456789' },
-];
+const bookingData = <?= json_encode($bookingRows, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
 
 let currentFolder  = 'semua';
 let currentStatus  = 'semua';
@@ -976,11 +1268,99 @@ const perPage      = 6;
 let currentPage    = 1;
 
 const statusLabels = {
-    lunas:  { label:'Lunas',  cls:'status-lunas'  },
-    proses: { label:'Proses', cls:'status-proses'  },
-    dp:     { label:'DP',     cls:'status-dp'      },
-    batal:  { label:'Batal',  cls:'status-batal'   },
+    pending:               { label:'Pending', cls:'status-pending' },
+    menunggu_pembayaran:   { label:'Menunggu Pembayaran', cls:'status-menunggu_pembayaran' },
+    menunggu_konfirmasi:   { label:'Menunggu Konfirmasi', cls:'status-menunggu_konfirmasi' },
+    pesanan_dibuat:        { label:'Pesanan Dibuat', cls:'status-pesanan_dibuat' },
+    dibatalkan:            { label:'Dibatalkan', cls:'status-batal' },
+    dibayar:               { label:'Dibayar', cls:'status-lunas' },
+    diproses:              { label:'Diproses', cls:'status-proses' },
+    selesai:               { label:'Selesai', cls:'status-lunas' },
 };
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function actionForm(id, action, label, icon, cls = '') {
+    return `
+        <form method="post" onsubmit="return confirm('Lanjutkan aksi ini?');">
+            <input type="hidden" name="id_booking" value="${id}">
+            <input type="hidden" name="action" value="${action}">
+            <button type="submit" class="btn-action ${cls}">
+                <i class="bi ${icon}"></i> ${label}
+            </button>
+        </form>
+    `;
+}
+
+function renderPaymentTools(b) {
+    if (!b.payment_link) {
+        return '<span class="muted-action">Link belum dibuat</span>';
+    }
+
+    const link = escapeHtml(b.payment_link);
+    return `
+        <div class="action-btns">
+            <button type="button" class="btn-action copy" onclick="copyPaymentLink('${link}')">
+                <i class="bi bi-clipboard"></i> Salin
+            </button>
+            <a href="${link}" target="_blank" class="btn-action">
+                <i class="bi bi-box-arrow-up-right"></i> Buka
+            </a>
+        </div>
+    `;
+}
+
+function renderProofTools(b) {
+    if (!b.bukti_url) {
+        return '<span class="muted-action">Belum ada bukti</span>';
+    }
+
+    const url = escapeHtml(b.bukti_url);
+    return `
+        <div class="action-btns">
+            <button type="button" class="btn-action" onclick="showBukti('${url}')">
+                <i class="bi bi-eye"></i> Lihat
+            </button>
+            <a href="${url}" class="btn-action" download>
+                <i class="bi bi-download"></i> Download
+            </a>
+        </div>
+        <div class="muted-action">${escapeHtml(b.tanggal_upload)}</div>
+    `;
+}
+
+function renderActions(b) {
+    if (b.status === 'pending') {
+        return `
+            <div class="action-btns">
+                ${actionForm(b.id, 'terima_pesanan', 'Terima Pesanan', 'bi-check2-circle', 'accept')}
+                ${actionForm(b.id, 'tolak_pesanan', 'Tolak Pesanan', 'bi-x-circle', 'reject')}
+            </div>
+        `;
+    }
+
+    if (b.status === 'menunggu_pembayaran') {
+        return '<span class="muted-action">Menunggu Pembayaran</span>';
+    }
+
+    if (b.status === 'menunggu_konfirmasi') {
+        return `
+            <div class="action-btns">
+                ${actionForm(b.id, 'konfirmasi_pembayaran', 'Konfirmasi Pembayaran', 'bi-check2-circle', 'accept')}
+                ${actionForm(b.id, 'tolak_pembayaran', 'Tolak Pembayaran', 'bi-x-circle', 'reject')}
+            </div>
+        `;
+    }
+
+    return '<span class="muted-action">Tidak ada aksi</span>';
+}
 
 function initCounts() {
     document.getElementById('count-semua').textContent  = bookingData.length + ' booking';
@@ -1016,32 +1396,28 @@ function renderTable() {
         document.getElementById('emptyState').style.display = 'none';
         tbody.innerHTML = pageData.map(b => {
             const st  = statusLabels[b.status] || { label: b.status, cls: '' };
-            const ini = b.customer.substring(0, 2).toUpperCase();
+            const ini = escapeHtml(b.customer.substring(0, 2).toUpperCase());
             return `
             <tr>
                 <td>
                     <div class="paket-cell">
-                        <div class="paket-name">${b.paket}</div>
-                        <div class="paket-type">${b.kategori.charAt(0).toUpperCase()+b.kategori.slice(1)}</div>
+                        <div class="paket-name">${escapeHtml(b.paket)}</div>
+                        <div class="paket-type">${escapeHtml(b.kategori.charAt(0).toUpperCase()+b.kategori.slice(1))}</div>
                     </div>
                 </td>
                 <td>
                     <div class="customer-cell">
                         <div class="cust-avatar">${ini}</div>
-                        ${b.customer}
+                        ${escapeHtml(b.customer)}
                     </div>
                 </td>
-                <td>${b.tgl}</td>
+                <td>${escapeHtml(b.tgl)}</td>
                 <td><span class="status-badge ${st.cls}">${st.label}</span></td>
-                <td>${b.alamat}</td>
-                <td>${b.telp}</td>
-                <td>
-                    <div class="action-btns">
-                        <a href="#" onclick="lihat(${b.id}); return false;" class="btn-action" title="Detail"><i class="bi bi-eye"></i></a>
-                        <a href="#" onclick="edit(${b.id}); return false;" class="btn-action" title="Edit"><i class="bi bi-pencil"></i></a>
-                        <a href="#" onclick="hapus(${b.id})"    class="btn-action" title="Hapus"><i class="bi bi-trash"></i></a>
-                    </div>
-                </td>
+                <td>${escapeHtml(b.alamat)}</td>
+                <td>${escapeHtml(b.telp)}</td>
+                <td>${renderPaymentTools(b)}</td>
+                <td>${renderProofTools(b)}</td>
+                <td>${renderActions(b)}</td>
             </tr>`;
         }).join('');
     }
@@ -1086,12 +1462,6 @@ function filterTable() {
     renderTable();
 }
 
-function hapus(id) {
-    if (confirm('Yakin hapus booking ini?')) {
-        alert('Booking #' + id + ' dihapus (sambungkan ke PHP untuk fungsionalitas nyata)');
-    }
-}
-
 function lihat(id) {
     const booking = bookingData.find(b => b.id === id);
     if (!booking) return;
@@ -1104,8 +1474,18 @@ function lihat(id) {
     );
 }
 
-function edit(id) {
-    alert('Fitur edit booking #' + id + ' belum tersambung ke database.');
+function copyPaymentLink(link) {
+    navigator.clipboard.writeText(link).then(() => {
+        alert('Link pembayaran berhasil disalin.');
+    }).catch(() => {
+        prompt('Salin link pembayaran:', link);
+    });
+}
+
+function showBukti(url) {
+    document.getElementById('buktiPreview').src = url;
+    document.getElementById('buktiDownload').href = url;
+    new bootstrap.Modal(document.getElementById('buktiModal')).show();
 }
 
 // INIT
