@@ -15,85 +15,62 @@ if (!$draft) {
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $selectedSlotRaw = trim($_POST['selected_slot'] ?? '');
-    $selectedId = filter_var($selectedSlotRaw, FILTER_VALIDATE_INT);
+   $selectedDate = trim($_POST['selected_date'] ?? '');
+$jamMulai = trim($_POST['jam_mulai'] ?? '');
+    
     $jadwal = null;
 
-    if ($selectedSlotRaw !== '') {
-        if ($selectedId) {
-            $stmt = $pdo->prepare('SELECT * FROM jadwal_kerja WHERE id_jadwal = ? LIMIT 1');
-            $stmt->execute([$selectedId]);
-            $jadwal = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($selectedDate && $jamMulai) {
 
-            if ($jadwal) {
-                $bstmt = $pdo->prepare('SELECT COUNT(*) FROM booking WHERE id_jadwal = ? AND status_booking != ?');
-                $bstmt->execute([$jadwal['id_jadwal'], 'dibatalkan']);
-                $bookedSlot = intval($bstmt->fetchColumn());
+    $dbstmt = $pdo->prepare(
+        'SELECT COUNT(*) FROM booking b
+         JOIN jadwal_kerja jk ON b.id_jadwal = jk.id_jadwal
+         WHERE jk.tanggal = ?
+         AND b.status_booking != ?'
+    );
 
-                $dbstmt = $pdo->prepare('SELECT COUNT(*) FROM booking b JOIN jadwal_kerja jk ON b.id_jadwal = jk.id_jadwal WHERE jk.tanggal = ? AND b.status_booking != ?');
-                $dbstmt->execute([$jadwal['tanggal'], 'dibatalkan']);
-                $bookedDate = intval($dbstmt->fetchColumn());
+    $dbstmt->execute([$selectedDate, 'dibatalkan']);
 
-                if ($jadwal['status_slot'] === 'tersedia' && $bookedSlot < intval($jadwal['kapasitas_max']) && $bookedDate < 3) {
-                    $_SESSION['draft_booking']['id_jadwal'] = $jadwal['id_jadwal'];
-                    $_SESSION['draft_booking']['tanggal'] = $jadwal['tanggal'];
-                    $_SESSION['draft_booking']['jam_mulai'] = $jadwal['jam_mulai'];
-                    $_SESSION['draft_booking']['jam_selesai'] = $jadwal['jam_selesai'];
-                    header('Location: pembayaran.php');
-                    exit;
-                }
-            }
+    $bookedDate = intval($dbstmt->fetchColumn());
 
-        } elseif (preg_match('/^default\|(\d{4}-\d{2}-\d{2})\|([0-2]\d:[0-5]\d)\|([0-2]\d:[0-5]\d)$/', $selectedSlotRaw, $matches)) {
-            $selectedDate = $matches[1];
-            $jamMulai = $matches[2];
-            $jamSelesai = $matches[3];
+    if ($bookedDate < 3) {
 
-            $existingStmt = $pdo->prepare('SELECT * FROM jadwal_kerja WHERE tanggal = ? AND jam_mulai = ? AND jam_selesai = ? LIMIT 1');
-            $existingStmt->execute([$selectedDate, $jamMulai, $jamSelesai]);
-            $existingJadwal = $existingStmt->fetch(PDO::FETCH_ASSOC);
+        $jamSelesai = date('H:i:s', strtotime($jamMulai . ' +2 hours'));
 
-            $dbstmt = $pdo->prepare('SELECT COUNT(*) FROM booking b JOIN jadwal_kerja jk ON b.id_jadwal = jk.id_jadwal WHERE jk.tanggal = ? AND b.status_booking != ?');
-            $dbstmt->execute([$selectedDate, 'dibatalkan']);
-            $bookedDate = intval($dbstmt->fetchColumn());
+$insertStmt = $pdo->prepare(
+    'INSERT INTO jadwal_kerja
+    (tanggal, jam_mulai, jam_selesai, kapasitas_max, status_slot)
+    VALUES (?, ?, ?, ?, ?)'
+);
 
-            if ($existingJadwal) {
-                $bstmt = $pdo->prepare('SELECT COUNT(*) FROM booking WHERE id_jadwal = ? AND status_booking != ?');
-                $bstmt->execute([$existingJadwal['id_jadwal'], 'dibatalkan']);
-                $bookedSlot = intval($bstmt->fetchColumn());
+$insertStmt->execute([
+    $selectedDate,
+    $jamMulai,
+    $jamSelesai,
+    1,
+    'tersedia'
+]);
+        $lastId = $pdo->lastInsertId();
 
-                if ($existingJadwal['status_slot'] === 'tersedia' && $bookedSlot < intval($existingJadwal['kapasitas_max']) && $bookedDate < 3) {
-                    $_SESSION['draft_booking']['id_jadwal'] = $existingJadwal['id_jadwal'];
-                    $_SESSION['draft_booking']['tanggal'] = $existingJadwal['tanggal'];
-                    $_SESSION['draft_booking']['jam_mulai'] = $existingJadwal['jam_mulai'];
-                    $_SESSION['draft_booking']['jam_selesai'] = $existingJadwal['jam_selesai'];
-                    header('Location: pembayaran.php');
-                    exit;
-                }
-            } elseif ($bookedDate < 3) {
-                $insertStmt = $pdo->prepare('INSERT INTO jadwal_kerja (tanggal, jam_mulai, jam_selesai, kapasitas_max, status_slot) VALUES (?, ?, ?, ?, ?)');
-                $insertStmt->execute([$selectedDate, $jamMulai, $jamSelesai, 1, 'tersedia']);
-                $lastId = $pdo->lastInsertId();
-                $stmt = $pdo->prepare('SELECT * FROM jadwal_kerja WHERE id_jadwal = ? LIMIT 1');
-                $stmt->execute([$lastId]);
-                $jadwal = $stmt->fetch(PDO::FETCH_ASSOC);
+        $_SESSION['draft_booking']['id_jadwal'] = $lastId;
+        $_SESSION['draft_booking']['tanggal'] = $selectedDate;
+       $_SESSION['draft_booking']['jam_selesai'] = $jamSelesai;
+        header('Location: pembayaran.php');
+        exit;
 
-                if ($jadwal) {
-                    $_SESSION['draft_booking']['id_jadwal'] = $jadwal['id_jadwal'];
-                    $_SESSION['draft_booking']['tanggal'] = $jadwal['tanggal'];
-                    $_SESSION['draft_booking']['jam_mulai'] = $jadwal['jam_mulai'];
-                    $_SESSION['draft_booking']['jam_selesai'] = $jadwal['jam_selesai'];
-                    header('Location: pembayaran.php');
-                    exit;
-                }
-            }
-        }
-
-        $errors[] = 'Slot yang dipilih telah terisi atau tanggal tidak tersedia. Silakan pilih lagi.';
     } else {
-        $errors[] = 'Silakan pilih slot waktu terlebih dahulu.';
+
+        $errors[] = 'Tanggal ini sudah penuh. Silakan pilih tanggal lain.';
+
     }
+
+} else {
+
+    $errors[] = 'Lengkapi tanggal dan jam booking terlebih dahulu.';
+
 }
+        
+    }
 
 try {
     $stmt = $pdo->query('SELECT * FROM jadwal_kerja ORDER BY tanggal ASC, jam_mulai ASC');
@@ -338,26 +315,40 @@ body {
             <!-- Kalender -->
             <div class="calendar mb-4" id="calendar"></div>
 
-            <!-- Slot -->
-            <form id="slotForm" method="post" action="penjadwalan.php">
-                <div id="slotArea" style="display:none;">
+          <!-- Form Booking -->
+<form id="slotForm" method="post" action="penjadwalan.php">
 
-                    <h5 class="slot-title">Pilih Slot Waktu</h5>
-                    <p class="text-muted mb-4">Pilih slot yang tersedia untuk tanggal terpilih.</p>
+    <div id="slotArea" style="display:none;">
 
-                    <input type="hidden" name="selected_slot" id="selected_slot" value="">
-                    <div id="slotList"></div>
+        <h5 class="slot-title">Isi Jadwal Booking</h5>
+        <p class="text-muted mb-4">
+            Silakan tentukan jam booking sesuai kebutuhan Anda.
+        </p>
 
-                    <button type="submit" class="btn btn-lanjut w-100 mt-3">
-                        LANJUTKAN BOOKING →
-                    </button>
-                </div>
-            </form>
+        <input type="hidden" name="selected_date" id="selected_date">
 
-        </div>
-    </div>
+        <div class="mb-3">
+
+    <label class="form-label fw-semibold">
+        Pilih Jam Booking
+    </label>
+
+    <input
+        type="time"
+        name="jam_mulai"
+        class="form-control form-control-lg"
+        required
+    >
 
 </div>
+
+        <button type="submit" class="btn btn-lanjut w-100 mt-3">
+            LANJUTKAN BOOKING →
+        </button>
+
+    </div>
+
+</form>
 
 <script>
 const jadwalData = <?= json_encode($jadwalByDate, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
@@ -415,13 +406,19 @@ function nextMonth() {
 }
 
 function pilihTanggal(el) {
-    document.querySelectorAll('.tgl').forEach(t => t.classList.remove('active'));
+
+    document.querySelectorAll('.tgl').forEach(t => {
+        t.classList.remove('active');
+    });
+
     el.classList.add('active');
+
     const selectedDate = el.dataset.date;
-    renderSlots(selectedDate);
+
+    document.getElementById('selected_date').value = selectedDate;
+
     document.getElementById('slotArea').style.display = 'block';
 }
-
 function renderSlots(date) {
     const slots = jadwalData[date] || [];
     const slotList = document.getElementById('slotList');
@@ -483,8 +480,6 @@ function pilihSlot(el) {
 
 function clearSlotSelection() {
     document.getElementById('slotArea').style.display = 'none';
-    document.getElementById('slotList').innerHTML = '';
-    document.getElementById('selected_slot').value = '';
 }
 
 renderCalendar();

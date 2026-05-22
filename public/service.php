@@ -138,7 +138,7 @@
         <div class="col-12 col-md-6 col-lg-4">
             <div class="card-custom">
                 <div>
-                    <h5 class="mb-4">Makeup Wedding</h5>
+                    <h5 class="mb-4">Makeup </h5>
                     <p class="small fw-bold mb-2">Include:</p>
                     <ul class="text-start mt-3" style="font-size: 1.1rem;">
                         <li>Wedding Akad</li>
@@ -154,7 +154,7 @@
         <div class="col-12 col-md-6 col-lg-4">
             <div class="card-custom">
                 <div>
-                    <h5 class="mb-4">Wedding Kostum</h5>
+                    <h5 class="mb-4">Kostum</h5>
                     <p class="small fw-bold mb-2">Include:</p>
                     <ul class="text-start mt-3" style="font-size: 1.1rem;">
                         <li>Kostum Wedding</li>

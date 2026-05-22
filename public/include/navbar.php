@@ -2,6 +2,94 @@
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
+
+$navbarCartCount = 0;
+$navbarCartItems = [];
+
+if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
+  require_once __DIR__ . '/../../config/koneksi.php';
+
+  if (!function_exists('navbarTableHasColumn')) {
+    function navbarTableHasColumn(PDO $pdo, string $table, string $column): bool
+    {
+      $stmt = $pdo->prepare("
+        SELECT COUNT(*)
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = ?
+          AND COLUMN_NAME = ?
+      ");
+      $stmt->execute([$table, $column]);
+      return (int) $stmt->fetchColumn() > 0;
+    }
+  }
+
+  if (!function_exists('navbarCartImagePath')) {
+    function navbarCartImagePath(array $item): string
+    {
+      if (!empty($item['foto'])) {
+        return $item['foto'];
+      }
+
+      $name = strtolower($item['nama_layanan'] ?? '');
+      $type = strtolower($item['tipe_layanan'] ?? '');
+      $hasName = function (string $needle) use ($name): bool {
+        return strpos($name, $needle) !== false;
+      };
+
+      if ($type === 'kostum') {
+        if ($hasName('graduation')) return '../assets/fotograduation.jpeg';
+        if ($hasName('pahlawan')) return '../assets/fotopahlawan.jpeg';
+        if ($hasName('wedding')) return '../assets/fotokostum6.jpeg';
+        if ($hasName('baju adat jawa')) return '../assets/fotokostum4.jpeg';
+        if ($hasName('baju adat sunda')) return '../assets/adatjawa.jpeg';
+        if ($hasName('baju adat bali')) return '../assets/fotokostum5.jpeg';
+        if ($hasName('baju adat madura')) return '../assets/adatmadura.jpeg';
+        if ($hasName('baju adat') || $hasName('kostum')) return '../assets/fotokostum3.jpeg';
+      }
+
+      if ($type === 'makeup') return '../assets/foto_makeup.jpeg';
+      if ($type === 'dekor') return '../assets/foto_dekor.jpeg';
+
+      return '../assets/fotokostum1.jpeg';
+    }
+  }
+
+  if (!function_exists('navbarCartImageUrl')) {
+    function navbarCartImageUrl(string $foto): string
+    {
+      $foto = str_replace('\\', '/', $foto);
+
+      if ($foto === '') return '/project-mua-final/assets/foto_makeup.jpeg';
+      if (preg_match('/^(https?:)?\/\//', $foto)) return $foto;
+      if (strpos($foto, '/') === 0) return $foto;
+      if (strpos($foto, '../assets/') === 0) return '/project-mua-final/' . str_replace('../', '', $foto);
+      if (strpos($foto, 'assets/') === 0) return '/project-mua-final/' . $foto;
+
+      return '/project-mua-final/assets/' . preg_replace('/^(\.\.\/|\.\/)+/', '', $foto);
+    }
+  }
+
+  try {
+    $cartCountStmt = $pdo->prepare("SELECT SUM(kuantitas) AS total FROM keranjang WHERE id_user = ?");
+    $cartCountStmt->execute([$_SESSION['id_user']]);
+    $navbarCartCount = (int) ($cartCountStmt->fetch()['total'] ?? 0);
+
+    $fotoSelect = navbarTableHasColumn($pdo, 'keranjang', 'foto') ? 'foto' : "NULL AS foto";
+    $cartItemsStmt = $pdo->prepare("
+      SELECT id_keranjang, nama_layanan, tipe_layanan, {$fotoSelect}, harga, kuantitas
+      FROM keranjang
+      WHERE id_user = ?
+      ORDER BY created_at DESC
+      LIMIT 5
+    ");
+    $cartItemsStmt->execute([$_SESSION['id_user']]);
+    $navbarCartItems = $cartItemsStmt->fetchAll(PDO::FETCH_ASSOC);
+  } catch (Exception $e) {
+    $navbarCartCount = 0;
+    $navbarCartItems = [];
+  }
+}
 ?>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -219,11 +307,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
   /* --- TAMBAHAN CSS UNTUK HOVER DROPDOWN KERANJANG ALA SHOPEE --- */
   @media (min-width: 992px) {
-    .nav-item-cart {
+    .nav-cart-preview-trigger {
       position: relative;
     }
     /* Memunculkan dropdown saat pembungkus di-hover */
-    .nav-item-cart:hover .dropdown-cart-menu {
+    .nav-cart-preview-trigger:hover .dropdown-cart-menu {
       display: block;
       opacity: 1;
       visibility: visible;
@@ -236,12 +324,19 @@ if (session_status() === PHP_SESSION_NONE) {
       transform: translateY(10px);
       transition: all 0.3s ease;
       position: absolute;
+      top: 100%;
       right: 0;
       left: auto;
       width: 320px;
       max-height: 400px;
+      margin-top: 0;
       overflow-y: auto;
-      z-index: 1000;
+      z-index: 2000;
+    }
+
+    .nav-item-gallery-cart .dropdown-cart-menu {
+      left: 0;
+      right: auto;
     }
   }
 
@@ -350,22 +445,72 @@ if (session_status() === PHP_SESSION_NONE) {
         Service
       </a>
 
-      <a class="nav-link" href="/project-mua-final/index.php#gallery">
-        Gallery
-      </a>
+      <div class="nav-cart-preview-trigger nav-item-gallery-cart">
+        <a class="nav-link" href="/project-mua-final/index.php#gallery">
+          Gallery
+        </a>
+
+        <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
+          <ul class="dropdown-menu dropdown-menu-custom dropdown-cart-menu p-2">
+            <div class="cart-items-preview-container">
+              <?php if (!empty($navbarCartItems)): ?>
+                <?php foreach ($navbarCartItems as $cartItem): ?>
+                  <?php
+                    $cartItemName = $cartItem['nama_layanan'] ?? '';
+                    $cartItemFoto = navbarCartImageUrl(navbarCartImagePath($cartItem));
+                    $cartItemQty = (int) ($cartItem['kuantitas'] ?? 1);
+                    $cartItemPrice = number_format((float) ($cartItem['harga'] ?? 0), 0, ',', '.');
+                  ?>
+                  <div class="cart-item-preview">
+                    <img src="<?= htmlspecialchars($cartItemFoto, ENT_QUOTES, 'UTF-8'); ?>" class="cart-item-img" alt="<?= htmlspecialchars($cartItemName, ENT_QUOTES, 'UTF-8'); ?>">
+                    <div class="cart-item-info">
+                      <div class="cart-item-title" title="<?= htmlspecialchars($cartItemName, ENT_QUOTES, 'UTF-8'); ?>"><?= htmlspecialchars($cartItemName, ENT_QUOTES, 'UTF-8'); ?></div>
+                      <div class="cart-item-price"><small><?= $cartItemQty; ?>x</small> Rp <?= $cartItemPrice; ?></div>
+                    </div>
+                  </div>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <div class="text-center py-4 text-muted"><i class="bi bi-cart-x d-block fs-4 mb-1"></i><small>Keranjang masih kosong</small></div>
+              <?php endif; ?>
+            </div>
+            <li><hr class="dropdown-divider"></li>
+            <li class="text-center p-1">
+              <a href="/project-mua-final/public/keranjang.php" class="btn btn-sm btn-custom-gold w-100 py-1" style="font-size: 0.8rem;">Lihat Keranjang Belanja</a>
+            </li>
+          </ul>
+        <?php endif; ?>
+      </div>
 
       <!-- Modifikasi: Pembungkus Dropdown Keranjang -->
       <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
-        <div class="nav-item-cart">
+        <div class="nav-cart-preview-trigger nav-item-cart">
           <a class="nav-link position-relative" href="/project-mua-final/public/keranjang.php">
             <i class="bi bi-cart3"></i> Keranjang
-            <span id="cart-count" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none; font-size:0.7rem;"></span>
+            <span id="cart-count" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="<?= $navbarCartCount > 0 ? 'display:inline-block;' : 'display:none;'; ?> font-size:0.7rem;"><?= $navbarCartCount > 0 ? $navbarCartCount : ''; ?></span>
           </a>
           
           <!-- Box Dropdown List Barang (Shopee Style) -->
           <ul class="dropdown-menu dropdown-menu-custom dropdown-cart-menu p-2">
-            <div id="cart-items-preview-container">
-              <div class="text-center py-3 text-muted"><small>Memuat keranjang...</small></div>
+            <div id="cart-items-preview-container" class="cart-items-preview-container">
+              <?php if (!empty($navbarCartItems)): ?>
+                <?php foreach ($navbarCartItems as $cartItem): ?>
+                  <?php
+                    $cartItemName = $cartItem['nama_layanan'] ?? '';
+                    $cartItemFoto = navbarCartImageUrl(navbarCartImagePath($cartItem));
+                    $cartItemQty = (int) ($cartItem['kuantitas'] ?? 1);
+                    $cartItemPrice = number_format((float) ($cartItem['harga'] ?? 0), 0, ',', '.');
+                  ?>
+                  <div class="cart-item-preview">
+                    <img src="<?= htmlspecialchars($cartItemFoto, ENT_QUOTES, 'UTF-8'); ?>" class="cart-item-img" alt="<?= htmlspecialchars($cartItemName, ENT_QUOTES, 'UTF-8'); ?>">
+                    <div class="cart-item-info">
+                      <div class="cart-item-title" title="<?= htmlspecialchars($cartItemName, ENT_QUOTES, 'UTF-8'); ?>"><?= htmlspecialchars($cartItemName, ENT_QUOTES, 'UTF-8'); ?></div>
+                      <div class="cart-item-price"><small><?= $cartItemQty; ?>x</small> Rp <?= $cartItemPrice; ?></div>
+                    </div>
+                  </div>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <div class="text-center py-4 text-muted"><i class="bi bi-cart-x d-block fs-4 mb-1"></i><small>Keranjang masih kosong</small></div>
+              <?php endif; ?>
             </div>
             <li><hr class="dropdown-divider"></li>
             <li class="text-center p-1">
@@ -395,13 +540,15 @@ if (session_status() === PHP_SESSION_NONE) {
 
             <li>
               <div class="dropdown-header text-muted">
-                Halo,
+                Hallo,
                 <strong>
                   <?= htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?>
                 </strong>
               </div>
             </li>
-
+<a href="riwayat_pesanan.php" class="dropdown-item">
+    <i class="bi bi-clock-history me-2"></i>Riwayat Pesanan
+</a>
             <li><hr class="dropdown-divider"></li>
 
             <li>
@@ -490,7 +637,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
             <span id="cart-count-mobile"
               class="badge bg-danger position-absolute top-0 start-100 translate-middle"
-              style="display:none; font-size:0.7rem;">
+              style="<?= $navbarCartCount > 0 ? 'display:inline-block;' : 'display:none;'; ?> font-size:0.7rem;">
+              <?= $navbarCartCount > 0 ? $navbarCartCount : ''; ?>
             </span>
 
           </a>
@@ -597,6 +745,54 @@ if (session_status() === PHP_SESSION_NONE) {
     return div.innerHTML;
   }
 
+  function setCartBadgeCount(count) {
+    const total = Number(count || 0);
+    const cartElements = document.querySelectorAll('#cart-count, #cart-count-mobile');
+
+    cartElements.forEach(el => {
+      if (total > 0) {
+        el.innerText = total;
+        el.style.display = 'inline-block';
+      } else {
+        el.innerText = '';
+        el.style.display = 'none';
+      }
+    });
+  }
+
+  function renderCartPreview(items) {
+    const previewContainers = document.querySelectorAll('.cart-items-preview-container');
+    if (!previewContainers.length) {
+      return;
+    }
+
+    let htmlContent = '<div class="text-center py-4 text-muted"><i class="bi bi-cart-x d-block fs-4 mb-1"></i><small>Keranjang masih kosong</small></div>';
+
+    if (items && items.length > 0) {
+      htmlContent = '';
+      items.forEach(item => {
+        const imgUrl = resolveCartImageUrl(item.foto);
+        const itemName = escapeCartText(item.nama_layanan);
+        const itemQty = Number(item.qty || item.kuantitas || 1);
+        const itemPrice = Number(item.harga || 0);
+
+        htmlContent += `
+          <div class="cart-item-preview">
+            <img src="${imgUrl}" class="cart-item-img" alt="${itemName}">
+            <div class="cart-item-info">
+              <div class="cart-item-title" title="${itemName}">${itemName}</div>
+              <div class="cart-item-price"><small>${itemQty}x</small> Rp ${itemPrice.toLocaleString('id-ID')}</div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    previewContainers.forEach(container => {
+      container.innerHTML = htmlContent;
+    });
+  }
+
   function updateCartCount() {
 
     fetch('/project-mua-final/actions/get_cart_count.php')
@@ -605,47 +801,10 @@ if (session_status() === PHP_SESSION_NONE) {
 
       .then(data => {
         // 1. Update Badge Angka
-        const cartElements = document.querySelectorAll('#cart-count, #cart-count-mobile');
-        cartElements.forEach(el => {
-
-          if (data.cart_count > 0) {
-
-            el.innerText = data.cart_count;
-            el.style.display = 'inline-block';
-
-          } else {
-
-            el.style.display = 'none';
-
-          }
-        });
+        setCartBadgeCount(data.cart_count);
 
         // 2. Render List Item di Dropdown (Shopee Style)
-        const previewContainer = document.getElementById('cart-items-preview-container');
-        if (previewContainer) {
-          if (data.items && data.items.length > 0) {
-            let htmlContent = '';
-            data.items.forEach(item => {
-              const imgUrl = resolveCartImageUrl(item.foto);
-              const itemName = escapeCartText(item.nama_layanan);
-              const itemQty = Number(item.qty || item.kuantitas || 1);
-              const itemPrice = Number(item.harga || 0);
-              
-              htmlContent += `
-                <div class="cart-item-preview">
-                  <img src="${imgUrl}" class="cart-item-img" alt="${itemName}">
-                  <div class="cart-item-info">
-                    <div class="cart-item-title" title="${itemName}">${itemName}</div>
-                    <div class="cart-item-price"><small>${itemQty}x</small> Rp ${itemPrice.toLocaleString('id-ID')}</div>
-                  </div>
-                </div>
-              `;
-            });
-            previewContainer.innerHTML = htmlContent;
-          } else {
-            previewContainer.innerHTML = '<div class="text-center py-4 text-muted"><i class="bi bi-cart-x d-block fs-4 mb-1"></i><small>Keranjang masih kosong</small></div>';
-          }
-        }
+        renderCartPreview(data.items || []);
       })
       .catch(error => console.log('Error fetching cart data:', error));
   }
@@ -653,4 +812,5 @@ if (session_status() === PHP_SESSION_NONE) {
   document.addEventListener('DOMContentLoaded', updateCartCount);
 
   window.updateCartNavbar = updateCartCount;
+  window.setCartBadgeCount = setCartBadgeCount;
 </script>

@@ -1,4 +1,7 @@
-<?php session_start(); ?>
+<?php
+require_once __DIR__ . '/../../config/auth.php';
+require_login(['admin']);
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -22,7 +25,7 @@
             --white:       #FFFDF9;
             --accent:      #D4956A;
             --accent-soft: #F0DBC8;
-            --sidebar-w:   240px;
+            --sidebar-w:   260px;
         }
 
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -584,46 +587,19 @@
 </head>
 <body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-    <div class="sidebar-logo">
-        <div class="brand">Yayuk <span>Makeover</span></div>
-        <div class="sub">Admin Panel</div>
-    </div>
-    <nav class="sidebar-nav">
-        <div class="nav-label">Menu</div>
-        <div class="nav-item"><a href="admin_dashboard.php"><i class="bi bi-grid-1x2"></i> Dashboard</a></div>
-        <div class="nav-item"><a href="admin_booking.php"><i class="bi bi-calendar-check"></i> Booking</a></div>
-        <div class="nav-item"><a href="admin_layanan.php" class="active"><i class="bi bi-stars"></i> Data Layanan</a></div>
-        <div class="nav-label">Pengguna</div>
-        <div class="nav-item"><a href="admin_user.php"><i class="bi bi-people"></i> Manajemen User</a></div>
-        <div class="nav-item"><a href="admin_pembayaran.php"><i class="bi bi-credit-card"></i> Pembayaran</a></div>
-    </nav>
-    <div class="sidebar-footer">
-        <a href="logout.php" class="logout-btn"><i class="bi bi-box-arrow-left"></i> Log Out</a>
-    </div>
-</aside>
+<?php
+$page = 'data_layanan';
+include 'include/sidebar.php';
+?>
 
 <!-- MAIN -->
 <div class="main">
 
-    <!-- TOPBAR -->
-    <div class="topbar">
-        <div>
-            <div class="page-title">Data Layanan</div>
-            <div class="breadcrumb-nav">Admin / Data Layanan</div>
-        </div>
-        <div class="topbar-right">
-            <div class="search-box">
-                <i class="bi bi-search"></i>
-                <input type="text" placeholder="Cari layanan..." id="searchInput" oninput="renderCards()">
-            </div>
-            <div class="admin-badge">
-                <div class="admin-avatar">A</div>
-                <div class="admin-name">Admin</div>
-            </div>
-        </div>
-    </div>
+    <?php
+    $page_title = 'Data Layanan';
+    $breadcrumb = 'Admin / Data Layanan';
+    include 'include/header.php';
+    ?>
 
     <!-- CONTENT -->
     <div class="content">

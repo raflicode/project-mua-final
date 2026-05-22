@@ -18,30 +18,34 @@ function getCartImagePath(array $item): string
     $name = strtolower($item['nama_layanan'] ?? '');
     $type = strtolower($item['tipe_layanan'] ?? '');
 
+    $hasName = function (string $needle) use ($name): bool {
+        return strpos($name, $needle) !== false;
+    };
+
     if ($type === 'kostum') {
-        if (str_contains($name, 'graduation')) {
+        if ($hasName('graduation')) {
             return '../assets/fotograduation.jpeg';
         }
-        if (str_contains($name, 'pahlawan')) {
+        if ($hasName('pahlawan')) {
             return '../assets/fotopahlawan.jpeg';
         }
-        if (str_contains($name, 'wedding')) {
-            return '../assets/fotokostum6.jpeg.png';
+        if ($hasName('wedding')) {
+            return '../assets/fotokostum6.jpeg';
         }
-        if (str_contains($name, 'baju adat jawa')) {
+        if ($hasName('baju adat jawa')) {
             return '../assets/fotokostum4.jpeg';
         }
-        if (str_contains($name, 'baju adat sunda')) {
+        if ($hasName('baju adat sunda')) {
             return '../assets/adatjawa.jpeg';
         }
-        if (str_contains($name, 'baju adat bali')) {
+        if ($hasName('baju adat bali')) {
             return '../assets/fotokostum5.jpeg';
         }
-        if (str_contains($name, 'baju adat madura')) {
+        if ($hasName('baju adat madura')) {
             return '../assets/adatmadura.jpeg';
         }
-        if (str_contains($name, 'baju adat') || str_contains($name, 'kostum')) {
-            return '../assets/fotokostum3.jpeg.jpg';
+        if ($hasName('baju adat') || $hasName('kostum')) {
+            return '../assets/fotokostum3.jpeg';
         }
     }
 
@@ -58,9 +62,15 @@ function getCartImagePath(array $item): string
 
 function tableHasColumn(PDO $pdo, string $table, string $column): bool
 {
-    $stmt = $pdo->prepare("SHOW COLUMNS FROM {$table} LIKE ?");
-    $stmt->execute([$column]);
-    return (bool) $stmt->fetchColumn();
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*)
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = ?
+          AND COLUMN_NAME = ?
+    ");
+    $stmt->execute([$table, $column]);
+    return (int) $stmt->fetchColumn() > 0;
 }
 
 try {

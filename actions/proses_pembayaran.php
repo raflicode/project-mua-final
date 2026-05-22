@@ -78,10 +78,11 @@ $_SESSION['pembayaran'] = [
     'nama' => $nama,
     'hp' => $hp,
     'metode' => $metode,
-    'alamat' => $alamat
+    'alamat' => $alamat,
+    'catatan' => trim(filter_input(INPUT_POST, 'catatan', FILTER_SANITIZE_STRING) ?? '')
 ];
 
-// Redirect ke halaman konfirmasi
-header('Location: ../public/konfirmasi.php');
+// Redirect ke halaman konfirmasi awal melalui WhatsApp
+header('Location: ../public/konfirmasi_awal.php');
 exit;
 ?>

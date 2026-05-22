@@ -41,7 +41,13 @@ function addToCart(namaLayanan, tipeLayanan, harga, foto = null) {
             });
             
             // Update cart count di navbar
-            if (typeof updateCartCount === 'function') {
+            if (typeof window.setCartBadgeCount === 'function') {
+                window.setCartBadgeCount(data.cart_count);
+            }
+
+            if (typeof window.updateCartNavbar === 'function') {
+                window.updateCartNavbar();
+            } else if (typeof updateCartCount === 'function') {
                 updateCartCount();
             }
         } else {
