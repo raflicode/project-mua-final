@@ -1,26 +1,5 @@
 <?php
 session_start();
-
-
-// Kita kumpulkan semua data foto dekorasi ke dalam array PHP agar sinkron dengan JavaScript lightbox
-$dekor_photos = [
-    ['src' => '../assets/fotodekor1.png', 'title' => 'Model Klasik Warm'],
-    ['src' => '../assets/fotodekor2.png', 'title' => 'Model Modern White'],
-    ['src' => '../assets/fotodekor3.png', 'title' => 'Model Rustic Elegan'],
-    ['src' => '../assets/fotodekor4.png', 'title' => 'Model Modern Rustic'],
-    ['src' => '../assets/fotodekor5.png', 'title' => 'Model Elegan Lux'],
-    ['src' => '../assets/fotodekor6.jpeg', 'title' => 'Model Rustic Elegan'],
-    ['src' => '../assets/fotodekor7.jpeg', 'title' => 'Model Rustic Elegan'],
-    ['src' => '../assets/fotodekor8.jpeg', 'title' => 'Model Rustic Elegan'],
-    ['src' => '../assets/fotodekor9.jpeg', 'title' => 'Model Rustic Elegan'],
-    ['src' => '../assets/fotodekor10.jpeg', 'title' => 'Model Rustic Elegan'],
-    ['src' => '../assets/fotodekor11.jpeg', 'title' => 'Model Rustic Elegan'],
-    ['src' => '../assets/fotodekor12.jpeg', 'title' => 'Model Rustic Elegan'],
-    ['src' => '../assets/4meter.png', 'title' => 'Dekor Outdoor 4 Meter'],
-    ['src' => '../assets/6meter.jpg', 'title' => 'Dekor Outdoor 6 Meter'],
-    ['src' => '../assets/foto8m.jpg', 'title' => 'Dekor Outdoor 8 Meter'],
-];
->>>>>>> d396eaa (backup dekor sebelum pull)
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -150,7 +129,7 @@ body{
 }
 
 .modal-dekor .modal-header{
-    background:#a88656;
+    background:#b85a00;
     border:none;
     padding:16px 18px;
     flex-direction:column;
@@ -189,31 +168,8 @@ body{
     transition:.2s;
 }
 
-.modal-dekor .modal-footer .btn-dark{
-    background:#a88656;
-    border:none;
-    border-radius:30px;
-    color:#fff;
-    height:45px;
-    font-weight:600;
-}
-
-.modal-dekor .modal-footer .btn-dark:hover{
-    background:#967447;
-}
-
-.modal-dekor .modal-footer .btn-warning{
-    background:#a88656;
-    color:#fff;
-    border:none;
-    border-radius:30px;
-    font-weight:600;
-    height:45px;
-}
-
-.modal-dekor .modal-footer .btn-warning:hover{
-    background:#967447;
-    color:#fff;
+.nav-btn:hover{
+    background:rgba(255,255,255,.35);
 }
 
 .modal-level2-bar{
@@ -359,191 +315,14 @@ body{
         font-size:54px;
     }
 }
-@media(max-width:576px){
-
-    .modal-dekor .modal-dialog{
-        width:86%;
-        max-width:360px;
-        margin:.75rem auto;
-    }
-
-    .modal-dekor .modal-content{
-        border-radius:18px;
-        max-height:88vh;
-    }
-
-    .modal-content-wrap{
-        grid-template-columns:1fr;
-        gap:12px;
-    }
-
-    .modal-dekor .modal-body{
-        padding:12px;
-    }
-
-    .modal-img-wrap{
-        max-height:38vh;
-        aspect-ratio:1/1;
-        border-radius:12px;
-    }
-
-    .foto-nav{
-        width:30px;
-        height:30px;
-    }
-
-    .modal-var-name{
-        font-size:.95rem;
-    }
-
-    .modal-include-ol{
-        font-size:.78rem;
-    }
-
-    .modal-harga-val{
-        font-size:1rem;
-    }
-
-}
 </style>
 </head>
 <body>
 
 <?php include 'include/navbar.php'; ?>
 
-<<<<<<< HEAD
 <main class="page-wrap">
 <div class="container">
-=======
-<div class="container py-5">
-
-    <div class="text-center mb-5 judul">
-        <h1>Dekor</h1>
-        <div class="line mt-2"></div>
-    </div>
-
-    <div class="mb-5">
-        <h3 class="sub-section-title mb-2"><i class="bi bi-house-door-fill me-2"></i> 1. Dekorasi Indoor (Pilihan Contoh Foto)</h3>
-        <p class="text-muted small mb-4">Berikut beberapa contoh pilihan dekorasi dalam ruangan (Klik foto untuk memperbesar & geser)</p>
-        
-        <div class="row g-4 mb-4">
-            <div class="col-md-3">
-                <div class="card card-custom p-3 text-center" onclick="openLightbox(0)">
-                    <img src="<?= $dekor_photos[0]['src'] ?>" class="img-paket-thumbnail" alt="Indoor Model A">
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-custom p-3 text-center" onclick="openLightbox(1)">
-                    <img src="<?= $dekor_photos[1]['src'] ?>" class="img-paket-thumbnail" alt="Indoor Model B">
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-custom p-3 text-center" onclick="openLightbox(2)">
-                    <img src="<?= $dekor_photos[2]['src'] ?>" class="img-paket-thumbnail" alt="Indoor Model C">
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-custom p-3 text-center" onclick="openLightbox(3)">
-                    <img src="<?= $dekor_photos[3]['src'] ?>" class="img-paket-thumbnail" alt="Indoor Model D">
-                </div>
-            </div>
-        </div>
-
-        <div class="card card-custom p-4">
-            <h5 class="fw-bold text-dark mb-3">Detail Paket Dekorasi Indoor</h5>
-            <p class="fw-semibold mb-2">Include :</p>
-            <ul class="mb-4">
-                <li>Makeup, Softlens, & Hairdo</li>
-                <li>Set Panggung & Background Bunga Kapas/Sutra (Bebas Pilih Model Di Atas)</li>
-                <li>Set Kursi Pelaminan Eksklusif</li>
-                <li>Karpet Jalan & Lampu Sorot Panggung Standar</li>
-            </ul>
-
-            <div class="d-flex justify-content-between align-items-center p-3 rounded-3 mb-4">
-                <span class="fw-bold fs-4" style="color: #513c2c;">Rp 1.000.000</span>
-            </div>
-
-            <div class="d-flex gap-2">
-                <button onclick="addToCart('Dekor Indoor', 'dekor', 1000000, '../assets/foto_dekor.jpeg')" class="btn-cart-icon">🛒</button>
-                <a href="booking.php?from=dekor&nama=Dekor+Indoor&harga=1000000&foto=<?= urlencode($dekor_photos[0]['src']) ?>" class="btn btn-booking flex-grow-1 btn-booking-trigger">
-                    Booking 
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <hr class="my-5" style="border-top: 2px dashed #d1beaa;">
-
-    <div>
-        <h3 class="sub-section-title mb-2"><i class="bi bi-tree-fill me-2"></i> 2. Dekorasi Outdoor (Pilihan Ukuran Panggung)</h3>
-        <p class="text-muted small mb-4">Pilih paket dekorasi luar ruangan dengan variasi ukuran panjang panggung yang paling pas untuk area acara Anda:</p>
-        
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card card-custom h-100 p-3">
-                    <img src="<?= $dekor_photos[13]['src'] ?>" class="img-paket-thumbnail" alt="Dekor Outdoor 4 Meter" onclick="openLightbox(13)">
-                    <div class="card-body p-1 d-flex flex-column">
-                        <h6 class="fw-bold text-dark">Dekor Outdoor — Ukuran 4 Meter</h6>
-                        <ul class="small my-2 flex-grow-1">
-                            <li>Set Background Luar Ruangan 4m</li>
-                            <li>Set Kursi Pelaminan & Gate</li>
-                            <li>Lighting Sorot Taman</li>
-                        </ul>
-                        <div class="text-end mb-3">
-                            <span class="fw-bold" style="font-size: 1.2rem; color: #513c2c;">Rp 2.000.000</span>
-                        </div>
-                        <div class="d-flex gap-2 mt-auto">
-                            <button onclick="addToCart('Dekor Outdoor (4 Meter)', 'dekor', 2000000, '../assets/4meter.png ')" class="btn-cart-icon">🛒</button>
-                            <a href="booking.php?from=dekor&nama=Dekor+Outdoor+(4+Meter)&harga=2000000&foto=<?= urlencode($dekor_photos[13]['src']) ?>" class="btn btn-booking flex-grow-1 btn-booking-trigger">Booking 4m</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card card-custom h-100 p-3">
-                    <img src="<?= $dekor_photos[14]['src'] ?>" class="img-paket-thumbnail" alt="Dekor Outdoor 6 Meter" onclick="openLightbox(14)">
-                    <div class="card-body p-1 d-flex flex-column">
-                        <h6 class="fw-bold text-dark">Dekor Outdoor — Ukuran 6 Meter</h6>
-                        <ul class="small my-2 flex-grow-1">
-                            <li>Set Background Luar Ruangan 6m</li>
-                            <li>Set Kursi Pelaminan Mewah & Gate</li>
-                            <li>Lighting Sorot Taman Tambahan</li>
-                        </ul>
-                        <div class="text-end mb-3">
-                            <span class="fw-bold" style="font-size: 1.2rem; color: #513c2c;">Rp 3.000.000</span>
-                        </div>
-                        <div class="d-flex gap-2 mt-auto">
-                            <button onclick="addToCart('Dekor Outdoor (6 Meter)', 'dekor', 3000000, '../assets/6meter.jpg')" class="btn-cart-icon">🛒</button>
-                            <a href="booking.php?from=dekor&nama=Dekor+Outdoor+(6+Meter)&harga=3000000&foto=<?= urlencode($dekor_photos[14]['src']) ?>" class="btn btn-booking flex-grow-1 btn-booking-trigger">Booking 6m</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card card-custom h-100 p-3">
-                    <img src="<?= $dekor_photos[14]['src'] ?>" class="img-paket-thumbnail" alt="Dekor Outdoor 8 Meter" onclick="openLightbox(14)">
-                    <div class="card-body p-1 d-flex flex-column">
-                        <h6 class="fw-bold text-dark">Dekor Outdoor — Ukuran 8 Meter</h6>
-                        <ul class="small my-2 flex-grow-1">
-                            <li>Set Background Luar Ruangan Full 8m</li>
-                            <li>Set Kursi Pelaminan & Gate Premium</li>
-                            <li>Lighting Sorot Taman Kategori Luas</li>
-                        </ul>
-                        <div class="text-end mb-3">
-                            <span class="fw-bold" style="font-size: 1.2rem; color: #513c2c;">Rp 4.500.000</span>
-                        </div>
-                        <div class="d-flex gap-2 mt-auto">
-                            <button onclick="addToCart('Dekor Outdoor (8 Meter)', 'dekor', 4500000, '../assets/foto8m.jpg')" class="btn-cart-icon">🛒</button>
-                            <a href="booking.php?from=dekor&nama=Dekor+Outdoor+(8+Meter)&harga=4500000&foto=<?= urlencode($dekor_photos[14]['src']) ?>" class="btn btn-booking flex-grow-1 btn-booking-trigger">Booking 8m</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> (ba
-
 
 <div class="text-center mb-5 judul">
     <h1>Dekorasi & Terop</h1>
@@ -780,7 +559,7 @@ const dekorData = [
     variasi: [
         {
             nama: 'Dekor 4 meter',
-            foto: '../assets/fotodekor11.jpeg',
+            foto: '../assets/4meter.png',
             harga: 'Rp 2.000.000',
             include: [
                 'Background panggung kayu/vintage backdrop 4 meter',
@@ -793,7 +572,7 @@ const dekorData = [
         },
         {
             nama: 'Dekor 6 meter',
-            foto: '../assets/fotodekor12.jpeg',
+            foto: '../assets/6meter.jpg',
             harga: 'Rp 3.000.000',
             include: [
                 'Background panggung kayu/vintage backdrop 6 meter',
@@ -806,7 +585,7 @@ const dekorData = [
         },
         {
             nama: 'Dekor 8 meter',
-            foto: '../assets/fotodekor13.jpeg',
+            foto: '../assets/foto8m.jpg',
             harga: 'Rp 4.500.000',
             include: [
                 'Background panggung kayu/vintage backdrop 8 meter',
@@ -922,8 +701,7 @@ document.getElementById('modalBookingBtn').addEventListener('click', () => {
             text: 'Silakan login terlebih dahulu'
         });
     } else {
-        const foto = encodeURIComponent(selected.foto || '');
-        window.location.href = `booking.php?from=dekor&layanan=${encodeURIComponent(selected.nama)}&harga=${harga}&foto=${foto}`;
+        window.location.href = `booking.php?from=dekor&layanan=${encodeURIComponent(selected.nama)}&harga=${harga}`;
     }
 });
 

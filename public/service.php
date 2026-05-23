@@ -331,10 +331,10 @@
                     </ul>
 
                     <div class="d-flex gap-2 mt-auto">
-                        <button type="button" onclick="addToCart('Paket Silver', 'paket', 5000000)" class="btn btn-cart-custom" title="Tambah ke Keranjang">
+                        <button type="button" onclick="addToCart('Paket Silver', 'paket', 5000000, '../assets/fotodekor1.png')" class="btn btn-cart-custom" title="Tambah ke Keranjang">
                             <i class="bi bi-cart3 fs-5"></i>
                         </button>
-                        <button type="button" onclick="handleServiceBooking('Paket Silver', 5000000)" class="btn btn-action-silver flex-grow-1 text-center">
+                        <button type="button" onclick="handleServiceBooking('Paket Silver', 5000000, '../assets/fotodekor1.png')" class="btn btn-action-silver flex-grow-1 text-center">
                             Booking Silver
                         </button>
                     </div>
@@ -413,10 +413,10 @@
                     </ul>
 
                     <div class="d-flex gap-2 mt-auto">
-                        <button type="button" onclick="addToCart('Paket Gold', 'paket', 7500000)" class="btn btn-cart-custom" title="Tambah ke Keranjang" style="border-color: #fcd34d;">
+                        <button type="button" onclick="addToCart('Paket Gold', 'paket', 7500000, '../assets/foto_makeup.jpeg')" class="btn btn-cart-custom" title="Tambah ke Keranjang" style="border-color: #fcd34d;">
                             <i class="bi bi-cart3 fs-5"></i>
                         </button>
-                        <button type="button" onclick="handleServiceBooking('Paket Gold', 7500000)" class="btn btn-action-gold flex-grow-1 text-center">
+                        <button type="button" onclick="handleServiceBooking('Paket Gold', 7500000, '../assets/foto_makeup.jpeg')" class="btn btn-action-gold flex-grow-1 text-center">
                             Booking Gold
                         </button>
                     </div>
@@ -434,7 +434,7 @@
 <?php include 'include/add_to_cart_script.php'; ?>
 <script>
 const isLoggedIn = <?= isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
-function handleServiceBooking(layanan, harga) {
+function handleServiceBooking(layanan, harga, foto) {
     if (!isLoggedIn) {
         Swal.fire({
             icon: 'warning',
@@ -449,7 +449,8 @@ function handleServiceBooking(layanan, harga) {
         });
         return;
     }
-    window.location.href = `booking.php?from=service&layanan=${encodeURIComponent(layanan)}&harga=${harga}`;
+    const fotoParam = foto ? `&foto=${encodeURIComponent(foto)}` : '';
+    window.location.href = `booking.php?from=service&layanan=${encodeURIComponent(layanan)}&harga=${harga}${fotoParam}`;
 }
 </script>
 </body>
