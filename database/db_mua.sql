@@ -33,7 +33,10 @@ CREATE TABLE `booking` (
   `id_jadwal` bigint(20) UNSIGNED NOT NULL,
   `tgl_booking` datetime DEFAULT current_timestamp(),
   `total_harga` decimal(12,2) NOT NULL DEFAULT 0.00,
-  `status_booking` enum('pending','dibayar','diproses','selesai','dibatalkan') DEFAULT 'pending',
+  `status_booking` enum('pending','dikonfirmasi','selesai','dibatalkan') DEFAULT 'pending',
+  `konfirmasi_akhir_token` varchar(64) DEFAULT NULL,
+  `bukti_pembayaran` varchar(255) DEFAULT NULL,
+  `tanggal_upload` datetime DEFAULT NULL,
   `catatan` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -81,6 +84,7 @@ CREATE TABLE `jadwal_kerja` (
 CREATE TABLE `keranjang` (
   `id_keranjang` bigint(20) UNSIGNED NOT NULL,
   `id_user` bigint(20) UNSIGNED NOT NULL,
+  `id_layanan` bigint(20) UNSIGNED DEFAULT NULL,
   `nama_layanan` varchar(100) NOT NULL,
   `tipe_layanan` enum('makeup','dekor','kostum','paket') NOT NULL,
   `foto` varchar(255) DEFAULT NULL,
@@ -99,6 +103,7 @@ CREATE TABLE `keranjang` (
 CREATE TABLE `layanan` (
   `id_layanan` bigint(20) UNSIGNED NOT NULL,
   `nama_layanan` varchar(100) NOT NULL,
+  `kategori_layanan` enum('makeup','kostum','dekor','paket') NOT NULL DEFAULT 'makeup',
   `deskripsi` text DEFAULT NULL,
   `harga_dasar` decimal(12,2) NOT NULL,
   `foto_layanan` varchar(255) DEFAULT NULL,
@@ -173,7 +178,8 @@ ALTER TABLE `jadwal_kerja`
 --
 ALTER TABLE `keranjang`
   ADD PRIMARY KEY (`id_keranjang`),
-  ADD KEY `idx_keranjang_user` (`id_user`);
+  ADD KEY `idx_keranjang_user` (`id_user`),
+  ADD KEY `idx_keranjang_layanan` (`id_layanan`);
 
 --
 -- Indeks untuk tabel `layanan`
@@ -264,7 +270,8 @@ ALTER TABLE `booking_detail`
 -- Ketidakleluasaan untuk tabel `keranjang`
 --
 ALTER TABLE `keranjang`
-  ADD CONSTRAINT `fk_keranjang_user` FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_keranjang_user` FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_keranjang_layanan` FOREIGN KEY (`id_layanan`) REFERENCES `layanan` (`id_layanan`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Ketidakleluasaan untuk tabel `pembayaran`

@@ -1,6 +1,6 @@
 <!-- Script untuk Add to Cart - Tambahkan di service.php atau halaman product lainnya -->
 <script>
-function addToCart(namaLayanan, tipeLayanan, harga, foto = null) {
+function addToCart(namaLayanan, tipeLayanan, harga, foto = null, idLayanan = null) {
     // Check if user is logged in
     if (!<?= isset($_SESSION['id_user']) ? 'true' : 'false' ?>) {
         Swal.fire({
@@ -20,6 +20,9 @@ function addToCart(namaLayanan, tipeLayanan, harga, foto = null) {
     const formData = new FormData();
     formData.append('nama_layanan', namaLayanan);
     formData.append('tipe_layanan', tipeLayanan);
+    if (idLayanan) {
+        formData.append('id_layanan', idLayanan);
+    }
     if (foto) {
         formData.append('foto', foto);
     }
