@@ -59,6 +59,10 @@ if ($namaProduk === '') {
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $hargaProduk = filter_input(INPUT_GET, 'harga', FILTER_VALIDATE_INT);
 $fotoParam = trim((string) filter_input(INPUT_GET, 'foto', FILTER_SANITIZE_STRING));
+if ($fotoParam !== '') {
+    $foto = resolveImagePath($fotoParam);
+}
+$hasDirectSelection = $id || $namaProduk !== '' || $hargaProduk > 0 || $fotoParam !== '';
 $service = null;
 $layananTableExists = false;
 
@@ -69,7 +73,7 @@ try {
     $layananTableExists = false;
 }
 
-if ($checkout && !empty($checkout['items']) && is_array($checkout['items'])) {
+if (!$hasDirectSelection && $checkout && !empty($checkout['items']) && is_array($checkout['items'])) {
     $checkoutMode = true;
     $checkoutItems = $checkout['items'];
     $hargaProduk = floatval($checkout['total_price']);
@@ -89,6 +93,10 @@ if ($checkout && !empty($checkout['items']) && is_array($checkout['items'])) {
         'foto' => $foto
     ];
 } else {
+    if ($hasDirectSelection) {
+        unset($_SESSION['checkout_booking']);
+    }
+
     if ($id && $layananTableExists) {
         $stmt = $pdo->prepare('SELECT * FROM layanan WHERE id_layanan = ? LIMIT 1');
         $stmt->execute([$id]);
@@ -121,7 +129,7 @@ if ($checkout && !empty($checkout['items']) && is_array($checkout['items'])) {
 
     $_SESSION['draft_booking'] = [
         'source' => 'single',
-        'id_layanan' => $service['id_layanan'] ?? ($draft['id_layanan'] ?? null),
+        'id_layanan' => $service['id_layanan'] ?? null,
         'nama_layanan' => $namaProduk,
         'harga' => $hargaProduk,
         'foto' => $foto
@@ -331,7 +339,7 @@ body {
                     <?php foreach ($checkoutItems as $item): ?>
                         <div class="product-item">
                             <div class="product-img-wrapper">
-                                <img src="<?= htmlspecialchars($foto, ENT_QUOTES, 'UTF-8'); ?>" class="product-img" alt="<?= htmlspecialchars($item['nama_layanan'], ENT_QUOTES, 'UTF-8'); ?>">
+                                <img src="<?= htmlspecialchars(resolveImagePath($item['foto'] ?? '', $foto), ENT_QUOTES, 'UTF-8'); ?>" class="product-img" alt="<?= htmlspecialchars($item['nama_layanan'], ENT_QUOTES, 'UTF-8'); ?>">
                             </div>
                             <div class="product-info flex-grow-1">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -368,13 +376,8 @@ body {
                             <span class="price-value"><?= htmlspecialchars(formatRupiah($hargaProduk), ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
                         <div class="price-row">
-                            <span class="price-label">Biaya layanan</span>
-                            <span class="price-value">Rp 10.000</span>
-                        </div>
-                        <div class="divider"></div>
-                        <div class="price-row">
                             <span class="fw-bold">Total Bayar</span>
-                            <span class="fw-bold"><?= htmlspecialchars(formatRupiah($hargaProduk + 10000), ENT_QUOTES, 'UTF-8'); ?></span>
+                            <span class="fw-bold"><?= htmlspecialchars(formatRupiah($hargaProduk), ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
                     </div>
                 </div>
@@ -386,7 +389,7 @@ body {
                 <div class="order-card">
                     <h5 class="card-inside-title"><i class="bi bi-calendar-check me-2 text-warning"></i>Langkah Selanjutnya</h5>
                     <p class="text-muted small mb-4">Pilih tanggal dan jam yang tersedia pada langkah berikutnya.</p>
-                    <a href="penjadwalan.php" class="btn btn-payment">
+                    <a href="penjadwalan.php<?= $fromPage ? '?from=' . urlencode($fromPage) : '' ?>" class="btn btn-payment">
                         Lanjut ke Penjadwalan <i class="bi bi-arrow-right ms-2"></i>
                     </a>
                 </div>

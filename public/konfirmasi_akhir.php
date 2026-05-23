@@ -80,6 +80,7 @@ if (!empty($errors)) {
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
     <style>
         :root{
@@ -165,6 +166,29 @@ if (!empty($errors)) {
             box-shadow: none;
             transform: translateY(-3px);
         }
+        .back-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.1);
+    color: #2b1f15;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.back-nav:hover {
+    background: #d07f26;
+    color: white;
+    transform: translateX(-4px);
+}
+
+.back-container {
+    margin-bottom: 20px;
+}
 
         @media (min-width: 992px) {
             .grid-2 { display: grid; grid-template-columns: 1fr 420px; gap: 28px; align-items: start; }
@@ -178,9 +202,11 @@ if (!empty($errors)) {
 
 <div class="wrapper">
 
-    <div class="mb-3">
-        <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="text-dark fs-4"><i class="bi bi-chevron-left"></i> Kembali</a>
-    </div>
+    <div class="back-container">
+    <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="back-nav">
+        <i class="bi bi-chevron-left"></i>
+    </a>
+</div>
 
     <h2 class="fw-bold mb-4">Konfirmasi Pembayaran</h2>
 
@@ -235,7 +261,7 @@ if (!empty($errors)) {
                     <small class="text-muted">A/N YAYUK ERNAWATI</small>
                 </div>
 
-                <form action="../actions/proses_konfirmasi.php" method="post" enctype="multipart/form-data">
+                <form action="../actions/proses_konfirmasi.php" method="post" enctype="multipart/form-data" novalidate>
                     <?php if ($tokenMode): ?>
                         <input type="hidden" name="konfirmasi_akhir_token" value="<?= htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?>">
                     <?php elseif ($idBookingMode): ?>
@@ -244,7 +270,7 @@ if (!empty($errors)) {
                     <label class="upload-box w-100 mb-3" id="uploadBox">
                         <div class="fs-3">⇪</div>
                         <div class="small text-muted">Upload Bukti Pembayaran (.jpg, .png)</div>
-                        <input type="file" name="bukti_pembayaran" accept=".jpg,.jpeg,.png" required id="fileInput">
+                        <input type="file" name="bukti_pembayaran" accept=".jpg,.jpeg,.png" id="fileInput">
                     </label>
 
                     <div id="fileNameDisplay" class="small text-muted mb-3" style="display:none;">File: <strong id="fileName"></strong></div>
@@ -269,6 +295,7 @@ if (!empty($errors)) {
 </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 function goBack() {
     if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
@@ -278,19 +305,62 @@ function goBack() {
     }
 }
 
+const pageErrors = <?php echo json_encode($errors, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+const uploadSuccess = <?php echo json_encode(!empty($_GET['uploaded'])); ?>;
+
+function showPopupMessages() {
+    if (pageErrors && pageErrors.length) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Terjadi Kesalahan',
+            html: pageErrors.map(msg => `<div>${msg}</div>`).join(''),
+            confirmButtonText: 'Tutup'
+        });
+    } else if (uploadSuccess) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: 'Bukti pembayaran berhasil dikirim. Silakan tunggu konfirmasi admin.',
+            confirmButtonText: 'Oke'
+        });
+    }
+}
+
 // Handle file input display
-document.getElementById('fileInput').addEventListener('change', function(e) {
-    const fileName = e.target.files[0]?.name;
-    const fileNameDisplay = document.getElementById('fileNameDisplay');
-    const fileNameText = document.getElementById('fileName');
-    
+const fileInput = document.getElementById('fileInput');
+const fileNameDisplay = document.getElementById('fileNameDisplay');
+const fileNameText = document.getElementById('fileName');
+
+function updateFileDisplay() {
+    const fileName = fileInput?.files[0]?.name;
     if (fileName) {
         fileNameText.textContent = fileName;
         fileNameDisplay.style.display = 'block';
     } else {
         fileNameDisplay.style.display = 'none';
     }
-});
+}
+
+if (fileInput) {
+    fileInput.addEventListener('change', updateFileDisplay);
+}
+
+const konfirmasiForm = document.querySelector('form[action="../actions/proses_konfirmasi.php"]');
+if (konfirmasiForm) {
+    konfirmasiForm.addEventListener('submit', function(event) {
+        if (!fileInput || !fileInput.files.length) {
+            event.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Upload Bukti Diperlukan',
+                text: 'Silakan upload bukti pembayaran terlebih dahulu sebelum mengirim.',
+                confirmButtonText: 'Oke'
+            });
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', showPopupMessages);
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 

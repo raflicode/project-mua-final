@@ -7,10 +7,20 @@ if (!isset($_SESSION['id_user'])) {
     exit;
 }
 
-$backHref = 'penjadwalan.php';
+$fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_STRING);
+$backMap = [
+    'makeup' => 'makeup.php',
+    'dekor' => 'dekor.php',
+    'kostum' => 'kostum.php'
+];
+$backHref = $backMap[$fromPage] ?? 'penjadwalan.php';
 
 if (!isset($_SESSION['draft_booking'])) {
-    header('Location: booking.php');
+    $redirectUrl = 'booking.php';
+    if ($fromPage) {
+        $redirectUrl .= '?from=' . urlencode($fromPage);
+    }
+    header('Location: ' . $redirectUrl);
     exit;
 }
 
@@ -224,7 +234,7 @@ if (!empty($errors)) {
     <?php endif; ?>
 
     <!-- Form Utama -->
-    <form action="../actions/proses_pembayaran.php" method="post">
+    <form action="../actions/proses_pembayaran.php<?= $fromPage ? '?from=' . urlencode($fromPage) : '' ?>" method="post">
         <div class="row g-4">
             
             <!-- Kolom Kiri: Form Input Data Pelanggan -->
