@@ -23,7 +23,6 @@ $dekor_photos = [
     ['src' => '../assets/6meter.jpg', 'title' => 'Dekor Outdoor 6 Meter'],
     ['src' => '../assets/foto8m.jpg', 'title' => 'Dekor Outdoor 8 Meter'],
 ];
->>>>>>> d396eaa (backup dekor sebelum pull)
 ?>
 <!DOCTYPE html>
 <html lang="id">
