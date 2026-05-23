@@ -55,6 +55,11 @@ if (!function_exists('ensure_dynamic_booking_schema')) {
             db_columns($pdo, 'booking', true);
         }
 
+        if (!db_has_column($pdo, 'layanan', 'variant_data')) {
+            $pdo->exec("ALTER TABLE layanan ADD COLUMN variant_data TEXT DEFAULT NULL AFTER foto_layanan");
+            db_columns($pdo, 'layanan', true);
+        }
+
         $pdo->exec("
             UPDATE booking
             SET status_booking = CASE

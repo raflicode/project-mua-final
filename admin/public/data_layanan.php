@@ -21,6 +21,84 @@ function normalize_layanan_kategori(string $kategori): string
     return in_array($kategori, ['makeup', 'kostum', 'dekor', 'paket'], true) ? $kategori : 'makeup';
 }
 
+function parse_variant_input(string $raw, float $fallbackPrice, ?string $fallbackImage = null): array
+{
+    $raw = trim($raw);
+    if ($raw === '') {
+        return [];
+    }
+
+    $decoded = json_decode($raw, true);
+    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+        $variants = [];
+        foreach ($decoded as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $label = trim((string) ($item['label'] ?? $item['name'] ?? ''));
+            $price = isset($item['price']) ? (float) $item['price'] : (isset($item['harga']) ? (float) $item['harga'] : $fallbackPrice);
+            $image = trim((string) ($item['foto'] ?? $item['image'] ?? ''));
+            if ($label === '') {
+                $label = 'Opsi ' . (count($variants) + 1);
+            }
+            if ($price <= 0) {
+                $price = $fallbackPrice;
+            }
+            if ($image === '') {
+                $image = (string) $fallbackImage;
+            }
+
+            $includes = $item['includes'] ?? [];
+            if (is_string($includes)) {
+                $includes = preg_split('/\r\n|\n|;/', $includes);
+            }
+            if (!is_array($includes)) {
+                $includes = [];
+            }
+
+            $variants[] = [
+                'label' => $label,
+                'price' => $price,
+                'foto' => $image,
+                'includes' => array_values(array_filter(array_map('trim', $includes), static fn($item) => $item !== '')),
+            ];
+        }
+
+        return $variants;
+    }
+
+    $variants = [];
+    foreach (preg_split('/\r\n|\n/', $raw) as $line) {
+        $line = trim($line);
+        if ($line === '') {
+            continue;
+        }
+
+        $parts = array_map('trim', explode('|', $line));
+        $label = $parts[0] ?? '';
+        $price = isset($parts[1]) ? (float) str_replace([',', '.'], ['', ''], $parts[1]) : $fallbackPrice;
+        $image = isset($parts[2]) ? $parts[2] : $fallbackImage;
+
+        if ($label === '') {
+            continue;
+        }
+
+        if ($price <= 0) {
+            $price = $fallbackPrice;
+        }
+
+        $variants[] = [
+            'label' => $label,
+            'price' => $price,
+            'foto' => $image ?? '',
+            'includes' => [],
+        ];
+    }
+
+    return $variants;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? 'save';
     $id = (int) ($_POST['id_layanan'] ?? 0);
@@ -40,6 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nama = trim($_POST['nama_layanan'] ?? '');
         $harga = (float) ($_POST['harga_dasar'] ?? 0);
         $deskripsi = trim($_POST['deskripsi'] ?? '');
+        $variantRaw = trim($_POST['variant_data'] ?? '');
 
         if ($nama === '' || $harga <= 0) {
             layanan_redirect('Nama layanan dan harga wajib diisi.', 'danger');
@@ -69,21 +148,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $foto = 'assets/layanan/' . $fileName;
         }
 
+        $variants = parse_variant_input($variantRaw, $harga, $foto ?: null);
+        if ($variantRaw !== '' && $variants === []) {
+            layanan_redirect('Format variasi tidak valid. Gunakan format Opsi 1 | 1500000 atau JSON valid.', 'danger');
+        }
+
+        $variantData = $variants === [] ? null : json_encode($variants, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
         if ($id > 0) {
             $stmt = $pdo->prepare('
                 UPDATE layanan
-                SET kategori_layanan = ?, nama_layanan = ?, deskripsi = ?, harga_dasar = ?, foto_layanan = ?, is_active = 1
+                SET kategori_layanan = ?, nama_layanan = ?, deskripsi = ?, harga_dasar = ?, foto_layanan = ?, variant_data = ?, is_active = 1
                 WHERE id_layanan = ?
             ');
-            $stmt->execute([$kategori, $nama, $deskripsi, $harga, $foto ?: null, $id]);
+            $stmt->execute([$kategori, $nama, $deskripsi, $harga, $foto ?: null, $variantData, $id]);
             layanan_redirect('Layanan berhasil diperbarui.');
         }
 
         $stmt = $pdo->prepare('
-            INSERT INTO layanan (kategori_layanan, nama_layanan, deskripsi, harga_dasar, foto_layanan, is_active)
-            VALUES (?, ?, ?, ?, ?, 1)
+            INSERT INTO layanan (kategori_layanan, nama_layanan, deskripsi, harga_dasar, foto_layanan, variant_data, is_active)
+            VALUES (?, ?, ?, ?, ?, ?, 1)
         ');
-        $stmt->execute([$kategori, $nama, $deskripsi, $harga, $foto ?: null]);
+        $stmt->execute([$kategori, $nama, $deskripsi, $harga, $foto ?: null, $variantData]);
         layanan_redirect('Layanan berhasil ditambahkan.');
     } catch (Throwable $e) {
         layanan_redirect('Gagal menyimpan layanan: ' . $e->getMessage(), 'danger');
@@ -91,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $layananStmt = $pdo->query("
-    SELECT id_layanan, kategori_layanan, nama_layanan, deskripsi, harga_dasar, foto_layanan
+    SELECT id_layanan, kategori_layanan, nama_layanan, deskripsi, harga_dasar, foto_layanan, variant_data
     FROM layanan
     WHERE is_active = 1
     ORDER BY kategori_layanan ASC, nama_layanan ASC
@@ -105,6 +191,7 @@ $layananRows = array_map(static function (array $row): array {
         'deskripsi' => $row['deskripsi'] ?? '',
         'foto' => $row['foto_layanan'] ? '../../' . ltrim($row['foto_layanan'], '/') : '',
         'foto_raw' => $row['foto_layanan'] ?? '',
+        'variant_data' => $row['variant_data'] ?? '',
     ];
 }, $layananStmt->fetchAll(PDO::FETCH_ASSOC));
 
@@ -795,6 +882,14 @@ include 'include/sidebar.php';
         </div>
 
         <div class="form-group">
+            <label class="form-label">Variasi Opsi (opsional)</label>
+            <textarea class="form-control-custom" id="formVariants" name="variant_data" placeholder="Opsi 1 | 1500000&#10;Opsi 2 | 2000000"></textarea>
+            <div class="form-hint" style="font-size: 0.78rem; color: #7A6352; margin-top: 8px;">
+                Isi satu opsi per baris dengan format <strong>Nama Opsi | Harga</strong>. Kosongkan jika layanan hanya punya satu harga.
+            </div>
+        </div>
+
+        <div class="form-group">
             <label class="form-label">Foto Layanan</label>
             <div class="upload-area" id="uploadArea">
                 <input type="file" accept="image/*" name="foto_layanan" onchange="previewFile(this)">
@@ -892,6 +987,7 @@ function openModal(id) {
         document.getElementById('formNama').value          = l.nama;
         document.getElementById('formHarga').value         = l.harga;
         document.getElementById('formDeskripsi').value     = l.deskripsi;
+        document.getElementById('formVariants').value      = l.variant_data || '';
         document.getElementById('fotoLama').value          = l.foto_raw || '';
         document.getElementById('btnHapusModal').style.display = 'block';
     } else {
@@ -902,6 +998,7 @@ function openModal(id) {
         document.getElementById('formNama').value          = '';
         document.getElementById('formHarga').value         = '';
         document.getElementById('formDeskripsi').value     = '';
+        document.getElementById('formVariants').value      = '';
         document.getElementById('fotoLama').value          = '';
         document.getElementById('btnHapusModal').style.display = 'none';
     }
