@@ -1,14 +1,23 @@
 <?php
 session_start();
 require_once '../config/koneksi.php';
+require_once '../config/db_helpers.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['konfirmasi_akhir_token'])) {
-    $token = trim($_POST['konfirmasi_akhir_token']);
+ensure_dynamic_booking_schema($pdo);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!empty($_POST['konfirmasi_akhir_token']) || !empty($_POST['id_booking']))) {
+    $token = trim($_POST['konfirmasi_akhir_token'] ?? '');
+    $idBookingParam = (int) ($_POST['id_booking'] ?? 0);
     $file = $_FILES['bukti_pembayaran'] ?? null;
     $errors = [];
 
-    $bookingStmt = $pdo->prepare("SELECT id_booking, id_user, total_harga FROM booking WHERE konfirmasi_akhir_token = ? AND status_booking = 'menunggu_pembayaran' LIMIT 1");
-    $bookingStmt->execute([$token]);
+    if ($token !== '') {
+        $bookingStmt = $pdo->prepare("SELECT id_booking, id_user, total_harga FROM booking WHERE konfirmasi_akhir_token = ? AND status_booking = 'dikonfirmasi' LIMIT 1");
+        $bookingStmt->execute([$token]);
+    } else {
+        $bookingStmt = $pdo->prepare("SELECT id_booking, id_user, total_harga FROM booking WHERE id_booking = ? AND status_booking = 'dikonfirmasi' LIMIT 1");
+        $bookingStmt->execute([$idBookingParam]);
+    }
     $booking = $bookingStmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$booking) {
@@ -34,7 +43,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['konfirmasi_akhir_tok
 
     if (!empty($errors)) {
         $_SESSION['errors'] = $errors;
-        header('Location: ../public/konfirmasi_akhir.php?token=' . urlencode($token));
+        $target = $token !== ''
+            ? '../public/konfirmasi_akhir.php?token=' . urlencode($token)
+            : '../public/konfirmasi_akhir.php?id_booking=' . (int) $idBookingParam;
+        header('Location: ' . $target);
         exit;
     }
 
@@ -53,7 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['konfirmasi_akhir_tok
 
     if (!move_uploaded_file($file['tmp_name'], $uploadPath)) {
         $_SESSION['errors'] = ['Gagal menyimpan file'];
-        header('Location: ../public/konfirmasi_akhir.php?token=' . urlencode($token));
+        $target = $token !== ''
+            ? '../public/konfirmasi_akhir.php?token=' . urlencode($token)
+            : '../public/konfirmasi_akhir.php?id_booking=' . (int) $idBookingParam;
+        header('Location: ' . $target);
         exit;
     }
 
@@ -62,8 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['konfirmasi_akhir_tok
 
         $updateBooking = $pdo->prepare("
             UPDATE booking
-            SET status_booking = 'lunas',
-                bukti_pembayaran = ?,
+            SET bukti_pembayaran = ?,
                 tanggal_upload = NOW()
             WHERE id_booking = ?
         ");
@@ -82,7 +96,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['konfirmasi_akhir_tok
         }
 
         $pdo->commit();
-        header('Location: ../public/konfirmasi_akhir.php?token=' . urlencode($token) . '&uploaded=1');
+        $target = $token !== ''
+            ? '../public/konfirmasi_akhir.php?token=' . urlencode($token)
+            : '../public/konfirmasi_akhir.php?id_booking=' . (int) $booking['id_booking'];
+        header('Location: ' . $target . '&uploaded=1');
         exit;
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) {
@@ -90,7 +107,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['konfirmasi_akhir_tok
         }
 
         $_SESSION['errors'] = ['Gagal menyimpan bukti pembayaran: ' . $e->getMessage()];
-        header('Location: ../public/konfirmasi_akhir.php?token=' . urlencode($token));
+        $target = $token !== ''
+            ? '../public/konfirmasi_akhir.php?token=' . urlencode($token)
+            : '../public/konfirmasi_akhir.php?id_booking=' . (int) $idBookingParam;
+        header('Location: ' . $target);
         exit;
     }
 }

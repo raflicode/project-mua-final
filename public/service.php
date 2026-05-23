@@ -1,4 +1,46 @@
-<?php session_start(); ?>
+<?php
+session_start();
+require_once __DIR__ . '/../config/koneksi.php';
+require_once __DIR__ . '/../config/db_helpers.php';
+
+ensure_dynamic_booking_schema($pdo);
+
+function serviceImagePath(?string $path): string
+{
+    if (!$path) {
+        return '../assets/foto_makeup.jpeg';
+    }
+
+    if (preg_match('#^(https?://|/)#', $path)) {
+        return $path;
+    }
+
+    return '../' . ltrim($path, '/');
+}
+
+$stmt = $pdo->query("
+    SELECT id_layanan, kategori_layanan, nama_layanan, deskripsi, harga_dasar, foto_layanan
+    FROM layanan
+    WHERE is_active = 1
+    ORDER BY FIELD(kategori_layanan, 'makeup', 'kostum', 'dekor', 'paket'), nama_layanan ASC
+");
+$services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$servicesByCategory = [];
+foreach ($services as $service) {
+    $category = $service['kategori_layanan'] ?: 'makeup';
+    $servicesByCategory[$category][] = $service;
+}
+$categoryLabels = [
+    'makeup' => 'Makeup',
+    'kostum' => 'Kostum',
+    'dekor' => 'Dekor/Terop',
+    'paket' => 'Paket Wedding',
+];
+$selectedCategory = $_GET['kategori'] ?? 'semua';
+if ($selectedCategory !== 'semua' && !isset($categoryLabels[$selectedCategory])) {
+    $selectedCategory = 'semua';
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -230,201 +272,69 @@
 
 <div class="container mt-3 px-lg-5">
     <div class="text-center mb-5 text-white">
-        <h1 class="fw-bold" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.6);">Pilih paket yang sesuai<br>dengan tujuan Anda.</h1>
-        <p class="small opacity-75">Pilih paket yang sesuai dengan kebutuhan Anda dan tingkatkan produktivitas Anda.</p>
+        <h1 class="fw-bold" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.6);">Pilih Layanan</h1>
+        <p class="small opacity-75">Seluruh layanan di halaman ini diambil langsung dari database admin.</p>
     </div>
 
-    <div class="row g-4 justify-content-center mb-5">
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card-custom">
-                <div>
-                    <h5 class="mb-4">Makeup</h5>
-                    <p class="small fw-bold mb-2 text-muted">Include:</p>
-                    <ul class="text-start mt-2 list-unstyled">
-                        <li><i class="bi bi-chevron-right text-dark small me-2"></i>Wedding Akad</li>
-                        <li><i class="bi bi-chevron-right text-dark small me-2"></i>Wedding Resepsi</li>
-                        <li><i class="bi bi-chevron-right text-dark small me-2"></i>Graduation</li>
-                        <li><i class="bi bi-chevron-right text-dark small me-2"></i>Natural look</li>
-                    </ul>
-                </div>
-                <a href="makeup.php" class="btn btn-outline-dark btn-booking">Lihat Lebih Banyak</a>
+    <?php if (empty($services)): ?>
+        <div class="card border-0 shadow-sm mb-5">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-inbox display-5 text-muted"></i>
+                <h5 class="mt-3">Belum ada layanan aktif</h5>
+                <p class="text-muted mb-0">Admin dapat menambahkan layanan dari menu Data Layanan.</p>
             </div>
         </div>
+    <?php endif; ?>
 
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card-custom">
-                <div>
-                    <h5 class="mb-4">Kostum</h5>
-                    <p class="small fw-bold mb-2 text-muted">Include:</p>
-                    <ul class="text-start mt-2 list-unstyled">
-                        <li><i class="bi bi-chevron-right text-dark small me-2"></i>Kostum Wedding</li>
-                        <li><i class="bi bi-chevron-right text-dark small me-2"></i>Kostum Graduation</li>
-                        <li><i class="bi bi-chevron-right text-dark small me-2"></i>Baju Adat</li>
-                        <li><i class="bi bi-chevron-right text-dark small me-2"></i>Kostum Karnaval</li>
-                    </ul>
-                </div>
-                <a href="kostum.php" class="btn btn-outline-dark btn-booking">Lihat Lebih Banyak</a>
+    <?php foreach ($categoryLabels as $category => $label): ?>
+        <?php if ($selectedCategory !== 'semua' && $selectedCategory !== $category) continue; ?>
+        <?php if (empty($servicesByCategory[$category])) continue; ?>
+        <section class="mb-5">
+            <div class="text-center mb-4 text-white">
+                <h2 class="fw-bold" style="font-family:'Lobster', cursive; font-size: 42px; text-shadow: 2px 2px 6px rgba(0,0,0,0.6);">
+                    <?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?>
+                </h2>
+                <div class="mx-auto" style="width: 80px; height: 3px; background-color: #ffffff; border-radius: 2px;"></div>
             </div>
-        </div>
 
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card-custom">
-                <div>
-                    <h5 class="mb-4">Dekor/Terop</h5>
-                    <p class="small fw-bold mb-2 text-muted">Include:</p>
-                    <ul class="text-start mt-2 list-unstyled">
-                        <li><i class="bi bi-chevron-right text-dark small me-2"></i>Outdoor</li>
-                        <li><i class="bi bi-chevron-right text-dark small me-2"></i>Indoor</li>
-                    </ul>
-                </div>
-                <a href="dekor.php" class="btn btn-outline-dark btn-booking">Lihat Lebih Banyak</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="text-center mt-5 mb-4 text-white">
-        <h2 class="fw-bold" style="font-family:'Lobster', cursive; font-size: 45px; text-shadow: 2px 2px 6px rgba(0,0,0,0.6);">Paket Wedding</h2>
-        <div class="mx-auto" style="width: 80px; height: 3px; background-color: #ffffff; border-radius: 2px;"></div>
-    </div>
-
-    <div class="row g-4 justify-content-center pb-5">
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card-premium card-silver-theme">
-                <div class="card-header-silver">
-                    <div class="badge-package badge-silver">Bundling Package</div>
-                    <h4 class="fw-bold text-dark mb-1">Paket Silver</h4>
-                    <div class="d-flex align-items-baseline mt-2">
-                        <span class="price-currency">IDR</span>
-                        <span class="price-style">5.000.000</span>
-                    </div>
-                </div>
-
-                <div class="card-body-custom">
-                    <ul class="include-list">
-                        <li>
-                            <span class="icon-check icon-silver-check"><i class="bi bi-check-lg"></i></span>
+            <div class="row g-4 justify-content-center">
+                <?php foreach ($servicesByCategory[$category] as $service): ?>
+                    <?php
+                    $id = (int) $service['id_layanan'];
+                    $name = $service['nama_layanan'];
+                    $price = (float) $service['harga_dasar'];
+                    $image = serviceImagePath($service['foto_layanan'] ?? '');
+                    ?>
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card-custom h-100">
                             <div>
-                                <strong>Make Up</strong> 
-                                <span class="text-muted d-block small">(inc: softlens, hijab/hair do & retouch)</span>
+                                <img src="<?= htmlspecialchars($image, ENT_QUOTES, 'UTF-8'); ?>" alt="<?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>" class="w-100 mb-3" style="height:190px;object-fit:cover;border-radius:16px;">
+                                <span class="badge bg-dark-subtle text-dark text-uppercase mb-2"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></span>
+                                <h5 class="mb-2"><?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?></h5>
+                                <div class="fw-bold text-warning mb-2">Rp <?= number_format($price, 0, ',', '.'); ?></div>
+                                <p class="small text-muted"><?= nl2br(htmlspecialchars($service['deskripsi'] ?: 'Layanan tersedia untuk booking.', ENT_QUOTES, 'UTF-8')); ?></p>
                             </div>
-                        </li>
-                        <li>
-                            <span class="icon-check icon-silver-check"><i class="bi bi-check-lg"></i></span>
-                            Fresh Melati 
-                        </li>
-                        <li>
-                            <span class="icon-check icon-silver-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Akad & Resepsi (Couple)
-                        </li>
-                        <li>
-                            <span class="icon-check icon-silver-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Penerima Tamu 4 & Temu Manten
-                        </li>
-                        <li>
-                            <span class="icon-check icon-silver-check"><i class="bi bi-check-lg"></i></span>
-                            Bucket Bunga
-                        </li>
-                        <li>
-                            <span class="icon-check icon-silver-check"><i class="bi bi-check-lg"></i></span>
-                            Dekorasi 4 Meter
-                        </li>
-                    </ul>
-
-                    <div class="d-flex gap-2 mt-auto">
-                        <button type="button" onclick="addToCart('Paket Silver', 'paket', 5000000)" class="btn btn-cart-custom" title="Tambah ke Keranjang">
-                            <i class="bi bi-cart3 fs-5"></i>
-                        </button>
-                        <button type="button" onclick="handleServiceBooking('Paket Silver', 5000000)" class="btn btn-action-silver flex-grow-1 text-center">
-                            Booking Silver
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card-premium card-gold-theme">
-                <div class="card-header-gold">
-                    <div class="badge-package badge-gold">Best Seller Package</div>
-                    <h4 class="fw-bold text-dark mb-1">Paket Gold</h4>
-                    <div class="d-flex align-items-baseline mt-2">
-                        <span class="price-currency">IDR</span>
-                        <span class="price-style">7.500.000</span>
-                    </div>
-                </div>
-
-                <div class="card-body-custom">
-                    <ul class="include-list">
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            <div>
-                                <strong>Make Up</strong>
-                                <span class="text-muted d-block small">(inc: softlens, henna, nail art, hijab/hair do & retouch)</span>
+                            <div class="d-flex gap-2">
+                                <button
+                                    type="button"
+                                    onclick='addToCart(<?= json_encode($name, JSON_HEX_APOS | JSON_HEX_QUOT); ?>, <?= json_encode($category, JSON_HEX_APOS | JSON_HEX_QUOT); ?>, <?= (int) $price; ?>, <?= json_encode($image, JSON_HEX_APOS | JSON_HEX_QUOT); ?>, <?= $id; ?>)'
+                                    class="btn btn-cart-custom"
+                                    title="Tambah ke Keranjang">
+                                    <i class="bi bi-cart3 fs-5"></i>
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick='handleServiceBooking(<?= $id; ?>, <?= json_encode($name, JSON_HEX_APOS | JSON_HEX_QUOT); ?>, <?= (int) $price; ?>)'
+                                    class="btn btn-action-gold flex-grow-1">
+                                    Booking
+                                </button>
                             </div>
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Fresh Melati
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Akad & Resepso (Couple)
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Make Up & Kain Orang Tua / Besan
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Penerima Tamu 4
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Adat Jawa Couple
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Adat Orang Tua 4
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Adat Jawa Kembar Mayang
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Adat Joko Bagus
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Dalang
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Perlengkapan Temu Manten
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Bucket Bunga
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Dekorasi 6 Meter
-                        </li>
-                    </ul>
-
-                    <div class="d-flex gap-2 mt-auto">
-                        <button type="button" onclick="addToCart('Paket Gold', 'paket', 7500000)" class="btn btn-cart-custom" title="Tambah ke Keranjang" style="border-color: #fcd34d;">
-                            <i class="bi bi-cart3 fs-5"></i>
-                        </button>
-                        <button type="button" onclick="handleServiceBooking('Paket Gold', 7500000)" class="btn btn-action-gold flex-grow-1 text-center">
-                            Booking Gold
-                        </button>
+                        </div>
                     </div>
-                </div>
+                <?php endforeach; ?>
             </div>
-        </div>
-
-    </div>
+        </section>
+    <?php endforeach; ?>
 </div>
 
 <a href="../index.php" class="btn btn-kembali"><i class="bi bi-arrow-left me-2"></i>Kembali</a>
@@ -434,7 +344,7 @@
 <?php include 'include/add_to_cart_script.php'; ?>
 <script>
 const isLoggedIn = <?= isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
-function handleServiceBooking(layanan, harga) {
+function handleServiceBooking(id, layanan, harga) {
     if (!isLoggedIn) {
         Swal.fire({
             icon: 'warning',
@@ -449,7 +359,7 @@ function handleServiceBooking(layanan, harga) {
         });
         return;
     }
-    window.location.href = `booking.php?from=service&layanan=${encodeURIComponent(layanan)}&harga=${harga}`;
+    window.location.href = `booking.php?from=service&id=${encodeURIComponent(id)}&layanan=${encodeURIComponent(layanan)}&harga=${harga}`;
 }
 </script>
 </body>

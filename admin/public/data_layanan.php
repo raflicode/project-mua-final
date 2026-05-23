@@ -1,6 +1,115 @@
 <?php
 require_once __DIR__ . '/../../config/auth.php';
 require_login(['admin']);
+require_once __DIR__ . '/../../config/koneksi.php';
+require_once __DIR__ . '/../../config/db_helpers.php';
+
+ensure_dynamic_booking_schema($pdo);
+
+function layanan_redirect(string $message = '', string $type = 'success'): void
+{
+    if ($message !== '') {
+        $_SESSION['layanan_flash'] = ['message' => $message, 'type' => $type];
+    }
+
+    header('Location: data_layanan.php');
+    exit;
+}
+
+function normalize_layanan_kategori(string $kategori): string
+{
+    return in_array($kategori, ['makeup', 'kostum', 'dekor', 'paket'], true) ? $kategori : 'makeup';
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? 'save';
+    $id = (int) ($_POST['id_layanan'] ?? 0);
+
+    try {
+        if ($action === 'delete') {
+            if ($id <= 0) {
+                layanan_redirect('Layanan tidak valid.', 'danger');
+            }
+
+            $stmt = $pdo->prepare('UPDATE layanan SET is_active = 0 WHERE id_layanan = ?');
+            $stmt->execute([$id]);
+            layanan_redirect('Layanan berhasil dihapus.');
+        }
+
+        $kategori = normalize_layanan_kategori(trim($_POST['kategori_layanan'] ?? 'makeup'));
+        $nama = trim($_POST['nama_layanan'] ?? '');
+        $harga = (float) ($_POST['harga_dasar'] ?? 0);
+        $deskripsi = trim($_POST['deskripsi'] ?? '');
+
+        if ($nama === '' || $harga <= 0) {
+            layanan_redirect('Nama layanan dan harga wajib diisi.', 'danger');
+        }
+
+        $foto = trim($_POST['foto_lama'] ?? '');
+        if (!empty($_FILES['foto_layanan']['name']) && $_FILES['foto_layanan']['error'] === UPLOAD_ERR_OK) {
+            $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = finfo_file($finfo, $_FILES['foto_layanan']['tmp_name']);
+            finfo_close($finfo);
+
+            if (!isset($allowed[$mime])) {
+                layanan_redirect('Foto harus JPG, PNG, atau WEBP.', 'danger');
+            }
+
+            $uploadDir = __DIR__ . '/../../assets/layanan';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            $fileName = uniqid('layanan_') . '.' . $allowed[$mime];
+            if (!move_uploaded_file($_FILES['foto_layanan']['tmp_name'], $uploadDir . '/' . $fileName)) {
+                layanan_redirect('Gagal menyimpan foto layanan.', 'danger');
+            }
+
+            $foto = 'assets/layanan/' . $fileName;
+        }
+
+        if ($id > 0) {
+            $stmt = $pdo->prepare('
+                UPDATE layanan
+                SET kategori_layanan = ?, nama_layanan = ?, deskripsi = ?, harga_dasar = ?, foto_layanan = ?, is_active = 1
+                WHERE id_layanan = ?
+            ');
+            $stmt->execute([$kategori, $nama, $deskripsi, $harga, $foto ?: null, $id]);
+            layanan_redirect('Layanan berhasil diperbarui.');
+        }
+
+        $stmt = $pdo->prepare('
+            INSERT INTO layanan (kategori_layanan, nama_layanan, deskripsi, harga_dasar, foto_layanan, is_active)
+            VALUES (?, ?, ?, ?, ?, 1)
+        ');
+        $stmt->execute([$kategori, $nama, $deskripsi, $harga, $foto ?: null]);
+        layanan_redirect('Layanan berhasil ditambahkan.');
+    } catch (Throwable $e) {
+        layanan_redirect('Gagal menyimpan layanan: ' . $e->getMessage(), 'danger');
+    }
+}
+
+$layananStmt = $pdo->query("
+    SELECT id_layanan, kategori_layanan, nama_layanan, deskripsi, harga_dasar, foto_layanan
+    FROM layanan
+    WHERE is_active = 1
+    ORDER BY kategori_layanan ASC, nama_layanan ASC
+");
+$layananRows = array_map(static function (array $row): array {
+    return [
+        'id' => (int) $row['id_layanan'],
+        'kategori' => $row['kategori_layanan'] ?: 'makeup',
+        'nama' => $row['nama_layanan'],
+        'harga' => (float) $row['harga_dasar'],
+        'deskripsi' => $row['deskripsi'] ?? '',
+        'foto' => $row['foto_layanan'] ? '../../' . ltrim($row['foto_layanan'], '/') : '',
+        'foto_raw' => $row['foto_layanan'] ?? '',
+    ];
+}, $layananStmt->fetchAll(PDO::FETCH_ASSOC));
+
+$flash = $_SESSION['layanan_flash'] ?? null;
+unset($_SESSION['layanan_flash']);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -603,6 +712,12 @@ include 'include/sidebar.php';
 
     <!-- CONTENT -->
     <div class="content">
+        <?php if ($flash): ?>
+            <div class="alert alert-<?= htmlspecialchars($flash['type'], ENT_QUOTES, 'UTF-8'); ?> alert-dismissible fade show" role="alert">
+                <?= htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+            </div>
+        <?php endif; ?>
 
         <div class="content-header">
             <div>
@@ -642,44 +757,47 @@ include 'include/sidebar.php';
 
 <!-- MODAL TAMBAH / EDIT -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeOnBg(event)">
-    <div class="modal-box">
-        <button class="modal-close" onclick="closeModal()"><i class="bi bi-x"></i></button>
+    <form class="modal-box" method="post" enctype="multipart/form-data">
+        <button class="modal-close" type="button" onclick="closeModal()"><i class="bi bi-x"></i></button>
         <div class="modal-title" id="modalTitle">Tambah Layanan</div>
         <div class="modal-sub" id="modalSub">Isi detail paket layanan baru</div>
 
-        <input type="hidden" id="editId">
+        <input type="hidden" id="editId" name="id_layanan">
+        <input type="hidden" id="formAction" name="action" value="save">
+        <input type="hidden" id="fotoLama" name="foto_lama">
 
         <div class="form-group">
             <label class="form-label">Kategori</label>
-            <select class="select-custom" id="formKategori">
+            <select class="select-custom" id="formKategori" name="kategori_layanan">
                 <option value="makeup">Makeup</option>
                 <option value="kostum">Kostum</option>
                 <option value="dekor">Dekor</option>
+                <option value="paket">Paket</option>
             </select>
         </div>
 
         <div class="form-group">
             <label class="form-label">Nama Paket</label>
-            <input type="text" class="form-control-custom" id="formNama" placeholder="Contoh: Makeup Wedding Premium">
+            <input type="text" class="form-control-custom" id="formNama" name="nama_layanan" placeholder="Contoh: Makeup Wedding Premium">
         </div>
 
         <div class="form-group">
             <label class="form-label">Harga</label>
             <div class="harga-wrap">
                 <span class="harga-prefix">Rp</span>
-                <input type="number" id="formHarga" placeholder="2500000">
+                <input type="number" id="formHarga" name="harga_dasar" placeholder="2500000">
             </div>
         </div>
 
         <div class="form-group">
             <label class="form-label">Deskripsi</label>
-            <textarea class="form-control-custom" id="formDeskripsi" placeholder="Deskripsi singkat layanan..."></textarea>
+            <textarea class="form-control-custom" id="formDeskripsi" name="deskripsi" placeholder="Deskripsi singkat layanan..."></textarea>
         </div>
 
         <div class="form-group">
             <label class="form-label">Foto Layanan</label>
             <div class="upload-area" id="uploadArea">
-                <input type="file" accept="image/*" onchange="previewFile(this)">
+                <input type="file" accept="image/*" name="foto_layanan" onchange="previewFile(this)">
                 <i class="bi bi-cloud-upload"></i>
                 <p>Klik atau drag foto ke sini</p>
                 <div class="file-name" id="fileName"></div>
@@ -687,37 +805,25 @@ include 'include/sidebar.php';
         </div>
 
         <div class="modal-actions">
-            <button class="btn-hapus-modal" id="btnHapusModal" onclick="hapusLayanan()" style="display:none;">
+            <button class="btn-hapus-modal" id="btnHapusModal" type="button" onclick="hapusLayanan()" style="display:none;">
                 <i class="bi bi-trash"></i> Hapus
             </button>
-            <button class="btn-simpan" onclick="simpanLayanan()">
+            <button class="btn-simpan" type="submit" onclick="document.getElementById('formAction').value='save'">
                 <i class="bi bi-check2"></i> Simpan
             </button>
         </div>
-    </div>
+    </form>
 </div>
 
 <!-- TOAST -->
 <div class="toast-msg" id="toastMsg"></div>
 
 <script>
-// ===== DATA (ganti dengan fetch PHP/MySQL) =====
-let layananData = [
-    { id:1, kategori:'makeup', nama:'Makeup Graduation', harga:800000,  deskripsi:'Makeup wisuda natural & tahan lama cocok untuk foto dan acara resmi.', foto:'' },
-    { id:2, kategori:'makeup', nama:'Makeup Wedding',    harga:1500000, deskripsi:'Full coverage makeup pernikahan lengkap dengan hairdo dan softlens.', foto:'' },
-    { id:3, kategori:'makeup', nama:'Makeup Carnaval',   harga:1000000, deskripsi:'Makeup artistik untuk karnaval dengan glitter dan riasan bold.', foto:'' },
-    { id:4, kategori:'makeup', nama:'Makeup Natural',    harga:600000,  deskripsi:'Riasan ringan sehari-hari dengan kesan segar dan bersih.', foto:'' },
-    { id:5, kategori:'kostum', nama:'Kostum Wedding',    harga:4000000, deskripsi:'Gaun pengantin custom size dengan aksesoris lengkap.', foto:'' },
-    { id:6, kategori:'kostum', nama:'Kostum Graduation', harga:1200000, deskripsi:'Kostum wisuda modern dan elegan untuk hari spesial.', foto:'' },
-    { id:7, kategori:'kostum', nama:'Kostum Karnaval',   harga:900000,  deskripsi:'Kostum tema karnaval dengan desain mencolok dan unik.', foto:'' },
-    { id:8, kategori:'dekor',  nama:'Dekor Pelaminan',   harga:6500000, deskripsi:'Dekorasi pelaminan lengkap dengan standing flower & photo booth.', foto:'' },
-    { id:9, kategori:'dekor',  nama:'Dekor Terop',       harga:3500000, deskripsi:'Terop dan dekorasi tamu untuk acara outdoor maupun indoor.', foto:'' },
-];
-let nextId = 10;
+const layananData = <?= json_encode($layananRows, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
 
 let currentKat = 'semua';
 
-const ribbonClass = { makeup:'ribbon-makeup', kostum:'ribbon-kostum', dekor:'ribbon-dekor' };
+const ribbonClass = { makeup:'ribbon-makeup', kostum:'ribbon-kostum', dekor:'ribbon-dekor', paket:'ribbon-gold' };
 
 function fmt(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
 
@@ -729,7 +835,8 @@ function setKategori(kat, el) {
 }
 
 function renderCards() {
-    const search = document.getElementById('searchInput').value.toLowerCase();
+    const searchInput = document.getElementById('searchInput');
+    const search = searchInput ? searchInput.value.toLowerCase() : '';
     const grid   = document.getElementById('cardsGrid');
     const empty  = document.getElementById('emptyState');
 
@@ -785,6 +892,7 @@ function openModal(id) {
         document.getElementById('formNama').value          = l.nama;
         document.getElementById('formHarga').value         = l.harga;
         document.getElementById('formDeskripsi').value     = l.deskripsi;
+        document.getElementById('fotoLama').value          = l.foto_raw || '';
         document.getElementById('btnHapusModal').style.display = 'block';
     } else {
         document.getElementById('modalTitle').textContent  = 'Tambah Layanan';
@@ -794,6 +902,7 @@ function openModal(id) {
         document.getElementById('formNama').value          = '';
         document.getElementById('formHarga').value         = '';
         document.getElementById('formDeskripsi').value     = '';
+        document.getElementById('fotoLama').value          = '';
         document.getElementById('btnHapusModal').style.display = 'none';
     }
     document.getElementById('modalOverlay').classList.add('show');
@@ -809,7 +918,7 @@ function closeOnBg(e) {
 
 function previewFile(input) {
     if (input.files && input.files[0]) {
-        document.getElementById('fileName').textContent = '📎 ' + input.files[0].name;
+        document.getElementById('fileName').textContent = input.files[0].name;
     }
 }
 
@@ -839,15 +948,16 @@ function simpanLayanan() {
 
 function hapusLayanan() {
     const id = document.getElementById('editId').value;
-    konfirmasiHapus(id);
+    if (!id || !confirm('Yakin hapus layanan ini?')) return;
+    document.getElementById('formAction').value = 'delete';
+    document.querySelector('#modalOverlay form').submit();
 }
 
 function konfirmasiHapus(id) {
     if (!confirm('Yakin hapus layanan ini?')) return;
-    layananData = layananData.filter(x => x.id != id);
-    closeModal();
-    renderCards();
-    toast('Layanan dihapus');
+    document.getElementById('editId').value = id;
+    document.getElementById('formAction').value = 'delete';
+    document.querySelector('#modalOverlay form').submit();
 }
 
 function toast(msg) {

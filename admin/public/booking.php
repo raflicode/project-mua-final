@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../config/auth.php';
 require_login(['admin']);
 require_once __DIR__ . '/../../config/koneksi.php';
+require_once __DIR__ . '/../../config/db_helpers.php';
 
 function tableHasColumn(PDO $pdo, string $table, string $column): bool
 {
@@ -28,27 +29,17 @@ function tableColumns(PDO $pdo, string $table, bool $refresh = false): array
 
 function ensureBookingAdminColumns(PDO $pdo): void
 {
-    if (!tableHasColumn($pdo, 'booking', 'konfirmasi_akhir_token')) {
-        $pdo->exec("ALTER TABLE booking ADD konfirmasi_akhir_token varchar(64) DEFAULT NULL AFTER status_booking");
-    }
-
-    if (!tableHasColumn($pdo, 'booking', 'bukti_pembayaran')) {
-        $pdo->exec("ALTER TABLE booking ADD bukti_pembayaran varchar(255) DEFAULT NULL AFTER konfirmasi_akhir_token");
-    }
-
-    if (!tableHasColumn($pdo, 'booking', 'tanggal_upload')) {
-        $pdo->exec("ALTER TABLE booking ADD tanggal_upload datetime DEFAULT NULL AFTER bukti_pembayaran");
-    }
-
-    $pdo->exec("ALTER TABLE booking MODIFY status_booking enum('pending','menunggu_pembayaran','menunggu_konfirmasi','pesanan_dibuat','lunas','dibayar','diproses','selesai','dibatalkan') DEFAULT 'pending'");
-    $pdo->exec("UPDATE booking SET status_booking = 'lunas' WHERE status_booking IN ('menunggu_konfirmasi','pesanan_dibuat','dibayar','diproses','selesai')");
-    $pdo->exec("DELETE FROM booking WHERE status_booking = 'dibatalkan'");
-    $pdo->exec("ALTER TABLE booking MODIFY status_booking enum('pending','menunggu_pembayaran','lunas') DEFAULT 'pending'");
+    ensure_dynamic_booking_schema($pdo);
 }
 
-function paymentLink(string $token): string
+function confirmationLink(int $idBooking): string
 {
-    return 'payment.php?token=' . rawurlencode($token);
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+    $projectBase = preg_replace('#/admin/public$#', '', $scriptDir);
+
+    return $scheme . '://' . $host . $projectBase . '/public/konfirmasi_akhir.php?id_booking=' . $idBooking;
 }
 
 function redirectBooking(string $message = '', string $type = 'success'): void
@@ -87,9 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         if ($action === 'terima_pesanan') {
             $token = bin2hex(random_bytes(24));
-            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'menunggu_pembayaran', konfirmasi_akhir_token = ? WHERE id_booking = ? AND status_booking = 'pending'");
+            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'dikonfirmasi', konfirmasi_akhir_token = ? WHERE id_booking = ? AND status_booking = 'pending'");
             $stmt->execute([$token, $idBooking]);
-            redirectBooking('Pesanan diterima dan link pembayaran berhasil dibuat.');
+            redirectBooking('Booking dikonfirmasi dan link konfirmasi akhir berhasil dibuat.');
         }
 
         if ($action === 'tolak_pesanan') {
@@ -98,18 +89,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirectBooking('Pesanan ditolak dan dihapus dari daftar.');
         }
 
+        if ($action === 'selesaikan_booking') {
+            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'selesai' WHERE id_booking = ? AND status_booking = 'dikonfirmasi'");
+            $stmt->execute([$idBooking]);
+            redirectBooking('Booking ditandai selesai.');
+        }
+
         if ($action === 'konfirmasi_pembayaran') {
             if ($paymentStatusColumn) {
                 $pay = $pdo->prepare("UPDATE pembayaran SET `$paymentStatusColumn` = 'diterima' WHERE id_booking = ?");
                 $pay->execute([$idBooking]);
             }
-            redirectBooking('Pembayaran dikonfirmasi. Booking sudah diverifikasi.');
+            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'selesai' WHERE id_booking = ?");
+            $stmt->execute([$idBooking]);
+            redirectBooking('Pembayaran dikonfirmasi. Booking ditandai selesai.');
         }
 
         if ($action === 'tolak_pembayaran') {
-            $stmt = $pdo->prepare("DELETE FROM booking WHERE id_booking = ? AND status_booking = 'lunas'");
+            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'pending' WHERE id_booking = ? AND status_booking = 'selesai'");
             $stmt->execute([$idBooking]);
-            redirectBooking('Pembayaran ditolak dan booking dihapus dari daftar.');
+            redirectBooking('Pembayaran ditolak. Booking dikembalikan ke pending.');
         }
 
         redirectBooking('Aksi tidak dikenali.', 'danger');
@@ -119,21 +118,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         redirectBooking('Gagal memproses aksi: ' . $e->getMessage(), 'danger');
     }
-}
-
-if ($proofColumn && $uploadColumn && $paymentStatusColumn && tableHasColumn($pdo, 'booking', 'bukti_pembayaran') && tableHasColumn($pdo, 'booking', 'tanggal_upload')) {
-    $syncStmt = $pdo->prepare("
-        UPDATE booking b
-        JOIN pembayaran p ON p.id_booking = b.id_booking
-        SET b.status_booking = 'lunas',
-            b.bukti_pembayaran = COALESCE(b.bukti_pembayaran, p.`$proofColumn`),
-            b.tanggal_upload = COALESCE(b.tanggal_upload, p.`$uploadColumn`)
-        WHERE b.status_booking = 'menunggu_pembayaran'
-          AND p.`$proofColumn` IS NOT NULL
-          AND p.`$proofColumn` <> ''
-          AND p.`$paymentStatusColumn` = 'pending'
-    ");
-    $syncStmt->execute();
 }
 
 $bookingProofSelect = tableHasColumn($pdo, 'booking', 'bukti_pembayaran') ? 'b.bukti_pembayaran' : 'NULL';
@@ -179,7 +163,7 @@ $bookingStmt = $pdo->query("
             GROUP BY id_booking
         ) latest_p ON latest_p.id_pembayaran = p1.id_pembayaran
     ) p ON p.id_booking = b.id_booking
-    WHERE b.status_booking IN ('pending','menunggu_pembayaran','lunas')
+    WHERE b.status_booking IN ('pending','dikonfirmasi','selesai')
     ORDER BY b.tgl_booking DESC
 ");
 
@@ -207,7 +191,7 @@ foreach ($bookingStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         'alamat' => $row['catatan'] ?: '-',
         'telp' => $row['no_telp'] ?: '-',
         'token' => $token,
-        'payment_link' => $token ? paymentLink($token) : '',
+        'payment_link' => confirmationLink((int) $row['id_booking']),
         'bukti_pembayaran' => $bukti,
         'bukti_url' => $bukti ? '../../assets/bukti_pembayaran/' . rawurlencode($bukti) : '',
         'tanggal_upload' => $row['tanggal_upload'] ? date('d F Y H:i', strtotime($row['tanggal_upload'])) : '',
@@ -1221,8 +1205,8 @@ include 'include/sidebar.php';
                 <div class="filter-tabs">
                     <div class="filter-tab active" onclick="filterStatus('semua', this)">Semua</div>
                     <div class="filter-tab" onclick="filterStatus('pending', this)">Pending</div>
-                    <div class="filter-tab" onclick="filterStatus('menunggu_pembayaran', this)">Menunggu Pembayaran</div>
-                    <div class="filter-tab" onclick="filterStatus('lunas', this)">Lunas</div>
+                    <div class="filter-tab" onclick="filterStatus('dikonfirmasi', this)">Dikonfirmasi</div>
+                    <div class="filter-tab" onclick="filterStatus('selesai', this)">Selesai</div>
                 </div>
             </div>
 
@@ -1293,8 +1277,8 @@ let currentPage    = 1;
 
 const statusLabels = {
     pending:               { label:'Pending', cls:'status-pending' },
-    menunggu_pembayaran:   { label:'Menunggu Pembayaran', cls:'status-menunggu_pembayaran' },
-    lunas:                 { label:'Lunas', cls:'status-lunas' },
+    dikonfirmasi:          { label:'Dikonfirmasi', cls:'status-menunggu_pembayaran' },
+    selesai:               { label:'Selesai', cls:'status-lunas' },
 };
 
 function escapeHtml(value) {
@@ -1319,7 +1303,7 @@ function actionForm(id, action, label, icon, cls = '') {
 }
 
 function renderPaymentTools(b) {
-    if (b.status !== 'menunggu_pembayaran' || !b.payment_link) {
+    if (b.status !== 'dikonfirmasi' || !b.payment_link) {
         return '';
     }
 
@@ -1356,17 +1340,21 @@ function renderActions(b) {
     if (b.status === 'pending') {
         return `
             <div class="action-btns">
-                ${actionForm(b.id, 'terima_pesanan', 'Terima Pesanan', 'bi-check2-circle', 'accept')}
+                ${actionForm(b.id, 'terima_pesanan', 'Konfirmasi Booking', 'bi-check2-circle', 'accept')}
                 ${actionForm(b.id, 'tolak_pesanan', 'Tolak Pesanan', 'bi-x-circle', 'reject')}
             </div>
         `;
     }
 
-    if (b.status === 'menunggu_pembayaran') {
-        return '<span class="muted-action">Menunggu Client Upload Bukti</span>';
+    if (b.status === 'dikonfirmasi') {
+        return `
+            <div class="action-btns">
+                ${actionForm(b.id, 'selesaikan_booking', 'Selesai', 'bi-check2-all', 'accept')}
+            </div>
+        `;
     }
 
-    if (b.status === 'lunas' && b.bukti_url && b.status_pembayaran !== 'diterima') {
+    if (b.status === 'selesai' && b.bukti_url && b.status_pembayaran !== 'diterima') {
         return `
             <div class="action-btns">
                 ${actionForm(b.id, 'konfirmasi_pembayaran', 'Konfirmasi Pembayaran', 'bi-check2-circle', 'accept')}
@@ -1375,8 +1363,8 @@ function renderActions(b) {
         `;
     }
 
-    if (b.status === 'lunas' && b.status_pembayaran === 'diterima') {
-        return '<span class="muted-action">Terverifikasi</span>';
+    if (b.status === 'selesai') {
+        return '<span class="muted-action">Selesai</span>';
     }
 
     return '<span class="muted-action">Tidak ada aksi</span>';
@@ -1498,7 +1486,7 @@ function copyPaymentLink(link) {
     navigator.clipboard.writeText(link).then(() => {
         showCopyToast();
     }).catch(() => {
-        prompt('Salin link pembayaran:', link);
+        prompt('Salin link konfirmasi akhir:', link);
     });
 }
 

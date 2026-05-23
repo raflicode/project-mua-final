@@ -1,4 +1,7 @@
 <?php
+header('Location: service.php?kategori=kostum');
+exit;
+
 session_start();
 ?>
 <!DOCTYPE html>

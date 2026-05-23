@@ -1,4 +1,7 @@
 <?php
+header('Location: service.php?kategori=makeup');
+exit;
+
 session_start();
 
 $makeupPackages = [
