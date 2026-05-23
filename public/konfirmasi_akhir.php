@@ -2,17 +2,26 @@
 // konfirmasi.php
 session_start();
 require_once '../config/koneksi.php';
+require_once '../config/db_helpers.php';
+
+ensure_dynamic_booking_schema($pdo);
 
 $tokenMode = !empty($_GET['token']);
+$idBookingMode = !empty($_GET['id_booking']);
 $token = $tokenMode ? trim($_GET['token']) : '';
+$idBooking = $idBookingMode ? (int) $_GET['id_booking'] : 0;
 $booking = null;
 
-if ($tokenMode) {
+if ($tokenMode || $idBookingMode) {
+    $where = $tokenMode ? 'b.konfirmasi_akhir_token = ?' : 'b.id_booking = ?';
+    $param = $tokenMode ? $token : $idBooking;
     $stmt = $pdo->prepare("
         SELECT
             b.id_booking,
             b.total_harga,
             b.status_booking,
+            b.catatan,
+            b.tgl_booking,
             u.full_name,
             u.username,
             u.no_telp,
@@ -21,16 +30,16 @@ if ($tokenMode) {
         LEFT JOIN user u ON u.id_user = b.id_user
         LEFT JOIN booking_detail bd ON bd.id_booking = b.id_booking
         LEFT JOIN layanan l ON l.id_layanan = bd.id_layanan
-        WHERE b.konfirmasi_akhir_token = ?
+        WHERE {$where}
         GROUP BY b.id_booking
         LIMIT 1
     ");
-    $stmt->execute([$token]);
+    $stmt->execute([$param]);
     $booking = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$booking) {
         http_response_code(404);
-        die('Link pembayaran tidak valid.');
+        die('Data booking tidak ditemukan.');
     }
 
     $pembayaran = [
@@ -255,6 +264,8 @@ if (!empty($errors)) {
                 <form action="../actions/proses_konfirmasi.php" method="post" enctype="multipart/form-data" novalidate>
                     <?php if ($tokenMode): ?>
                         <input type="hidden" name="konfirmasi_akhir_token" value="<?= htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?>">
+                    <?php elseif ($idBookingMode): ?>
+                        <input type="hidden" name="id_booking" value="<?= (int) $idBooking ?>">
                     <?php endif; ?>
                     <label class="upload-box w-100 mb-3" id="uploadBox">
                         <div class="fs-3">⇪</div>

@@ -41,6 +41,7 @@ function formatRupiah($value)
 }
 
 $namaLayanan = $draft['nama_layanan'] ?? 'Layanan booking';
+$idBooking = (int) ($draft['id_booking'] ?? 0);
 $total = (float) ($draft['total'] ?? $draft['harga'] ?? 0) + 10000;
 $tanggal = $draft['tanggal'] ?? '-';
 $jamMulai = isset($draft['jam_mulai']) ? substr($draft['jam_mulai'], 0, 5) : '-';
@@ -59,6 +60,7 @@ if (!empty($draft['items']) && is_array($draft['items'])) {
 }
 
 $pesan = "Halo Admin Yayuk Makeover, saya ingin konfirmasi ketersediaan booking.\n\n"
+    . ($idBooking > 0 ? "ID Booking: {$idBooking}\n" : '')
     . "Nama: " . ($pembayaran['nama'] ?? '-') . "\n"
     . "No HP: " . ($pembayaran['hp'] ?? '-') . "\n"
     . "Layanan:\n{$layananText}\n"

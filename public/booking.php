@@ -1,6 +1,9 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/koneksi.php';
+require_once __DIR__ . '/../config/db_helpers.php';
+
+ensure_dynamic_booking_schema($pdo);
 
 if (!isset($_SESSION['id_user'])) {
     header('Location: login.php');

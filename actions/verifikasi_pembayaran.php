@@ -2,6 +2,9 @@
 require_once __DIR__ . '/../config/auth.php';
 require_login(['admin']);
 require_once __DIR__ . '/../config/koneksi.php';
+require_once __DIR__ . '/../config/db_helpers.php';
+
+ensure_dynamic_booking_schema($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../admin/public/dashboard.php#laporan-pembayaran');
@@ -39,7 +42,7 @@ try {
 
     if ($status === 'diterima' && !in_array($payment['status_booking'], ['selesai', 'dibatalkan'], true)) {
         $updateBooking = $pdo->prepare('UPDATE booking SET status_booking = ? WHERE id_booking = ?');
-        $updateBooking->execute(['dibayar', $payment['id_booking']]);
+        $updateBooking->execute(['selesai', $payment['id_booking']]);
     }
 
     $pdo->commit();
