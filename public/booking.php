@@ -15,8 +15,8 @@ function formatRupiah($value)
     return 'Rp ' . number_format($value, 0, ',', '.');
 }
 
-$fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_STRING);
-$sourcePage = filter_input(INPUT_GET, 'source_page', FILTER_SANITIZE_STRING);
+$fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$sourcePage = filter_input(INPUT_GET, 'source_page', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $backMap = [
     'makeup' => 'makeup.php',
     'dekor' => 'dekor.php',
@@ -52,13 +52,13 @@ $checkoutMode = false;
 $checkoutItems = [];
 $hargaProduk = 0;
 $foto = '../assets/foto_makeup.jpeg';
-$namaProduk = trim((string) filter_input(INPUT_GET, 'layanan', FILTER_SANITIZE_STRING));
+$namaProduk = trim((string) filter_input(INPUT_GET, 'layanan', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
 if ($namaProduk === '') {
-    $namaProduk = trim((string) filter_input(INPUT_GET, 'nama', FILTER_SANITIZE_STRING));
+    $namaProduk = trim((string) filter_input(INPUT_GET, 'nama', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
 }
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $hargaProduk = filter_input(INPUT_GET, 'harga', FILTER_VALIDATE_INT);
-$fotoParam = trim((string) filter_input(INPUT_GET, 'foto', FILTER_SANITIZE_STRING));
+$fotoParam = trim((string) filter_input(INPUT_GET, 'foto', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
 if ($fotoParam !== '') {
     $foto = resolveImagePath($fotoParam);
 }

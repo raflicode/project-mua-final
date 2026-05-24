@@ -30,7 +30,7 @@ if ($tokenMode || $idBookingMode) {
         LEFT JOIN user u ON u.id_user = b.id_user
         LEFT JOIN booking_detail bd ON bd.id_booking = b.id_booking
         LEFT JOIN layanan l ON l.id_layanan = bd.id_layanan
-        WHERE {$where}
+        WHERE {$where} AND b.status_booking IN ('dikonfirmasi', 'konfirmasi')
         GROUP BY b.id_booking
         LIMIT 1
     ");

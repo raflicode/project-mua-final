@@ -2,7 +2,7 @@
 session_start();
 require_once __DIR__ . '/../config/koneksi.php';
 $backHref = 'booking.php';
-$fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_STRING);
+$fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $backMap = [
     'makeup' => 'makeup.php',
     'dekor' => 'dekor.php',

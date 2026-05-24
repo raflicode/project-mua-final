@@ -32,12 +32,16 @@ function ensureBookingAdminColumns(PDO $pdo): void
     ensure_dynamic_booking_schema($pdo);
 }
 
-function confirmationLink(int $idBooking): string
+function confirmationLink(int $idBooking, string $token = ''): string
 {
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
     $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
     $projectBase = preg_replace('#/admin/public$#', '', $scriptDir);
+
+    if ($token !== '') {
+        return $scheme . '://' . $host . $projectBase . '/public/konfirmasi_akhir.php?token=' . rawurlencode($token);
+    }
 
     return $scheme . '://' . $host . $projectBase . '/public/konfirmasi_akhir.php?id_booking=' . $idBooking;
 }
@@ -106,9 +110,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($action === 'tolak_pembayaran') {
-            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'pending' WHERE id_booking = ? AND status_booking = 'selesai'");
+            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'dikonfirmasi' WHERE id_booking = ? AND status_booking = 'konfirmasi'");
             $stmt->execute([$idBooking]);
-            redirectBooking('Pembayaran ditolak. Booking dikembalikan ke pending.');
+            redirectBooking('Pembayaran ditolak. Booking kembali ke status dikonfirmasi.');
         }
 
         redirectBooking('Aksi tidak dikenali.', 'danger');
@@ -163,7 +167,7 @@ $bookingStmt = $pdo->query("
             GROUP BY id_booking
         ) latest_p ON latest_p.id_pembayaran = p1.id_pembayaran
     ) p ON p.id_booking = b.id_booking
-    WHERE b.status_booking IN ('pending','dikonfirmasi','selesai')
+    WHERE b.status_booking IN ('pending','dikonfirmasi','konfirmasi','selesai')
     ORDER BY b.tgl_booking DESC
 ");
 
@@ -180,6 +184,7 @@ foreach ($bookingStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
 
     $token = $row['konfirmasi_akhir_token'] ?? '';
     $bukti = $row['bukti_pembayaran'] ?? '';
+    $status = $row['status_booking'] ?: 'pending';
 
     $bookingRows[] = [
         'id' => (int) $row['id_booking'],
@@ -187,11 +192,11 @@ foreach ($bookingStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         'kategori' => $kategori,
         'customer' => $row['full_name'] ?: ($row['username'] ?: 'Client'),
         'tgl' => $row['tgl_booking'] ? date('d F Y', strtotime($row['tgl_booking'])) : '-',
-        'status' => $row['status_booking'] ?: 'pending',
+        'status' => $status,
         'alamat' => $row['catatan'] ?: '-',
         'telp' => $row['no_telp'] ?: '-',
         'token' => $token,
-        'payment_link' => confirmationLink((int) $row['id_booking']),
+        'payment_link' => $status === 'dikonfirmasi' ? confirmationLink((int) $row['id_booking'], $token) : '',
         'bukti_pembayaran' => $bukti,
         'bukti_url' => $bukti ? '../../assets/bukti_pembayaran/' . rawurlencode($bukti) : '',
         'tanggal_upload' => $row['tanggal_upload'] ? date('d F Y H:i', strtotime($row['tanggal_upload'])) : '',
@@ -731,12 +736,14 @@ unset($_SESSION['booking_admin_flash']);
         .status-batal::before { background: #E53935; }
 
         .status-pending,
-        .status-menunggu_pembayaran {
+        .status-menunggu_pembayaran,
+        .status-konfirmasi {
             background: #FFF8E1;
             color: #E65100;
         }
         .status-pending::before,
-        .status-menunggu_pembayaran::before { background: #FF8F00; }
+        .status-menunggu_pembayaran::before,
+        .status-konfirmasi::before { background: #FF8F00; }
 
         /* ACTION BTNS */
         .action-btns {
@@ -1205,7 +1212,7 @@ include 'include/sidebar.php';
                 <div class="filter-tabs">
                     <div class="filter-tab active" onclick="filterStatus('semua', this)">Semua</div>
                     <div class="filter-tab" onclick="filterStatus('pending', this)">Pending</div>
-                    <div class="filter-tab" onclick="filterStatus('dikonfirmasi', this)">Dikonfirmasi</div>
+                    <div class="filter-tab" onclick="filterStatus('konfirmasi', this)">Konfirmasi</div>
                     <div class="filter-tab" onclick="filterStatus('selesai', this)">Selesai</div>
                 </div>
             </div>
@@ -1278,6 +1285,7 @@ let currentPage    = 1;
 const statusLabels = {
     pending:               { label:'Pending', cls:'status-pending' },
     dikonfirmasi:          { label:'Dikonfirmasi', cls:'status-menunggu_pembayaran' },
+    konfirmasi:            { label:'Konfirmasi Pembayaran', cls:'status-konfirmasi' },
     selesai:               { label:'Selesai', cls:'status-lunas' },
 };
 
@@ -1325,9 +1333,6 @@ function renderProofTools(b) {
     const url = escapeHtml(b.bukti_url);
     return `
         <div class="action-btns">
-            <button type="button" class="btn-action" onclick="showBukti('${url}')">
-                <i class="bi bi-eye"></i> Lihat
-            </button>
             <a href="${url}" class="btn-action" download>
                 <i class="bi bi-download"></i> Download
             </a>
@@ -1347,14 +1352,10 @@ function renderActions(b) {
     }
 
     if (b.status === 'dikonfirmasi') {
-        return `
-            <div class="action-btns">
-                ${actionForm(b.id, 'selesaikan_booking', 'Selesai', 'bi-check2-all', 'accept')}
-            </div>
-        `;
+        return '<span class="muted-action">Menunggu pembayaran client</span>';
     }
 
-    if (b.status === 'selesai' && b.bukti_url && b.status_pembayaran !== 'diterima') {
+    if (b.status === 'konfirmasi') {
         return `
             <div class="action-btns">
                 ${actionForm(b.id, 'konfirmasi_pembayaran', 'Konfirmasi Pembayaran', 'bi-check2-circle', 'accept')}

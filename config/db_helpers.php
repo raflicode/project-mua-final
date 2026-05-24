@@ -72,7 +72,7 @@ if (!function_exists('ensure_dynamic_booking_schema')) {
 
         $pdo->exec("
             ALTER TABLE booking
-            MODIFY status_booking enum('pending','dikonfirmasi','selesai','dibatalkan') DEFAULT 'pending'
+            MODIFY status_booking enum('pending','dikonfirmasi','konfirmasi','selesai','dibatalkan') DEFAULT 'pending'
         ");
     }
 }

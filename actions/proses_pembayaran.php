@@ -86,6 +86,7 @@ $_SESSION['pembayaran'] = [
     'hp' => $hp,
     'metode' => $metode,
     'alamat' => $alamat,
+    
     'catatan' => trim(filter_input(INPUT_POST, 'catatan', FILTER_SANITIZE_STRING) ?? '')
 ];
 

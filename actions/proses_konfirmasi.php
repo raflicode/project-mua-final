@@ -12,10 +12,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!empty($_POST['konfirmasi_akhir_to
     $errors = [];
 
     if ($token !== '') {
-        $bookingStmt = $pdo->prepare("SELECT id_booking, id_user, total_harga FROM booking WHERE konfirmasi_akhir_token = ? AND status_booking = 'dikonfirmasi' LIMIT 1");
+        $bookingStmt = $pdo->prepare("SELECT id_booking, id_user, total_harga FROM booking WHERE konfirmasi_akhir_token = ? AND status_booking IN ('dikonfirmasi', 'konfirmasi') LIMIT 1");
         $bookingStmt->execute([$token]);
     } else {
-        $bookingStmt = $pdo->prepare("SELECT id_booking, id_user, total_harga FROM booking WHERE id_booking = ? AND status_booking = 'dikonfirmasi' LIMIT 1");
+        $bookingStmt = $pdo->prepare("SELECT id_booking, id_user, total_harga FROM booking WHERE id_booking = ? AND status_booking IN ('dikonfirmasi', 'konfirmasi') LIMIT 1");
         $bookingStmt->execute([$idBookingParam]);
     }
     $booking = $bookingStmt->fetch(PDO::FETCH_ASSOC);
@@ -78,7 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!empty($_POST['konfirmasi_akhir_to
         $updateBooking = $pdo->prepare("
             UPDATE booking
             SET bukti_pembayaran = ?,
-                tanggal_upload = NOW()
+                tanggal_upload = NOW(),
+                status_booking = 'konfirmasi'
             WHERE id_booking = ?
         ");
         $updateBooking->execute([$fileName, (int) $booking['id_booking']]);
