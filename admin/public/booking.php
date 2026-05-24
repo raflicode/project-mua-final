@@ -72,7 +72,7 @@ $uploadColumn = isset($paymentColumns['tgl_upload']) ? 'tgl_upload' : (isset($pa
 $paymentStatusColumn = isset($paymentColumns['status_verifikasi']) ? 'status_verifikasi' : (isset($paymentColumns['status']) ? 'status' : null);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
+    $action = $_POST['booking_action'] ?? '';
     $idBooking = (int) ($_POST['id_booking'] ?? 0);
 
     if ($idBooking <= 0) {
@@ -84,6 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $token = bin2hex(random_bytes(24));
             $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'dikonfirmasi', konfirmasi_akhir_token = ? WHERE id_booking = ? AND status_booking = 'pending'");
             $stmt->execute([$token, $idBooking]);
+            if ($stmt->rowCount() === 0) {
+                redirectBooking('Booking tidak dapat dikonfirmasi. Status tidak valid atau sudah dikonfirmasi.', 'danger');
+            }
             redirectBooking('Booking dikonfirmasi dan link konfirmasi akhir berhasil dibuat.');
         }
 
@@ -1300,9 +1303,9 @@ function escapeHtml(value) {
 
 function actionForm(id, action, label, icon, cls = '') {
     return `
-        <form method="post" onsubmit="return confirm('Lanjutkan aksi ini?');">
+        <form method="post" action="booking.php" onsubmit="return confirm('Lanjutkan aksi ini?');">
             <input type="hidden" name="id_booking" value="${id}">
-            <input type="hidden" name="action" value="${action}">
+            <input type="hidden" name="booking_action" value="${action}">
             <button type="submit" class="btn-action ${cls}">
                 <i class="bi ${icon}"></i> ${label}
             </button>
