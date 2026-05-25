@@ -26,6 +26,18 @@ if (!function_exists('db_has_column')) {
     }
 }
 
+if (!function_exists('db_try_exec')) {
+    function db_try_exec(PDO $pdo, string $sql): void
+    {
+        try {
+            $pdo->exec($sql);
+        } catch (Throwable $e) {
+            // Some local databases already contain equivalent indexes/definitions.
+            // Keep schema preparation best-effort so pages can still render.
+        }
+    }
+}
+
 if (!function_exists('ensure_dynamic_booking_schema')) {
     function ensure_dynamic_booking_schema(PDO $pdo): void
     {
@@ -55,9 +67,115 @@ if (!function_exists('ensure_dynamic_booking_schema')) {
             db_columns($pdo, 'booking', true);
         }
 
-        if (!db_has_column($pdo, 'booking', 'no_telp')) {
-            $pdo->exec("ALTER TABLE booking ADD no_telp varchar(20) DEFAULT NULL AFTER id_jadwal");
+        if (!db_has_column($pdo, 'booking', 'tgl_booking')) {
+            $afterColumn = db_has_column($pdo, 'booking', 'tanggal_booking') ? 'AFTER tanggal_booking' : 'AFTER id_jadwal';
+            $pdo->exec("ALTER TABLE booking ADD tgl_booking datetime DEFAULT current_timestamp() $afterColumn");
+            if (db_has_column($pdo, 'booking', 'tanggal_booking')) {
+                $pdo->exec("UPDATE booking SET tgl_booking = tanggal_booking WHERE tgl_booking IS NULL");
+            }
             db_columns($pdo, 'booking', true);
+        }
+
+        if (!db_has_column($pdo, 'booking', 'tanggal_booking')) {
+            $pdo->exec("ALTER TABLE booking ADD tanggal_booking datetime DEFAULT current_timestamp() AFTER id_jadwal");
+            $pdo->exec("UPDATE booking SET tanggal_booking = tgl_booking WHERE tanggal_booking IS NULL");
+            db_columns($pdo, 'booking', true);
+        }
+
+        if (db_has_column($pdo, 'booking', 'id_layanan')) {
+            db_try_exec($pdo, "ALTER TABLE booking MODIFY id_layanan int(11) DEFAULT NULL");
+        }
+
+        if (!db_has_column($pdo, 'booking_detail', 'qty')) {
+            $pdo->exec("ALTER TABLE booking_detail ADD qty int(11) NOT NULL DEFAULT 1 AFTER id_layanan");
+            db_columns($pdo, 'booking_detail', true);
+        }
+
+        if (!db_has_column($pdo, 'booking_detail', 'harga')) {
+            $pdo->exec("ALTER TABLE booking_detail ADD harga decimal(12,2) NOT NULL DEFAULT 0.00 AFTER qty");
+            if (db_has_column($pdo, 'booking_detail', 'harga_transaksi')) {
+                $pdo->exec("UPDATE booking_detail SET harga = harga_transaksi WHERE harga = 0");
+            }
+            db_columns($pdo, 'booking_detail', true);
+        }
+
+        if (!db_has_column($pdo, 'booking_detail', 'subtotal')) {
+            $pdo->exec("ALTER TABLE booking_detail ADD subtotal decimal(12,2) NOT NULL DEFAULT 0.00 AFTER harga");
+            if (db_has_column($pdo, 'booking_detail', 'harga_transaksi')) {
+                $pdo->exec("UPDATE booking_detail SET subtotal = harga_transaksi WHERE subtotal = 0");
+            } else {
+                $pdo->exec("UPDATE booking_detail SET subtotal = harga * qty WHERE subtotal = 0");
+            }
+            db_columns($pdo, 'booking_detail', true);
+        }
+
+        if (!db_has_column($pdo, 'pembayaran', 'id_booking')) {
+            $pdo->exec("ALTER TABLE pembayaran ADD id_booking int(11) DEFAULT NULL AFTER id_pembayaran");
+            db_columns($pdo, 'pembayaran', true);
+        }
+
+        if (!db_has_column($pdo, 'pembayaran', 'jumlah_bayar')) {
+            $pdo->exec("ALTER TABLE pembayaran ADD jumlah_bayar decimal(12,2) NOT NULL DEFAULT 0.00 AFTER id_booking");
+            db_columns($pdo, 'pembayaran', true);
+        }
+
+        if (!db_has_column($pdo, 'pembayaran', 'metode_bayar')) {
+            $pdo->exec("ALTER TABLE pembayaran ADD metode_bayar varchar(50) DEFAULT 'transfer' AFTER jumlah_bayar");
+            if (db_has_column($pdo, 'pembayaran', 'metode')) {
+                $pdo->exec("UPDATE pembayaran SET metode_bayar = metode WHERE metode IS NOT NULL AND metode <> ''");
+            }
+            db_columns($pdo, 'pembayaran', true);
+        }
+
+        if (!db_has_column($pdo, 'pembayaran', 'bukti_transfer')) {
+            $pdo->exec("ALTER TABLE pembayaran ADD bukti_transfer varchar(255) DEFAULT NULL AFTER metode_bayar");
+            if (db_has_column($pdo, 'pembayaran', 'bukti_pembayaran')) {
+                $pdo->exec("UPDATE pembayaran SET bukti_transfer = bukti_pembayaran WHERE bukti_transfer IS NULL");
+            }
+            db_columns($pdo, 'pembayaran', true);
+        }
+
+        if (!db_has_column($pdo, 'pembayaran', 'tgl_upload')) {
+            $pdo->exec("ALTER TABLE pembayaran ADD tgl_upload datetime DEFAULT NULL AFTER bukti_transfer");
+            if (db_has_column($pdo, 'pembayaran', 'created_at')) {
+                $pdo->exec("UPDATE pembayaran SET tgl_upload = created_at WHERE tgl_upload IS NULL");
+            }
+            db_columns($pdo, 'pembayaran', true);
+        }
+
+        if (!db_has_column($pdo, 'pembayaran', 'status_verifikasi')) {
+            $pdo->exec("ALTER TABLE pembayaran ADD status_verifikasi enum('pending','diterima','ditolak') DEFAULT 'pending' AFTER tgl_upload");
+            if (db_has_column($pdo, 'pembayaran', 'status')) {
+                $pdo->exec("
+                    UPDATE pembayaran
+                    SET status_verifikasi = CASE
+                        WHEN status IN ('verified','diterima') THEN 'diterima'
+                        WHEN status IN ('rejected','ditolak') THEN 'ditolak'
+                        ELSE 'pending'
+                    END
+                ");
+            }
+            db_columns($pdo, 'pembayaran', true);
+        }
+
+        if (db_has_column($pdo, 'pembayaran', 'id_user')) {
+            db_try_exec($pdo, "ALTER TABLE pembayaran MODIFY id_user int(11) DEFAULT NULL");
+        }
+
+        if (db_has_column($pdo, 'pembayaran', 'nama')) {
+            db_try_exec($pdo, "ALTER TABLE pembayaran MODIFY nama varchar(100) DEFAULT ''");
+        }
+
+        if (db_has_column($pdo, 'pembayaran', 'hp')) {
+            db_try_exec($pdo, "ALTER TABLE pembayaran MODIFY hp varchar(15) DEFAULT ''");
+        }
+
+        if (db_has_column($pdo, 'pembayaran', 'metode')) {
+            db_try_exec($pdo, "ALTER TABLE pembayaran MODIFY metode varchar(50) DEFAULT ''");
+        }
+
+        if (db_has_column($pdo, 'pembayaran', 'alamat')) {
+            db_try_exec($pdo, "ALTER TABLE pembayaran MODIFY alamat text DEFAULT NULL");
         }
 
         if (!db_has_column($pdo, 'layanan', 'variant_data')) {
@@ -82,6 +200,36 @@ if (!function_exists('ensure_dynamic_booking_schema')) {
             ALTER TABLE booking
             MODIFY status_booking enum('pending','dikonfirmasi','konfirmasi','selesai','dibatalkan') DEFAULT 'pending'
         ");
+    }
+}
+
+if (!function_exists('db_has_table')) {
+    function db_has_table(PDO $pdo, string $table): bool
+    {
+        // Use information_schema with a prepared statement for compatibility
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?");
+        $stmt->execute([$table]);
+        return (bool) ((int) $stmt->fetchColumn());
+    }
+}
+
+if (!function_exists('ensure_dynamic_gallery_schema')) {
+    function ensure_dynamic_gallery_schema(PDO $pdo): void
+    {
+        if (!db_has_table($pdo, 'gallery')) {
+            $pdo->exec("CREATE TABLE gallery (
+                id_gallery bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+                kategori enum('makeup','kostum','dekor') NOT NULL DEFAULT 'makeup',
+                judul varchar(150) NOT NULL,
+                deskripsi text DEFAULT NULL,
+                foto varchar(255) DEFAULT NULL,
+                urutan int(11) NOT NULL DEFAULT 0,
+                is_active tinyint(1) NOT NULL DEFAULT 1,
+                created_at timestamp NOT NULL DEFAULT current_timestamp(),
+                updated_at timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+                PRIMARY KEY (id_gallery)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+        }
     }
 }
 ?>
