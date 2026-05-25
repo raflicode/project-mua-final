@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/koneksi.php';
 
 // Struktur data diperbarui agar mendukung sub-paket/variasi di dalam satu kategori makeup
 $makeupPackages = [
@@ -134,12 +135,10 @@ $makeupPackages = [
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Makeup - Yayuk Makeover</title>
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lobster&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <style>
 * {
     box-sizing: border-box;
@@ -149,6 +148,7 @@ body {
     font-family: 'Poppins', sans-serif;
     background: #efefef;
     color: #222;
+    min-height: 100vh;
 }
 
 .page-wrap {
@@ -157,14 +157,15 @@ body {
 }
 
 .makeup-container {
-    max-width: 1480px;
+    max-width: 1240px;
 }
 
 .judul h1 {
     font-family: 'Lobster', cursive;
-    font-size: 70px;
+    font-size: clamp(3.4rem, 7vw, 4.8rem);
     color: #b85a00;
     text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.25);
+    margin-bottom: 0;
 }
 
 .line {
@@ -181,17 +182,18 @@ body {
 
 .card-custom {
     border: none;
-    border-radius: 18px;
+    border-radius: 16px;
     overflow: hidden;
     background: #fff;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
-    transition: 0.3s;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
     height: 100%;
-    padding: 18px !important;
+    padding: 16px !important;
 }
 
 .card-custom:hover {
     transform: translateY(-5px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.16);
 }
 
 .card-custom .card-body {
@@ -201,18 +203,18 @@ body {
 }
 
 .card-custom h5 {
-    min-height: 48px;
+    min-height: 44px;
     line-height: 1.35;
+    color: #1f2937;
 }
 
 .img-paket-wrap {
     width: 100%;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 4 / 4.8;
     overflow: hidden;
     border-radius: 12px;
     margin-bottom: 14px;
     background: #f3f3f3;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .img-paket {
@@ -241,7 +243,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
+    border-radius: 12px;
     border: none;
     flex-shrink: 0;
 }
@@ -269,13 +271,63 @@ body {
     font-weight: 700;
 }
 
+.price-label {
+    color: #8a8a8a;
+    font-size: 0.82rem;
+    margin-bottom: 2px;
+}
+
+.price-card {
+    color: #b85a00;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.detail-link {
+    color: #0d6efd;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.modal-includes {
+    display: grid;
+    gap: 7px;
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.modal-includes li {
+    display: flex;
+    gap: 8px;
+    color: #555;
+    font-size: 0.92rem;
+}
+
+.modal-includes i {
+    color: #198754;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
 @media (max-width: 576px) {
     .judul h1 {
-        font-size: 3.9rem;
+        font-size: 3.5rem;
     }
 
     .card-custom h5 {
         min-height: auto;
+    }
+
+    .page-wrap {
+        padding-top: 85px;
+    }
+
+    .btn-kembali {
+        left: 14px;
+        bottom: 14px;
+        padding: 9px 16px;
     }
 }
 
@@ -286,7 +338,6 @@ body {
 }
 </style>
 </head>
-
 <body>
 <?php include 'include/navbar.php'; ?>
 
@@ -297,18 +348,18 @@ body {
         <div class="line mt-2"></div>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-4 align-items-stretch">
         <?php foreach ($makeupPackages as $index => $package): ?>
-            <div class="col-sm-6 col-lg-3">
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
                 <div class="card card-custom h-100 card-clickable" onclick="openPackageModal(<?= $index ?>)">
                     <div class="card-body p-0">
                         <h5 class="mb-3 fw-bold"><?= htmlspecialchars($package['name'], ENT_QUOTES, 'UTF-8'); ?></h5>
                         <div class="img-paket-wrap">
                             <img src="<?= htmlspecialchars($package['variants'][0]['image'], ENT_QUOTES, 'UTF-8'); ?>" class="img-paket" alt="<?= htmlspecialchars($package['name'], ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
-                        <p class="text-muted mb-1">Mulai dari</p>
-                        <p class="fw-bold text-success mb-2">Rp <?= number_format($package['variants'][0]['price'], 0, ',', '.'); ?></p>
-                        <span class="text-primary fw-semibold mt-auto" style="font-size: 0.9rem;">Lihat Detail & Opsi <i class="bi bi-arrow-right-short"></i></span>
+                        <div class="price-label">Mulai dari</div>
+                        <div class="price-card">Rp <?= number_format($package['variants'][0]['price'], 0, ',', '.'); ?></div>
+                        <span class="detail-link mt-auto">Lihat detail & opsi <i class="bi bi-arrow-right-short"></i></span>
                     </div>
                 </div>
             </div>
@@ -348,7 +399,7 @@ body {
                         </div>
                         
                         <p class="fw-semibold mb-2">Include :</p>
-                        <ul id="modalIncludes" class="ps-0" style="list-style: none;">
+                        <ul id="modalIncludes" class="modal-includes">
                             </ul>
                     </div>
                 </div>
@@ -447,8 +498,7 @@ function updateVariantDetails(variantIndex) {
     includesList.innerHTML = '';
     variant.includes.forEach(inc => {
         const li = document.createElement('li');
-        li.className = 'mb-1 text-muted';
-        li.innerHTML = `<span class="text-success fw-bold">✓</span> ${inc}`;
+        li.innerHTML = `<i class="bi bi-check-circle-fill"></i><span>${inc}</span>`;
         includesList.appendChild(li);
     });
     

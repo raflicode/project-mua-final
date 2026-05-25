@@ -1,19 +1,70 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/koneksi.php';
+
+function kostumImagePath(?string $path): string
+{
+    if (!$path) {
+        return '../assets/gallery_kostum/foto_akad.jpeg';
+    }
+
+    if (preg_match('#^(https?://|/)#', $path)) {
+        return $path;
+    }
+
+    return '../' . ltrim($path, '/');
+}
+
+function kostumIncludes(?string $deskripsi): array
+{
+    if (!$deskripsi) {
+        return ['Layanan kostum siap untuk booking.'];
+    }
+
+    $items = [];
+    foreach (preg_split('/\r\n|\n|;/', $deskripsi) as $part) {
+        $part = trim($part);
+        if ($part !== '') {
+            $items[] = $part;
+        }
+    }
+
+    return $items ?: ['Layanan kostum siap untuk booking.'];
+}
+
+function formatRupiah($value): string
+{
+    return 'Rp ' . number_format((float) $value, 0, ',', '.');
+}
+
+$stmt = $pdo->query("SELECT id_layanan, nama_layanan, harga_dasar, foto_layanan, deskripsi FROM layanan WHERE is_active = 1 AND kategori_layanan = 'kostum' ORDER BY nama_layanan ASC");
+$kostumRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$kostumData = [];
+foreach ($kostumRows as $row) {
+    $kostumData[] = [
+        'jenis' => $row['nama_layanan'],
+        'variasi' => [[
+            'id' => (int) $row['id_layanan'],
+            'nama' => $row['nama_layanan'],
+            'foto' => kostumImagePath($row['foto_layanan'] ?? ''),
+            'harga' => formatRupiah($row['harga_dasar']),
+            'harga_value' => (float) $row['harga_dasar'],
+            'include' => kostumIncludes($row['deskripsi'] ?? ''),
+        ]],
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <title>Kostum - Yayuk Makeover</title>
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lobster&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <style>
 
 *{ box-sizing:border-box; }
@@ -202,9 +253,7 @@ body{
 </style>
 </head>
 <body>
-
 <?php include 'include/navbar.php'; ?>
-
 <main class="page-wrap">
 <div class="container">
 
@@ -499,7 +548,6 @@ document.getElementById('btnKeranjang').addEventListener('click',()=>{
 
 renderCards();
 </script>
-
 <?php include 'include/add_to_cart_script.php'; ?>
 </body>
 </html>

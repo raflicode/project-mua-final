@@ -318,7 +318,6 @@ body{
 </style>
 </head>
 <body>
-
 <?php include 'include/navbar.php'; ?>
 
 <main class="page-wrap">
@@ -402,7 +401,6 @@ body{
 </a>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
 const isLoggedIn = <?php echo isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
 

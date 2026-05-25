@@ -1,6 +1,9 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/koneksi.php';
+require_once __DIR__ . '/../config/db_helpers.php';
+
+ensure_dynamic_booking_schema($pdo);
 
 if (!isset($_SESSION['id_user'])) {
     header('Location: login.php');
@@ -12,8 +15,14 @@ function formatRupiah($value)
     return 'Rp ' . number_format($value, 0, ',', '.');
 }
 
-$backHref = $_SERVER['HTTP_REFERER'] ?? 'service.php';
-$fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_STRING);
+$fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$sourcePage = filter_input(INPUT_GET, 'source_page', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$backMap = [
+    'makeup' => 'makeup.php',
+    'dekor' => 'dekor.php',
+    'kostum' => 'kostum.php'
+];
+$backHref = $backMap[$sourcePage] ?? $backMap[$fromPage] ?? 'service.php';
 
 function resolveImagePath($path, $default = '../assets/foto_makeup.jpeg')
 {
@@ -26,6 +35,10 @@ function resolveImagePath($path, $default = '../assets/foto_makeup.jpeg')
         return $path;
     }
 
+    if (strpos($path, '../assets/') === 0) {
+        return $path;
+    }
+
     if (strpos($path, 'assets/') === 0) {
         return '../' . $path;
     }
@@ -35,14 +48,21 @@ function resolveImagePath($path, $default = '../assets/foto_makeup.jpeg')
 
 $checkout = $_SESSION['checkout_booking'] ?? null;
 $draft = $_SESSION['draft_booking'] ?? null;
-$backHref = 'price_list.php';
 $checkoutMode = false;
 $checkoutItems = [];
 $hargaProduk = 0;
 $foto = '../assets/foto_makeup.jpeg';
-$namaProduk = trim(filter_input(INPUT_GET, 'layanan', FILTER_SANITIZE_STRING));
+$namaProduk = trim((string) filter_input(INPUT_GET, 'layanan', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+if ($namaProduk === '') {
+    $namaProduk = trim((string) filter_input(INPUT_GET, 'nama', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+}
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $hargaProduk = filter_input(INPUT_GET, 'harga', FILTER_VALIDATE_INT);
+$fotoParam = trim((string) filter_input(INPUT_GET, 'foto', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+if ($fotoParam !== '') {
+    $foto = resolveImagePath($fotoParam);
+}
+$hasDirectSelection = $id || $namaProduk !== '' || $hargaProduk > 0 || $fotoParam !== '';
 $service = null;
 $layananTableExists = false;
 
@@ -53,7 +73,7 @@ try {
     $layananTableExists = false;
 }
 
-if ($checkout && !empty($checkout['items']) && is_array($checkout['items'])) {
+if (!$hasDirectSelection && $checkout && !empty($checkout['items']) && is_array($checkout['items'])) {
     $checkoutMode = true;
     $checkoutItems = $checkout['items'];
     $hargaProduk = floatval($checkout['total_price']);
@@ -73,6 +93,10 @@ if ($checkout && !empty($checkout['items']) && is_array($checkout['items'])) {
         'foto' => $foto
     ];
 } else {
+    if ($hasDirectSelection) {
+        unset($_SESSION['checkout_booking']);
+    }
+
     if ($id && $layananTableExists) {
         $stmt = $pdo->prepare('SELECT * FROM layanan WHERE id_layanan = ? LIMIT 1');
         $stmt->execute([$id]);
@@ -94,14 +118,18 @@ if ($checkout && !empty($checkout['items']) && is_array($checkout['items'])) {
         $foto = $draft['foto'];
     }
 
+    if (!empty($fotoParam)) {
+        $foto = resolveImagePath($fotoParam);
+    }
+
     if (empty($namaProduk) || $hargaProduk <= 0) {
-        header('Location: price_list.php');
+        header('Location: service.php');
         exit;
     }
 
     $_SESSION['draft_booking'] = [
         'source' => 'single',
-        'id_layanan' => $service['id_layanan'] ?? ($draft['id_layanan'] ?? null),
+        'id_layanan' => $service['id_layanan'] ?? null,
         'nama_layanan' => $namaProduk,
         'harga' => $hargaProduk,
         'foto' => $foto
@@ -311,7 +339,7 @@ body {
                     <?php foreach ($checkoutItems as $item): ?>
                         <div class="product-item">
                             <div class="product-img-wrapper">
-                                <img src="<?= htmlspecialchars($foto, ENT_QUOTES, 'UTF-8'); ?>" class="product-img" alt="<?= htmlspecialchars($item['nama_layanan'], ENT_QUOTES, 'UTF-8'); ?>">
+                                <img src="<?= htmlspecialchars(resolveImagePath($item['foto'] ?? '', $foto), ENT_QUOTES, 'UTF-8'); ?>" class="product-img" alt="<?= htmlspecialchars($item['nama_layanan'], ENT_QUOTES, 'UTF-8'); ?>">
                             </div>
                             <div class="product-info flex-grow-1">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -348,13 +376,8 @@ body {
                             <span class="price-value"><?= htmlspecialchars(formatRupiah($hargaProduk), ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
                         <div class="price-row">
-                            <span class="price-label">Biaya layanan</span>
-                            <span class="price-value">Rp 10.000</span>
-                        </div>
-                        <div class="divider"></div>
-                        <div class="price-row">
                             <span class="fw-bold">Total Bayar</span>
-                            <span class="fw-bold"><?= htmlspecialchars(formatRupiah($hargaProduk + 10000), ENT_QUOTES, 'UTF-8'); ?></span>
+                            <span class="fw-bold"><?= htmlspecialchars(formatRupiah($hargaProduk), ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
                     </div>
                 </div>
@@ -366,7 +389,7 @@ body {
                 <div class="order-card">
                     <h5 class="card-inside-title"><i class="bi bi-calendar-check me-2 text-warning"></i>Langkah Selanjutnya</h5>
                     <p class="text-muted small mb-4">Pilih tanggal dan jam yang tersedia pada langkah berikutnya.</p>
-                    <a href="penjadwalan.php" class="btn btn-payment">
+                    <a href="penjadwalan.php<?= $fromPage ? '?from=' . urlencode($fromPage) : '' ?>" class="btn btn-payment">
                         Lanjut ke Penjadwalan <i class="bi bi-arrow-right ms-2"></i>
                     </a>
                 </div>

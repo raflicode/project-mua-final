@@ -1,6 +1,14 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/koneksi.php';
+$backHref = 'booking.php';
+$fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$backMap = [
+    'makeup' => 'makeup.php',
+    'dekor' => 'dekor.php',
+    'kostum' => 'kostum.php'
+];
+$backHref = $backMap[$fromPage] ?? 'booking.php';
 
 if (!isset($_SESSION['id_user'])) {
     header('Location: login.php');
@@ -9,7 +17,11 @@ if (!isset($_SESSION['id_user'])) {
 
 $draft = $_SESSION['draft_booking'] ?? null;
 if (!$draft) {
-    header('Location: booking.php');
+    $redirectUrl = 'booking.php';
+    if ($fromPage) {
+        $redirectUrl .= '?from=' . urlencode($fromPage);
+    }
+    header('Location: ' . $redirectUrl);
     exit;
 }
 
@@ -55,7 +67,11 @@ $insertStmt->execute([
         $_SESSION['draft_booking']['id_jadwal'] = $lastId;
         $_SESSION['draft_booking']['tanggal'] = $selectedDate;
        $_SESSION['draft_booking']['jam_selesai'] = $jamSelesai;
-        header('Location: pembayaran.php');
+        $redirectUrl = 'pembayaran.php';
+        if ($fromPage) {
+            $redirectUrl .= '?from=' . urlencode($fromPage);
+        }
+        header('Location: ' . $redirectUrl);
         exit;
 
     } else {
@@ -136,6 +152,7 @@ $foto = htmlspecialchars($draft['foto'] ?? '../assets/foto_makeup.jpeg', ENT_QUO
 <title>Booking MUA Yayuk</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
 <style>
 body {
@@ -276,6 +293,29 @@ body {
     font-size: 0.8rem;
     font-weight: 700;
 }
+.back-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.1);
+    color: #2b1f15;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.back-nav:hover {
+    background: #d07f26;
+    color: white;
+    transform: translateX(-4px);
+}
+.back-container {
+    margin-top: 110px;
+    margin-bottom: 20px;
+}
 </style>
 </head>
 
@@ -283,8 +323,13 @@ body {
 
 <!-- Navbar Include -->
 <?php include 'include/navbar.php'; ?>
+<div class="container back-container">
+    <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="back-nav">
+        <i class="bi bi-chevron-left"></i>
+    </a>
+</div>
 
-<div class="container-fluid mt-5 px-lg-5" style="padding-top: 50px;">
+<div class="container-fluid px-lg-5">
     <div class="card card-custom">
 
         <div class="header-booking">

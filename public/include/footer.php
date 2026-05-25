@@ -99,7 +99,7 @@
                     Kami adalah tim profesional yang siap mengabadikan momen terindah dalam hidup Anda.
                 </p>
                 <div class="contact-info">
-                    <i class="bi bi-telephone-fill"></i> +62 666 888 999
+                    <i class="bi bi-telephone-fill"></i> +62 813-3327-3119
                 </div>
                 <div class="contact-info">
                     <i class="bi bi-envelope-fill"></i> Yayuk@gmail.com
@@ -125,9 +125,9 @@
                     <li><a href="public/gallery_dekor.php" style="color: white; text-decoration: none;">Gallery Dekor</a></li>
                 </ul>
                 <div class="social-icons">
-                    <a href="#"><i class="bi bi-facebook"></i></a>
-                    <a href="https://www.instagram.com/yayukmakeover_jbr?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==w"><i class="bi bi-instagram"></i></a>
-                    <a href="#"><i class="bi bi-twitter-x"></i></a>
+                    <a href="https://www.facebook.com/yayux.ernawati" target="_blank"><i class="bi bi-facebook"></i></a>
+                    <a href="https://www.instagram.com/yayukmakeover_jbr?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==w" target="_blank"><i class="bi bi-instagram"></i></a>
+                    <a href="https://wa.me/6281333273119" target="_blank"><i class="bi bi-whatsapp"></i></a>
                 </div>
             </div>
         </div>

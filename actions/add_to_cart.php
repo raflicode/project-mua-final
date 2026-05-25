@@ -1,6 +1,9 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/koneksi.php';
+require_once __DIR__ . '/../config/db_helpers.php';
+
+ensure_dynamic_booking_schema($pdo);
 
 header('Content-Type: application/json');
 
@@ -49,6 +52,7 @@ if (!$stmt_user->fetchColumn()) {
 // Ambil data dari POST
 $nama_layanan = trim($_POST['nama_layanan'] ?? '');
 $tipe_layanan = trim($_POST['tipe_layanan'] ?? '');
+$id_layanan = intval($_POST['id_layanan'] ?? 0);
 $harga = intval($_POST['harga'] ?? 0);
 $kuantitas = intval($_POST['kuantitas'] ?? 1);
 $foto = trim($_POST['foto'] ?? '');
@@ -96,17 +100,17 @@ try {
         // Insert item baru (simpan path foto jika tersedia)
         try {
             $stmt_insert = $pdo->prepare("
-                INSERT INTO keranjang (id_user, nama_layanan, tipe_layanan, foto, harga, kuantitas)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO keranjang (id_user, id_layanan, nama_layanan, tipe_layanan, foto, harga, kuantitas)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             ");
-            $stmt_insert->execute([$id_user, $nama_layanan, $tipe_layanan, $foto, $harga, $kuantitas]);
+            $stmt_insert->execute([$id_user, $id_layanan > 0 ? $id_layanan : null, $nama_layanan, $tipe_layanan, $foto, $harga, $kuantitas]);
         } catch (PDOException $e) {
             // Jika kolom foto belum ada di DB, fallback ke insert tanpa kolom foto
             $stmt_insert = $pdo->prepare("
-                INSERT INTO keranjang (id_user, nama_layanan, tipe_layanan, harga, kuantitas)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO keranjang (id_user, id_layanan, nama_layanan, tipe_layanan, harga, kuantitas)
+                VALUES (?, ?, ?, ?, ?, ?)
             ");
-            $stmt_insert->execute([$id_user, $nama_layanan, $tipe_layanan, $harga, $kuantitas]);
+            $stmt_insert->execute([$id_user, $id_layanan > 0 ? $id_layanan : null, $nama_layanan, $tipe_layanan, $harga, $kuantitas]);
         }
     }
 
