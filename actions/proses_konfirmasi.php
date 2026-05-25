@@ -280,7 +280,7 @@ function findOrCreateLayanan(PDO $pdo, string $nama, float $harga, string $foto 
     return (int) $pdo->lastInsertId();
 }
 
-function insertBooking(PDO $pdo, int $idUser, int $idJadwal, int $idLayanan, float $totalHarga, string $catatan): int
+function insertBooking(PDO $pdo, int $idUser, int $idJadwal, int $idLayanan, float $totalHarga, string $catatan, ?string $phone = null): int
 {
     $columns = ['id_user', 'id_jadwal', 'total_harga', 'status_booking', 'catatan'];
     $values = [$idUser, $idJadwal, $totalHarga, 'pending', $catatan];
@@ -290,12 +290,31 @@ function insertBooking(PDO $pdo, int $idUser, int $idJadwal, int $idLayanan, flo
         array_splice($values, 2, 0, $idLayanan);
     }
 
+    if (tableHasColumn($pdo, 'booking', 'no_telp') && $phone !== null && $phone !== '') {
+        $columns[] = 'no_telp';
+        $values[] = $phone;
+    }
+
     $placeholders = implode(', ', array_fill(0, count($columns), '?'));
     $query = 'INSERT INTO booking (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')';
     $stmt = $pdo->prepare($query);
     $stmt->execute($values);
 
     return (int) $pdo->lastInsertId();
+}
+
+function updateBookingPhoneIfMissing(PDO $pdo, int $idBooking, ?string $phone): void
+{
+    if ($phone === null || trim($phone) === '') {
+        return;
+    }
+
+    if (!tableHasColumn($pdo, 'booking', 'no_telp')) {
+        return;
+    }
+
+    $stmt = $pdo->prepare('UPDATE booking SET no_telp = ? WHERE id_booking = ? AND (no_telp IS NULL OR no_telp = "")');
+    $stmt->execute([$phone, $idBooking]);
 }
 
 function insertBookingDetail(PDO $pdo, int $idBooking, int $idLayanan, int $qty, float $harga, float $subtotal, ?string $catatan = null): void
@@ -315,9 +334,17 @@ function insertBookingDetail(PDO $pdo, int $idBooking, int $idLayanan, int $qty,
 function insertPembayaran(PDO $pdo, int $idBooking, int $idUser, array $pembayaran, float $totalHarga, string $fileName, string $status): void
 {
     if (tableHasColumn($pdo, 'pembayaran', 'id_booking')) {
-        $query = 'INSERT INTO pembayaran (id_booking, jumlah_bayar, metode_bayar, bukti_transfer, status_verifikasi) VALUES (?, ?, ?, ?, ?)';
+        $columns = ['id_booking', 'jumlah_bayar', 'metode_bayar', 'bukti_transfer', 'status_verifikasi'];
+        $values = [$idBooking, $totalHarga, normalizePaymentMethod($pembayaran['metode'] ?? ''), $fileName, $status];
+
+        if (tableHasColumn($pdo, 'pembayaran', 'no_telp') && !empty($pembayaran['hp'])) {
+            array_splice($columns, 3, 0, 'no_telp');
+            array_splice($values, 3, 0, $pembayaran['hp']);
+        }
+
+        $query = 'INSERT INTO pembayaran (' . implode(', ', $columns) . ') VALUES (' . implode(', ', array_fill(0, count($columns), '?')) . ')';
         $stmt = $pdo->prepare($query);
-        $stmt->execute([$idBooking, $totalHarga, normalizePaymentMethod($pembayaran['metode'] ?? ''), $fileName, $status]);
+        $stmt->execute($values);
         return;
     }
 
@@ -357,7 +384,7 @@ try {
             );
         }
 
-        $id_booking = insertBooking($pdo, (int) $id_user, (int) $id_jadwal, $primaryLayananId, $total_harga, $catatan);
+        $id_booking = insertBooking($pdo, (int) $id_user, (int) $id_jadwal, $primaryLayananId, $total_harga, $catatan, trim($pembayaran['hp'] ?? ''));
 
         if ($isCartCheckout && !empty($draft['items']) && is_array($draft['items'])) {
             foreach ($draft['items'] as $item) {
@@ -386,6 +413,8 @@ try {
     if (!$id_booking) {
         throw new Exception('Booking belum lengkap. Silakan pilih layanan dan jadwal terlebih dahulu.');
     }
+
+    updateBookingPhoneIfMissing($pdo, (int) $id_booking, trim($pembayaran['hp'] ?? ''));
 
     // Insert pembayaran record sesuai schema aktif
     insertPembayaran($pdo, (int) $id_booking, (int) $id_user, $pembayaran, $total_harga, $fileName, $status);

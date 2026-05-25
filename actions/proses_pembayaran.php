@@ -117,35 +117,9 @@ function insertBookingDetailAwal(PDO $pdo, int $idBooking, int $idLayanan, int $
     $stmt->execute([$idBooking, $idLayanan, $qty, $harga, $subtotal]);
 }
 
-function updateUserContact(PDO $pdo, int $idUser, string $fullName, string $phone): void
-{
-    $updates = [];
-    $params = [];
-
-    if ($fullName !== '') {
-        $updates[] = 'full_name = ?';
-        $params[] = $fullName;
-    }
-    if ($phone !== '') {
-        $updates[] = 'no_telp = ?';
-        $params[] = $phone;
-    }
-
-    if (empty($updates)) {
-        return;
-    }
-
-    $params[] = $idUser;
-    $stmt = $pdo->prepare('UPDATE user SET ' . implode(', ', $updates) . ' WHERE id_user = ?');
-    $stmt->execute($params);
-}
-
 try {
     $draft = $_SESSION['draft_booking'];
     $idUser = (int) $_SESSION['id_user'];
-    if ($nama !== '' || $hp !== '') {
-        updateUserContact($pdo, $idUser, $nama, $hp);
-    }
     if (empty($draft['id_booking'])) {
         $idJadwal = (int) $draft['id_jadwal'];
         $isCartCheckout = ($draft['source'] ?? '') === 'cart';

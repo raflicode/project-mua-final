@@ -146,7 +146,7 @@ $bookingStmt = $pdo->query("
         $paymentStatusSelect AS status_pembayaran,
         COALESCE($userNameSelect, $paymentNameSelect, u.username) AS full_name,
         u.username,
-        COALESCE($bookingPhoneSelect, $userPhoneSelect, $paymentPhoneSelect) AS no_telp,
+        COALESCE(NULLIF($bookingPhoneSelect, ''), $userPhoneSelect, $paymentPhoneSelect) AS no_telp,
         layanan_booking.nama_layanan
     FROM booking b
     LEFT JOIN user u ON u.id_user = b.id_user

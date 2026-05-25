@@ -67,6 +67,11 @@ if (!function_exists('ensure_dynamic_booking_schema')) {
             db_columns($pdo, 'booking', true);
         }
 
+        if (!db_has_column($pdo, 'booking', 'no_telp')) {
+            $pdo->exec("ALTER TABLE booking ADD no_telp varchar(20) DEFAULT NULL AFTER id_jadwal");
+            db_columns($pdo, 'booking', true);
+        }
+
         if (!db_has_column($pdo, 'booking', 'tgl_booking')) {
             $afterColumn = db_has_column($pdo, 'booking', 'tanggal_booking') ? 'AFTER tanggal_booking' : 'AFTER id_jadwal';
             $pdo->exec("ALTER TABLE booking ADD tgl_booking datetime DEFAULT current_timestamp() $afterColumn");
@@ -140,6 +145,11 @@ if (!function_exists('ensure_dynamic_booking_schema')) {
             if (db_has_column($pdo, 'pembayaran', 'created_at')) {
                 $pdo->exec("UPDATE pembayaran SET tgl_upload = created_at WHERE tgl_upload IS NULL");
             }
+            db_columns($pdo, 'pembayaran', true);
+        }
+
+        if (!db_has_column($pdo, 'pembayaran', 'no_telp')) {
+            $pdo->exec("ALTER TABLE pembayaran ADD no_telp varchar(20) DEFAULT NULL AFTER id_booking");
             db_columns($pdo, 'pembayaran', true);
         }
 
