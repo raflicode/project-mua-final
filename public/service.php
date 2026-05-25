@@ -342,7 +342,7 @@ $categoryCards = [
 <div class="container mt-3 px-lg-5">
     <div class="text-center mb-5 text-white">
         <h1 class="fw-bold" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.6);">Pilih Layanan</h1>
-        <p class="small opacity-75">Pilih kategori di bawah ini untuk masuk ke halaman khusus, atau lihat paket premium dari admin.</p>
+        <p class="small opacity-100" style="color: black;">Pilih kategori di bawah ini untuk masuk ke halaman khusus, atau lihat paket premium dari admin.</p>
     </div>
 
     <div class="row g-4 mb-5">

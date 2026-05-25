@@ -129,9 +129,9 @@ $page = $page ?? pathinfo($_SERVER['SCRIPT_NAME'] ?? '', PATHINFO_FILENAME);
         Booking
     </a>
 
-    <a href="manajemen_user.php" class="<?= ($page === 'manajemen_user' || $page === 'user') ? 'active' : '' ?>">
+    <a href="penjadwalan.php" class="<?= ($page === 'penjadwalan') ? 'active' : '' ?>">
         <i class="bi bi-people"></i>
-        Manajemen User
+        Penjadwalan
     </a>
 
     <a href="data_layanan.php" class="<?= ($page === 'data_layanan' || $page === 'layanan') ? 'active' : '' ?>">
