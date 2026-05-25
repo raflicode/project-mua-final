@@ -117,10 +117,36 @@ function insertBookingDetailAwal(PDO $pdo, int $idBooking, int $idLayanan, int $
     $stmt->execute([$idBooking, $idLayanan, $qty, $harga, $subtotal]);
 }
 
+function updateUserContact(PDO $pdo, int $idUser, string $fullName, string $phone): void
+{
+    $updates = [];
+    $params = [];
+
+    if ($fullName !== '') {
+        $updates[] = 'full_name = ?';
+        $params[] = $fullName;
+    }
+    if ($phone !== '') {
+        $updates[] = 'no_telp = ?';
+        $params[] = $phone;
+    }
+
+    if (empty($updates)) {
+        return;
+    }
+
+    $params[] = $idUser;
+    $stmt = $pdo->prepare('UPDATE user SET ' . implode(', ', $updates) . ' WHERE id_user = ?');
+    $stmt->execute($params);
+}
+
 try {
     $draft = $_SESSION['draft_booking'];
+    $idUser = (int) $_SESSION['id_user'];
+    if ($nama !== '' || $hp !== '') {
+        updateUserContact($pdo, $idUser, $nama, $hp);
+    }
     if (empty($draft['id_booking'])) {
-        $idUser = (int) $_SESSION['id_user'];
         $idJadwal = (int) $draft['id_jadwal'];
         $isCartCheckout = ($draft['source'] ?? '') === 'cart';
         $subtotal = (float) ($draft['total'] ?? $draft['harga'] ?? 0);
@@ -150,11 +176,16 @@ try {
             throw new Exception('Jadwal ini sudah penuh. Silakan pilih jadwal lain.');
         }
 
-        $stmt = $pdo->prepare('
-            INSERT INTO booking (id_user, id_jadwal, total_harga, status_booking, catatan)
-            VALUES (?, ?, ?, ?, ?)
-        ');
-        $stmt->execute([$idUser, $idJadwal, $totalHarga, 'pending', $alamat]);
+        $bookingColumns = ['id_user', 'id_jadwal', 'total_harga', 'status_booking', 'catatan'];
+        $bookingParams = [$idUser, $idJadwal, $totalHarga, 'pending', $alamat];
+        if (db_has_column($pdo, 'booking', 'no_telp')) {
+            $bookingColumns[] = 'no_telp';
+            $bookingParams[] = $hp;
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($bookingColumns), '?'));
+        $stmt = $pdo->prepare('INSERT INTO booking (' . implode(', ', $bookingColumns) . ') VALUES (' . $placeholders . ')');
+        $stmt->execute($bookingParams);
         $idBooking = (int) $pdo->lastInsertId();
 
         if ($isCartCheckout && !empty($draft['items']) && is_array($draft['items'])) {

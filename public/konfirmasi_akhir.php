@@ -69,6 +69,7 @@ $errors = isset($_SESSION['errors']) ? $_SESSION['errors'] : [];
 if (!empty($errors)) {
     unset($_SESSION['errors']);
 }
+$uploadSuccess = !empty($_GET['uploaded']);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -222,7 +223,7 @@ if (!empty($errors)) {
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
-            <?php if (!empty($_GET['uploaded'])): ?>
+            <?php if ($uploadSuccess): ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     Bukti pembayaran berhasil dikirim. Silakan tunggu konfirmasi admin.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -230,65 +231,76 @@ if (!empty($errors)) {
             <?php endif; ?>
 
             <div>
-                <div class="icon-box mb-3">💳</div>
-                <h5 class="fw-bold mb-1">Selesaikan Pembayaran</h5>
-                <p class="text-muted small mb-3">Data Pembayaran Anda</p>
-
-                <div class="bank-box mb-3">
-                    <small class="text-muted d-block mb-2">Nama Pemesan</small>
-                    <h6 class="mb-2"><?= htmlspecialchars($pembayaran['nama']) ?></h6>
-
-                    <small class="text-muted d-block mb-2">No Handphone</small>
-                    <h6 class="mb-2"><?= htmlspecialchars($pembayaran['hp']) ?></h6>
-
-                    <small class="text-muted d-block mb-2">Metode Pembayaran</small>
-                    <h6 class="mb-0"><?= htmlspecialchars($pembayaran['metode']) ?></h6>
-
-                    <?php if ($tokenMode && $booking): ?>
-                        <small class="text-muted d-block mb-2 mt-3">Layanan</small>
-                        <h6 class="mb-2"><?= htmlspecialchars($booking['nama_layanan'] ?: 'Layanan Booking') ?></h6>
-
-                        <small class="text-muted d-block mb-2">Total Pembayaran</small>
-                        <h6 class="mb-0">Rp <?= number_format((float) $booking['total_harga'], 0, ',', '.') ?></h6>
-                    <?php endif; ?>
-                </div>
-
-                <p class="text-muted small">Silahkan transfer ke rekening berikut untuk melanjutkan pemesanan:</p>
-
-                <div class="bank-box mb-3">
-                    <small class="text-muted d-block mb-2">BANK BRI</small>
-                    <h4 class="mb-2">883 0987 224</h4>
-                    <small class="text-muted">A/N YAYUK ERNAWATI</small>
-                </div>
-
-                <form action="../actions/proses_konfirmasi.php" method="post" enctype="multipart/form-data" novalidate>
-                    <?php if ($tokenMode): ?>
-                        <input type="hidden" name="konfirmasi_akhir_token" value="<?= htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?>">
-                    <?php elseif ($idBookingMode): ?>
-                        <input type="hidden" name="id_booking" value="<?= (int) $idBooking ?>">
-                    <?php endif; ?>
-                    <label class="upload-box w-100 mb-3" id="uploadBox">
-                        <div class="fs-3">⇪</div>
-                        <div class="small text-muted">Upload Bukti Pembayaran (.jpg, .png)</div>
-                        <input type="file" name="bukti_pembayaran" accept=".jpg,.jpeg,.png" id="fileInput">
-                    </label>
-
-                    <div id="fileNameDisplay" class="small text-muted mb-3" style="display:none;">File: <strong id="fileName"></strong></div>
-
-                    <button type="submit" class="btn-konfirmasi btn-konfirmasi w-100">Kirim Bukti Pembayaran</button>
-                </form>
-            </div>
-
-            <div>
-                <div class="card p-3">
-                    <h6 class="fw-bold">Ringkasan</h6>
-                    <div class="small text-muted mb-3">Simpan bukti transfer agar kami dapat memverifikasi pembayaran Anda lebih cepat.</div>
+                <div class="icon-box mb-3"><?php echo $uploadSuccess ? '✅' : '💳'; ?></div>
+                <?php if ($uploadSuccess): ?>
+                    <h5 class="fw-bold mb-1">Pembayaran Terkirim</h5>
+                    <p class="text-muted small mb-4">Bukti pembayaran berhasil dikirim. Silakan tunggu konfirmasi admin.</p>
                     <div class="d-grid gap-2">
                         <a href="booking.php" class="btn btn-outline-secondary">Lihat Booking Saya</a>
                         <a href="../public/keranjang.php" class="btn btn-outline-secondary">Kembali ke Keranjang</a>
                     </div>
-                </div>
+                <?php else: ?>
+                    <h5 class="fw-bold mb-1">Selesaikan Pembayaran</h5>
+                    <p class="text-muted small mb-3">Data Pembayaran Anda</p>
+
+                    <div class="bank-box mb-3">
+                        <small class="text-muted d-block mb-2">Nama Pemesan</small>
+                        <h6 class="mb-2"><?= htmlspecialchars($pembayaran['nama']) ?></h6>
+
+                        <small class="text-muted d-block mb-2">No Handphone</small>
+                        <h6 class="mb-2"><?= htmlspecialchars($pembayaran['hp']) ?></h6>
+
+                        <small class="text-muted d-block mb-2">Metode Pembayaran</small>
+                        <h6 class="mb-0"><?= htmlspecialchars($pembayaran['metode']) ?></h6>
+
+                        <?php if ($tokenMode && $booking): ?>
+                            <small class="text-muted d-block mb-2 mt-3">Layanan</small>
+                            <h6 class="mb-2"><?= htmlspecialchars($booking['nama_layanan'] ?: 'Layanan Booking') ?></h6>
+
+                            <small class="text-muted d-block mb-2">Total Pembayaran</small>
+                            <h6 class="mb-0">Rp <?= number_format((float) $booking['total_harga'], 0, ',', '.') ?></h6>
+                        <?php endif; ?>
+                    </div>
+
+                    <p class="text-muted small">Silahkan transfer ke rekening berikut untuk melanjutkan pemesanan:</p>
+
+                    <div class="bank-box mb-3">
+                        <small class="text-muted d-block mb-2">BANK BRI</small>
+                        <h4 class="mb-2">883 0987 224</h4>
+                        <small class="text-muted">A/N YAYUK ERNAWATI</small>
+                    </div>
+
+                    <form action="../actions/proses_konfirmasi.php" method="post" enctype="multipart/form-data" novalidate>
+                        <?php if ($tokenMode): ?>
+                            <input type="hidden" name="konfirmasi_akhir_token" value="<?= htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?>">
+                        <?php elseif ($idBookingMode): ?>
+                            <input type="hidden" name="id_booking" value="<?= (int) $idBooking ?>">
+                        <?php endif; ?>
+                        <label class="upload-box w-100 mb-3" id="uploadBox">
+                            <div class="fs-3">⇪</div>
+                            <div class="small text-muted">Upload Bukti Pembayaran (.jpg, .png)</div>
+                            <input type="file" name="bukti_pembayaran" accept=".jpg,.jpeg,.png" id="fileInput">
+                        </label>
+
+                        <div id="fileNameDisplay" class="small text-muted mb-3" style="display:none;">File: <strong id="fileName"></strong></div>
+
+                        <button type="submit" class="btn-konfirmasi btn-konfirmasi w-100">Kirim Bukti Pembayaran</button>
+                    </form>
+                <?php endif; ?>
             </div>
+
+            <?php if (!$uploadSuccess): ?>
+                <div>
+                    <div class="card p-3">
+                        <h6 class="fw-bold">Ringkasan</h6>
+                        <div class="small text-muted mb-3">Simpan bukti transfer agar kami dapat memverifikasi pembayaran Anda lebih cepat.</div>
+                        <div class="d-grid gap-2">
+                            <a href="booking.php" class="btn btn-outline-secondary">Lihat Booking Saya</a>
+                            <a href="../public/keranjang.php" class="btn btn-outline-secondary">Kembali ke Keranjang</a>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
 
         </div>
 

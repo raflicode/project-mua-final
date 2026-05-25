@@ -82,24 +82,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         if ($action === 'terima_pesanan') {
             $token = bin2hex(random_bytes(24));
-            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'dikonfirmasi', konfirmasi_akhir_token = ? WHERE id_booking = ? AND status_booking = 'pending'");
+            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'konfirmasi', konfirmasi_akhir_token = ? WHERE id_booking = ? AND status_booking = 'pending'");
             $stmt->execute([$token, $idBooking]);
             if ($stmt->rowCount() === 0) {
                 redirectBooking('Booking tidak dapat dikonfirmasi. Status tidak valid atau sudah dikonfirmasi.', 'danger');
             }
-            redirectBooking('Booking dikonfirmasi dan link konfirmasi akhir berhasil dibuat.');
+            redirectBooking('Booking dikonfirmasi dan link upload bukti pembayaran berhasil dibuat.');
         }
 
         if ($action === 'tolak_pesanan') {
             $stmt = $pdo->prepare("DELETE FROM booking WHERE id_booking = ? AND status_booking = 'pending'");
             $stmt->execute([$idBooking]);
             redirectBooking('Pesanan ditolak dan dihapus dari daftar.');
-        }
-
-        if ($action === 'selesaikan_booking') {
-            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'selesai' WHERE id_booking = ? AND status_booking = 'dikonfirmasi'");
-            $stmt->execute([$idBooking]);
-            redirectBooking('Booking ditandai selesai.');
         }
 
         if ($action === 'konfirmasi_pembayaran') {
@@ -113,9 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($action === 'tolak_pembayaran') {
-            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'dikonfirmasi' WHERE id_booking = ? AND status_booking = 'konfirmasi'");
+            $stmt = $pdo->prepare("DELETE FROM booking WHERE id_booking = ? AND status_booking = 'konfirmasi'");
             $stmt->execute([$idBooking]);
-            redirectBooking('Pembayaran ditolak. Booking kembali ke status dikonfirmasi.');
+            redirectBooking('Pembayaran ditolak. Booking dikembalikan ke status pending.');
         }
 
         redirectBooking('Aksi tidak dikenali.', 'danger');
@@ -130,9 +124,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $bookingProofSelect = tableHasColumn($pdo, 'booking', 'bukti_pembayaran') ? 'b.bukti_pembayaran' : 'NULL';
 $bookingUploadSelect = tableHasColumn($pdo, 'booking', 'tanggal_upload') ? 'b.tanggal_upload' : 'NULL';
 $bookingTokenSelect = tableHasColumn($pdo, 'booking', 'konfirmasi_akhir_token') ? 'b.konfirmasi_akhir_token' : 'NULL';
+$bookingPhoneSelect = tableHasColumn($pdo, 'booking', 'no_telp') ? 'b.no_telp' : 'NULL';
 $paymentProofSelect = $proofColumn ? "p.`$proofColumn`" : 'NULL';
 $paymentUploadSelect = $uploadColumn ? "p.`$uploadColumn`" : 'NULL';
 $paymentStatusSelect = $paymentStatusColumn ? "p.`$paymentStatusColumn`" : 'NULL';
+$paymentPhoneSelect = tableHasColumn($pdo, 'pembayaran', 'no_telp') ? 'p.no_telp' : (tableHasColumn($pdo, 'pembayaran', 'hp') ? 'p.hp' : 'NULL');
+$paymentNameSelect = tableHasColumn($pdo, 'pembayaran', 'nama') ? 'p.nama' : 'NULL';
 $userNameSelect = tableHasColumn($pdo, 'user', 'full_name') ? 'u.full_name' : (tableHasColumn($pdo, 'user', 'nama_lengkap') ? 'u.nama_lengkap' : 'NULL');
 $userPhoneSelect = tableHasColumn($pdo, 'user', 'no_telp') ? 'u.no_telp' : (tableHasColumn($pdo, 'user', 'hp') ? 'u.hp' : 'NULL');
 
@@ -147,9 +144,9 @@ $bookingStmt = $pdo->query("
         COALESCE($bookingProofSelect, $paymentProofSelect) AS bukti_pembayaran,
         COALESCE($bookingUploadSelect, $paymentUploadSelect) AS tanggal_upload,
         $paymentStatusSelect AS status_pembayaran,
-        $userNameSelect AS full_name,
+        COALESCE($userNameSelect, $paymentNameSelect, u.username) AS full_name,
         u.username,
-        $userPhoneSelect AS no_telp,
+        COALESCE($bookingPhoneSelect, $userPhoneSelect, $paymentPhoneSelect) AS no_telp,
         layanan_booking.nama_layanan
     FROM booking b
     LEFT JOIN user u ON u.id_user = b.id_user
@@ -170,7 +167,7 @@ $bookingStmt = $pdo->query("
             GROUP BY id_booking
         ) latest_p ON latest_p.id_pembayaran = p1.id_pembayaran
     ) p ON p.id_booking = b.id_booking
-    WHERE b.status_booking IN ('pending','dikonfirmasi','konfirmasi','selesai')
+    WHERE b.status_booking IN ('pending','konfirmasi','selesai')
     ORDER BY b.tgl_booking DESC
 ");
 
@@ -190,20 +187,22 @@ foreach ($bookingStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
     $status = $row['status_booking'] ?: 'pending';
 
     $bookingRows[] = [
-        'id' => (int) $row['id_booking'],
-        'paket' => $paket,
-        'kategori' => $kategori,
-        'customer' => $row['full_name'] ?: ($row['username'] ?: 'Client'),
-        'tgl' => $row['tgl_booking'] ? date('d F Y', strtotime($row['tgl_booking'])) : '-',
-        'status' => $status,
-        'alamat' => $row['catatan'] ?: '-',
-        'telp' => $row['no_telp'] ?: '-',
-        'token' => $token,
-        'payment_link' => $status === 'dikonfirmasi' ? confirmationLink((int) $row['id_booking'], $token) : '',
+        'id'               => (int) $row['id_booking'],
+        'paket'            => $paket,
+        'kategori'         => $kategori,
+        'customer'         => $row['full_name'] ?: ($row['username'] ?: 'Client'),
+        'tgl'              => $row['tgl_booking'] ? date('d F Y', strtotime($row['tgl_booking'])) : '-',
+        'status'           => $status,
+        'alamat'           => $row['catatan'] ?: '-',
+        'telp'             => $row['no_telp'] ?: '-',
+        'token'            => $token,
+        'payment_link'     => ($status === 'konfirmasi' && $token !== '')
+                                ? confirmationLink((int) $row['id_booking'], $token)
+                                : '',
         'bukti_pembayaran' => $bukti,
-        'bukti_url' => $bukti ? '../../assets/bukti_pembayaran/' . rawurlencode($bukti) : '',
-        'tanggal_upload' => $row['tanggal_upload'] ? date('d F Y H:i', strtotime($row['tanggal_upload'])) : '',
-        'status_pembayaran' => $row['status_pembayaran'] ?: '',
+        'bukti_url'        => $bukti ? '../../assets/bukti_pembayaran/' . rawurlencode($bukti) : '',
+        'tanggal_upload'   => $row['tanggal_upload'] ? date('d F Y H:i', strtotime($row['tanggal_upload'])) : '',
+        'status_pembayaran'=> $row['status_pembayaran'] ?: '',
     ];
 }
 
@@ -271,9 +270,7 @@ unset($_SESSION['booking_admin_flash']);
             line-height: 1.2;
         }
 
-        .sidebar-logo .brand span {
-            color: var(--brown-light);
-        }
+        .sidebar-logo .brand span { color: var(--brown-light); }
 
         .sidebar-logo .sub {
             font-size: 0.7rem;
@@ -283,10 +280,7 @@ unset($_SESSION['booking_admin_flash']);
             margin-top: 2px;
         }
 
-        .sidebar-nav {
-            flex: 1;
-            padding: 16px 0;
-        }
+        .sidebar-nav { flex: 1; padding: 16px 0; }
 
         .nav-label {
             font-size: 0.65rem;
@@ -310,10 +304,7 @@ unset($_SESSION['booking_admin_flash']);
             transition: all 0.2s;
         }
 
-        .nav-item a:hover {
-            color: var(--cream);
-            background: rgba(255,255,255,0.06);
-        }
+        .nav-item a:hover { color: var(--cream); background: rgba(255,255,255,0.06); }
 
         .nav-item a.active {
             color: var(--cream);
@@ -322,11 +313,7 @@ unset($_SESSION['booking_admin_flash']);
             font-weight: 500;
         }
 
-        .nav-item a i {
-            font-size: 1rem;
-            width: 18px;
-            text-align: center;
-        }
+        .nav-item a i { font-size: 1rem; width: 18px; text-align: center; }
 
         .sidebar-footer {
             padding: 16px 24px;
@@ -345,7 +332,7 @@ unset($_SESSION['booking_admin_flash']);
 
         .logout-btn:hover { color: #e07b6e; }
 
-        /* ===== MAIN CONTENT ===== */
+        /* ===== MAIN ===== */
         .main {
             margin-left: var(--sidebar-w);
             flex: 1;
@@ -367,11 +354,7 @@ unset($_SESSION['booking_admin_flash']);
             z-index: 50;
         }
 
-        .topbar-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
 
         .topbar-left .page-title {
             font-family: 'Playfair Display', serif;
@@ -380,16 +363,9 @@ unset($_SESSION['booking_admin_flash']);
             color: var(--brown-dark);
         }
 
-        .topbar-left .breadcrumb-nav {
-            font-size: 0.78rem;
-            color: var(--text-muted);
-        }
+        .topbar-left .breadcrumb-nav { font-size: 0.78rem; color: var(--text-muted); }
 
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
+        .topbar-right { display: flex; align-items: center; gap: 16px; }
 
         .search-box {
             display: flex;
@@ -425,91 +401,56 @@ unset($_SESSION['booking_admin_flash']);
         }
 
         .admin-avatar {
-            width: 30px;
-            height: 30px;
+            width: 30px; height: 30px;
             border-radius: 50%;
             background: var(--brown);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             color: var(--cream);
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 0.75rem; font-weight: 600;
         }
 
-        .admin-name {
-            font-size: 0.82rem;
-            font-weight: 500;
-            color: var(--text-main);
-        }
+        .admin-name { font-size: 0.82rem; font-weight: 500; color: var(--text-main); }
 
-        /* ===== PAGE CONTENT ===== */
-        .content {
-            padding: 24px;
-            flex: 1;
-            max-width: 100%;
-            overflow-x: hidden;
-        }
+        /* ===== CONTENT ===== */
+        .content { padding: 24px; flex: 1; max-width: 100%; overflow-x: hidden; }
 
-        .content-header {
-            margin-bottom: 28px;
-        }
+        .content-header { margin-bottom: 28px; }
 
         .content-header h2 {
             font-family: 'Playfair Display', serif;
-            font-size: 1.6rem;
-            font-weight: 600;
-            color: var(--brown-dark);
-            margin-bottom: 4px;
+            font-size: 1.6rem; font-weight: 600;
+            color: var(--brown-dark); margin-bottom: 4px;
         }
 
-        .content-header p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
+        .content-header p { font-size: 0.85rem; color: var(--text-muted); }
 
-        /* ===== QUICK ACCESS FOLDERS ===== */
+        /* ===== FOLDERS ===== */
         .section-label {
-            font-size: 0.68rem;
-            font-weight: 600;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 14px;
+            font-size: 0.68rem; font-weight: 600;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--text-muted); margin-bottom: 14px;
         }
 
         .folders-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom: 24px;
-            max-width: 100%;
+            gap: 12px; margin-bottom: 24px; max-width: 100%;
         }
 
         .folder-card {
             background: var(--white);
             border: 1.5px solid var(--cream-deep);
-            border-radius: 14px;
-            padding: 14px 16px;
-            cursor: pointer;
-            transition: all 0.22s;
+            border-radius: 14px; padding: 14px 16px;
+            cursor: pointer; transition: all 0.22s;
             text-decoration: none;
-            display: flex;
-            align-items: center;
-            flex-direction: row;
-            gap: 12px;
-            position: relative;
-            overflow: hidden;
+            display: flex; align-items: center; flex-direction: row; gap: 12px;
+            position: relative; overflow: hidden;
         }
 
         .folder-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: var(--brown-light);
-            opacity: 0;
-            transition: opacity 0.2s;
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: var(--brown-light); opacity: 0; transition: opacity 0.2s;
         }
 
         .folder-card:hover {
@@ -518,587 +459,250 @@ unset($_SESSION['booking_admin_flash']);
             transform: translateY(-2px);
         }
 
-        .folder-card:hover::before,
-        .folder-card.active::before { opacity: 1; }
+        .folder-card:hover::before, .folder-card.active::before { opacity: 1; }
 
-        .folder-card.active {
-            border-color: var(--brown);
-            background: var(--accent-soft);
-        }
+        .folder-card.active { border-color: var(--brown); background: var(--accent-soft); }
 
-        .folder-icon {
-            width: 42px;
-            height: 35px;
-            position: relative;
-            flex: 0 0 auto;
-        }
-
+        .folder-icon { width: 42px; height: 35px; position: relative; flex: 0 0 auto; }
         .folder-icon svg { width: 42px; height: 35px; }
-
-        .folder-name {
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: var(--brown-dark);
-        }
-
-        .folder-count {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            margin-top: -8px;
-        }
+        .folder-name { font-size: 0.82rem; font-weight: 600; color: var(--brown-dark); }
+        .folder-count { font-size: 0.72rem; color: var(--text-muted); margin-top: -8px; }
 
         /* ===== TABLE SECTION ===== */
         .table-section {
-            background: var(--white);
-            border-radius: 20px;
-            border: 1.5px solid var(--cream-deep);
-            overflow: hidden;
-            max-width: 100%;
+            background: var(--white); border-radius: 20px;
+            border: 1.5px solid var(--cream-deep); overflow: hidden; max-width: 100%;
         }
 
         .table-header {
-            padding: 14px 18px;
-            border-bottom: 1px solid var(--cream-deep);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--cream);
-            gap: 12px;
+            padding: 14px 18px; border-bottom: 1px solid var(--cream-deep);
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--cream); gap: 12px;
         }
 
-        .table-header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .table-header-left { display: flex; align-items: center; gap: 12px; }
 
         .table-header-left h3 {
             font-family: 'Playfair Display', serif;
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--brown-dark);
+            font-size: 1rem; font-weight: 600; color: var(--brown-dark);
         }
 
         .table-header-left .count-badge {
-            background: var(--brown);
-            color: var(--cream);
-            font-size: 0.7rem;
-            font-weight: 600;
-            padding: 2px 10px;
-            border-radius: 20px;
+            background: var(--brown); color: var(--cream);
+            font-size: 0.7rem; font-weight: 600;
+            padding: 2px 10px; border-radius: 20px;
         }
 
         .filter-tabs {
-            display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            max-width: 100%;
-            padding-bottom: 2px;
+            display: flex; gap: 6px; overflow-x: auto;
+            max-width: 100%; padding-bottom: 2px;
         }
 
         .filter-tab {
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 0.74rem;
-            font-weight: 500;
-            cursor: pointer;
-            border: 1px solid var(--cream-deep);
-            background: var(--white);
-            color: var(--text-muted);
-            transition: all 0.2s;
-            white-space: nowrap;
+            padding: 6px 10px; border-radius: 8px;
+            font-size: 0.74rem; font-weight: 500; cursor: pointer;
+            border: 1px solid var(--cream-deep); background: var(--white);
+            color: var(--text-muted); transition: all 0.2s; white-space: nowrap;
         }
 
         .filter-tab.active, .filter-tab:hover {
-            background: var(--brown);
-            color: var(--cream);
-            border-color: var(--brown);
+            background: var(--brown); color: var(--cream); border-color: var(--brown);
         }
 
         /* TABLE */
-        .booking-table {
-            width: 100%;
-            min-width: 980px;
-            border-collapse: collapse;
-        }
+        .booking-table { width: 100%; min-width: 980px; border-collapse: collapse; }
 
         .table-scroll {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+            width: 100%; max-width: 100%;
+            overflow-x: auto; -webkit-overflow-scrolling: touch;
         }
 
         .booking-table thead th {
             padding: 10px 12px;
-            font-size: 0.68rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            background: var(--cream);
+            font-size: 0.68rem; font-weight: 600;
+            letter-spacing: 0.5px; text-transform: uppercase;
+            color: var(--text-muted); background: var(--cream);
             border-bottom: 1px solid var(--cream-deep);
-            text-align: left;
-            white-space: nowrap;
+            text-align: left; white-space: nowrap;
         }
 
         .booking-table tbody tr {
-            border-bottom: 1px solid var(--cream-dark);
-            transition: background 0.15s;
+            border-bottom: 1px solid var(--cream-dark); transition: background 0.15s;
         }
 
         .booking-table tbody tr:last-child { border-bottom: none; }
-
         .booking-table tbody tr:hover { background: var(--cream); }
 
         .booking-table tbody td {
-            padding: 10px 12px;
-            font-size: 0.78rem;
-            color: var(--text-main);
-            vertical-align: middle;
+            padding: 10px 12px; font-size: 0.78rem;
+            color: var(--text-main); vertical-align: middle;
         }
 
-        .paket-cell {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
+        .paket-cell { display: flex; flex-direction: column; gap: 2px; }
+        .paket-name { font-weight: 600; color: var(--brown-dark); font-size: 0.78rem; }
+        .paket-type { font-size: 0.72rem; color: var(--text-muted); }
 
-        .paket-name {
-            font-weight: 600;
-            color: var(--brown-dark);
-            font-size: 0.78rem;
-        }
-
-        .paket-type {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-        }
-
-        .customer-cell {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .customer-cell { display: flex; align-items: center; gap: 10px; }
 
         .cust-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--accent-soft);
-            border: 1.5px solid var(--brown-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--brown);
-            flex-shrink: 0;
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--accent-soft); border: 1.5px solid var(--brown-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem; font-weight: 700; color: var(--brown); flex-shrink: 0;
         }
 
         /* STATUS BADGE */
         .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 0.7rem; font-weight: 600;
         }
 
         .status-badge::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
+            content: ''; width: 6px; height: 6px; border-radius: 50%;
         }
 
-        .status-lunas {
-            background: #EDF7ED;
-            color: #2E7D32;
-        }
-        .status-lunas::before { background: #43A047; }
+        .status-lunas  { background: #EDF7ED; color: #2E7D32; }
+        .status-lunas::before  { background: #43A047; }
 
-        .status-proses {
-            background: #FFF8E1;
-            color: #E65100;
+        .status-pending, .status-konfirmasi {
+            background: #FFF8E1; color: #E65100;
         }
-        .status-proses::before { background: #FF8F00; }
-
-        .status-dp {
-            background: #E8F4FD;
-            color: #1565C0;
-        }
-        .status-dp::before { background: #1E88E5; }
-
-        .status-batal {
-            background: #FDECEA;
-            color: #C62828;
-        }
-        .status-batal::before { background: #E53935; }
-
-        .status-pending,
-        .status-menunggu_pembayaran,
-        .status-konfirmasi {
-            background: #FFF8E1;
-            color: #E65100;
-        }
-        .status-pending::before,
-        .status-menunggu_pembayaran::before,
-        .status-konfirmasi::before { background: #FF8F00; }
+        .status-pending::before, .status-konfirmasi::before { background: #FF8F00; }
 
         /* ACTION BTNS */
-        .action-btns {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
+        .action-btns { display: flex; flex-wrap: wrap; gap: 6px; }
 
         .btn-action {
-            min-height: 30px;
-            border-radius: 8px;
-            border: 1px solid var(--cream-deep);
-            background: var(--white);
+            min-height: 30px; border-radius: 8px;
+            border: 1px solid var(--cream-deep); background: var(--white);
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            cursor: pointer; font-size: 0.74rem; color: var(--text-muted);
+            transition: all 0.2s; text-decoration: none;
+            padding: 6px 8px; white-space: nowrap;
+        }
+
+        .btn-action:hover { background: var(--brown); color: var(--cream); border-color: var(--brown); }
+        .btn-action.accept { color: #2E7D32; }
+        .btn-action.reject { color: #C62828; }
+        .btn-action.copy   { color: #1565C0; }
+
+        /* LINK PEMBAYARAN */
+        .payment-link-box {
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
             gap: 6px;
-            cursor: pointer;
-            font-size: 0.74rem;
+        }
+
+        .payment-link-text {
+            font-size: 0.7rem;
             color: var(--text-muted);
-            transition: all 0.2s;
-            text-decoration: none;
-            padding: 6px 8px;
+            word-break: break-all;
+            background: var(--cream);
+            border: 1px solid var(--cream-deep);
+            border-radius: 6px;
+            padding: 5px 8px;
+            max-width: 200px;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .btn-action.icon-only {
-            width: 30px;
-            padding: 0;
-        }
-
-        .btn-action:hover {
-            background: var(--brown);
-            color: var(--cream);
-            border-color: var(--brown);
-        }
-
-        .btn-action.accept {
-            color: #2E7D32;
-        }
-
-        .btn-action.reject {
-            color: #C62828;
-        }
-
-        .btn-action.copy {
-            color: #1565C0;
-        }
-
-        .muted-action {
-            color: var(--text-muted);
-            font-size: 0.74rem;
-            white-space: nowrap;
-        }
+        .muted-action { color: var(--text-muted); font-size: 0.74rem; white-space: nowrap; }
 
         .copy-toast {
-            position: fixed;
-            right: 24px;
-            bottom: 24px;
-            z-index: 9999;
-            background: var(--brown-dark);
-            color: var(--cream);
-            border-radius: 12px;
-            padding: 10px 14px;
-            box-shadow: 0 10px 30px rgba(44, 26, 14, 0.22);
-            font-size: 0.82rem;
-            opacity: 0;
-            transform: translateY(10px);
-            pointer-events: none;
-            transition: opacity 0.22s ease, transform 0.22s ease;
+            position: fixed; right: 24px; bottom: 24px; z-index: 9999;
+            background: var(--brown-dark); color: var(--cream);
+            border-radius: 12px; padding: 10px 14px;
+            box-shadow: 0 10px 30px rgba(44,26,14,0.22);
+            font-size: 0.82rem; opacity: 0; transform: translateY(10px);
+            pointer-events: none; transition: opacity 0.22s ease, transform 0.22s ease;
         }
 
-        .copy-toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .copy-toast.show { opacity: 1; transform: translateY(0); }
 
         .payment-proof-img {
-            max-width: 100%;
-            border-radius: 14px;
-            border: 1px solid var(--cream-deep);
+            max-width: 100%; border-radius: 14px; border: 1px solid var(--cream-deep);
         }
 
         /* EMPTY STATE */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-muted);
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            opacity: 0.3;
-            margin-bottom: 12px;
-            display: block;
-        }
-
-        .empty-state p {
-            font-size: 0.88rem;
-        }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-state i { font-size: 3rem; opacity: 0.3; margin-bottom: 12px; display: block; }
+        .empty-state p { font-size: 0.88rem; }
 
         /* PAGINATION */
         .table-footer {
-            padding: 14px 24px;
-            border-top: 1px solid var(--cream-deep);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            padding: 14px 24px; border-top: 1px solid var(--cream-deep);
+            display: flex; align-items: center; justify-content: space-between;
             background: var(--cream);
         }
 
-        .table-footer .info {
-            font-size: 0.78rem;
-            color: var(--text-muted);
-        }
-
-        .pagination-btns {
-            display: flex;
-            gap: 6px;
-        }
+        .table-footer .info { font-size: 0.78rem; color: var(--text-muted); }
+        .pagination-btns { display: flex; gap: 6px; }
 
         .pg-btn {
-            width: 30px;
-            height: 30px;
-            border-radius: 8px;
-            border: 1px solid var(--cream-deep);
-            background: var(--white);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            transition: all 0.2s;
+            width: 30px; height: 30px; border-radius: 8px;
+            border: 1px solid var(--cream-deep); background: var(--white);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 0.78rem; font-weight: 600;
+            color: var(--text-muted); transition: all 0.2s;
         }
 
         .pg-btn.active, .pg-btn:hover {
-            background: var(--brown);
-            color: var(--cream);
-            border-color: var(--brown);
+            background: var(--brown); color: var(--cream); border-color: var(--brown);
         }
 
         @media (max-width: 1199px) {
-            .folders-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                max-width: 100%;
-            }
-
-            .booking-table {
-                width: 100%;
-                min-width: 920px;
-                table-layout: auto;
-            }
-
-            .booking-table thead th,
-            .booking-table tbody td {
-                white-space: nowrap;
-            }
+            .folders-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .booking-table { min-width: 920px; table-layout: auto; }
+            .booking-table thead th, .booking-table tbody td { white-space: nowrap; }
         }
 
         @media (max-width: 991px) {
-            body {
-                display: block;
-            }
-
-            .sidebar {
-                position: relative;
-                width: 100%;
-                min-height: auto;
-            }
-
-            .sidebar-logo {
-                padding: 20px 24px 14px;
-            }
-
-            .sidebar-nav {
-                flex: none;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 6px;
-                padding: 12px 16px;
-            }
-
-            .nav-label {
-                width: 100%;
-                padding: 8px 8px 2px;
-            }
-
-            .nav-item a {
-                border-left: 0;
-                border-radius: 10px;
-                padding: 10px 14px;
-                background: rgba(255,255,255,0.04);
-            }
-
-            .nav-item a.active {
-                border-left-color: transparent;
-                background: rgba(196,168,130,0.22);
-            }
-
-            .sidebar-footer {
-                padding: 12px 24px 18px;
-            }
-
-            .main {
-                margin-left: 0;
-                min-height: auto;
-            }
-
-            .topbar {
-                position: relative;
-                padding: 16px 24px;
-                gap: 16px;
-                flex-wrap: wrap;
-            }
-
-            .topbar-right {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .search-box {
-                flex: 1;
-            }
-
-            .search-box input {
-                width: 100%;
-            }
-
-            .content {
-                padding: 24px;
-            }
-
-            .table-header {
-                align-items: flex-start;
-                gap: 14px;
-                flex-direction: column;
-            }
-
-            .filter-tabs {
-                width: 100%;
-                overflow-x: auto;
-                padding-bottom: 2px;
-            }
-
-            .filter-tab {
-                flex: 0 0 auto;
-            }
+            body { display: block; }
+            .sidebar { position: relative; width: 100%; min-height: auto; }
+            .sidebar-logo { padding: 20px 24px 14px; }
+            .sidebar-nav { flex: none; display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 16px; }
+            .nav-label { width: 100%; padding: 8px 8px 2px; }
+            .nav-item a { border-left: 0; border-radius: 10px; padding: 10px 14px; background: rgba(255,255,255,0.04); }
+            .nav-item a.active { border-left-color: transparent; background: rgba(196,168,130,0.22); }
+            .sidebar-footer { padding: 12px 24px 18px; }
+            .main { margin-left: 0; min-height: auto; }
+            .topbar { position: relative; padding: 16px 24px; gap: 16px; flex-wrap: wrap; }
+            .topbar-right { width: 100%; justify-content: space-between; }
+            .search-box { flex: 1; }
+            .search-box input { width: 100%; }
+            .content { padding: 24px; }
+            .table-header { align-items: flex-start; gap: 14px; flex-direction: column; }
+            .filter-tabs { width: 100%; overflow-x: auto; padding-bottom: 2px; }
+            .filter-tab { flex: 0 0 auto; }
         }
 
         @media (max-width: 767px) {
-            .content {
-                padding: 20px 16px 28px;
-            }
-
-            .content-header {
-                margin-bottom: 22px;
-            }
-
-            .content-header h2 {
-                font-size: 1.35rem;
-            }
-
-            .folders-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-                margin-bottom: 24px;
-            }
-
-            .folder-card {
-                flex-direction: row;
-                align-items: center;
-                padding: 16px;
-                border-radius: 14px;
-            }
-
-            .table-section {
-                border-radius: 16px;
-            }
-
-            .table-header,
-            .table-footer {
-                padding: 16px;
-            }
-
-            .table-footer {
-                align-items: flex-start;
-                flex-direction: column;
-                gap: 12px;
-            }
-
-            .pagination-btns {
-                width: 100%;
-                overflow-x: auto;
-                padding-bottom: 2px;
-            }
-
-            .booking-table thead th,
-            .booking-table tbody td {
-                padding: 9px 10px;
-            }
+            .content { padding: 20px 16px 28px; }
+            .content-header { margin-bottom: 22px; }
+            .content-header h2 { font-size: 1.35rem; }
+            .folders-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px; }
+            .folder-card { flex-direction: row; align-items: center; padding: 16px; border-radius: 14px; }
+            .table-section { border-radius: 16px; }
+            .table-header, .table-footer { padding: 16px; }
+            .table-footer { align-items: flex-start; flex-direction: column; gap: 12px; }
+            .pagination-btns { width: 100%; overflow-x: auto; padding-bottom: 2px; }
+            .booking-table thead th, .booking-table tbody td { padding: 9px 10px; }
         }
 
         @media (max-width: 575px) {
-            .sidebar-logo .brand {
-                font-size: 1rem;
-            }
-
-            .sidebar-nav {
-                display: grid;
-                grid-template-columns: 1fr;
-            }
-
-            .nav-label {
-                padding-left: 8px;
-            }
-
-            .nav-item a {
-                width: 100%;
-            }
-
-            .topbar {
-                padding: 14px 16px;
-            }
-
-            .topbar-right {
-                align-items: stretch;
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .admin-badge {
-                justify-content: flex-start;
-            }
-
-            .section-label {
-                margin-bottom: 10px;
-            }
-
-            .filter-tabs {
-                gap: 8px;
-            }
-
-            .filter-tab {
-                padding: 7px 12px;
-            }
-
-            .table-header-left {
-                width: 100%;
-                justify-content: space-between;
-            }
+            .sidebar-logo .brand { font-size: 1rem; }
+            .sidebar-nav { display: grid; grid-template-columns: 1fr; }
+            .nav-label { padding-left: 8px; }
+            .nav-item a { width: 100%; }
+            .topbar { padding: 14px 16px; }
+            .topbar-right { align-items: stretch; flex-direction: column; gap: 10px; }
+            .admin-badge { justify-content: flex-start; }
+            .section-label { margin-bottom: 10px; }
+            .filter-tabs { gap: 8px; }
+            .filter-tab { padding: 7px 12px; }
+            .table-header-left { width: 100%; justify-content: space-between; }
         }
     </style>
     <link href="../assets/admin-brown.css" rel="stylesheet">
@@ -1110,7 +714,6 @@ $page = 'booking';
 include 'include/sidebar.php';
 ?>
 
-<!-- MAIN -->
 <div class="main">
 
     <?php
@@ -1119,7 +722,6 @@ include 'include/sidebar.php';
     include 'include/header.php';
     ?>
 
-    <!-- CONTENT -->
     <div class="content">
         <?php if ($flash): ?>
             <div class="alert alert-<?= htmlspecialchars($flash['type'], ENT_QUOTES, 'UTF-8'); ?> alert-dismissible fade show" role="alert">
@@ -1133,7 +735,6 @@ include 'include/sidebar.php';
             <p>Kelola semua booking dari client berdasarkan kategori layanan</p>
         </div>
 
-        <!-- QUICK ACCESS FOLDERS -->
         <div class="section-label">Quick Access</div>
         <div class="folders-grid">
 
@@ -1205,7 +806,6 @@ include 'include/sidebar.php';
 
         </div>
 
-        <!-- TABLE -->
         <div class="table-section">
             <div class="table-header">
                 <div class="table-header-left">
@@ -1230,14 +830,12 @@ include 'include/sidebar.php';
                             <th>Status</th>
                             <th>Alamat</th>
                             <th>No. Telp</th>
-                            <th>Buat Halaman Pembayaran</th>
-                            <th>Lihat Bukti Pembayaran</th>
+                            <th>Link Pembayaran</th>
+                            <th>Bukti Pembayaran</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody">
-                        <!-- diisi via JS -->
-                    </tbody>
+                    <tbody id="tableBody"></tbody>
                 </table>
             </div>
 
@@ -1255,6 +853,7 @@ include 'include/sidebar.php';
     </div>
 </div>
 
+<!-- Modal Bukti -->
 <div class="modal fade" id="buktiModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -1274,22 +873,25 @@ include 'include/sidebar.php';
     </div>
 </div>
 
-<div class="copy-toast" id="copyToast">Link berhasil disalin</div>
+<div class="copy-toast" id="copyToast">
+    <i class="bi bi-check2"></i> Link berhasil disalin!
+</div>
 
 <script>
 const bookingData = <?= json_encode($bookingRows, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
 
-let currentFolder  = 'semua';
-let currentStatus  = 'semua';
-let currentSearch  = '';
-const perPage      = 6;
-let currentPage    = 1;
+let currentFolder = 'semua';
+let currentStatus = 'semua';
+let currentSearch = '';
+const perPage     = 6;
+let currentPage   = 1;
 
+// Status: hanya 4 — pending, konfirmasi, selesai (+ dikonfirmasi sebagai fallback lama)
 const statusLabels = {
-    pending:               { label:'Pending', cls:'status-pending' },
-    dikonfirmasi:          { label:'Dikonfirmasi', cls:'status-menunggu_pembayaran' },
-    konfirmasi:            { label:'Konfirmasi Pembayaran', cls:'status-konfirmasi' },
-    selesai:               { label:'Selesai', cls:'status-lunas' },
+    pending:      { label: 'Pending',      cls: 'status-pending' },
+    konfirmasi:   { label: 'Konfirmasi',   cls: 'status-konfirmasi' },
+    dikonfirmasi: { label: 'Konfirmasi',   cls: 'status-konfirmasi' }, // fallback data lama
+    selesai:      { label: 'Selesai',      cls: 'status-lunas' },
 };
 
 function escapeHtml(value) {
@@ -1303,91 +905,100 @@ function escapeHtml(value) {
 
 function actionForm(id, action, label, icon, cls = '') {
     return `
-        <form method="post" action="booking.php" onsubmit="return confirm('Lanjutkan aksi ini?');">
+        <form method="post" action="booking.php" onsubmit="return confirm('Lanjutkan aksi ini?');" style="display:inline;">
             <input type="hidden" name="id_booking" value="${id}">
             <input type="hidden" name="booking_action" value="${action}">
             <button type="submit" class="btn-action ${cls}">
                 <i class="bi ${icon}"></i> ${label}
             </button>
-        </form>
-    `;
+        </form>`;
 }
 
+// Kolom "Link Pembayaran": tampil hanya saat status konfirmasi & ada payment_link
 function renderPaymentTools(b) {
-    if (b.status !== 'dikonfirmasi' || !b.payment_link) {
-        return '';
+    if (b.status !== 'konfirmasi' || !b.payment_link) {
+        return '<span class="muted-action">-</span>';
     }
 
-    const link = escapeHtml(b.payment_link);
+    // Encode link untuk atribut HTML (sudah di-escape di escapeHtml),
+    // tapi untuk onclick kita pakai data attribute agar aman dari kutip
+    const linkEscaped = escapeHtml(b.payment_link);
     return `
-        <div class="action-btns">
-            <button type="button" class="btn-action copy" onclick="copyPaymentLink('${link}')">
-                <i class="bi bi-clipboard"></i> Salin Link
-            </button>
-        </div>
-    `;
+        <div class="payment-link-box">
+            <div class="payment-link-text" title="${linkEscaped}">${linkEscaped}</div>
+            <div class="action-btns">
+                <a href="${linkEscaped}" target="_blank" rel="noopener" class="btn-action">
+                    <i class="bi bi-box-arrow-up-right"></i> Buka
+                </a>
+                <button type="button" class="btn-action copy"
+                    onclick="copyPaymentLink(this)"
+                    data-link="${linkEscaped}">
+                    <i class="bi bi-clipboard"></i> Salin
+                </button>
+            </div>
+        </div>`;
 }
 
+// Kolom "Bukti Pembayaran"
 function renderProofTools(b) {
     if (!b.bukti_url) {
-        return '';
+        return '<span class="muted-action">Belum ada</span>';
     }
-
     const url = escapeHtml(b.bukti_url);
     return `
         <div class="action-btns">
+            <button type="button" class="btn-action" onclick="showBukti('${url}')">
+                <i class="bi bi-eye"></i> Lihat
+            </button>
             <a href="${url}" class="btn-action" download>
                 <i class="bi bi-download"></i> Download
             </a>
         </div>
-        <div class="muted-action">${escapeHtml(b.tanggal_upload)}</div>
-    `;
+        <div class="muted-action" style="margin-top:4px;">${escapeHtml(b.tanggal_upload)}</div>`;
 }
 
+// Kolom "Aksi"
 function renderActions(b) {
     if (b.status === 'pending') {
         return `
             <div class="action-btns">
-                ${actionForm(b.id, 'terima_pesanan', 'Konfirmasi Booking', 'bi-check2-circle', 'accept')}
-                ${actionForm(b.id, 'tolak_pesanan', 'Tolak Pesanan', 'bi-x-circle', 'reject')}
-            </div>
-        `;
+                ${actionForm(b.id, 'terima_pesanan',  'Konfirmasi Booking', 'bi-check2-circle', 'accept')}
+                ${actionForm(b.id, 'tolak_pesanan',   'Tolak',              'bi-x-circle',      'reject')}
+            </div>`;
     }
 
-    if (b.status === 'dikonfirmasi') {
-        return '<span class="muted-action">Menunggu pembayaran client</span>';
-    }
-
-    if (b.status === 'konfirmasi') {
+    if (b.status === 'konfirmasi' || b.status === 'dikonfirmasi') {
         return `
             <div class="action-btns">
                 ${actionForm(b.id, 'konfirmasi_pembayaran', 'Konfirmasi Pembayaran', 'bi-check2-circle', 'accept')}
-                ${actionForm(b.id, 'tolak_pembayaran', 'Tolak Pembayaran', 'bi-x-circle', 'reject')}
-            </div>
-        `;
+                ${actionForm(b.id, 'tolak_pembayaran',      'Tolak Pembayaran',      'bi-x-circle',      'reject')}
+            </div>`;
     }
 
     if (b.status === 'selesai') {
-        return '<span class="muted-action">Selesai</span>';
+        return '<span class="muted-action"><i class="bi bi-check-all"></i> Selesai</span>';
     }
 
-    return '<span class="muted-action">Tidak ada aksi</span>';
+    return '<span class="muted-action">-</span>';
 }
 
 function initCounts() {
     document.getElementById('count-semua').textContent  = bookingData.length + ' booking';
-    document.getElementById('count-makeup').textContent = bookingData.filter(b=>b.kategori==='makeup').length  + ' booking';
-    document.getElementById('count-dekor').textContent  = bookingData.filter(b=>b.kategori==='dekor').length   + ' booking';
-    document.getElementById('count-kostum').textContent = bookingData.filter(b=>b.kategori==='kostum').length  + ' booking';
+    document.getElementById('count-makeup').textContent = bookingData.filter(b => b.kategori === 'makeup').length  + ' booking';
+    document.getElementById('count-dekor').textContent  = bookingData.filter(b => b.kategori === 'dekor').length   + ' booking';
+    document.getElementById('count-kostum').textContent = bookingData.filter(b => b.kategori === 'kostum').length  + ' booking';
 }
 
 function getFiltered() {
     return bookingData.filter(b => {
-        const folderMatch  = currentFolder === 'semua' || b.kategori === currentFolder;
-        const statusMatch  = currentStatus === 'semua' || b.status === currentStatus;
-        const searchMatch  = currentSearch === '' ||
-            b.paket.toLowerCase().includes(currentSearch) ||
-            b.customer.toLowerCase().includes(currentSearch);
+        const folderMatch = currentFolder === 'semua' || b.kategori === currentFolder;
+        // Filter tab "konfirmasi" menangkap kedua nilai status lama & baru
+        const statusMatch = currentStatus === 'semua'
+            || b.status === currentStatus
+            || (currentStatus === 'konfirmasi' && b.status === 'dikonfirmasi');
+        const searchMatch = currentSearch === ''
+            || b.paket.toLowerCase().includes(currentSearch)
+            || b.customer.toLowerCase().includes(currentSearch);
         return folderMatch && statusMatch && searchMatch;
     });
 }
@@ -1414,7 +1025,7 @@ function renderTable() {
                 <td>
                     <div class="paket-cell">
                         <div class="paket-name">${escapeHtml(b.paket)}</div>
-                        <div class="paket-type">${escapeHtml(b.kategori.charAt(0).toUpperCase()+b.kategori.slice(1))}</div>
+                        <div class="paket-type">${escapeHtml(b.kategori.charAt(0).toUpperCase() + b.kategori.slice(1))}</div>
                     </div>
                 </td>
                 <td>
@@ -1443,7 +1054,7 @@ function renderPagination(total) {
     if (pages <= 1) { pg.innerHTML = ''; return; }
     let html = '';
     for (let i = 1; i <= pages; i++) {
-        html += `<div class="pg-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</div>`;
+        html += `<div class="pg-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</div>`;
     }
     pg.innerHTML = html;
 }
@@ -1455,7 +1066,7 @@ function setFolder(folder, el) {
     currentPage   = 1;
     document.querySelectorAll('.folder-card').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
-    const titles = { semua:'All Files', makeup:'Makeup', dekor:'Dekor', kostum:'Kostum' };
+    const titles = { semua: 'All Files', makeup: 'Makeup', dekor: 'Dekor', kostum: 'Kostum' };
     document.getElementById('table-title').textContent = titles[folder] || folder;
     renderTable();
 }
@@ -1469,28 +1080,18 @@ function filterStatus(status, el) {
 }
 
 function filterTable() {
-    currentSearch = document.getElementById('searchInput').value.toLowerCase();
+    currentSearch = (document.getElementById('searchInput')?.value || '').toLowerCase();
     currentPage   = 1;
     renderTable();
 }
 
-function lihat(id) {
-    const booking = bookingData.find(b => b.id === id);
-    if (!booking) return;
-    alert(
-        'Detail Booking #' + id + '\n' +
-        'Paket: ' + booking.paket + '\n' +
-        'Customer: ' + booking.customer + '\n' +
-        'Tanggal: ' + booking.tgl + '\n' +
-        'Status: ' + booking.status
-    );
-}
-
-function copyPaymentLink(link) {
+// Gunakan data-link attribute agar link tidak rusak oleh kutip dalam onclick
+function copyPaymentLink(btn) {
+    const link = btn.getAttribute('data-link');
     navigator.clipboard.writeText(link).then(() => {
         showCopyToast();
     }).catch(() => {
-        prompt('Salin link konfirmasi akhir:', link);
+        prompt('Salin link pembayaran:', link);
     });
 }
 
@@ -1498,7 +1099,7 @@ function showCopyToast() {
     const toast = document.getElementById('copyToast');
     toast.classList.add('show');
     clearTimeout(window.copyToastTimer);
-    window.copyToastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+    window.copyToastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
 function showBukti(url) {

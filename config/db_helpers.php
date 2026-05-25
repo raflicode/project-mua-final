@@ -55,6 +55,11 @@ if (!function_exists('ensure_dynamic_booking_schema')) {
             db_columns($pdo, 'booking', true);
         }
 
+        if (!db_has_column($pdo, 'booking', 'no_telp')) {
+            $pdo->exec("ALTER TABLE booking ADD no_telp varchar(20) DEFAULT NULL AFTER id_jadwal");
+            db_columns($pdo, 'booking', true);
+        }
+
         if (!db_has_column($pdo, 'layanan', 'variant_data')) {
             $pdo->exec("ALTER TABLE layanan ADD COLUMN variant_data TEXT DEFAULT NULL AFTER foto_layanan");
             db_columns($pdo, 'layanan', true);
@@ -66,6 +71,9 @@ if (!function_exists('ensure_dynamic_booking_schema')) {
                 WHEN status_booking IN ('menunggu_pembayaran','menunggu_konfirmasi','pesanan_dibuat','lunas','dibayar','diproses') THEN 'dikonfirmasi'
                 WHEN status_booking = 'dibatalkan' THEN 'dibatalkan'
                 WHEN status_booking = 'selesai' THEN 'selesai'
+                WHEN status_booking = 'pending' THEN 'pending'
+                WHEN status_booking = 'konfirmasi' THEN 'konfirmasi'
+                WHEN status_booking = 'dikonfirmasi' THEN 'dikonfirmasi'
                 ELSE 'pending'
             END
         ");
