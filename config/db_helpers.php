@@ -76,4 +76,34 @@ if (!function_exists('ensure_dynamic_booking_schema')) {
         ");
     }
 }
+
+if (!function_exists('db_has_table')) {
+    function db_has_table(PDO $pdo, string $table): bool
+    {
+        // Use information_schema with a prepared statement for compatibility
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?");
+        $stmt->execute([$table]);
+        return (bool) ((int) $stmt->fetchColumn());
+    }
+}
+
+if (!function_exists('ensure_dynamic_gallery_schema')) {
+    function ensure_dynamic_gallery_schema(PDO $pdo): void
+    {
+        if (!db_has_table($pdo, 'gallery')) {
+            $pdo->exec("CREATE TABLE gallery (
+                id_gallery bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+                kategori enum('makeup','kostum','dekor') NOT NULL DEFAULT 'makeup',
+                judul varchar(150) NOT NULL,
+                deskripsi text DEFAULT NULL,
+                foto varchar(255) DEFAULT NULL,
+                urutan int(11) NOT NULL DEFAULT 0,
+                is_active tinyint(1) NOT NULL DEFAULT 1,
+                created_at timestamp NOT NULL DEFAULT current_timestamp(),
+                updated_at timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+                PRIMARY KEY (id_gallery)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+        }
+    }
+}
 ?>

@@ -139,6 +139,11 @@ $page = $page ?? pathinfo($_SERVER['SCRIPT_NAME'] ?? '', PATHINFO_FILENAME);
         Data Layanan
     </a>
 
+    <a href="data_gallery.php" class="<?= ($page === 'data_gallery' || $page === 'gallery') ? 'active' : '' ?>">
+        <i class="bi bi-images"></i>
+        Data Gallery
+    </a>
+
     <a href="logout.php">
         <i class="bi bi-box-arrow-left"></i>
         Logout
