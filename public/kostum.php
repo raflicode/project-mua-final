@@ -532,15 +532,16 @@ document.getElementById('modalBookingBtn').addEventListener('click',()=>{
 
 document.getElementById('btnKeranjang').addEventListener('click',()=>{
     const v   = kostumData[idxKostum].variasi[idxVariasi];
-    const num = parseInt(v.harga.replace(/[^0-9]/g,''));
-    const id  = idxKostum * 100 + idxVariasi;
+    const num = Number(v.harga_value || String(v.harga).replace(/[^0-9]/g,''));
+    const id  = v.id || null;
     if(typeof addToCart === 'function'){
-        addToCart(id, v.nama, num, v.foto);
+        addToCart(v.nama, 'kostum', num, v.foto, id);
     } else {
         let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
-        const idx = cart.findIndex(i=>i.id===id);
+        const fallbackId = id || `${idxKostum}-${idxVariasi}`;
+        const idx = cart.findIndex(i=>i.id===fallbackId);
         if(idx > -1) cart[idx].qty += 1;
-        else cart.push({ id, nama:v.nama, harga:num, foto:v.foto, qty:1 });
+        else cart.push({ id:fallbackId, nama:v.nama, harga:num, foto:v.foto, qty:1 });
         localStorage.setItem('yayuk_cart', JSON.stringify(cart));
         alert(v.nama + ' berhasil ditambah ke keranjang!');
     }
