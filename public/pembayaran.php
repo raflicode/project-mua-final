@@ -242,7 +242,7 @@ if (!empty($errors)) {
                 <div class="card card-custom">
                     <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <div>
-                            <h2>Data Pelanggan & Metode</h2>
+                            <h2>Data Pelanggan</h2>
                             <p class="text-muted small mb-0 mt-1">Lengkapi informasi berikut untuk validasi booking.</p>
                         </div>
                         <span class="step-badge"><i class="bi bi-check-circle-fill"></i> Langkah 3 dari 3</span>
@@ -260,19 +260,6 @@ if (!empty($errors)) {
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" for="hp">No. Handphone</label>
                                 <input type="tel" id="hp" inputmode="numeric" pattern="[0-9]*" name="hp" class="form-control" value="<?= htmlspecialchars($formData['hp'] ?? '', ENT_QUOTES) ?>" required oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder="Contoh: 08123456xxx">
-                            </div>
-
-                            <!-- Pilihan Metode Pembayaran -->
-                            <div class="col-12 mb-4">
-                                <label class="form-label" for="metode">Metode Pembayaran</label>
-                                <select id="metode" name="metode" class="form-select" required>
-                                    <option value="">-- Pilih Metode Pembayaran --</option>
-                                    <option value="DANA" <?= (isset($formData['metode']) && $formData['metode'] === 'DANA') ? 'selected' : '' ?>>DANA</option>
-                                    <option value="OVO" <?= (isset($formData['metode']) && $formData['metode'] === 'OVO') ? 'selected' : '' ?>>OVO</option>
-                                    <option value="GOPAY" <?= (isset($formData['metode']) && $formData['metode'] === 'GOPAY') ? 'selected' : '' ?>>GOPAY</option>
-                                    <option value="Transfer Bank" <?= (isset($formData['metode']) && $formData['metode'] === 'Transfer Bank') ? 'selected' : '' ?>>Transfer Bank</option>
-                                    <option value="COD" <?= (isset($formData['metode']) && $formData['metode'] === 'COD') ? 'selected' : '' ?>>COD (Bayar di Tempat)</option>
-                                </select>
                             </div>
 
                             <!-- Section Alamat & Catatan -->

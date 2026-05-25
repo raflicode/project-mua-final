@@ -35,7 +35,6 @@ if (empty($_SESSION['draft_booking']['id_jadwal'])) {
 // Sanitize dan validasi input
 $nama = trim(filter_input(INPUT_POST, 'nama', FILTER_SANITIZE_STRING));
 $hp = trim(filter_input(INPUT_POST, 'hp', FILTER_SANITIZE_STRING));
-$metode = trim(filter_input(INPUT_POST, 'metode', FILTER_SANITIZE_STRING));
 $alamat = trim(filter_input(INPUT_POST, 'alamat', FILTER_SANITIZE_STRING));
 
 // Validasi data
@@ -48,18 +47,13 @@ if (empty($nama)) {
     $errors[] = 'Nama hanya boleh mengandung huruf dan spasi';
 }
 
-// Validasi HP
+// Validasi No HP
 if (empty($hp)) {
-    $errors[] = 'No Handphone harus diisi';
+    $errors[] = 'No HP harus diisi';
 } elseif (!preg_match('/^[0-9]+$/', $hp)) {
-    $errors[] = 'No Handphone hanya boleh mengandung angka';
+    $errors[] = 'No HP hanya boleh mengandung angka';
 } elseif (strlen($hp) < 10 || strlen($hp) > 12) {
     $errors[] = 'No Handphone harus 10-12 digit';
-}
-
-// Validasi metode
-if (empty($metode)) {
-    $errors[] = 'Metode pembayaran harus dipilih';
 }
 
 // Validasi alamat
@@ -73,7 +67,6 @@ if (!empty($errors)) {
     $_SESSION['form_data'] = [
         'nama' => $nama,
         'hp' => $hp,
-        'metode' => $metode,
         'alamat' => $alamat
     ];
     header('Location: ../public/pembayaran.php' . $fromParam);
@@ -84,9 +77,7 @@ if (!empty($errors)) {
 $_SESSION['pembayaran'] = [
     'nama' => $nama,
     'hp' => $hp,
-    'metode' => $metode,
     'alamat' => $alamat,
-    
     'catatan' => trim(filter_input(INPUT_POST, 'catatan', FILTER_SANITIZE_STRING) ?? '')
 ];
 
