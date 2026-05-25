@@ -316,6 +316,19 @@ body {
     margin-top: 110px;
     margin-bottom: 20px;
 }
+.label-waktu {
+    font-weight: 600; /* Membuat teks tebal/semibold */
+    display: block;
+    margin-bottom: 8px; /* Memberi jarak antara label dan input */
+}
+
+.input-waktu {
+    width: 10%; /* Atur angka ini untuk memendekkan lebar (contoh: 150px, 200px, atau 20%) */
+    padding: 10px 15px; /* Menjaga ukuran input tetap proporsional */
+    border: 1px solid #E5E5E5;
+    border-radius: 8px; /* Melanjutkan lengkungan yang pas dari sebelumnya */
+    font-size: 16px; /* Ukuran teks di dalam input */
+}
 </style>
 </head>
 
@@ -374,16 +387,16 @@ body {
 
         <div class="mb-3">
 
-    <label class="form-label fw-semibold">
-        Pilih Jam Booking
-    </label>
+    <label class="label-waktu">
+    Pilih Jam Booking
+</label>
 
-    <input
-        type="time"
-        name="jam_mulai"
-        class="form-control form-control-lg"
-        required
-    >
+<input
+    type="time"
+    name="jam_mulai"
+    class="input-waktu"
+    required
+>
 
 </div>
 
