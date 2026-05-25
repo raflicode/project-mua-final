@@ -154,15 +154,20 @@ unset($_SESSION['gallery_flash']);
         .gallery-table { width:100%; border-collapse:collapse; }
         .gallery-table th, .gallery-table td { padding:14px 12px; border-bottom:1px solid #e8e1d7; vertical-align:middle; }
         .gallery-table th { background:var(--cream); color:var(--brown-dark); font-weight:600; text-align:left; }
-        .thumb-img { width:110px; border-radius:14px; object-fit:cover; height:80px; }
+        .thumb-img { width:100%; max-width:110px; border-radius:14px; object-fit:cover; height:80px; }
+        .gallery-table td { word-break: break-word; }
         .badge-kategori { padding:6px 10px; border-radius:999px; font-size:0.75rem; font-weight:600; }
         .badge-makeup { background:#fde8e8; color:#c62828; }
         .badge-dekor { background:#e8f4fd; color:#1565c0; }
         .badge-kostum { background:#f1f4e7; color:#4f772d; }
-        .btn-action { display:inline-flex; align-items:center; gap:6px; }
+        .btn-action { display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap; }
         .uploads-note { font-size:0.8rem; color:var(--text-muted); }
         .img-modal { width:100%; max-height:60vh; object-fit:contain; border-radius:14px; }
         @media (min-width: 768px) { .form-grid { grid-template-columns: 1.4fr 0.6fr; } }
+        @media (max-width: 991.98px) {
+            .sidebar { position:relative; width:100%; min-height:auto; }
+            .content { margin-left:0; padding:16px; }
+        }
     </style>
 </head>
 <body>
@@ -170,6 +175,12 @@ unset($_SESSION['gallery_flash']);
 <?php
 $page = 'data_gallery';
 include 'include/sidebar.php';
+?>
+
+<?php
+$page_title = 'Data Gallery';
+$breadcrumb = 'Admin / Data Gallery';
+include 'include/header.php';
 ?>
 
 <div class="content">
@@ -186,14 +197,13 @@ include 'include/sidebar.php';
     </div>
 
     <div class="card-custom">
-        <div class="d-flex align-items-center justify-content-between" style="margin-bottom:18px;">
+        <div class="d-flex align-items-center" style="margin-bottom:18px;">
             <h4 id="galleryFormTitle">Tambah Gallery Baru</h4>
-            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetGalleryForm()">Tambah Baru</button>
         </div>
         <form method="post" enctype="multipart/form-data" onsubmit="return validateGalleryForm(event);">
-            <div class="form-grid">
-                <div>
-                    <div class="form-group">
+            <div class="row gx-4 gy-3">
+                <div class="col-lg-8">
+                    <div class="form-group mb-3">
                         <label for="kategori_gallery">Kategori</label>
                         <select id="kategori_gallery" name="kategori_gallery">
                             <option value="makeup">Makeup</option>
@@ -201,31 +211,31 @@ include 'include/sidebar.php';
                             <option value="kostum">Kostum</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mb-3">
                         <label for="judul_gallery">Judul Gambar</label>
                         <input type="text" id="judul_gallery" name="judul_gallery" placeholder="Judul gambar" required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mb-3">
                         <label for="deskripsi_gallery">Deskripsi</label>
                         <textarea id="deskripsi_gallery" name="deskripsi_gallery" rows="4" placeholder="Deskripsi singkat"></textarea>
                     </div>
                 </div>
 
-                <div>
-                    <div class="form-group">
+                <div class="col-lg-4">
+                    <div class="form-group mb-3">
                         <label for="urutan_gallery">Urutan Tampil</label>
                         <input type="number" id="urutan_gallery" name="urutan_gallery" value="0" min="0">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mb-3">
                         <label for="foto_gallery">Unggah Foto</label>
                         <input type="file" id="foto_gallery" name="foto_gallery" accept="image/jpeg,image/png,image/webp">
                         <p class="uploads-note">Format JPG, PNG, WEBP. Ukuran file max 5MB.</p>
-                        <img id="fotoGalleryPreview" src="" alt="Preview Foto" style="display:none; width:100%; max-height:240px; object-fit:cover; border-radius:12px; margin-top:12px; border:1px solid #e8e1d7;">
+                        <img id="fotoGalleryPreview" src="" alt="Preview Foto" class="w-100" style="display:none; max-height:240px; object-fit:cover; border-radius:12px; margin-top:12px; border:1px solid #e8e1d7;">
                     </div>
                     <input type="hidden" id="id_gallery" name="id_gallery" value="0">
                     <input type="hidden" id="foto_lama" name="foto_lama" value="">
                     <input type="hidden" name="action" value="save">
-                    <button type="submit" class="btn btn-brown" id="gallerySubmitBtn" style="background:var(--brown); color:var(--white);">Simpan Gallery</button>
+                    <button type="submit" class="btn btn-brown w-100" id="gallerySubmitBtn" style="background:var(--brown); color:var(--white);">Simpan Gallery</button>
                 </div>
             </div>
         </form>
@@ -356,22 +366,12 @@ include 'include/sidebar.php';
         return true;
     }
 
-    function resetGalleryForm() {
-        document.getElementById('galleryFormTitle').textContent = 'Tambah Gallery Baru';
-        document.getElementById('id_gallery').value = '0';
-        document.getElementById('kategori_gallery').value = 'makeup';
-        document.getElementById('judul_gallery').value = '';
-        document.getElementById('deskripsi_gallery').value = '';
-        document.getElementById('urutan_gallery').value = '0';
-        document.getElementById('foto_gallery').value = '';
-        document.getElementById('foto_lama').value = '';
-        document.getElementById('gallerySubmitBtn').textContent = 'Simpan Gallery';
-        previewImg.style.display = 'none';
-        previewImg.src = '';
-    }
+    // removed resetGalleryForm (button removed) - preserve initial form state on page load
 
     function editGalleryItem(itemId) {
-        const item = galleryRows.find(row => row.id === itemId);
+        // coerce both sides to numbers to avoid strict-type mismatches
+        const idNum = Number(itemId);
+        const item = galleryRows.find(row => Number(row.id) === idNum || row.id == idNum);
         if (!item) {
             alert('Data gallery tidak ditemukan.');
             return;
