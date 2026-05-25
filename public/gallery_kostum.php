@@ -1,16 +1,34 @@
 <?php
 session_start();
+require_once '../config/koneksi.php';
+require_once '../config/db_helpers.php';
 
-$photos = [
-    ['src' => '../assets/gallery_kostum/kostum_4.jpeg', 'title' => 'Kostum Baju Adat', 'desc' => 'Kostum adat pengantin dengan detail elegan.'],
-    ['src' => '../assets/gallery_kostum/foto_resepsi.jpeg', 'title' => 'Kostum Wedding', 'desc' => 'Busana wedding dengan nuansa anggun.'],
-    ['src' => '../assets/fotograduation.jpeg', 'title' => 'Kostum Graduation', 'desc' => 'Pilihan kostum untuk momen wisuda.'],
-    ['src' => '../assets/gallery_kostum/kostum_5.jpeg', 'title' => 'Kostum Kebaya', 'desc' => 'Kebaya cantik untuk acara spesial.'],
-    ['src' => '../assets/gallery_kostum/kostum_6.jpeg', 'title' => 'Kostum Tradisional', 'desc' => 'Busana tradisional dengan aksesoris lengkap.'],
-    ['src' => '../assets/gallery_kostum/kostum_7.jpeg', 'title' => 'Kostum Elegan', 'desc' => 'Tampilan elegan untuk acara formal.'],
-    ['src' => '../assets/gallery_kostum/kostum_8.jpeg', 'title' => 'Kostum Premium', 'desc' => 'Kostum premium untuk hari istimewa.'],
-    ['src' => '../assets/gallery_kostum/foto_carnaval.jpeg', 'title' => 'Kostum Custom', 'desc' => 'Pilihan kostum dengan penyesuaian ukuran.'],
-];
+ensure_dynamic_booking_schema($pdo);
+ensure_dynamic_gallery_schema($pdo);
+
+$photos = [];
+$stmt = $pdo->prepare("SELECT foto, judul, deskripsi FROM gallery WHERE kategori = ? AND is_active = 1 ORDER BY urutan ASC, id_gallery ASC");
+$stmt->execute(['kostum']);
+foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+    $photos[] = [
+        'src' => '../' . ltrim($row['foto'], '/'),
+        'title' => $row['judul'],
+        'desc' => $row['deskripsi'] ?? '',
+    ];
+}
+
+if (empty($photos)) {
+    $photos = [
+        ['src' => '../assets/gallery_kostum/kostum_4.jpeg', 'title' => 'Kostum Baju Adat', 'desc' => 'Kostum adat pengantin dengan detail elegan.'],
+        ['src' => '../assets/gallery_kostum/foto_resepsi.jpeg', 'title' => 'Kostum Wedding', 'desc' => 'Busana wedding dengan nuansa anggun.'],
+        ['src' => '../assets/fotograduation.jpeg', 'title' => 'Kostum Graduation', 'desc' => 'Pilihan kostum untuk momen wisuda.'],
+        ['src' => '../assets/gallery_kostum/kostum_5.jpeg', 'title' => 'Kostum Kebaya', 'desc' => 'Kebaya cantik untuk acara spesial.'],
+        ['src' => '../assets/gallery_kostum/kostum_6.jpeg', 'title' => 'Kostum Tradisional', 'desc' => 'Busana tradisional dengan aksesoris lengkap.'],
+        ['src' => '../assets/gallery_kostum/kostum_7.jpeg', 'title' => 'Kostum Elegan', 'desc' => 'Tampilan elegan untuk acara formal.'],
+        ['src' => '../assets/gallery_kostum/kostum_8.jpeg', 'title' => 'Kostum Premium', 'desc' => 'Kostum premium untuk hari istimewa.'],
+        ['src' => '../assets/gallery_kostum/foto_carnaval.jpeg', 'title' => 'Kostum Custom', 'desc' => 'Pilihan kostum dengan penyesuaian ukuran.'],
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
