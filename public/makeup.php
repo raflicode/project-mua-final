@@ -2,116 +2,132 @@
 session_start();
 require_once __DIR__ . '/../config/koneksi.php';
 
-function makeupImagePath(?string $path): string
-{
-    if (!$path) {
-        return '../assets/foto_makeup.jpeg';
-    }
-
-    if (preg_match('#^(https?://|/)#', $path)) {
-        return $path;
-    }
-
-    return '../' . ltrim($path, '/');
-}
-
-function makeupIncludes(?string $deskripsi): array
-{
-    if (!$deskripsi) {
-        return ['Layanan makeup siap untuk booking.'];
-    }
-
-    $items = [];
-    foreach (preg_split('/\r\n|\n|;/', $deskripsi) as $part) {
-        $part = trim($part);
-        if ($part !== '') {
-            $items[] = $part;
-        }
-    }
-
-    return $items ?: ['Layanan makeup siap untuk booking.'];
-}
-
-function buildMakeupVariants(array $row): array
-{
-    $basePrice = (float) ($row['harga_dasar'] ?? 0);
-    $baseImage = makeupImagePath($row['foto_layanan'] ?? '');
-    $baseIncludes = makeupIncludes($row['deskripsi'] ?? '');
-    $rawVariants = trim((string) ($row['variant_data'] ?? ''));
-
-    if ($rawVariants === '') {
-        return [[
-            'label' => 'Opsi 1',
-            'price' => $basePrice > 0 ? $basePrice : 0,
-            'image' => $baseImage,
-            'includes' => $baseIncludes,
-        ]];
-    }
-
-    $decoded = json_decode($rawVariants, true);
-    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-        $variants = [];
-        foreach ($decoded as $item) {
-            if (!is_array($item)) {
-                continue;
-            }
-
-            $label = trim((string) ($item['label'] ?? $item['name'] ?? ''));
-            $price = isset($item['price']) ? (float) $item['price'] : (isset($item['harga']) ? (float) $item['harga'] : $basePrice);
-            $image = trim((string) ($item['foto'] ?? $item['image'] ?? ''));
-
-            if ($label === '') {
-                $label = 'Opsi ' . (count($variants) + 1);
-            }
-            if ($price <= 0) {
-                $price = $basePrice;
-            }
-            if ($image === '') {
-                $image = $baseImage;
-            }
-
-            $includes = $item['includes'] ?? $baseIncludes;
-            if (is_string($includes)) {
-                $includes = preg_split('/\r\n|\n|;/', $includes);
-            }
-            if (!is_array($includes)) {
-                $includes = $baseIncludes;
-            }
-
-            $variants[] = [
-                'label' => $label,
-                'price' => $price,
-                'image' => $image,
-                'includes' => array_values(array_filter(array_map('trim', $includes), static fn($value) => $value !== '')),
-            ];
-        }
-
-        return $variants ?: [[
-            'label' => 'Opsi 1',
-            'price' => $basePrice > 0 ? $basePrice : 0,
-            'image' => $baseImage,
-            'includes' => $baseIncludes,
-        ]];
-    }
-
-    return [[
-        'label' => 'Opsi 1',
-        'price' => $basePrice > 0 ? $basePrice : 0,
-        'image' => $baseImage,
-        'includes' => $baseIncludes,
-    ]];
-}
-
-$stmt = $pdo->query("SELECT id_layanan, nama_layanan, harga_dasar, foto_layanan, deskripsi, variant_data FROM layanan WHERE is_active = 1 AND kategori_layanan = 'makeup' ORDER BY nama_layanan ASC");
-$makeupRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-$makeupPackages = [];
-foreach ($makeupRows as $row) {
-    $makeupPackages[] = [
-        'id' => (int) $row['id_layanan'],
-        'name' => $row['nama_layanan'],
-        'variants' => buildMakeupVariants($row),
-    ];
-}
+// Struktur data diperbarui agar mendukung sub-paket/variasi di dalam satu kategori makeup
+$makeupPackages = [
+    [
+        'id' => 'graduation',
+        'name' => 'Makeup Graduation',
+        'variants' => [
+            [
+                'price' => 150000,
+                'image' => '../assets/fotomakeup_6.png',
+                'includes' => ['Bulu Mata', 'Softlens', 'Moisturizer Wardah', 'Hairdo Natural', 'Hijabdo', 'Bedak Inez dan Reflon', 'Moisturizer Wardah', 'Primer Maybelin mix Latulip']
+            ],
+            [
+                'price' => 200000,
+                'image' => '../assets/fotogradu2..jpg', // Ganti dengan path foto kedua
+                'includes' => ['Bulu Mata', 'Softlens', 'Serum Make over', 'Hairdo Natural', 'Hijabdo', 'Foundation Make over mix L+ Pro', 'Bedak Ultima, Makeover, Revlon', 'Primer Make over']
+            ]
+        ]
+    ],
+    [
+        'id' => 'wedding',
+        'name' => 'Makeup Natural',
+        'variants' => [
+            [
+                'price' => 150000,
+                'image' => '../assets/fotonatural1.jpg',
+                'includes' => ['Bulu Mata', 'Softlens', 'Moisturizer Wardah', 'Hairdo Natural', 'Hijabdo', 'Bedak Inez dan Reflon', 'Moisturizer Wardah', 'Primer Maybelin mix Latulip']
+            ],
+            [
+                'price' => 200000,
+                'image' => '../assets/fotolamaran2.jpg',
+                'includes' => ['Bulu Mata', 'Softlens', 'Serum Make over', 'Hairdo Natural', 'Hijabdo', 'Foundation Make over mix L+ Pro', 'Bedak Ultima, Makeover, Revlon', 'Primer Make over']
+            ]
+        ]
+    ],
+    [
+        'id' => 'Makeup',
+        'name' => 'Makeup Carnaval',
+        'variants' => [
+            [
+                'price' => 150000,
+                'image' => '../assets/fotocarnaval2.jpg',
+                'includes' => ['Bulu Mata', 'Softlens', 'Moisturizer Wardah', 'Hairdo Natural', 'Hijabdo', 'Bedak Inez dan Reflon', 'Moisturizer Wardah', 'Primer Maybelin mix Latulip']
+            ],
+            [
+                'price' => 200000,
+                'image' => '../assets/fotocarnaval.jpg',
+                'includes' => ['Bulu Mata', 'Softlens', 'Serum Make over', 'Hairdo Natural', 'Hijabdo', 'Foundation Make over mix L+ Pro', 'Bedak Ultima, Makeover, Revlon', 'Primer Make over']
+            ]
+        ]
+    ],
+    [
+        'id' => 'natural',
+        'name' => 'Makeup Flawless',
+        'variants' => [
+            [
+                'price' => 150000,
+                'image' => '../assets/fotoflawless1.jpg',
+                'includes' => ['Bulu Mata', 'Softlens', 'Moisturizer Wardah', 'Hairdo Natural', 'Hijabdo', 'Bedak Inez dan Reflon', 'Moisturizer Wardah', 'Primer Maybelin mix Latulip']
+            ],
+            [
+                'price' => 200000,
+                'image' => '../assets/fotolamaran1.jpg',
+                'includes' => ['Bulu Mata', 'Softlens', 'Serum Make over', 'Hairdo Natural', 'Hijabdo', 'Foundation Make over mix L+ Pro', 'Bedak Ultima, Makeover, Revlon', 'Primer Make over']
+            ]
+        ]
+    ],
+    [
+        'id' => 'makeup',
+        'name' => 'Makeup Engagement',
+        'variants' => [
+            [
+                'price' => 150000,
+                'image' => '../assets/fotolamaran1.jpg',
+                'includes' => ['Bulu Mata', 'Softlens', 'Moisturizer Wardah', 'Hairdo Natural', 'Hijabdo', 'Bedak Inez dan Reflon', 'Moisturizer Wardah', 'Primer Maybelin mix Latulip']
+            ],
+            [
+                'price' => 200000,
+                'image' => '../assets/fotolamaran2.jpg',
+                'includes' => ['Bulu Mata', 'Softlens', 'Serum Make over', 'Hairdo Natural', 'Hijabdo', 'Foundation Make over mix L+ Pro', 'Bedak Ultima, Makeover, Revlon', 'Primer Make over']
+            ]
+        ]
+    ],
+    [
+        'id' => 'engagement',
+        'name' => 'Makeup Pre-wedding',
+        'variants' => [
+            [
+                'price' => 300000,
+                'image' => '../assets/fotoprew.jpg',
+                'includes' => ['Bulu Mata', 'Softlens', 'Moisturizer Wardah', 'Hairdo Natural', 'Hijabdo', 'Bedak Inez dan Reflon', 'Moisturizer Wardah', 'Primer Maybelin mix Latulip']
+            ],
+        ]
+    ],
+    [
+        'id' => 'Makeup',
+        'name' => 'Makeup Akad',
+        'variants' => [
+            [
+                'price' => 6000000,
+                'image' => '../assets/fotomakeup_1.jpeg',
+                'includes' => ['Makeup (inc: softlens, hijab/hair do & retouch)', 'Fresh Melati', 'Baju akad & Resepsi "couple"', 'Baju penerima Tamu 4', 'Bucket bunga', 'Dekorasi 4m']
+            ],
+            [
+                'price' => 8500000,
+                'image' => '../assets/fotomakeup_3.jpeg',
+                'includes' => ['Makeup (inc: softlens, hijab/hair do & retouch)', 'Fresh Melati', 'Baju akad & Resepsi "couple"', 'Baju penerima Tamu 4 tamu manten', 'Baju adat jawa couple', 'BVaju adat jawa orang tua 4', 'Baju adat jawa kemb ar mayang', 'Baju adat jawa joko bagus dalang', 'Perlengkapan temu manten', 'Bucket bunga', 'Dekorasi 6m']
+            ]
+        ]
+    ],
+    [
+        'id' => 'Makeup',
+        'name' => 'Makeup Resepsi',
+        'variants' => [
+            [
+                'price' => 6000000,
+                'image' => '../assets/fotomakeup_2.jpeg',
+                'includes' => ['Makeup (inc: softlens, hijab/hair do & retouch)', 'Fresh Melati', 'Baju akad & Resepsi "couple"', 'Baju penerima Tamu 4', 'Bucket bunga', 'Dekorasi 4m']
+            ],
+            [
+                'price' => 8500000,
+                'image' => '../assets/fotomakeup_5.jpeg',
+                'includes' => ['Makeup (inc: softlens, hijab/hair do & retouch)', 'Fresh Melati', 'Baju akad & Resepsi "couple"', 'Baju penerima Tamu 4 tamu manten', 'Baju adat jawa couple', 'BVaju adat jawa orang tua 4', 'Baju adat jawa kemb ar mayang', 'Baju adat jawa joko bagus dalang', 'Perlengkapan temu manten', 'Bucket bunga', 'Dekorasi 6m']
+            ]
+        ]
+    ]
+];
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -120,204 +136,411 @@ foreach ($makeupRows as $row) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Makeup - Yayuk Makeover</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lobster&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
-* { box-sizing: border-box; }
-body { font-family: 'Poppins', sans-serif; background: #efefef; color: #222; }
-.page-wrap { padding-top: 95px; padding-bottom: 80px; }
-.judul h1 { font-family: 'Lobster', cursive; font-size: 70px; color: #b85a00; text-shadow: 3px 3px 6px rgba(0,0,0,0.25); }
-.line { width: 220px; height: 2px; background: #b85a00; margin: auto; }
-.card-custom { border: none; border-radius: 18px; overflow: hidden; background: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.12); transition: 0.3s; height: 100%; cursor: pointer; }
-.card-custom:hover { transform: translateY(-5px); }
-.card-custom .card-body { display: flex; flex-direction: column; height: 100%; }
-.img-paket-wrap { width: 100%; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 12px; margin-bottom: 14px; background: #f3f3f3; }
-.img-paket-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.harga-label { font-size: .75rem; color: #999; margin-bottom: 2px; }
-.harga-text { font-weight: 700; color: #b85a00; font-size: 1rem; }
-.variant-count { display: inline-block; background: #fff3e0; color: #b85a00; border: 1px solid #f0c080; border-radius: 20px; padding: 4px 12px; font-size: .72rem; margin-bottom: 12px; }
-.modal-makeup .modal-dialog { max-width: 760px; }
-.modal-makeup .modal-content { border: none; border-radius: 24px; overflow: hidden; }
-.modal-makeup .modal-header { background: #a88656; border: none; padding: 16px 18px; flex-direction: column; align-items: stretch; }
-.modal-level2-bar { display: flex; align-items: center; justify-content: center; gap: 8px; }
-.var-btn { width: 30px; height: 30px; border: none; border-radius: 50%; background: rgba(255,255,255,.18); color: #fff; cursor: pointer; }
-.var-label { flex: 1; text-align: center; color: #fff; font-size: .85rem; font-weight: 600; }
-.counter2 { color: rgba(255,255,255,.7); font-size: .7rem; }
-.modal-makeup .modal-body { padding: 24px; }
-.modal-content-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
-.variant-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 12px; }
-.variant-dot { width: 8px; height: 8px; border-radius: 50%; background: #ddd; }
-.variant-dot.active { background: #b85a00; transform: scale(1.2); }
-.modal-img-wrap { width: 100%; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 16px; background: #f3f3f3; position: relative; }
-.modal-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
-.foto-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border: none; border-radius: 50%; background: rgba(0,0,0,.35); color: #fff; z-index: 10; }
-.foto-prev { left: 10px; }
-.foto-next { right: 10px; }
-.modal-var-name { font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; }
-.modal-harga-label { font-size: .78rem; color: #999; margin-bottom: 2px; }
-.modal-harga-val { font-size: 1.2rem; color: #b85a00; font-weight: 700; margin-bottom: 14px; }
-.modal-include-label { font-size: .92rem; font-weight: 600; margin-bottom: 6px; }
-.modal-include-ol { padding-left: 20px; font-size: .9rem; color: #444; margin-bottom: 4px; }
-.modal-makeup .modal-footer { border: none; padding: 0 24px 20px; gap: 10px; }
-.modal-makeup .modal-footer .btn-dark { background: #a88656; border: none; border-radius: 30px; color: #fff; height: 45px; font-weight: 600; }
-.modal-makeup .modal-footer .btn-dark:hover { background: #967447; }
-.modal-makeup .modal-footer .btn-warning { background: #a88656; color: #fff; border: none; border-radius: 30px; font-weight: 600; height: 45px; }
-.modal-makeup .modal-footer .btn-warning:hover { background: #967447; color: #fff; }
-.btn-kembali { position: fixed; bottom: 20px; left: 20px; border-radius: 30px; padding: 10px 20px; z-index: 1030; }
-@media (max-width: 992px) { .modal-makeup .modal-dialog { max-width: 650px; } }
-@media (max-width: 768px) { .judul h1 { font-size: 54px; } }
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #efefef;
+    color: #222;
+    min-height: 100vh;
+}
+
+.page-wrap {
+    padding-top: 95px;
+    padding-bottom: 80px;
+}
+
+.makeup-container {
+    max-width: 1240px;
+}
+
+.judul h1 {
+    font-family: 'Lobster', cursive;
+    font-size: clamp(3.4rem, 7vw, 4.8rem);
+    color: #b85a00;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.25);
+    margin-bottom: 0;
+}
+
+.line {
+    width: 220px;
+    height: 2px;
+    background: #b85a00;
+    margin: auto;
+}
+
+/* Card clickable style */
+.card-clickable {
+    cursor: pointer;
+}
+
+.card-custom {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    height: 100%;
+    padding: 16px !important;
+}
+
+.card-custom:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.16);
+}
+
+.card-custom .card-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+.card-custom h5 {
+    min-height: 44px;
+    line-height: 1.35;
+    color: #1f2937;
+}
+
+.img-paket-wrap {
+    width: 100%;
+    aspect-ratio: 4 / 4.8;
+    overflow: hidden;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    background: #f3f3f3;
+}
+
+.img-paket {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Button & Modal custom style */
+.btn-booking {
+    height: 45px;
+    border-radius: 30px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.btn-cart-icon {
+    width: 45px;
+    height: 45px;
+    background-color: #212529;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    border: none;
+    flex-shrink: 0;
+}
+
+.btn-kembali {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    border-radius: 30px;
+    padding: 10px 20px;
+    z-index: 1030;
+}
+
+/* Modal Carousel Styling */
+.carousel-item img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.price-tag {
+    font-size: 24px;
+    color: #b85a00;
+    font-weight: 700;
+}
+
+.price-label {
+    color: #8a8a8a;
+    font-size: 0.82rem;
+    margin-bottom: 2px;
+}
+
+.price-card {
+    color: #b85a00;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.detail-link {
+    color: #0d6efd;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.modal-includes {
+    display: grid;
+    gap: 7px;
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.modal-includes li {
+    display: flex;
+    gap: 8px;
+    color: #555;
+    font-size: 0.92rem;
+}
+
+.modal-includes i {
+    color: #198754;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
 @media (max-width: 576px) {
-    .modal-makeup .modal-dialog { width: 86%; max-width: 360px; margin: .75rem auto; }
-    .modal-makeup .modal-content { border-radius: 18px; max-height: 88vh; }
-    .modal-makeup .modal-header { padding: 11px 12px; }
-    .modal-level2-bar { gap: 6px; }
-    .var-btn { width: 26px; height: 26px; }
-    .var-label { font-size: .76rem; }
-    .counter2 { font-size: .64rem; }
-    .modal-content-wrap { grid-template-columns: 1fr; gap: 12px; }
-    .modal-makeup .modal-body { padding: 12px; overflow-y: auto; }
-    .modal-img-wrap { max-height: 38vh; aspect-ratio: 1 / 1; border-radius: 12px; }
-    .foto-nav { width: 30px; height: 30px; }
-    .variant-dots { margin-bottom: 8px; }
-    .modal-var-name { font-size: .95rem; margin-bottom: 6px; }
-    .modal-include-label { font-size: .82rem; margin-bottom: 4px; }
-    .modal-include-ol { font-size: .78rem; margin-bottom: 8px; }
-    .modal-harga-val { font-size: 1rem; }
-    .modal-makeup .modal-footer { padding: 0 12px 12px; }
-    .modal-makeup .modal-footer .btn { padding: 7px 10px; font-size: .84rem; }
+    .judul h1 {
+        font-size: 3.5rem;
+    }
+
+    .card-custom h5 {
+        min-height: auto;
+    }
+
+    .page-wrap {
+        padding-top: 85px;
+    }
+
+    .btn-kembali {
+        left: 14px;
+        bottom: 14px;
+        padding: 9px 16px;
+    }
+}
+
+@media (min-width: 992px) {
+    body {
+        padding: 30px;
+    }
 }
 </style>
 </head>
 <body>
 <?php include 'include/navbar.php'; ?>
+
 <main class="page-wrap">
-<div class="container">
+<div class="container-fluid makeup-container px-3 px-md-4 px-xl-5">
     <div class="text-center mb-5 judul">
         <h1>Makeup</h1>
         <div class="line mt-2"></div>
     </div>
-    <?php if (empty($makeupPackages)): ?>
-    <div class="card border-0 shadow-sm">
-        <div class="card-body text-center py-5">
-            <i class="bi bi-inbox display-5 text-muted"></i>
-            <h5 class="mt-3">Belum ada layanan makeup aktif</h5>
-            <p class="text-muted mb-0">Admin dapat menambahkan layanan makeup dari halaman Data Layanan.</p>
-        </div>
-    </div>
-    <?php else: ?>
-    <div class="row g-4">
+
+    <div class="row g-4 align-items-stretch">
         <?php foreach ($makeupPackages as $index => $package): ?>
-        <div class="col-sm-6 col-lg-3">
-            <div class="card card-custom p-3" onclick="bukaModal(<?= $index ?>)">
-                <div class="card-body p-0">
-                    <h5 class="fw-bold mb-2"><?= htmlspecialchars($package['name'], ENT_QUOTES, 'UTF-8') ?></h5>
-                    <span class="variant-count"><?= count($package['variants']) ?> variasi tersedia</span>
-                    <div class="img-paket-wrap">
-                        <img src="<?= htmlspecialchars($package['variants'][0]['image'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($package['name'], ENT_QUOTES, 'UTF-8') ?>" onerror="this.src='https://placehold.co/400x500?text=Foto'">
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                <div class="card card-custom h-100 card-clickable" onclick="openPackageModal(<?= $index ?>)">
+                    <div class="card-body p-0">
+                        <h5 class="mb-3 fw-bold"><?= htmlspecialchars($package['name'], ENT_QUOTES, 'UTF-8'); ?></h5>
+                        <div class="img-paket-wrap">
+                            <img src="<?= htmlspecialchars($package['variants'][0]['image'], ENT_QUOTES, 'UTF-8'); ?>" class="img-paket" alt="<?= htmlspecialchars($package['name'], ENT_QUOTES, 'UTF-8'); ?>">
+                        </div>
+                        <div class="price-label">Mulai dari</div>
+                        <div class="price-card">Rp <?= number_format($package['variants'][0]['price'], 0, ',', '.'); ?></div>
+                        <span class="detail-link mt-auto">Lihat detail & opsi <i class="bi bi-arrow-right-short"></i></span>
                     </div>
-                    <div class="harga-label">Mulai dari</div>
-                    <div class="harga-text">Rp <?= number_format($package['variants'][0]['price'], 0, ',', '.') ?></div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+</main>
+
+<div class="modal fade" id="makeupModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="makeupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content" style="border-radius: 20px; overflow: hidden;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark" id="makeupModalLabel">Nama Paket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div id="variantCarousel" class="carousel slide" data-bs-ride="false" data-bs-touch="true">
+                            <div class="carousel-inner" id="carouselItemsContainer">
+                                </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#variantCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#variantCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-secondary" id="variantLabel">Opsi 1</span>
+                            <div class="price-tag" id="modalPrice">Rp 0</div>
+                        </div>
+                        
+                        <p class="fw-semibold mb-2">Include :</p>
+                        <ul id="modalIncludes" class="modal-includes">
+                            </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer d-flex justify-content-between align-items-center border-0 pt-0">
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-dark btn-sm rounded-circle" id="prevPackageBtn" title="Paket Sebelumnya">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button class="btn btn-outline-dark btn-sm rounded-circle" id="nextPackageBtn" title="Paket Selanjutnya">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <div class="d-flex gap-2 flex-grow-1 justify-content-end" style="max-width: 75%;">
+                    <button id="modalCartBtn" class="btn-cart-icon" type="button">
+                        <i class="bi bi-cart3"></i>
+                    </button>
+                    <a id="modalBookingBtn" href="#" class="btn btn-dark btn-booking flex-grow-1 btn-booking-trigger">
+                        Booking
+                    </a>
                 </div>
             </div>
         </div>
-        <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
-</div>
-</main>
-<div class="modal fade modal-makeup" id="modalMakeup" tabindex="-1">
-<div class="modal-dialog modal-dialog-centered">
-<div class="modal-content">
-<div class="modal-header">
-    <div class="modal-level2-bar">
-        <button class="var-btn" onclick="navigasi2(-1)"><i class="bi bi-chevron-left"></i></button>
-        <div class="var-label" id="varLabel"></div>
-        <div class="counter2" id="counter2"></div>
-        <button class="var-btn" onclick="navigasi2(1)"><i class="bi bi-chevron-right"></i></button>
     </div>
 </div>
-<div class="modal-body">
-    <div class="variant-dots" id="variantDots"></div>
-    <div class="modal-content-wrap">
-        <div class="modal-img-wrap">
-            <button class="foto-nav foto-prev" onclick="navigasi2(-1)"><i class="bi bi-chevron-left"></i></button>
-            <button class="foto-nav foto-next" onclick="navigasi2(1)"><i class="bi bi-chevron-right"></i></button>
-            <img id="modalImg" src="" alt="">
-        </div>
-        <div>
-            <div class="modal-var-name" id="modalVarName"></div>
-            <div class="modal-harga-label">Harga</div>
-            <div class="modal-harga-val" id="modalHarga"></div>
-            <div class="modal-include-label">Include :</div>
-            <ol class="modal-include-ol" id="modalInclude"></ol>
-        </div>
-    </div>
-</div>
-<div class="modal-footer">
-    <button type="button" class="btn btn-dark flex-grow-1" id="btnKeranjang"><i class="bi bi-cart3"></i> Keranjang</button>
-    <button type="button" class="btn btn-warning flex-grow-1" id="modalBookingBtn">Booking</button>
-</div>
-</div>
-</div>
-</div>
-<a href="service.php" class="btn btn-danger btn-kembali shadow">Kembali</a>
+
+<a href="service.php" class="btn btn-danger btn-kembali shadow">
+    Kembali
+</a>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-const packagesData = <?= json_encode($makeupPackages, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+// Oper data dari PHP ke JavaScript
+const packagesData = <?= json_encode($makeupPackages); ?>;
 const isLoggedIn = <?php echo isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
 
-let idxPaket = 0;
-let idxVariasi = 0;
-let bsModal = null;
+let currentPackageIndex = 0;
+let currentVariantIndex = 0;
 
-function bukaModal(i) {
-    idxPaket = i;
-    idxVariasi = 0;
-    renderModal();
-    if (!bsModal) {
-        bsModal = new bootstrap.Modal(document.getElementById('modalMakeup'));
-    }
-    bsModal.show();
+// Inisialisasi Modal dan Carousel Bootstrap
+const makeupModal = new bootstrap.Modal(document.getElementById('makeupModal'));
+const carouselEl = document.getElementById('variantCarousel');
+const bsCarousel = new bootstrap.Carousel(carouselEl);
+
+// Fungsi membuka modal berdasarkan index paket utama
+function openPackageModal(packageIndex) {
+    currentPackageIndex = packageIndex;
+    currentVariantIndex = 0; // reset ke variasi pertama setiap ganti paket utama
+    renderModalContent();
+    makeupModal.show();
 }
 
-function renderModal() {
-    const pkg = packagesData[idxPaket];
-    const varian = pkg.variants[idxVariasi];
-    const label = varian.label || ('Opsi ' + (idxVariasi + 1));
-    document.getElementById('varLabel').textContent = pkg.name + ' - ' + label;
-    document.getElementById('counter2').textContent = `${idxVariasi + 1}/${pkg.variants.length}`;
-    const imgEl = document.getElementById('modalImg');
-    imgEl.src = varian.image;
-    imgEl.onerror = function () { this.src = 'https://placehold.co/400x500?text=Foto'; };
-    document.getElementById('modalVarName').textContent = pkg.name + ' (' + label + ')';
-    document.getElementById('modalHarga').textContent = 'Rp ' + Number(varian.price).toLocaleString('id-ID');
-    document.getElementById('modalInclude').innerHTML = varian.includes.map(x => `<li>${x}</li>`).join('');
-    document.getElementById('variantDots').innerHTML = pkg.variants.map((_, i) => `<div class="variant-dot ${i === idxVariasi ? 'active' : ''}"></div>`).join('');
+// Fungsi merender data ke dalam modal secara dinamis
+function renderModalContent() {
+    const pkg = packagesData[currentPackageIndex];
+    
+    // Set Judul Paket Utama
+    document.getElementById('makeupModalLabel').innerText = pkg.name;
+    
+    // Bangun elemen slider/carousel gambar
+    const container = document.getElementById('carouselItemsContainer');
+    container.innerHTML = '';
+    
+    pkg.variants.forEach((variant, index) => {
+        const div = document.createElement('div');
+        div.className = `carousel-item ${index === 0 ? 'active' : ''}`;
+        div.innerHTML = `<img src="${variant.image}" alt="${pkg.name} opsi ${index + 1}">`;
+        container.appendChild(div);
+    });
+    
+    // Reset carousel ke slide pertama
+    bsCarousel.to(0);
+    
+    // Update data teks (harga & include) berdasarkan variasi pertama
+    updateVariantDetails(0);
 }
 
-function navigasi2(arah) {
-    const pkg = packagesData[idxPaket];
-    const next = idxVariasi + arah;
-    if (next < 0 || next >= pkg.variants.length) return;
-    idxVariasi = next;
-    renderModal();
+// Fungsi update khusus bagian variasi (saat swipe/geser foto)
+function updateVariantDetails(variantIndex) {
+    currentVariantIndex = variantIndex;
+    const pkg = packagesData[currentPackageIndex];
+    const variant = pkg.variants[variantIndex];
+    
+    // Update Label Opsi ke-berapa
+    document.getElementById('variantLabel').innerText = `Opsi ${variantIndex + 1} dari ${pkg.variants.length}`;
+    
+    // Update Harga (Format Rupiah)
+    const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(variant.price);
+    document.getElementById('modalPrice').innerText = formattedPrice;
+    
+    // Update List Include
+    const includesList = document.getElementById('modalIncludes');
+    includesList.innerHTML = '';
+    variant.includes.forEach(inc => {
+        const li = document.createElement('li');
+        li.innerHTML = `<i class="bi bi-check-circle-fill"></i><span>${inc}</span>`;
+        includesList.appendChild(li);
+    });
+    
+    // Update Event Onclick Tombol Add To Cart
+    const cartBtn = document.getElementById('modalCartBtn');
+    cartBtn.onclick = function() {
+        addToCart(pkg.name + ` (Opsi ${variantIndex + 1})`, 'makeup', variant.price, variant.image);
+    };
+    
+    // Update Link Href Tombol Booking
+    const bookingBtn = document.getElementById('modalBookingBtn');
+    bookingBtn.href = `booking.php?from=makeup&nama=${encodeURIComponent(pkg.name + ' - Opsi ' + (variantIndex + 1))}&harga=${variant.price}&foto=${encodeURIComponent(variant.image)}`;
 }
 
-document.getElementById('btnKeranjang').addEventListener('click', () => {
-    const pkg = packagesData[idxPaket];
-    const varian = pkg.variants[idxVariasi];
-    const label = varian.label || ('Opsi ' + (idxVariasi + 1));
-    addToCart(pkg.name + ' - ' + label, 'makeup', Number(varian.price), varian.image, pkg.id);
+// Event Listener saat carousel di-swipe / di-geser oleh user
+carouselEl.addEventListener('slide.bs.carousel', function (e) {
+    updateVariantDetails(e.to);
 });
 
-document.getElementById('modalBookingBtn').addEventListener('click', () => {
-    const pkg = packagesData[idxPaket];
-    const varian = pkg.variants[idxVariasi];
-    const label = varian.label || ('Opsi ' + (idxVariasi + 1));
-    const nama = pkg.name + ' - ' + label;
+// Sistem Navigasi NEXT / PREV antar Paket Utama di Footer Modal
+document.getElementById('prevPackageBtn').addEventListener('click', () => {
+    if (currentPackageIndex > 0) {
+        currentPackageIndex--;
+    } else {
+        currentPackageIndex = packagesData.length - 1; // loop ke paling akhir
+    }
+    renderModalContent();
+});
 
+document.getElementById('nextPackageBtn').addEventListener('click', () => {
+    if (currentPackageIndex < packagesData.length - 1) {
+        currentPackageIndex++;
+    } else {
+        currentPackageIndex = 0; // loop ke paling awal
+    }
+    renderModalContent();
+});
+
+// Interseptor Validasi Login untuk Tombol Booking di dalam modal
+document.getElementById('modalBookingBtn').addEventListener('click', function(e) {
     if (!isLoggedIn) {
+        e.preventDefault();
         Swal.fire({
             icon: 'warning',
             title: 'Login diperlukan',
@@ -334,12 +557,10 @@ document.getElementById('modalBookingBtn').addEventListener('click', () => {
                 window.location.href = 'register.php';
             }
         });
-        return;
     }
-
-    window.location.href = `booking.php?from=makeup&id=${encodeURIComponent(pkg.id)}&layanan=${encodeURIComponent(nama)}&harga=${varian.price}`;
 });
 </script>
+
 <?php include 'include/add_to_cart_script.php'; ?>
 </body>
 </html>

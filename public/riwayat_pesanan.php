@@ -1,6 +1,9 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/koneksi.php';
+require_once __DIR__ . '/../config/db_helpers.php';
+
+ensure_dynamic_booking_schema($pdo);
 
 // Redirect jika belum login
 if (!isset($_SESSION['id_user'])) {
@@ -11,13 +14,26 @@ if (!isset($_SESSION['id_user'])) {
 $id_user = $_SESSION['id_user'];
 $backHref = '../index.php';
 
-// Ambil data riwayat pesanan
+// Ambil data riwayat pesanan dari booking
 try {
 
     $stmt = $pdo->prepare("
-        SELECT * FROM keranjang
-        WHERE id_user = ?
-        ORDER BY created_at DESC
+        SELECT
+            b.id_booking,
+            b.total_harga,
+            b.status_booking,
+            b.created_at,
+            COALESCE(GROUP_CONCAT(DISTINCT COALESCE(l.nama_layanan, 'Layanan Booking') ORDER BY COALESCE(l.nama_layanan, 'Layanan Booking') SEPARATOR ', '), 'Layanan Booking') AS nama_layanan,
+            COALESCE(MIN(l.foto_layanan), '../assets/gallery_kostum/kostum_4.jpeg') AS foto_layanan,
+            COALESCE(GROUP_CONCAT(DISTINCT COALESCE(l.kategori_layanan, 'makeup') ORDER BY COALESCE(l.kategori_layanan, 'makeup') SEPARATOR ', '), 'makeup') AS kategori_layanan,
+            COALESCE(SUM(bd.qty), 0) AS total_qty
+        FROM booking b
+        LEFT JOIN booking_detail bd ON bd.id_booking = b.id_booking
+        LEFT JOIN layanan l ON l.id_layanan = bd.id_layanan
+        WHERE b.id_user = ?
+          AND b.status_booking <> 'dibatalkan'
+        GROUP BY b.id_booking
+        ORDER BY b.created_at DESC
     ");
 
     $stmt->execute([$id_user]);
@@ -38,14 +54,17 @@ function formatRupiah($angka)
 // Badge status pesanan
 function statusBadge($status)
 {
-    switch ($status) {
-
-        case 'Diterima':
-            return '<span class="status-badge success">Diterima</span>';
-
-        case 'Ditolak':
-            return '<span class="status-badge danger">Ditolak</span>';
-
+    switch (strtolower((string) $status)) {
+        case 'pending':
+            return '<span class="status-badge warning">Menunggu Konfirmasi</span>';
+        case 'dikonfirmasi':
+            return '<span class="status-badge warning">Dikonfirmasi</span>';
+        case 'konfirmasi':
+            return '<span class="status-badge warning">Menunggu Pembayaran</span>';
+        case 'selesai':
+            return '<span class="status-badge success">Selesai</span>';
+        case 'dibatalkan':
+            return '<span class="status-badge danger">Dibatalkan</span>';
         default:
             return '<span class="status-badge warning">Menunggu Konfirmasi</span>';
     }
@@ -348,14 +367,15 @@ function statusBadge($status)
         <?php foreach ($riwayat as $item): ?>
 
             <?php
-
-                $foto = !empty($item['foto'])
-                    ? $item['foto']
+                $foto = !empty($item['foto_layanan'])
+                    ? $item['foto_layanan']
                     : '../assets/gallery_kostum/kostum_4.jpeg';
 
-                $total = (float)$item['harga'] * (int)$item['kuantitas'];
-
-                $status = $item['status'] ?? 'Menunggu Konfirmasi';
+                $namaLayanan = trim($item['nama_layanan'] ?? 'Layanan Booking');
+                $kategori = trim(explode(',', $item['kategori_layanan'] ?? 'makeup')[0] ?? 'makeup');
+                $kategoriLabel = ucfirst($kategori);
+                $status = $item['status_booking'] ?? 'pending';
+                $totalHarga = (float) ($item['total_harga'] ?? 0);
             ?>
 
             <div class="history-item">
@@ -363,17 +383,17 @@ function statusBadge($status)
                 <!-- Produk -->
                 <div class="col-produk">
 
-                    <img src="<?= htmlspecialchars($foto); ?>" alt="produk">
+                    <img src="<?= htmlspecialchars($foto, ENT_QUOTES, 'UTF-8'); ?>" alt="produk">
 
                     <div>
 
                         <div class="item-title">
-                            <?= htmlspecialchars($item['nama_layanan']); ?>
+                            <?= htmlspecialchars($namaLayanan, ENT_QUOTES, 'UTF-8'); ?>
                         </div>
 
                         <div class="item-id">
-                            ID Pesanan :
-                            <?= htmlspecialchars($item['id_keranjang']); ?>
+                            ID Booking :
+                            <?= htmlspecialchars($item['id_booking'], ENT_QUOTES, 'UTF-8'); ?>
                         </div>
 
                     </div>
@@ -384,7 +404,7 @@ function statusBadge($status)
                 <div class="col-tipe">
 
                     <span class="badge-tipe">
-                        <?= htmlspecialchars($item['tipe_layanan']); ?>
+                        <?= htmlspecialchars($kategoriLabel, ENT_QUOTES, 'UTF-8'); ?>
                     </span>
 
                 </div>
@@ -392,14 +412,14 @@ function statusBadge($status)
                 <!-- Harga -->
                 <div class="col-harga">
 
-                    <?= formatRupiah($item['harga']); ?>
+                    <?= formatRupiah($totalHarga); ?>
 
                 </div>
 
                 <!-- Total -->
                 <div class="col-total">
 
-                    <?= formatRupiah($total); ?>
+                    <?= formatRupiah($totalHarga); ?>
 
                 </div>
 

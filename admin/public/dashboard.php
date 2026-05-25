@@ -2,6 +2,9 @@
 require_once __DIR__ . '/../../config/auth.php';
 require_login(['admin']);
 require_once __DIR__ . '/../../config/koneksi.php';
+require_once __DIR__ . '/../../config/db_helpers.php';
+
+ensure_dynamic_booking_schema($pdo);
 
 $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 $monthlyIncome = [];

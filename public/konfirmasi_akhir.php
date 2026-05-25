@@ -82,6 +82,8 @@ $formData = isset($_SESSION['form_data']) ? $_SESSION['form_data'] : [];
 if (!empty($formData)) {
     unset($_SESSION['form_data']);
 }
+
+$uploadSuccess = !empty($_GET['uploaded']);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -235,7 +237,7 @@ if (!empty($formData)) {
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
-            <?php if (!empty($_GET['uploaded'])): ?>
+            <?php if ($uploadSuccess): ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     Bukti pembayaran berhasil dikirim. Silakan tunggu konfirmasi admin.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -243,101 +245,88 @@ if (!empty($formData)) {
             <?php endif; ?>
 
             <div>
-                <div class="icon-box mb-3">💳</div>
-                <h5 class="fw-bold mb-1">Selesaikan Pembayaran</h5>
-                <p class="text-muted small mb-3">Data Pembayaran Anda</p>
-
-                <div class="bank-box mb-3">
-                    <small class="text-muted d-block mb-2">Nama Pemesan</small>
-                    <h6 class="mb-2"><?= htmlspecialchars($pembayaran['nama']) ?></h6>
-
-                    <small class="text-muted d-block mb-2">No Handphone</small>
-                    <h6 class="mb-2"><?= htmlspecialchars($pembayaran['hp']) ?></h6>
-                </div>
-
-                <form action="../actions/proses_konfirmasi.php" method="post" enctype="multipart/form-data" novalidate>
-                    <?php if ($tokenMode): ?>
-                        <input type="hidden" name="konfirmasi_akhir_token" value="<?= htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?>">
-                    <?php elseif ($idBookingMode): ?>
-                        <input type="hidden" name="id_booking" value="<?= (int) $idBooking ?>">
-                    <?php endif; ?>
+                <div class="icon-box mb-3"><?= $uploadSuccess ? '✅' : '💳'; ?></div>
+                <?php if ($uploadSuccess): ?>
+                    <h5 class="fw-bold mb-1">Pembayaran Terkirim</h5>
+                    <p class="text-muted small mb-4">Bukti pembayaran berhasil dikirim. Silakan tunggu konfirmasi admin.</p>
+                <?php else: ?>
+                    <h5 class="fw-bold mb-1">Selesaikan Pembayaran</h5>
+                    <p class="text-muted small mb-3">Data Pembayaran Anda</p>
 
                     <div class="bank-box mb-3">
-                        <label class="text-muted d-block mb-2 small fw-bold" for="metode">Pilih Metode Pembayaran</label>
-                        <select id="metode" name="metode" class="form-select" required>
-                            <option value="">-- Pilih Metode Pembayaran --</option>
-                            <option value="DANA" <?= (isset($pembayaran['metode']) && $pembayaran['metode'] === 'DANA') ? 'selected' : '' ?>>DANA</option>
-                            <option value="OVO" <?= (isset($pembayaran['metode']) && $pembayaran['metode'] === 'OVO') ? 'selected' : '' ?>>OVO</option>
-                            <option value="GOPAY" <?= (isset($pembayaran['metode']) && $pembayaran['metode'] === 'GOPAY') ? 'selected' : '' ?>>GOPAY</option>
-                            <option value="Transfer Bank" <?= (isset($pembayaran['metode']) && $pembayaran['metode'] === 'Transfer Bank') ? 'selected' : '' ?>>Transfer Bank</option>
-                            <option value="COD" <?= (isset($pembayaran['metode']) && $pembayaran['metode'] === 'COD') ? 'selected' : '' ?>>COD (Bayar di Tempat)</option>
-                        </select>
-                    </div>
+                        <small class="text-muted d-block mb-2">Nama Pemesan</small>
+                        <h6 class="mb-2"><?= htmlspecialchars($pembayaran['nama']) ?></h6>
 
-                    <div class="bank-box mb-3">
-                        <small class="text-muted d-block mb-2">Metode Terpilih</small>
-                        <h6 class="mb-0" id="selectedMethod"><?= htmlspecialchars($pembayaran['metode'] ?? 'Transfer Bank') ?></h6>
-                    </div>
+                        <small class="text-muted d-block mb-2">No Handphone</small>
+                        <h6 class="mb-2"><?= htmlspecialchars($pembayaran['hp']) ?></h6>
 
-                    <?php if ($tokenMode && $booking): ?>
                         <div class="bank-box mb-3">
-                            <small class="text-muted d-block mb-2 mt-1">Layanan</small>
-                            <h6 class="mb-2"><?= htmlspecialchars($booking['nama_layanan'] ?: 'Layanan Booking') ?></h6>
-
-                            <small class="text-muted d-block mb-2">Total Pembayaran</small>
-                            <h6 class="mb-0">Rp <?= number_format((float) $booking['total_harga'], 0, ',', '.') ?></h6>
+                            <label class="text-muted d-block mb-2 small fw-bold" for="metode">Pilih Metode Pembayaran</label>
+                            <select id="metode" name="metode" class="form-select" required>
+                                <option value="">-- Pilih Metode Pembayaran --</option>
+                                <option value="DANA" <?= (isset($pembayaran['metode']) && $pembayaran['metode'] === 'DANA') ? 'selected' : '' ?>>DANA</option>
+                                <option value="OVO" <?= (isset($pembayaran['metode']) && $pembayaran['metode'] === 'OVO') ? 'selected' : '' ?>>OVO</option>
+                                <option value="GOPAY" <?= (isset($pembayaran['metode']) && $pembayaran['metode'] === 'GOPAY') ? 'selected' : '' ?>>GOPAY</option>
+                                <option value="Transfer Bank" <?= (isset($pembayaran['metode']) && $pembayaran['metode'] === 'Transfer Bank') ? 'selected' : '' ?>>Transfer Bank</option>
+                                <option value="COD" <?= (isset($pembayaran['metode']) && $pembayaran['metode'] === 'COD') ? 'selected' : '' ?>>COD (Bayar di Tempat)</option>
+                            </select>
                         </div>
-                    <?php endif; ?>
 
-                    <p class="text-muted small mb-2">Silahkan transfer ke rekening berikut untuk melanjutkan pemesanan:</p>
+                        <div class="bank-box mb-3">
+                            <small class="text-muted d-block mb-2">Metode Terpilih</small>
+                            <h6 class="mb-0" id="selectedMethod"><?= htmlspecialchars($pembayaran['metode'] ?? 'Transfer Bank') ?></h6>
+                        </div>
 
-                    <div class="bank-box mb-3">
-                        <small class="text-muted d-block mb-2">BANK BRI</small>
-                        <h4 class="mb-2">883 0987 224</h4>
-                        <small class="text-muted">A/N YAYUK ERNAWATI</small>
+                        <?php if ($tokenMode && $booking): ?>
+                            <div class="bank-box mb-3">
+                                <small class="text-muted d-block mb-2 mt-1">Layanan</small>
+                                <h6 class="mb-2"><?= htmlspecialchars($booking['nama_layanan'] ?: 'Layanan Booking') ?></h6>
+
+                                <small class="text-muted d-block mb-2">Total Pembayaran</small>
+                                <h6 class="mb-0">Rp <?= number_format((float) $booking['total_harga'], 0, ',', '.') ?></h6>
+                            </div>
+                        <?php endif; ?>
+
+                        <p class="text-muted small mb-2">Silahkan transfer ke rekening berikut untuk melanjutkan pemesanan:</p>
+
+                        <div class="bank-box mb-3">
+                            <small class="text-muted d-block mb-2">BANK BRI</small>
+                            <h4 class="mb-2">883 0987 224</h4>
+                            <small class="text-muted">A/N YAYUK ERNAWATI</small>
+                        </div>
+
+                        <form action="../actions/proses_konfirmasi.php" method="post" enctype="multipart/form-data" novalidate>
+                            <?php if ($tokenMode): ?>
+                                <input type="hidden" name="konfirmasi_akhir_token" value="<?= htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?>">
+                            <?php elseif ($idBookingMode): ?>
+                                <input type="hidden" name="id_booking" value="<?= (int) $idBooking ?>">
+                            <?php endif; ?>
+                            <label class="upload-box w-100 mb-3" id="uploadBox">
+                                <div class="fs-3">⇪</div>
+                                <div class="small text-muted">Upload Bukti Pembayaran (.jpg, .png)</div>
+                                <input type="file" name="bukti_pembayaran" accept=".jpg,.jpeg,.png" id="fileInput" required>
+                            </label>
+
+                            <div id="fileNameDisplay" class="small text-muted mb-3" style="display:none;">File: <strong id="fileName"></strong></div>
+
+                            <button type="submit" class="btn-konfirmasi btn-konfirmasi w-100">Kirim Bukti Pembayaran</button>
+                        </form>
                     </div>
-
-                    <style>
-                        .form-select {
-                            border-radius: 8px;
-                            border: 1px solid rgba(208,127,38,0.2);
-                            padding: 10px 12px;
-                            font-size: 0.95rem;
-                        }
-                        .form-select:focus {
-                            border-color: #d07f26;
-                            box-shadow: 0 0 0 3px rgba(208,127,38,0.1);
-                        }
-                    </style>
-
-                    <script>
-                        document.getElementById('metode').addEventListener('change', function() {
-                            document.getElementById('selectedMethod').textContent = this.options[this.selectedIndex].text;
-                        });
-                    </script>
-
-                    <label class="upload-box w-100 mb-3" id="uploadBox">
-                        <div class="fs-3">⇪</div>
-                        <div class="small text-muted">Upload Bukti Pembayaran (.jpg, .png)</div>
-                        <input type="file" name="bukti_pembayaran" accept=".jpg,.jpeg,.png" id="fileInput" required>
-                    </label>
-
-                    <div id="fileNameDisplay" class="small text-muted mb-3" style="display:none;">File: <strong id="fileName"></strong></div>
-
-                    <button type="submit" class="btn-konfirmasi btn-konfirmasi w-100">Kirim Bukti Pembayaran</button>
-                </form>
+                <?php endif; ?>
             </div>
 
-            <div>
-                <div class="card p-3">
-                    <h6 class="fw-bold">Ringkasan</h6>
-                    <div class="small text-muted mb-3">Simpan bukti transfer agar kami dapat memverifikasi pembayaran Anda lebih cepat.</div>
-                    <div class="d-grid gap-2">
-                        <a href="booking.php" class="btn btn-outline-secondary">Lihat Booking Saya</a>
-                        <a href="../public/keranjang.php" class="btn btn-outline-secondary">Kembali ke Keranjang</a>
+            <?php if (!$uploadSuccess): ?>
+                <div>
+                    <div class="card p-3">
+                        <h6 class="fw-bold">Ringkasan</h6>
+                        <div class="small text-muted mb-3">Simpan bukti transfer agar kami dapat memverifikasi pembayaran Anda lebih cepat.</div>
+                        <div class="d-grid gap-2">
+                            <a href="booking.php" class="btn btn-outline-secondary">Lihat Booking Saya</a>
+                            <a href="../public/keranjang.php" class="btn btn-outline-secondary">Kembali ke Keranjang</a>
+                        </div>
                     </div>
                 </div>
-            </div>
+            <?php endif; ?>
 
         </div>
 

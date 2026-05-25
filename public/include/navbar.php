@@ -516,7 +516,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
                 </strong>
               </div>
             </li>
-<a href="riwayat_pesanan.php" class="dropdown-item">
+<a href="/project-mua-final/public/riwayat_pesanan.php" class="dropdown-item">
     <i class="bi bi-clock-history me-2"></i>Riwayat Pesanan
 </a>
             <li><hr class="dropdown-divider"></li>
