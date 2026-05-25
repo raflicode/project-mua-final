@@ -83,6 +83,34 @@ if (!empty($formData)) {
     unset($_SESSION['form_data']);
 }
 
+// Get nominal pembayaran
+$nominalPembayaran = 0;
+$itemDetails = '';
+if ($tokenMode && $booking) {
+    $nominalPembayaran = (float)$booking['total_harga'];
+    $itemDetails = $booking['nama_layanan'] ?? '';
+} else {
+    // Get from session draft_booking
+    $draft = $_SESSION['draft_booking'] ?? [];
+    $nominalPembayaran = (float)($draft['total'] ?? $draft['harga'] ?? 0);
+    if (!empty($draft['items']) && is_array($draft['items'])) {
+        $itemLines = [];
+        foreach ($draft['items'] as $item) {
+            $qty = (int)($item['kuantitas'] ?? $item['qty'] ?? 1);
+            $name = $item['nama_layanan'] ?? 'Layanan';
+            $itemLines[] = "- {$name} x{$qty}";
+        }
+        $itemDetails = implode("\n", $itemLines);
+    } else {
+        $itemDetails = '- ' . ($draft['nama_layanan'] ?? 'Layanan Booking');
+    }
+}
+
+// Helper function untuk format rupiah
+function formatRupiah($value) {
+    return 'Rp ' . number_format((float)$value, 0, ',', '.');
+}
+
 $uploadSuccess = !empty($_GET['uploaded']);
 ?>
 <!DOCTYPE html>
@@ -277,6 +305,11 @@ $uploadSuccess = !empty($_GET['uploaded']);
                             <h6 class="mb-0" id="selectedMethod"><?= htmlspecialchars($pembayaran['metode'] ?? 'Transfer Bank') ?></h6>
                         </div>
 
+                        <div class="bank-box mb-3">
+                            <small class="text-muted d-block mb-2">Nominal Pembayaran</small>
+                            <h6 class="mb-0" id="nominalPembayaran"><?= htmlspecialchars(formatRupiah($nominalPembayaran), ENT_QUOTES, 'UTF-8'); ?></h6>
+                        </div>
+
                         <?php if ($tokenMode && $booking): ?>
                             <div class="bank-box mb-3">
                                 <small class="text-muted d-block mb-2 mt-1">Layanan</small>
@@ -368,6 +401,17 @@ function showPopupMessages() {
 const fileInput = document.getElementById('fileInput');
 const fileNameDisplay = document.getElementById('fileNameDisplay');
 const fileNameText = document.getElementById('fileName');
+const metodeSelect = document.getElementById('metode');
+const selectedMethodDisplay = document.getElementById('selectedMethod');
+
+// Update metode terpilih ketika select berubah
+if (metodeSelect) {
+    metodeSelect.addEventListener('change', function() {
+        if (selectedMethodDisplay) {
+            selectedMethodDisplay.textContent = this.value || 'Pilih Metode Pembayaran';
+        }
+    });
+}
 
 function updateFileDisplay() {
     const fileName = fileInput?.files[0]?.name;

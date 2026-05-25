@@ -73,7 +73,13 @@ try {
     $layananTableExists = false;
 }
 
-if (!$hasDirectSelection && $checkout && !empty($checkout['items']) && is_array($checkout['items'])) {
+if (
+    !$hasDirectSelection &&
+    $checkout &&
+    !empty($checkout['items']) &&
+    is_array($checkout['items']) &&
+    !isset($_GET['nama'])
+) {
     $checkoutMode = true;
     $checkoutItems = $checkout['items'];
     $hargaProduk = floatval($checkout['total_price']);

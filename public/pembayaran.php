@@ -38,6 +38,14 @@ if (!empty($errors)) {
     unset($_SESSION['errors']);
     unset($_SESSION['form_data']);
 }
+
+// Calculate total from draft_booking
+$draft = $_SESSION['draft_booking'];
+$total = (float)($draft['total'] ?? $draft['harga'] ?? 0);
+
+function formatRupiah($value) {
+    return 'Rp ' . number_format((float)$value, 0, ',', '.');
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -218,7 +226,7 @@ if (!empty($errors)) {
         <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="back-nav">
             <i class="bi bi-chevron-left"></i>
         </a>
-        <h1 class="page-title mb-0">Pembayaran</h1>
+        <h1 class="page-title mb-0">Isi Data Diri</h1>
         <div style="width: 45px;"></div>
     </div>
 
@@ -291,7 +299,7 @@ if (!empty($errors)) {
                             
                             <div class="total-box-premium d-flex justify-content-between align-items-center mb-4">
                                 <span class="fw-bold text-muted small">Total Pembayaran</span>
-                                <span class="fw-bold fs-4" style="color: var(--primary-dark);">Rp 810.000</span>
+                                <span class="fw-bold fs-4" style="color: var(--primary-dark);"><?= htmlspecialchars(formatRupiah($total), ENT_QUOTES, 'UTF-8'); ?></span>
                             </div>
 
                             <button type="submit" class="btn btn-bayar w-100">

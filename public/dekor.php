@@ -7,11 +7,15 @@ function dekorImagePath(?string $path): string
     if (!$path) {
         return '../assets/fotodekor1.png';
     }
-
     if (preg_match('#^(https?://|/)#', $path)) {
         return $path;
     }
-
+    if (strpos($path, '../assets/') === 0) {
+        return $path;
+    }
+    if (strpos($path, 'assets/') === 0) {
+        return '../' . $path;
+    }
     return '../' . ltrim($path, '/');
 }
 
@@ -20,7 +24,6 @@ function dekorIncludes(?string $deskripsi): array
     if (!$deskripsi) {
         return ['Layanan dekorasi siap untuk booking.'];
     }
-
     $items = [];
     foreach (preg_split('/\r\n|\n|;/', $deskripsi) as $part) {
         $part = trim($part);
@@ -28,7 +31,6 @@ function dekorIncludes(?string $deskripsi): array
             $items[] = $part;
         }
     }
-
     return $items ?: ['Layanan dekorasi siap untuk booking.'];
 }
 
@@ -39,9 +41,9 @@ function formatRupiah($value): string
 
 $stmt = $pdo->query("SELECT id_layanan, nama_layanan, harga_dasar, foto_layanan, deskripsi FROM layanan WHERE is_active = 1 AND kategori_layanan = 'dekor' ORDER BY nama_layanan ASC");
 $dekorRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-$dekorData = [];
+$dekorDataFromDB = [];
 foreach ($dekorRows as $row) {
-    $dekorData[] = [
+    $dekorDataFromDB[] = [
         'id'      => (int) $row['id_layanan'],
         'jenis'   => $row['nama_layanan'],
         'variasi' => [[
@@ -66,70 +68,194 @@ foreach ($dekorRows as $row) {
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
-* { box-sizing: border-box; }
-body { font-family: 'Poppins', sans-serif; background: #efefef; color: #222; }
-.page-wrap { padding-top: 95px; padding-bottom: 80px; }
-.judul h1 { font-family: 'Lobster', cursive; font-size: 70px; color: #b85a00; text-shadow: 3px 3px 6px rgba(0,0,0,0.25); }
-.line { width: 220px; height: 2px; background: #b85a00; margin: auto; }
 
-/* CARD — sama persis dengan makeup */
-.card-custom { border: none; border-radius: 18px; overflow: hidden; background: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.12); transition: 0.3s; height: 100%; cursor: pointer; }
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #efefef;
+    color: #222;
+}
+
+.page-wrap {
+    padding-top: 95px;
+    padding-bottom: 80px;
+}
+
+.judul h1 {
+    font-family: 'Lobster', cursive;
+    font-size: 70px;
+    color: #b85a00;
+    text-shadow: 3px 3px 6px rgba(0,0,0,.25);
+}
+
+.line {
+    width: 220px;
+    height: 2px;
+    background: #b85a00;
+    margin: auto;
+}
+
+/* CARD */
+.card-custom {
+    border: none;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,.12);
+    transition: .3s;
+    height: 100%;
+    cursor: pointer;
+}
 .card-custom:hover { transform: translateY(-5px); }
 .card-custom .card-body { display: flex; flex-direction: column; height: 100%; }
-.img-paket-wrap { width: 100%; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 12px; margin-bottom: 14px; background: #f3f3f3; }
+
+.img-paket-wrap {
+    width: 100%;
+    aspect-ratio: 4/5;
+    overflow: hidden;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    background: #f3f3f3;
+}
 .img-paket-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.include-ol { padding-left: 20px; margin-bottom: 14px; color: #555; font-size: .88rem; flex-grow: 1; }
+.include-ol li { margin-bottom: 5px; }
+
 .harga-label { font-size: .75rem; color: #999; margin-bottom: 2px; }
 .harga-text { font-weight: 700; color: #b85a00; font-size: 1rem; }
-.variant-count { display: inline-block; background: #fff3e0; color: #b85a00; border: 1px solid #f0c080; border-radius: 20px; padding: 4px 12px; font-size: .72rem; margin-bottom: 12px; }
 
-/* MODAL — identik dengan makeup.php */
+.variant-count {
+    display: inline-block;
+    background: #fff3e0;
+    color: #b85a00;
+    border: 1px solid #f0c080;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: .72rem;
+    margin-bottom: 12px;
+}
+
+/* MODAL */
 .modal-dekor .modal-dialog { max-width: 760px; }
 .modal-dekor .modal-content { border: none; border-radius: 24px; overflow: hidden; }
-.modal-dekor .modal-header { background: #a88656; border: none; padding: 16px 18px; flex-direction: column; align-items: stretch; }
-.modal-level2-bar { display: flex; align-items: center; justify-content: center; gap: 8px; }
-.var-btn { width: 30px; height: 30px; border: none; border-radius: 50%; background: rgba(255,255,255,.18); color: #fff; cursor: pointer; }
-.var-label { flex: 1; text-align: center; color: #fff; font-size: .85rem; font-weight: 600; }
-.counter2 { color: rgba(255,255,255,.7); font-size: .7rem; }
+.modal-dekor .modal-header {
+    background: #a88656;
+    border: none;
+    padding: 16px 18px;
+    flex-direction: column;
+    align-items: stretch;
+}
+.modal-dekor .modal-title {
+    color: #fff;
+    font-weight: 700;
+}
+
 .modal-dekor .modal-body { padding: 24px; }
-.modal-content-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
-.variant-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 12px; }
-.variant-dot { width: 8px; height: 8px; border-radius: 50%; background: #ddd; }
+.modal-content-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.variant-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+.variant-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ddd;
+    cursor: pointer;
+}
 .variant-dot.active { background: #b85a00; transform: scale(1.2); }
-.modal-img-wrap { width: 100%; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 16px; background: #f3f3f3; position: relative; }
-.modal-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
-.foto-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border: none; border-radius: 50%; background: rgba(0,0,0,.35); color: #fff; z-index: 10; }
+
+.modal-img-wrap {
+    width: 100%;
+    aspect-ratio: 1/1;
+    overflow: hidden;
+    border-radius: 16px;
+    background: #f3f3f3;
+    position: relative;
+}
+.modal-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity .15s;
+}
+
+.foto-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0,0,0,.35);
+    color: #fff;
+    z-index: 10;
+}
 .foto-prev { left: 10px; }
 .foto-next { right: 10px; }
+
 .modal-var-name { font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; }
 .modal-harga-label { font-size: .78rem; color: #999; margin-bottom: 2px; }
 .modal-harga-val { font-size: 1.2rem; color: #b85a00; font-weight: 700; margin-bottom: 14px; }
 .modal-include-label { font-size: .92rem; font-weight: 600; margin-bottom: 6px; }
 .modal-include-ol { padding-left: 20px; font-size: .9rem; color: #444; margin-bottom: 4px; }
-.modal-dekor .modal-footer { border: none; padding: 0 24px 20px; gap: 10px; }
-.modal-dekor .modal-footer .btn-dark { background: #a88656; border: none; border-radius: 30px; color: #fff; height: 45px; font-weight: 600; }
-.modal-dekor .modal-footer .btn-dark:hover { background: #967447; }
-.modal-dekor .modal-footer .btn-warning { background: #a88656; color: #fff; border: none; border-radius: 30px; font-weight: 600; height: 45px; }
-.modal-dekor .modal-footer .btn-warning:hover { background: #967447; color: #fff; }
-.btn-kembali { position: fixed; bottom: 20px; left: 20px; border-radius: 30px; padding: 10px 20px; z-index: 1000; }
 
-@media (max-width: 992px) { .modal-dekor .modal-dialog { max-width: 650px; } }
-@media (max-width: 768px) { .judul h1 { font-size: 54px; } }
-@media (max-width: 576px) {
+.modal-dekor .modal-footer { border: none; padding: 0 24px 20px; gap: 10px; }
+.modal-dekor .modal-footer .btn-dark {
+    background: #a88656;
+    border: none;
+    border-radius: 30px;
+    color: #fff;
+    height: 45px;
+    font-weight: 600;
+}
+.modal-dekor .modal-footer .btn-dark:hover { background: #967447; }
+.modal-dekor .modal-footer .btn-warning {
+    background: #a88656;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-weight: 600;
+    height: 45px;
+}
+.modal-dekor .modal-footer .btn-warning:hover { background: #967447; color: #fff; }
+
+.btn-kembali {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    border-radius: 30px;
+    padding: 10px 20px;
+    z-index: 1000;
+}
+
+/* RESPONSIVE */
+@media(max-width:992px) { .modal-dekor .modal-dialog { max-width: 650px; } }
+@media(max-width:768px) { .judul h1 { font-size: 54px; } }
+@media(max-width:576px) {
     .modal-dekor .modal-dialog { width: 86%; max-width: 360px; margin: .75rem auto; }
     .modal-dekor .modal-content { border-radius: 18px; max-height: 88vh; }
-    .modal-dekor .modal-header { padding: 11px 12px; }
-    .modal-level2-bar { gap: 6px; }
-    .var-btn { width: 26px; height: 26px; }
-    .var-label { font-size: .76rem; }
-    .counter2 { font-size: .64rem; }
+    .modal-dekor .modal-header { padding: 11px 14px; }
+    .modal-title { font-size: .98rem; }
     .modal-content-wrap { grid-template-columns: 1fr; gap: 12px; }
-    .modal-dekor .modal-body { padding: 12px; overflow-y: auto; }
-    .modal-img-wrap { max-height: 38vh; aspect-ratio: 1 / 1; border-radius: 12px; }
+    .modal-dekor .modal-body { padding: 12px; }
+    .modal-img-wrap { max-height: 38vh; aspect-ratio: 1/1; border-radius: 12px; }
     .foto-nav { width: 30px; height: 30px; }
-    .variant-dots { margin-bottom: 8px; }
     .modal-var-name { font-size: .95rem; margin-bottom: 6px; }
     .modal-include-label { font-size: .82rem; margin-bottom: 4px; }
-    .modal-include-ol { font-size: .78rem; margin-bottom: 8px; }
+    .modal-include-ol { font-size: .78rem; margin-bottom: 10px; }
+    .modal-harga-label { font-size: .7rem; }
     .modal-harga-val { font-size: 1rem; }
     .modal-dekor .modal-footer { padding: 0 12px 12px; }
     .modal-dekor .modal-footer .btn { padding: 7px 10px; font-size: .84rem; }
@@ -147,80 +273,58 @@ body { font-family: 'Poppins', sans-serif; background: #efefef; color: #222; }
         <div class="line mt-2"></div>
     </div>
 
-    <?php if (empty($dekorData)): ?>
-    <div class="card border-0 shadow-sm">
-        <div class="card-body text-center py-5">
-            <i class="bi bi-inbox display-5 text-muted"></i>
-            <h5 class="mt-3">Belum ada layanan dekor aktif</h5>
-            <p class="text-muted mb-0">Admin dapat menambahkan layanan dekor dari halaman Data Layanan.</p>
-        </div>
-    </div>
-    <?php else: ?>
-    <!-- col-sm-6 col-lg-3 sama seperti makeup -->
-    <div class="row g-4">
-        <?php foreach ($dekorData as $index => $dekor): ?>
-        <div class="col-sm-6 col-lg-3">
-            <div class="card card-custom p-3" onclick="bukaModal(<?= $index ?>)">
-                <div class="card-body p-0">
-                    <h5 class="fw-bold mb-2"><?= htmlspecialchars($dekor['jenis'], ENT_QUOTES, 'UTF-8') ?></h5>
-                    <span class="variant-count"><?= count($dekor['variasi']) ?> variasi tersedia</span>
-                    <div class="img-paket-wrap">
-                        <img src="<?= htmlspecialchars($dekor['variasi'][0]['foto'], ENT_QUOTES, 'UTF-8') ?>"
-                             alt="<?= htmlspecialchars($dekor['jenis'], ENT_QUOTES, 'UTF-8') ?>"
-                             onerror="this.src='https://placehold.co/400x500?text=Foto'">
-                    </div>
-                    <div class="harga-label">Mulai dari</div>
-                    <div class="harga-text"><?= htmlspecialchars($dekor['variasi'][0]['harga'], ENT_QUOTES, 'UTF-8') ?></div>
-                </div>
-            </div>
-        </div>
-        <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
+    <div class="row g-4" id="dekorGrid"></div>
 
 </div>
 </main>
 
-<!-- MODAL — struktur identik dengan makeup.php -->
+<!-- MODAL -->
 <div class="modal fade modal-dekor" id="modalDekor" tabindex="-1">
-<div class="modal-dialog modal-dialog-centered">
+<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
 <div class="modal-content">
 
-<div class="modal-header">
-    <div class="modal-level2-bar">
-        <button class="var-btn" onclick="navigasi2(-1)"><i class="bi bi-chevron-left"></i></button>
-        <div class="var-label" id="varLabel"></div>
-        <div class="counter2" id="counter2"></div>
-        <button class="var-btn" onclick="navigasi2(1)"><i class="bi bi-chevron-right"></i></button>
+    <div class="modal-header">
+        <h5 class="modal-title" id="modalJudul"></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
-</div>
 
-<div class="modal-body">
-    <div class="variant-dots" id="variantDots"></div>
-    <div class="modal-content-wrap">
-        <div class="modal-img-wrap">
-            <button class="foto-nav foto-prev" onclick="navigasi2(-1)"><i class="bi bi-chevron-left"></i></button>
-            <button class="foto-nav foto-next" onclick="navigasi2(1)"><i class="bi bi-chevron-right"></i></button>
-            <img id="modalImg" src="" alt="">
-        </div>
-        <div>
-            <div class="modal-var-name" id="modalVarName"></div>
-            <div class="modal-harga-label">Harga</div>
-            <div class="modal-harga-val" id="modalHarga"></div>
-            <div class="modal-include-label">Include :</div>
-            <ol class="modal-include-ol" id="modalInclude"></ol>
+    <div class="modal-body">
+
+        <div class="variant-dots" id="variantDots"></div>
+
+        <div class="modal-content-wrap">
+
+            <div>
+                <div class="modal-img-wrap" id="fotoWrap">
+                    <button class="foto-nav foto-prev" id="btnFotoPrev" onclick="navigasi(-1)">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button class="foto-nav foto-next" id="btnFotoNext" onclick="navigasi(1)">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                    <img id="modalImg" src="" alt="">
+                </div>
+            </div>
+
+            <div>
+                <div class="modal-var-name" id="modalVarName"></div>
+                <div class="modal-include-label">Include :</div>
+                <ol class="modal-include-ol" id="modalInclude"></ol>
+                <div class="modal-harga-label">Harga</div>
+                <div class="modal-harga-val" id="modalHarga"></div>
+            </div>
+
         </div>
     </div>
-</div>
 
-<div class="modal-footer">
-    <button type="button" class="btn btn-dark flex-grow-1" id="btnKeranjang">
-        <i class="bi bi-cart3"></i> Keranjang
-    </button>
-    <button type="button" class="btn btn-warning flex-grow-1" id="modalBookingBtn">
-        Booking
-    </button>
-</div>
+    <div class="modal-footer justify-content-stretch">
+        <button type="button" class="btn btn-dark flex-grow-1" id="btnKeranjang">
+            <i class="bi bi-cart3"></i> Keranjang
+        </button>
+        <button type="button" class="btn btn-warning flex-grow-1" id="modalBookingBtn">
+            Booking
+        </button>
+    </div>
 
 </div>
 </div>
@@ -231,62 +335,331 @@ body { font-family: 'Poppins', sans-serif; background: #efefef; color: #222; }
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const isLoggedIn = <?php echo isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
-const dekorData = <?= json_encode($dekorData, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
 
-let idxDekor = 0;
+// Data dari database (digunakan jika ada)
+const dekorDataDB = <?= json_encode($dekorDataFromDB, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+
+// Data statis (fallback / default)
+const dekorDataStatis = [
+    {
+        jenis: 'Dekorasi Indoor (Gedung)',
+        variasi: [
+            {
+                nama: 'Dekor 1',
+                foto: '../assets/fotodekor1.png',
+                harga: 'Rp 1.000.000',
+                harga_value: 1000000,
+                include: [
+                    'Pelaminan ukuran 4 meter',
+                    'Full bunga segar (Fresh Flower)',
+                    'Lighting panggung premium & spotlamp',
+                    'Karpet jalan + 4 buah standing flower',
+                    'Gate masuk dekoratif',
+                    'Set meja & kursi akad di gedung'
+                ]
+            },
+            {
+                nama: 'Dekor 2',
+                foto: '../assets/fotodekor2.png',
+                harga: 'Rp 1.000.000',
+                harga_value: 1000000,
+                include: [
+                    'Pelaminan ukuran 4 meter',
+                    'Kombinasi bunga segar & artificial premium',
+                    'Mini garden depan panggung',
+                    'Karpet panggung & karpet jalan',
+                    'Lighting standar panggung',
+                    'Kotak amplop (peminjaman)'
+                ]
+            },
+            {
+                nama: 'Dekor 3',
+                foto: '../assets/fotodekor3.png',
+                harga: 'Rp 1.000.000',
+                harga_value: 1000000,
+                include: [
+                    'Pelaminan ukuran 4 meter',
+                    'Kombinasi bunga segar & artificial premium',
+                    'Mini garden depan panggung',
+                    'Karpet panggung & karpet jalan',
+                    'Lighting standar panggung',
+                    'Kotak amplop (peminjaman)'
+                ]
+            },
+            {
+                nama: 'Dekor 4',
+                foto: '../assets/fotodekor4.png',
+                harga: 'Rp 1.000.000',
+                harga_value: 1000000,
+                include: [
+                    'Pelaminan ukuran 4 meter',
+                    'Kombinasi bunga segar & artificial premium',
+                    'Mini garden depan panggung',
+                    'Karpet panggung & karpet jalan',
+                    'Lighting standar panggung',
+                    'Kotak amplop (peminjaman)'
+                ]
+            },
+            {
+                nama: 'Dekor 5',
+                foto: '../assets/fotodekor5.png',
+                harga: 'Rp 1.000.000',
+                harga_value: 1000000,
+                include: [
+                    'Pelaminan ukuran 4 meter',
+                    'Kombinasi bunga segar & artificial premium',
+                    'Mini garden depan panggung',
+                    'Karpet panggung & karpet jalan',
+                    'Lighting standar panggung',
+                    'Kotak amplop (peminjaman)'
+                ]
+            },
+            {
+                nama: 'Dekor 6',
+                foto: '../assets/fotodekor6.jpeg',
+                harga: 'Rp 1.000.000',
+                harga_value: 1000000,
+                include: [
+                    'Pelaminan ukuran 4 meter',
+                    'Kombinasi bunga segar & artificial premium',
+                    'Mini garden depan panggung',
+                    'Karpet panggung & karpet jalan',
+                    'Lighting standar panggung',
+                    'Kotak amplop (peminjaman)'
+                ]
+            },
+            {
+                nama: 'Dekor 7',
+                foto: '../assets/fotodekor7.jpeg',
+                harga: 'Rp 1.000.000',
+                harga_value: 1000000,
+                include: [
+                    'Pelaminan ukuran 4 meter',
+                    'Kombinasi bunga segar & artificial premium',
+                    'Mini garden depan panggung',
+                    'Karpet panggung & karpet jalan',
+                    'Lighting standar panggung',
+                    'Kotak amplop (peminjaman)'
+                ]
+            },
+            {
+                nama: 'Dekor 8',
+                foto: '../assets/fotodekor8.jpeg',
+                harga: 'Rp 1.000.000',
+                harga_value: 1000000,
+                include: [
+                    'Pelaminan ukuran 4 meter',
+                    'Kombinasi bunga segar & artificial premium',
+                    'Mini garden depan panggung',
+                    'Karpet panggung & karpet jalan',
+                    'Lighting standar panggung',
+                    'Kotak amplop (peminjaman)'
+                ]
+            },
+            {
+                nama: 'Dekor 9',
+                foto: '../assets/fotodekor9.jpeg',
+                harga: 'Rp 1.000.000',
+                harga_value: 1000000,
+                include: [
+                    'Pelaminan ukuran 4 meter',
+                    'Kombinasi bunga segar & artificial premium',
+                    'Mini garden depan panggung',
+                    'Karpet panggung & karpet jalan',
+                    'Lighting standar panggung',
+                    'Kotak amplop (peminjaman)'
+                ]
+            },
+            {
+                nama: 'Dekor 10',
+                foto: '../assets/fotodekor10.jpeg',
+                harga: 'Rp 1.000.000',
+                harga_value: 1000000,
+                include: [
+                    'Pelaminan ukuran 4 meter',
+                    'Kombinasi bunga segar & artificial premium',
+                    'Mini garden depan panggung',
+                    'Karpet panggung & karpet jalan',
+                    'Lighting standar panggung',
+                    'Kotak amplop (peminjaman)'
+                ]
+            },
+            {
+                nama: 'Dekor 11',
+                foto: '../assets/fotodekor11.jpeg',
+                harga: 'Rp 1.000.000',
+                harga_value: 1000000,
+                include: [
+                    'Pelaminan ukuran 4 meter',
+                    'Kombinasi bunga segar & artificial premium',
+                    'Mini garden depan panggung',
+                    'Karpet panggung & karpet jalan',
+                    'Lighting standar panggung',
+                    'Kotak amplop (peminjaman)'
+                ]
+            }
+        ]
+    },
+    {
+        jenis: 'Dekorasi Outdoor (Halaman/Taman)',
+        variasi: [
+            {
+                nama: 'Dekor 4 meter',
+                foto: '../assets/4meter.png',
+                harga: 'Rp 2.000.000',
+                harga_value: 2000000,
+                include: [
+                    'Background panggung kayu/vintage backdrop 4 meter',
+                    'Full pampas grass & kombinasi bunga segar',
+                    'Lampu gantung dekoratif (Fairylights)',
+                    'Welcome signage kayu estetik',
+                    'Set kursi pelaminan kayu / rotan',
+                    'Gate masuk model segitiga/lingkar daun'
+                ]
+            },
+            {
+                nama: 'Dekor 6 meter',
+                foto: '../assets/6meter.jpg',
+                harga: 'Rp 3.000.000',
+                harga_value: 3000000,
+                include: [
+                    'Background panggung kayu/vintage backdrop 6 meter',
+                    'Full pampas grass & kombinasi bunga segar',
+                    'Lampu gantung dekoratif (Fairylights)',
+                    'Welcome signage kayu estetik',
+                    'Set kursi pelaminan kayu / rotan',
+                    'Gate masuk model segitiga/lingkar daun'
+                ]
+            },
+            {
+                nama: 'Dekor 8 meter',
+                foto: '../assets/foto8m.jpg',
+                harga: 'Rp 4.500.000',
+                harga_value: 4500000,
+                include: [
+                    'Background panggung kayu/vintage backdrop 8 meter',
+                    'Full pampas grass & kombinasi bunga segar',
+                    'Lampu gantung dekoratif (Fairylights)',
+                    'Welcome signage kayu estetik',
+                    'Set kursi pelaminan kayu / rotan',
+                    'Gate masuk model segitiga/lingkar daun'
+                ]
+            }
+        ]
+    }
+];
+
+// Gunakan data DB jika ada, jika tidak pakai data statis
+const dekorData = dekorDataDB.length > 0 ? dekorDataDB : dekorDataStatis;
+
+let idxDekor   = 0;
 let idxVariasi = 0;
-let bsModal = null;
+let bsModal    = null;
+
+function renderCards() {
+    const grid = document.getElementById('dekorGrid');
+
+    if (dekorData.length === 0) {
+        grid.innerHTML = `
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-inbox display-5 text-muted"></i>
+                    <h5 class="mt-3">Belum ada layanan dekor aktif</h5>
+                    <p class="text-muted mb-0">Admin dapat menambahkan layanan dekor dari halaman Data Layanan.</p>
+                </div>
+            </div>
+        </div>`;
+        return;
+    }
+
+    grid.innerHTML = dekorData.map((k, i) => {
+        const f = k.variasi[0];
+        return `
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="card card-custom p-3" onclick="bukaModal(${i})">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-2">${k.jenis}</h5>
+                    <span class="variant-count">${k.variasi.length} variasi tersedia</span>
+                    <div class="img-paket-wrap">
+                        <img src="${f.foto}" alt="${k.jenis}"
+                             onerror="this.src='https://placehold.co/400x500?text=Foto'">
+                    </div>
+                    <p class="fw-semibold mb-1">Include :</p>
+                    <ol class="include-ol">${f.include.map(x => `<li>${x}</li>`).join('')}</ol>
+                    <div class="harga-label">Mulai dari</div>
+                    <div class="harga-text">${f.harga}</div>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
 
 function bukaModal(i) {
-    idxDekor = i;
+    idxDekor   = i;
     idxVariasi = 0;
     renderModal();
     if (!bsModal) {
         bsModal = new bootstrap.Modal(document.getElementById('modalDekor'));
+        setupSwipe();
     }
     bsModal.show();
 }
 
 function renderModal() {
-    const dekor = dekorData[idxDekor];
-    const varian = dekor.variasi[idxVariasi];
+    const k = dekorData[idxDekor];
+    const v = k.variasi[idxVariasi];
 
-    document.getElementById('varLabel').textContent = varian.nama;
-    document.getElementById('counter2').textContent = `${idxVariasi + 1}/${dekor.variasi.length}`;
-
-    const imgEl = document.getElementById('modalImg');
-    imgEl.src = varian.foto;
-    imgEl.onerror = function () { this.src = 'https://placehold.co/400x500?text=Foto'; };
-
-    document.getElementById('modalVarName').textContent = varian.nama;
-    document.getElementById('modalHarga').textContent = varian.harga;
-    document.getElementById('modalInclude').innerHTML = varian.include.map(x => `<li>${x}</li>`).join('');
-    document.getElementById('variantDots').innerHTML = dekor.variasi.map((_, i) =>
-        `<div class="variant-dot ${i === idxVariasi ? 'active' : ''}"></div>`
+    document.getElementById('modalJudul').textContent   = k.jenis;
+    document.getElementById('modalImg').src             = v.foto;
+    document.getElementById('modalImg').alt             = v.nama;
+    document.getElementById('modalImg').onerror         = function () { this.src = 'https://placehold.co/400x500?text=Foto'; };
+    document.getElementById('modalVarName').textContent = v.nama;
+    document.getElementById('modalHarga').textContent   = v.harga;
+    document.getElementById('modalInclude').innerHTML   = v.include.map(x => `<li>${x}</li>`).join('');
+    document.getElementById('btnFotoPrev').disabled     = idxVariasi === 0;
+    document.getElementById('btnFotoNext').disabled     = idxVariasi === k.variasi.length - 1;
+    document.getElementById('variantDots').innerHTML    = k.variasi.map((_, di) =>
+        `<div class="variant-dot ${di === idxVariasi ? 'active' : ''}" onclick="jumpVariasi(${di})"></div>`
     ).join('');
 }
 
-function navigasi2(arah) {
-    const dekor = dekorData[idxDekor];
+function navigasi(arah) {
+    const k    = dekorData[idxDekor];
     const next = idxVariasi + arah;
-    if (next < 0 || next >= dekor.variasi.length) return;
+    if (next < 0 || next >= k.variasi.length) return;
     idxVariasi = next;
-    renderModal();
+    const img  = document.getElementById('modalImg');
+    img.style.opacity = '0';
+    setTimeout(() => { renderModal(); img.style.opacity = '1'; }, 150);
 }
 
-function getPriceValue(priceText) {
-    return Number(String(priceText).replace(/[^0-9]/g, '')) || 0;
+function jumpVariasi(i) {
+    idxVariasi = i;
+    const img  = document.getElementById('modalImg');
+    img.style.opacity = '0';
+    setTimeout(() => { renderModal(); img.style.opacity = '1'; }, 150);
 }
 
-document.getElementById('btnKeranjang').addEventListener('click', () => {
-    const selected = dekorData[idxDekor].variasi[idxVariasi];
-    addToCart(selected.nama, 'dekor', getPriceValue(selected.harga), selected.foto, selected.id);
-});
+function setupSwipe() {
+    const wrap = document.getElementById('fotoWrap');
+    let startX = 0, startY = 0;
+    wrap.addEventListener('touchstart', e => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    }, { passive: true });
+    wrap.addEventListener('touchend', e => {
+        const dx = startX - e.changedTouches[0].clientX;
+        const dy = Math.abs(startY - e.changedTouches[0].clientY);
+        if (Math.abs(dx) > 40 && dy < 60) navigasi(dx > 0 ? 1 : -1);
+    });
+}
+
+function getPriceValue(v) {
+    return v.harga_value || Number(String(v.harga).replace(/[^0-9]/g, '')) || 0;
+}
 
 document.getElementById('modalBookingBtn').addEventListener('click', () => {
-    const selected = dekorData[idxDekor].variasi[idxVariasi];
-    const harga = getPriceValue(selected.harga);
-
     if (!isLoggedIn) {
         Swal.fire({
             icon: 'warning',
@@ -304,11 +677,31 @@ document.getElementById('modalBookingBtn').addEventListener('click', () => {
                 window.location.href = 'register.php';
             }
         });
-        return;
+    } else {
+        const v = dekorData[idxDekor].variasi[idxVariasi];
+        const priceValue = v.harga_value || Number(String(v.harga).replace(/[^0-9]/g, '')) || 0;
+        window.location.href = `booking.php?from=dekor&id=${encodeURIComponent(v.id || '')}&layanan=${encodeURIComponent(v.nama)}&harga=${priceValue}&foto=${encodeURIComponent(v.foto)}`;
     }
-
-    window.location.href = `booking.php?from=dekor&id=${encodeURIComponent(selected.id)}&layanan=${encodeURIComponent(selected.nama)}&harga=${harga}`;
 });
+
+document.getElementById('btnKeranjang').addEventListener('click', () => {
+    const v   = dekorData[idxDekor].variasi[idxVariasi];
+    const num = v.harga_value || Number(String(v.harga).replace(/[^0-9]/g, '')) || 0;
+    const id  = v.id || null;
+    if (typeof addToCart === 'function') {
+        addToCart(v.nama, 'dekor', num, v.foto, id);
+    } else {
+        let cart = JSON.parse(localStorage.getItem('yayuk_cart')) || [];
+        const fallbackId = id || `dekor-${idxDekor}-${idxVariasi}`;
+        const idx = cart.findIndex(i => i.id === fallbackId);
+        if (idx > -1) cart[idx].qty += 1;
+        else cart.push({ id: fallbackId, nama: v.nama, harga: num, foto: v.foto, qty: 1 });
+        localStorage.setItem('yayuk_cart', JSON.stringify(cart));
+        alert(v.nama + ' berhasil ditambah ke keranjang!');
+    }
+});
+
+renderCards();
 </script>
 <?php include 'include/add_to_cart_script.php'; ?>
 </body>

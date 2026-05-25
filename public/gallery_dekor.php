@@ -106,7 +106,7 @@ if (empty($photos)) {
 
 <div class="container-fluid px-3 px-md-4 px-lg-5" style="padding-top: 65px;">
     <div class="hero-card mt-3">
-        <img src="../assets/foto_dekor.jpeg" alt="Gallery Dekor">
+        <img src="../assets/foto_muayayuk.jpeg" alt="Gallery Dekor">
         <div class="hero-overlay">
             <div>
                 <h2 class="hero-title" style="color:white;">Keanggunan Dekorasi untuk Hari Istimewa Anda.</h2>

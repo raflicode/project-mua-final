@@ -42,7 +42,7 @@ function formatRupiah($value)
 
 $namaLayanan = $draft['nama_layanan'] ?? 'Layanan booking';
 $idBooking = (int) ($draft['id_booking'] ?? 0);
-$total = (float) ($draft['total'] ?? $draft['harga'] ?? 0) + 10000;
+$total = (float) ($draft['total'] ?? $draft['harga'] ?? 0);
 $tanggal = $draft['tanggal'] ?? '-';
 $jamMulai = isset($draft['jam_mulai']) ? substr($draft['jam_mulai'], 0, 5) : '-';
 $jamSelesai = isset($draft['jam_selesai']) ? substr($draft['jam_selesai'], 0, 5) : '-';
@@ -65,7 +65,7 @@ $pesan = "Halo Admin Yayuk Makeover, saya ingin konfirmasi ketersediaan booking.
     . "No HP: " . ($pembayaran['hp'] ?? '-') . "\n"
     . "Layanan:\n{$layananText}\n"
     . "Tanggal: {$tanggal}\n"
-    . "Jam: {$jamMulai} - {$jamSelesai}\n"
+    . "Jam: {$jamMulai}\n"
     . "Metode Pembayaran: " . ($pembayaran['metode'] ?? '-') . "\n"
     . "Alamat: " . ($pembayaran['alamat'] ?? '-') . "\n";
 
@@ -203,7 +203,7 @@ $waUrl = 'https://wa.me/6281333273119?' . http_build_query(['text' => $pesan]);
                     </div>
                     <div class="col-md-6">
                         <div class="text-muted small">Tanggal & Jam</div>
-                        <div class="fw-bold"><?= htmlspecialchars($tanggal . ' / ' . $jamMulai . ' - ' . $jamSelesai, ENT_QUOTES, 'UTF-8'); ?></div>
+                        <div class="fw-bold"><?= htmlspecialchars($tanggal . ' / Jam ' . $jamMulai, ENT_QUOTES, 'UTF-8'); ?></div>
                     </div>
                     <div class="col-md-6">
                         <div class="text-muted small">Total Estimasi</div>
