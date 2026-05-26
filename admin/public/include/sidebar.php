@@ -280,6 +280,7 @@ body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-icon {
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
