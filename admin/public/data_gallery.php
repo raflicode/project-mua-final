@@ -71,9 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $foto = 'assets/gallery/' . $fileName;
         }
 
-            if ($foto === '') {
-                gallery_redirect('Foto gallery wajib diunggah.', 'danger');
-            }
+        if ($foto === '') {
+            gallery_redirect('Foto gallery wajib diunggah.', 'danger');
+        }
 
         if ($id > 0) {
             $stmt = $pdo->prepare('UPDATE gallery SET kategori = ?, judul = ?, deskripsi = ?, foto = ?, urutan = ? WHERE id_gallery = ?');
@@ -131,6 +131,53 @@ unset($_SESSION['gallery_flash']);
             --sidebar-w:   260px;
         }
 
+        /* Memaksa sidebar baru menggunakan tema warna asli cokelat */
+        .sidebar {
+            background: var(--brown-dark) !important;
+            border-right: 1px solid var(--cream-deep) !important;
+        }
+        .sidebar .brand-title h5, .sidebar-link, .sidebar-label {
+            color: var(--cream) !important;
+        }
+        .sidebar-brand .brand-icon {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: var(--cream) !important;
+        }
+        .sidebar-icon {
+            color: var(--brown-light) !important;
+        }
+        .sidebar-link:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: var(--white) !important;
+        }
+        .sidebar-link.active {
+            background: var(--brown) !important;
+            color: var(--white) !important;
+        }
+        .sidebar-link.active .sidebar-icon {
+            color: var(--white) !important;
+        }
+
+        /* Override Khusus Topbar Header Supaya Lancip, Menempel Ke Atas, dan Tetap Berwarna Cokelat Terang */
+        .main-content-wrapper .topbar {
+            margin-top: 0 !important;
+            margin-bottom: 24px !important; /* memberi jarak aman ke konten bawah */
+            border-top-left-radius: 0 !important;
+            border-top-right-radius: 0 !important;
+            border-left: none !important;
+            border-right: none !important;
+            border-top: none !important;
+            width: 100% !important;
+            
+            /* Mengunci warna background agar tidak terpengaruh dark mode browser */
+            background: rgba(255, 255, 255, 0.8) !important;
+            --topbar-text-main: #1e1a16 !important;
+            --topbar-text-sub: #706e6b !important;
+            --topbar-border: rgba(30, 26, 22, 0.08) !important;
+            --badge-bg: #fcfbfa !important;
+            --badge-border: rgba(30, 26, 22, 0.08) !important;
+        }
+
         * { margin:0; padding:0; box-sizing:border-box; }
 
         body {
@@ -138,22 +185,32 @@ unset($_SESSION['gallery_flash']);
             background:var(--cream);
             color:var(--text-main);
             min-height:100vh;
-            display:flex;
+            display: flex;
         }
 
-        .sidebar { width:var(--sidebar-w); min-height:100vh; background:var(--brown-dark); display:flex; flex-direction:column; position:fixed; top:0; left:0; z-index:100; }
-        .content { padding:24px; flex:1; margin-left:var(--sidebar-w); }
-        .content-header { margin-bottom:28px; }
-        .content-header h2 { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:600; color:var(--brown-dark); margin-bottom:4px; }
-        .content-header p { font-size:0.85rem; color:var(--text-muted); }
-        .card-custom { border-radius:20px; border:1.5px solid var(--cream-deep); background:var(--white); padding:22px; }
-        .form-grid { display:grid; grid-template-columns:1fr; gap:16px; }
-        .form-grid .card-custom { padding:20px; }
-        .form-group label { display:block; font-size:0.85rem; margin-bottom:8px; color:var(--text-main); }
+        /* Area utama penampung konten */
+        .main-content-wrapper {
+            flex: 1;
+            margin-left: var(--sidebar-w);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: calc(100% - var(--sidebar-w));
+        }
+
+        .content-body {
+            padding: 0 28px 28px 28px; /* Atas dikurangi agar jarak dari header pas */
+            flex: 1;
+        }
+
+        .card-custom { border-radius:20px; border:1.5px solid var(--cream-deep); background:var(--white); padding:22px; margin-bottom: 24px; }
+        .form-group label { display:block; font-size:0.85rem; margin-bottom:8px; color:var(--text-main); font-weight: 500; }
         .form-group input, .form-group textarea, .form-group select { width:100%; padding:10px 12px; border:1px solid var(--cream-deep); border-radius:12px; background:var(--cream-dark); color:var(--text-main); }
+        
         .gallery-table { width:100%; border-collapse:collapse; }
         .gallery-table th, .gallery-table td { padding:14px 12px; border-bottom:1px solid #e8e1d7; vertical-align:middle; }
         .gallery-table th { background:var(--cream); color:var(--brown-dark); font-weight:600; text-align:left; }
+        
         .thumb-img { width:100%; max-width:110px; border-radius:14px; object-fit:cover; height:80px; }
         .gallery-table td { word-break: break-word; }
         .badge-kategori { padding:6px 10px; border-radius:999px; font-size:0.75rem; font-weight:600; }
@@ -163,128 +220,126 @@ unset($_SESSION['gallery_flash']);
         .btn-action { display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap; }
         .uploads-note { font-size:0.8rem; color:var(--text-muted); }
         .img-modal { width:100%; max-height:60vh; object-fit:contain; border-radius:14px; }
-        @media (min-width: 768px) { .form-grid { grid-template-columns: 1.4fr 0.6fr; } }
+        
         @media (max-width: 991.98px) {
-            .sidebar { position:relative; width:100%; min-height:auto; }
-            .content { margin-left:0; padding:16px; }
+            .main-content-wrapper { margin-left:0; width: 100%; }
+            .content-body { padding: 16px; }
         }
     </style>
 </head>
 <body>
 
 <?php
-$page = 'data_gallery';
+$page = 'gallery'; 
 include 'include/sidebar.php';
 ?>
 
-<?php
-$page_title = 'Data Gallery';
-$breadcrumb = 'Admin / Data Gallery';
-include 'include/header.php';
-?>
+<div class="main-content-wrapper">
 
-<div class="content">
-    <?php if ($flash): ?>
-        <div class="alert alert-<?= htmlspecialchars($flash['type'], ENT_QUOTES, 'UTF-8'); ?> alert-dismissible fade show" role="alert">
-            <?= htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php endif; ?>
+    <?php
+    $page_title = 'Data Gallery';
+    $breadcrumb = 'Admin / Data Gallery';
+    include 'include/header.php';
+    ?>
 
-    <div class="content-header">
-        <h2>Data Gallery</h2>
-        <p>Tambahkan gambar gallery untuk halaman client makeup, dekor, dan kostum.</p>
-    </div>
-
-    <div class="card-custom">
-        <div class="d-flex align-items-center" style="margin-bottom:18px;">
-            <h4 id="galleryFormTitle">Tambah Gallery Baru</h4>
-        </div>
-        <form method="post" enctype="multipart/form-data" onsubmit="return validateGalleryForm(event);">
-            <div class="row gx-4 gy-3">
-                <div class="col-lg-8">
-                    <div class="form-group mb-3">
-                        <label for="kategori_gallery">Kategori</label>
-                        <select id="kategori_gallery" name="kategori_gallery">
-                            <option value="makeup">Makeup</option>
-                            <option value="dekor">Dekor</option>
-                            <option value="kostum">Kostum</option>
-                        </select>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="judul_gallery">Judul Gambar</label>
-                        <input type="text" id="judul_gallery" name="judul_gallery" placeholder="Judul gambar" required>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="deskripsi_gallery">Deskripsi</label>
-                        <textarea id="deskripsi_gallery" name="deskripsi_gallery" rows="4" placeholder="Deskripsi singkat"></textarea>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="form-group mb-3">
-                        <label for="urutan_gallery">Urutan Tampil</label>
-                        <input type="number" id="urutan_gallery" name="urutan_gallery" value="0" min="0">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="foto_gallery">Unggah Foto</label>
-                        <input type="file" id="foto_gallery" name="foto_gallery" accept="image/jpeg,image/png,image/webp">
-                        <p class="uploads-note">Format JPG, PNG, WEBP. Ukuran file max 5MB.</p>
-                        <img id="fotoGalleryPreview" src="" alt="Preview Foto" class="w-100" style="display:none; max-height:240px; object-fit:cover; border-radius:12px; margin-top:12px; border:1px solid #e8e1d7;">
-                    </div>
-                    <input type="hidden" id="id_gallery" name="id_gallery" value="0">
-                    <input type="hidden" id="foto_lama" name="foto_lama" value="">
-                    <input type="hidden" name="action" value="save">
-                    <button type="submit" class="btn btn-brown w-100" id="gallerySubmitBtn" style="background:var(--brown); color:var(--white);">Simpan Gallery</button>
-                </div>
+    <div class="content-body">
+        <?php if ($flash): ?>
+            <div class="alert alert-<?= htmlspecialchars($flash['type'], ENT_QUOTES, 'UTF-8'); ?> alert-dismissible fade show" role="alert">
+                <?= htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-        </form>
-    </div>
+        <?php endif; ?>
 
-    <div class="card-custom mt-4">
-        <h4 style="margin-bottom:18px;">Daftar Gallery</h4>
-        <div class="table-responsive">
-            <table class="gallery-table">
-                <thead>
-                    <tr>
-                        <th>Preview</th>
-                        <th>Judul</th>
-                        <th>Kategori</th>
-                        <th>Urutan</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($galleryRows)): ?>
+        <div class="card-custom">
+            <div class="d-flex align-items-center" style="margin-bottom:18px;">
+                <h4 id="galleryFormTitle" style="font-weight: 600; color: var(--brown-dark);">Tambah Gallery Baru</h4>
+            </div>
+            <form method="post" enctype="multipart/form-data" onsubmit="return validateGalleryForm(event);">
+                <div class="row gx-4 gy-3">
+                    <div class="col-lg-8">
+                        <div class="form-group mb-3">
+                            <label for="kategori_gallery">Kategori</label>
+                            <select id="kategori_gallery" name="kategori_gallery">
+                                <option value="makeup">Makeup</option>
+                                <option value="dekor">Dekor</option>
+                                <option value="kostum">Kostum</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="judul_gallery">Judul Gambar</label>
+                            <input type="text" id="judul_gallery" name="judul_gallery" placeholder="Judul gambar" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="deskripsi_gallery">Deskripsi</label>
+                            <textarea id="deskripsi_gallery" name="deskripsi_gallery" rows="4" placeholder="Deskripsi singkat"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="form-group mb-3">
+                            <label for="urutan_gallery">Urutan Tampil</label>
+                            <input type="number" id="urutan_gallery" name="urutan_gallery" value="0" min="0">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="foto_gallery">Unggah Foto</label>
+                            <input type="file" id="foto_gallery" name="foto_gallery" accept="image/jpeg,image/png,image/webp">
+                            <p class="uploads-note mt-1">Format JPG, PNG, WEBP. Ukuran file max 5MB.</p>
+                            <img id="fotoGalleryPreview" src="" alt="Preview Foto" class="w-100" style="display:none; max-height:240px; object-fit:cover; border-radius:12px; margin-top:12px; border:1px solid #e8e1d7;">
+                        </div>
+                        <input type="hidden" id="id_gallery" name="id_gallery" value="0">
+                        <input type="hidden" id="foto_lama" name="foto_lama" value="">
+                        <input type="hidden" name="action" value="save">
+                        <button type="submit" class="btn btn-brown w-100 py-2" id="gallerySubmitBtn" style="background:var(--brown); color:var(--white); border-radius: 12px; border: none; font-weight: 500;">Simpan Gallery</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="card-custom">
+            <h4 style="margin-bottom:18px; font-weight: 600; color: var(--brown-dark);">Daftar Gallery</h4>
+            <div class="table-responsive">
+                <table class="gallery-table">
+                    <thead>
                         <tr>
-                            <td colspan="5" style="padding:18px;">Belum ada data gallery.</td>
+                            <th>Preview</th>
+                            <th>Judul</th>
+                            <th>Kategori</th>
+                            <th>Urutan</th>
+                            <th>Aksi</th>
                         </tr>
-                    <?php else: ?>
-                        <?php foreach ($galleryRows as $item): ?>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($galleryRows)): ?>
                             <tr>
-                                <td><img src="<?= htmlspecialchars($item['foto'], ENT_QUOTES, 'UTF-8'); ?>" alt="<?= htmlspecialchars($item['judul'], ENT_QUOTES, 'UTF-8'); ?>" class="thumb-img"></td>
-                                <td>
-                                    <strong><?= htmlspecialchars($item['judul'], ENT_QUOTES, 'UTF-8'); ?></strong>
-                                    <p style="margin:4px 0 0; color:var(--text-muted); font-size:0.85rem;"><?= htmlspecialchars($item['deskripsi'], ENT_QUOTES, 'UTF-8'); ?></p>
-                                </td>
-                                <td>
-                                    <span class="badge-kategori <?= 'badge-' . $item['kategori']; ?>"><?= htmlspecialchars(ucfirst($item['kategori']), ENT_QUOTES, 'UTF-8'); ?></span>
-                                </td>
-                                <td><?= $item['urutan']; ?></td>
-                                <td>
-                                    <button type="button" class="btn btn-sm btn-outline-primary btn-action" onclick="editGalleryItem(<?= $item['id']; ?>)"><i class="bi bi-pencil"></i> Edit</button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-action" onclick="previewGalleryItem(<?= $item['id']; ?>)"><i class="bi bi-eye"></i> Lihat</button>
-                                    <form method="post" style="display:inline-block;" onsubmit="return confirm('Hapus item gallery ini?');">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id_gallery" value="<?= $item['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger btn-action"><i class="bi bi-trash"></i> Hapus</button>
-                                    </form>
-                                </td>
+                                <td colspan="5" class="text-center text-muted" style="padding:18px;">Belum ada data gallery.</td>
                             </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                        <?php else: ?>
+                            <?php foreach ($galleryRows as $item): ?>
+                                <tr>
+                                    <td><img src="<?= htmlspecialchars($item['foto'], ENT_QUOTES, 'UTF-8'); ?>" alt="<?= htmlspecialchars($item['judul'], ENT_QUOTES, 'UTF-8'); ?>" class="thumb-img"></td>
+                                    <td>
+                                        <strong><?= htmlspecialchars($item['judul'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                                        <p style="margin:4px 0 0; color:var(--text-muted); font-size:0.85rem;"><?= htmlspecialchars($item['deskripsi'], ENT_QUOTES, 'UTF-8'); ?></p>
+                                    </td>
+                                    <td>
+                                        <span class="badge-kategori <?= 'badge-' . $item['kategori']; ?>"><?= htmlspecialchars(ucfirst($item['kategori']), ENT_QUOTES, 'UTF-8'); ?></span>
+                                    </td>
+                                    <td><?= $item['urutan']; ?></td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-action" onclick="editGalleryItem(<?= $item['id']; ?>)"><i class="bi bi-pencil"></i> Edit</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-action" onclick="previewGalleryItem(<?= $item['id']; ?>)"><i class="bi bi-eye"></i> Lihat</button>
+                                        <form method="post" style="display:inline-block;" onsubmit="return confirm('Hapus item gallery ini?');">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="id_gallery" value="<?= $item['id']; ?>">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger btn-action"><i class="bi bi-trash"></i> Hapus</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -366,10 +421,7 @@ include 'include/header.php';
         return true;
     }
 
-    // removed resetGalleryForm (button removed) - preserve initial form state on page load
-
     function editGalleryItem(itemId) {
-        // coerce both sides to numbers to avoid strict-type mismatches
         const idNum = Number(itemId);
         const item = galleryRows.find(row => Number(row.id) === idNum || row.id == idNum);
         if (!item) {

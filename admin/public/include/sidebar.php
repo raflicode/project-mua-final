@@ -5,33 +5,37 @@ $page = $page ?? pathinfo($_SERVER['SCRIPT_NAME'] ?? '', PATHINFO_FILENAME);
 <style>
 :root {
     --surface: #ffffff;
-    --surface-soft: #f7f6f5;
-    --surface-muted: #f2efec;
-    --surface-strong: #f0ebe3;
+    --surface-soft: #fcfbfa;
+    --surface-muted: #f4f1ee;
+    --surface-strong: #ede9e4;
     --text-primary: #1e1a16;
-    --text-secondary: #6f6b63;
-    --text-muted: #958e84;
-    --border: rgba(30, 26, 22, 0.12);
+    --text-secondary: #5c5852;
+    --text-muted: #9c968f;
+    --border: rgba(30, 26, 22, 0.08);
     --accent: #8c6f4c;
-    --accent-soft: rgba(140, 111, 76, 0.12);
-    --shadow: 0 32px 80px rgba(21, 16, 11, 0.08);
-    --sidebar-width: 270px;
-    --sidebar-collapsed-width: 90px;
+    --accent-soft: rgba(140, 111, 76, 0.08);
+    --accent-hover: rgba(140, 111, 76, 0.12);
+    --danger: #dc3545;
+    --danger-soft: rgba(220, 53, 69, 0.08);
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 80px;
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --surface: #171717;
-        --surface-soft: #202020;
-        --surface-muted: #252525;
-        --surface-strong: #2f2f2f;
-        --text-primary: #f7f7f7;
-        --text-secondary: #c1bdb6;
-        --text-muted: #9b968f;
-        --border: rgba(255, 255, 255, 0.08);
+        --surface: #141414;
+        --surface-soft: #1c1c1c;
+        --surface-muted: #262626;
+        --surface-strong: #333333;
+        --text-primary: #f5f5f5;
+        --text-secondary: #adaba8;
+        --text-muted: #706e6b;
+        --border: rgba(255, 255, 255, 0.06);
         --accent: #d4b37a;
-        --accent-soft: rgba(212, 179, 122, 0.16);
-        --shadow: 0 32px 80px rgba(0, 0, 0, 0.22);
+        --accent-soft: rgba(212, 179, 122, 0.1);
+        --accent-hover: rgba(212, 179, 122, 0.15);
+        --danger: #ea5455;
+        --danger-soft: rgba(234, 84, 85, 0.12);
     }
 }
 
@@ -41,46 +45,44 @@ $page = $page ?? pathinfo($_SERVER['SCRIPT_NAME'] ?? '', PATHINFO_FILENAME);
     left: 0;
     bottom: 0;
     width: var(--sidebar-width);
-    padding: 28px 18px 20px;
+    padding: 24px 16px;
     background: var(--surface);
     border-right: 1px solid var(--border);
-    box-shadow: inset -1px 0 0 rgba(31, 23, 15, 0.04);
     display: flex;
     flex-direction: column;
-    gap: 18px;
-    transition: width 0.28s ease, padding 0.28s ease, box-shadow 0.28s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1050;
 }
 
 body[data-sidebar-state='collapsed'] .sidebar {
     width: var(--sidebar-collapsed-width);
+    padding: 24px 12px;
 }
 
 .sidebar-brand {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 14px;
-    border-radius: 18px;
-    transition: padding 0.28s ease;
+    padding: 6px 10px;
+    margin-bottom: 24px;
 }
 
 .sidebar-brand .brand-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 14px;
-    background: var(--surface-muted);
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 10px;
+    background: var(--accent-soft);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 16px;
     color: var(--accent);
 }
 
 .sidebar-brand .brand-title {
     display: flex;
     flex-direction: column;
-    gap: 3px;
     min-width: 0;
 }
 
@@ -90,16 +92,19 @@ body[data-sidebar-state='collapsed'] .sidebar {
     margin: 0;
     color: var(--text-primary);
     white-space: nowrap;
+    letter-spacing: -0.01em;
 }
 
 .sidebar-brand small {
-    font-size: 0.74rem;
+    font-size: 0.75rem;
+    font-weight: 500;
     color: var(--text-muted);
     white-space: nowrap;
 }
 
 body[data-sidebar-state='collapsed'] .sidebar-brand {
     justify-content: center;
+    padding: 6px 0;
 }
 
 body[data-sidebar-state='collapsed'] .sidebar-brand .brand-title {
@@ -109,22 +114,22 @@ body[data-sidebar-state='collapsed'] .sidebar-brand .brand-title {
 .sidebar-menu {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
+    flex: 1;
 }
 
-.sidebar-link,
-.sidebar-item,
-.submenu-item {
+.sidebar-link {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 12px 14px;
-    border-radius: 16px;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: 0.94rem;
-    transition: all 0.22s ease;
-    min-height: 48px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-height: 44px;
     background: transparent;
     border: none;
     width: 100%;
@@ -133,154 +138,81 @@ body[data-sidebar-state='collapsed'] .sidebar-brand .brand-title {
 }
 
 .sidebar-icon {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 14px;
-    background: var(--surface-muted);
-    color: var(--text-secondary);
-    transition: background 0.22s ease, color 0.22s ease;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
 }
 
-.sidebar-link:hover,
-.sidebar-item:hover,
-.submenu-item:hover,
-.sidebar-accordion:hover {
+.sidebar-link:hover {
     background: var(--surface-soft);
     color: var(--text-primary);
 }
 
-.sidebar-link:hover .sidebar-icon,
-.sidebar-item:hover .sidebar-icon,
-.submenu-item:hover .sidebar-icon {
-    background: var(--surface-strong);
+.sidebar-link:hover .sidebar-icon {
+    color: var(--text-primary);
+    transform: translateX(2px);
 }
 
-.sidebar-link.active,
-.sidebar-link.active .sidebar-icon {
-    color: var(--accent);
-}
-
+/* Active State */
 .sidebar-link.active {
     background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
 }
 
 .sidebar-link.active .sidebar-icon {
-    background: var(--accent);
-    color: #fff;
-}
-
-.sidebar-section {
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    color: var(--text-muted);
-    padding: 0 14px;
-}
-
-.sidebar-submenu {
-    display: grid;
-    gap: 6px;
-    padding-left: 20px;
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.24s ease;
-}
-
-.sidebar-submenu.show {
-    max-height: 240px;
-}
-
-.sidebar-accordion {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 14px;
-    border-radius: 16px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: background 0.22s ease, color 0.22s ease;
-}
-
-.sidebar-accordion .sidebar-label {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.sidebar-accordion .chevron {
-    transition: transform 0.24s ease;
-}
-
-.sidebar-accordion.open .chevron {
-    transform: rotate(90deg);
-}
-
-.submenu-item {
-    padding-left: 18px;
-    font-size: 0.88rem;
-    background: transparent;
-    color: var(--text-secondary);
-}
-
-.submenu-item.active {
     color: var(--accent);
 }
 
-.sidebar-footer {
+/* Logout khusus diletakkan di bawah */
+.sidebar-footer-menu {
     margin-top: auto;
     padding-top: 16px;
     border-top: 1px solid var(--border);
-    font-size: 0.8rem;
-    color: var(--text-muted);
 }
 
-.sidebar-collapse-wrap {
-    padding: 0 14px;
-}
-
-.sidebar-collapse-toggle {
-    width: 100%;
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 12px 14px;
+.sidebar-link.logout-link {
     color: var(--text-secondary);
-    transition: all 0.22s ease;
 }
 
-.sidebar-collapse-toggle:hover {
-    background: var(--surface-soft);
-    color: var(--text-primary);
+.sidebar-link.logout-link:hover {
+    background: var(--danger-soft);
+    color: var(--danger);
 }
 
-body[data-sidebar-state='collapsed'] .sidebar-collapse-toggle {
-    justify-content: center;
+.sidebar-link.logout-link:hover .sidebar-icon {
+    color: var(--danger);
 }
 
-body[data-sidebar-state='collapsed'] .sidebar-collapse-toggle .sidebar-label {
+body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-label {
     display: none;
 }
 
+body[data-sidebar-state='collapsed'] .sidebar-link {
+    justify-content: center;
+    padding: 10px 0;
+}
+
+body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-icon {
+    transform: none !important;
+}
+
+/* Offcanvas Mobile */
 .offcanvas.offcanvas-start {
-    width: min(92%, 340px);
+    width: 280px;
     background: var(--surface);
+    border-right: 1px solid var(--border);
 }
 
 .offcanvas-body {
-    padding: 0;
-}
-
-.offcanvas .sidebar-content {
-    padding: 22px 18px 20px;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
 }
 
 @media (max-width: 991.98px) {
@@ -305,85 +237,76 @@ body[data-sidebar-state='collapsed'] .sidebar-collapse-toggle .sidebar-label {
             <span class="sidebar-label">Dashboard</span>
         </a>
 
-        <a href="#" class="sidebar-link">
-            <span class="sidebar-icon"><i data-lucide="message-square"></i></span>
-            <span class="sidebar-label">Chat</span>
+        <a href="booking.php" class="sidebar-link <?= ($page === 'booking') ? 'active' : '' ?>">
+            <span class="sidebar-icon"><i data-lucide="notebook-tabs"></i></span>
+            <span class="sidebar-label">Booking</span>
         </a>
 
-        <a href="#" class="sidebar-link">
-            <span class="sidebar-icon"><i data-lucide="calendar"></i></span>
-            <span class="sidebar-label">Calendar</span>
+        <a href="data_gallery.php" class="sidebar-link <?= ($page === 'gallery') ? 'active' : '' ?>">
+            <span class="sidebar-icon"><i data-lucide="image"></i></span>
+            <span class="sidebar-label">Data Gallery</span>
         </a>
 
-        <button type="button" class="sidebar-accordion" id="tasksToggle" aria-expanded="false">
-            <span class="sidebar-label"><span class="sidebar-icon"><i data-lucide="check-square"></i></span>Tasks</span>
-            <span class="chevron"><i data-lucide="chevron-right"></i></span>
-        </button>
-        <div class="sidebar-submenu" id="tasksSubmenu">
-            <a href="#" class="submenu-item">In Progress</a>
-            <a href="#" class="submenu-item">Paused</a>
-            <a href="#" class="submenu-item">Bugs</a>
-            <a href="#" class="submenu-item">Done</a>
-        </div>
+        <a href="data_layanan.php" class="sidebar-link <?= ($page === 'layanan') ? 'active' : '' ?>">
+            <span class="sidebar-icon"><i data-lucide="sparkles"></i></span>
+            <span class="sidebar-label">Data Layanan</span>
+        </a>
 
-        <a href="#" class="sidebar-link">
-            <span class="sidebar-icon"><i data-lucide="settings"></i></span>
-            <span class="sidebar-label">Settings</span>
+        <a href="penjadwalan.php" class="sidebar-link <?= ($page === 'penjadwalan') ? 'active' : '' ?>">
+            <span class="sidebar-icon"><i data-lucide="calendar-days"></i></span>
+            <span class="sidebar-label">Penjadwalan</span>
         </a>
     </div>
 
-    <div class="sidebar-collapse-wrap">
-        <button type="button" class="sidebar-collapse-toggle" id="sidebarCollapseToggle" aria-label="Toggle sidebar">
-            <span class="sidebar-icon"><i data-lucide="chevrons-left"></i></span>
-            <span class="sidebar-label">Collapse</span>
-        </button>
+    <div class="sidebar-footer-menu">
+        <a href="logout.php" class="sidebar-link logout-link">
+            <span class="sidebar-icon"><i data-lucide="log-out"></i></span>
+            <span class="sidebar-label">Logout</span>
+        </a>
     </div>
-
-    <div class="sidebar-footer">Premium SaaS Admin</div>
 </div>
 
 <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menu</h5>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    <div class="offcanvas-header px-4 pt-4 pb-0">
+        <button type="button" class="btn-close text-reset ms-auto" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-        <div class="sidebar-content">
-            <div class="sidebar-brand">
-                <span class="brand-icon"><i data-lucide="sparkles"></i></span>
-                <div class="brand-title">
-                    <h5>Yayuk Makeover</h5>
-                    <small>Admin Panel</small>
-                </div>
+        <div class="sidebar-brand">
+            <span class="brand-icon"><i data-lucide="sparkles"></i></span>
+            <div class="brand-title">
+                <h5>Yayuk Makeover</h5>
+                <small>Admin Panel</small>
             </div>
-            <div class="sidebar-menu">
-                <a href="dashboard.php" class="sidebar-link <?= ($page === 'dashboard') ? 'active' : '' ?>">
-                    <span class="sidebar-icon"><i data-lucide="layout-dashboard"></i></span>
-                    <span class="sidebar-label">Dashboard</span>
-                </a>
-                <a href="#" class="sidebar-link">
-                    <span class="sidebar-icon"><i data-lucide="message-square"></i></span>
-                    <span class="sidebar-label">Chat</span>
-                </a>
-                <a href="#" class="sidebar-link">
-                    <span class="sidebar-icon"><i data-lucide="calendar"></i></span>
-                    <span class="sidebar-label">Calendar</span>
-                </a>
-                <button type="button" class="sidebar-accordion" id="tasksToggleMobile" aria-expanded="false">
-                    <span class="sidebar-label"><span class="sidebar-icon"><i data-lucide="check-square"></i></span>Tasks</span>
-                    <span class="chevron"><i data-lucide="chevron-right"></i></span>
-                </button>
-                <div class="sidebar-submenu" id="tasksSubmenuMobile">
-                    <a href="#" class="submenu-item">In Progress</a>
-                    <a href="#" class="submenu-item">Paused</a>
-                    <a href="#" class="submenu-item">Bugs</a>
-                    <a href="#" class="submenu-item">Done</a>
-                </div>
-                <a href="#" class="sidebar-link">
-                    <span class="sidebar-icon"><i data-lucide="settings"></i></span>
-                    <span class="sidebar-label">Settings</span>
-                </a>
-            </div>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="dashboard.php" class="sidebar-link <?= ($page === 'dashboard') ? 'active' : '' ?>">
+                <span class="sidebar-icon"><i data-lucide="layout-dashboard"></i></span>
+                <span class="sidebar-label">Dashboard</span>
+            </a>
+            <a href="booking.php" class="sidebar-link <?= ($page === 'booking') ? 'active' : '' ?>">
+                <span class="sidebar-icon"><i data-lucide="notebook-tabs"></i></span>
+                <span class="sidebar-label">Booking</span>
+            </a>
+            <a href="data_gallery.php" class="sidebar-link <?= ($page === 'gallery') ? 'active' : '' ?>">
+                <span class="sidebar-icon"><i data-lucide="image"></i></span>
+                <span class="sidebar-label">Data Gallery</span>
+            </a>
+            <a href="data_layanan.php" class="sidebar-link <?= ($page === 'layanan') ? 'active' : '' ?>">
+                <span class="sidebar-icon"><i data-lucide="sparkles"></i></span>
+                <span class="sidebar-label">Data Layanan</span>
+            </a>
+            <a href="penjadwalan.php" class="sidebar-link <?= ($page === 'penjadwalan') ? 'active' : '' ?>">
+                <span class="sidebar-icon"><i data-lucide="calendar-days"></i></span>
+                <span class="sidebar-label">Penjadwalan</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer-menu">
+            <a href="logout.php" class="sidebar-link logout-link">
+                <span class="sidebar-icon"><i data-lucide="log-out"></i></span>
+                <span class="sidebar-label">Logout</span>
+            </a>
         </div>
     </div>
 </div>
@@ -392,12 +315,12 @@ body[data-sidebar-state='collapsed'] .sidebar-collapse-toggle .sidebar-label {
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         if (window.lucide) {
-            lucide.replace({ 'stroke-width': 1.8, width: 20, height: 20 });
+            lucide.replace({ 'stroke-width': 2, width: 18, height: 18 });
         }
 
+        // Fitur collapse state body tetap dipertahankan jika sewaktu-waktu dipicu dari luar sidebar
         const stateKey = 'adminSidebarState';
         const body = document.body;
-        const collapseButton = document.getElementById('sidebarCollapseToggle');
         const sidebar = document.getElementById('adminSidebar');
         const storedState = localStorage.getItem(stateKey) || 'expanded';
 
@@ -405,28 +328,5 @@ body[data-sidebar-state='collapsed'] .sidebar-collapse-toggle .sidebar-label {
             body.dataset.sidebarState = storedState;
             sidebar.dataset.state = storedState;
         }
-
-        if (collapseButton) {
-            collapseButton.addEventListener('click', function () {
-                const nextState = body.dataset.sidebarState === 'collapsed' ? 'expanded' : 'collapsed';
-                body.dataset.sidebarState = nextState;
-                sidebar.dataset.state = nextState;
-                localStorage.setItem(stateKey, nextState);
-            });
-        }
-
-        const setupTaskToggle = function(toggleId, submenuId) {
-            const toggle = document.getElementById(toggleId);
-            const submenu = document.getElementById(submenuId);
-            if (!toggle || !submenu) return;
-            toggle.addEventListener('click', function () {
-                const open = submenu.classList.toggle('show');
-                toggle.classList.toggle('open', open);
-                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-            });
-        };
-
-        setupTaskToggle('tasksToggle', 'tasksSubmenu');
-        setupTaskToggle('tasksToggleMobile', 'tasksSubmenuMobile');
     });
 </script>
