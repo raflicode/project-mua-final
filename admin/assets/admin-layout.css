@@ -29,9 +29,19 @@ body {
     z-index: 1050;
 }
 
+.main {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    transition: margin-left 0.2s ease;
+}
+
 body[data-sidebar-state='collapsed'] .sidebar {
     width: var(--sidebar-collapsed-width);
     padding: 24px 12px;
+}
+
+body[data-sidebar-state='collapsed'] .main {
+    margin-left: var(--sidebar-collapsed-width);
 }
 
 .sidebar-brand {
