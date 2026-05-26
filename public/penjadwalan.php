@@ -66,7 +66,8 @@ $insertStmt->execute([
 
         $_SESSION['draft_booking']['id_jadwal'] = $lastId;
         $_SESSION['draft_booking']['tanggal'] = $selectedDate;
-       $_SESSION['draft_booking']['jam_selesai'] = $jamSelesai;
+        $_SESSION['draft_booking']['jam_mulai'] = $jamMulai;
+        $_SESSION['draft_booking']['jam_selesai'] = $jamSelesai;
         $redirectUrl = 'pembayaran.php';
         if ($fromPage) {
             $redirectUrl .= '?from=' . urlencode($fromPage);

@@ -38,6 +38,14 @@ if (!empty($errors)) {
     unset($_SESSION['errors']);
     unset($_SESSION['form_data']);
 }
+
+// Calculate total from draft_booking
+$draft = $_SESSION['draft_booking'];
+$total = (float)($draft['total'] ?? $draft['harga'] ?? 0);
+
+function formatRupiah($value) {
+    return 'Rp ' . number_format((float)$value, 0, ',', '.');
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -218,7 +226,7 @@ if (!empty($errors)) {
         <a href="<?= htmlspecialchars($backHref, ENT_QUOTES, 'UTF-8'); ?>" class="back-nav">
             <i class="bi bi-chevron-left"></i>
         </a>
-        <h1 class="page-title mb-0">Pembayaran</h1>
+        <h1 class="page-title mb-0">Isi Data Diri</h1>
         <div style="width: 45px;"></div>
     </div>
 
@@ -242,7 +250,7 @@ if (!empty($errors)) {
                 <div class="card card-custom">
                     <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <div>
-                            <h2>Data Pelanggan & Metode</h2>
+                            <h2>Data Pelanggan</h2>
                             <p class="text-muted small mb-0 mt-1">Lengkapi informasi berikut untuk validasi booking.</p>
                         </div>
                         <span class="step-badge"><i class="bi bi-check-circle-fill"></i> Langkah 3 dari 3</span>
@@ -260,19 +268,6 @@ if (!empty($errors)) {
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" for="hp">No. Handphone</label>
                                 <input type="tel" id="hp" inputmode="numeric" pattern="[0-9]*" name="hp" class="form-control" value="<?= htmlspecialchars($formData['hp'] ?? '', ENT_QUOTES) ?>" required oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder="Contoh: 08123456xxx">
-                            </div>
-
-                            <!-- Pilihan Metode Pembayaran -->
-                            <div class="col-12 mb-4">
-                                <label class="form-label" for="metode">Metode Pembayaran</label>
-                                <select id="metode" name="metode" class="form-select" required>
-                                    <option value="">-- Pilih Metode Pembayaran --</option>
-                                    <option value="DANA" <?= (isset($formData['metode']) && $formData['metode'] === 'DANA') ? 'selected' : '' ?>>DANA</option>
-                                    <option value="OVO" <?= (isset($formData['metode']) && $formData['metode'] === 'OVO') ? 'selected' : '' ?>>OVO</option>
-                                    <option value="GOPAY" <?= (isset($formData['metode']) && $formData['metode'] === 'GOPAY') ? 'selected' : '' ?>>GOPAY</option>
-                                    <option value="Transfer Bank" <?= (isset($formData['metode']) && $formData['metode'] === 'Transfer Bank') ? 'selected' : '' ?>>Transfer Bank</option>
-                                    <option value="COD" <?= (isset($formData['metode']) && $formData['metode'] === 'COD') ? 'selected' : '' ?>>COD (Bayar di Tempat)</option>
-                                </select>
                             </div>
 
                             <!-- Section Alamat & Catatan -->
@@ -304,7 +299,7 @@ if (!empty($errors)) {
                             
                             <div class="total-box-premium d-flex justify-content-between align-items-center mb-4">
                                 <span class="fw-bold text-muted small">Total Pembayaran</span>
-                                <span class="fw-bold fs-4" style="color: var(--primary-dark);">Rp 810.000</span>
+                                <span class="fw-bold fs-4" style="color: var(--primary-dark);"><?= htmlspecialchars(formatRupiah($total), ENT_QUOTES, 'UTF-8'); ?></span>
                             </div>
 
                             <button type="submit" class="btn btn-bayar w-100">
