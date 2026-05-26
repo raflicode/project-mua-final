@@ -8,8 +8,13 @@ ensure_dynamic_booking_schema($pdo);
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!empty($_POST['konfirmasi_akhir_token']) || !empty($_POST['id_booking']))) {
     $token = trim($_POST['konfirmasi_akhir_token'] ?? '');
     $idBookingParam = (int) ($_POST['id_booking'] ?? 0);
+    $metode = trim($_POST['metode'] ?? 'transfer');
     $file = $_FILES['bukti_pembayaran'] ?? null;
     $errors = [];
+
+    if (empty($metode)) {
+        $errors[] = 'Metode pembayaran harus dipilih';
+    }
 
     if ($token !== '') {
         $bookingStmt = $pdo->prepare("SELECT id_booking, id_user, total_harga FROM booking WHERE konfirmasi_akhir_token = ? AND status_booking IN ('dikonfirmasi', 'konfirmasi') LIMIT 1");
@@ -89,11 +94,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!empty($_POST['konfirmasi_akhir_to
         $idPembayaran = $existingPay->fetchColumn();
 
         if ($idPembayaran) {
-            $updatePay = $pdo->prepare("UPDATE pembayaran SET bukti_transfer = ?, tgl_upload = NOW(), status_verifikasi = 'pending' WHERE id_pembayaran = ?");
-            $updatePay->execute([$fileName, (int) $idPembayaran]);
+            $updatePay = $pdo->prepare("UPDATE pembayaran SET bukti_transfer = ?, metode_bayar = ?, tgl_upload = NOW(), status_verifikasi = 'pending' WHERE id_pembayaran = ?");
+            $updatePay->execute([$fileName, $metode, (int) $idPembayaran]);
         } else {
-            $insertPay = $pdo->prepare("INSERT INTO pembayaran (id_booking, jumlah_bayar, metode_bayar, bukti_transfer, status_verifikasi) VALUES (?, ?, 'transfer', ?, 'pending')");
-            $insertPay->execute([(int) $booking['id_booking'], (float) $booking['total_harga'], $fileName]);
+            $insertPay = $pdo->prepare("INSERT INTO pembayaran (id_booking, jumlah_bayar, metode_bayar, bukti_transfer, status_verifikasi) VALUES (?, ?, ?, ?, 'pending')");
+            $insertPay->execute([(int) $booking['id_booking'], (float) $booking['total_harga'], $metode, $fileName]);
         }
 
         $pdo->commit();

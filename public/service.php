@@ -342,7 +342,7 @@ $categoryCards = [
 <div class="container mt-3 px-lg-5">
     <div class="text-center mb-5 text-white">
         <h1 class="fw-bold" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.6);">Pilih Layanan</h1>
-        <p class="small opacity-75">Pilih kategori di bawah ini untuk masuk ke halaman khusus, atau lihat paket premium dari admin.</p>
+        <p class="small opacity-100" style="color: black;">Pilih kategori di bawah ini untuk masuk ke halaman khusus, atau lihat paket premium dari admin.</p>
     </div>
 
     <div class="row g-4 mb-5">
@@ -356,7 +356,6 @@ $categoryCards = [
                             <p class="small text-muted mb-3"><?= htmlspecialchars($meta['description'], ENT_QUOTES, 'UTF-8'); ?></p>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="badge bg-light text-dark"><?= $meta['count']; ?> layanan aktif</span>
                             <span class="btn btn-sm btn-action-gold">Lihat</span>
                         </div>
                     </div>

@@ -1,5 +1,5 @@
 <?php
-// konfirmasi.php
+// konfirmasi_akhir.php
 session_start();
 require_once '../config/koneksi.php';
 require_once '../config/db_helpers.php';
@@ -45,7 +45,7 @@ if ($tokenMode || $idBookingMode) {
     $pembayaran = [
         'nama' => $booking['full_name'] ?: ($booking['username'] ?: 'Client'),
         'hp' => $booking['no_telp'] ?: '-',
-        'metode' => 'Transfer Bank',
+        'metode' => isset($_POST['metode']) ? trim($_POST['metode']) : 'Transfer Bank',
     ];
     $backHref = 'booking.php';
 } else {
@@ -61,6 +61,13 @@ if ($tokenMode || $idBookingMode) {
     }
 
     $pembayaran = $_SESSION['pembayaran'];
+    // Add metode pembayaran dari form input jika ada
+    if (isset($_POST['metode'])) {
+        $pembayaran['metode'] = trim($_POST['metode']);
+        $_SESSION['pembayaran']['metode'] = $pembayaran['metode'];
+    } elseif (!isset($pembayaran['metode'])) {
+        $pembayaran['metode'] = 'Transfer Bank'; // Default value
+    }
     $backHref = 'pembayaran.php';
 }
 
@@ -69,6 +76,41 @@ $errors = isset($_SESSION['errors']) ? $_SESSION['errors'] : [];
 if (!empty($errors)) {
     unset($_SESSION['errors']);
 }
+
+// Form data untuk repopulate form jika ada error
+$formData = isset($_SESSION['form_data']) ? $_SESSION['form_data'] : [];
+if (!empty($formData)) {
+    unset($_SESSION['form_data']);
+}
+
+// Get nominal pembayaran
+$nominalPembayaran = 0;
+$itemDetails = '';
+if ($tokenMode && $booking) {
+    $nominalPembayaran = (float)$booking['total_harga'];
+    $itemDetails = $booking['nama_layanan'] ?? '';
+} else {
+    // Get from session draft_booking
+    $draft = $_SESSION['draft_booking'] ?? [];
+    $nominalPembayaran = (float)($draft['total'] ?? $draft['harga'] ?? 0);
+    if (!empty($draft['items']) && is_array($draft['items'])) {
+        $itemLines = [];
+        foreach ($draft['items'] as $item) {
+            $qty = (int)($item['kuantitas'] ?? $item['qty'] ?? 1);
+            $name = $item['nama_layanan'] ?? 'Layanan';
+            $itemLines[] = "- {$name} x{$qty}";
+        }
+        $itemDetails = implode("\n", $itemLines);
+    } else {
+        $itemDetails = '- ' . ($draft['nama_layanan'] ?? 'Layanan Booking');
+    }
+}
+
+// Helper function untuk format rupiah
+function formatRupiah($value) {
+    return 'Rp ' . number_format((float)$value, 0, ',', '.');
+}
+
 $uploadSuccess = !empty($_GET['uploaded']);
 ?>
 <!DOCTYPE html>
@@ -231,14 +273,10 @@ $uploadSuccess = !empty($_GET['uploaded']);
             <?php endif; ?>
 
             <div>
-                <div class="icon-box mb-3"><?php echo $uploadSuccess ? '✅' : '💳'; ?></div>
+                <div class="icon-box mb-3"><?= $uploadSuccess ? '✅' : '💳'; ?></div>
                 <?php if ($uploadSuccess): ?>
                     <h5 class="fw-bold mb-1">Pembayaran Terkirim</h5>
                     <p class="text-muted small mb-4">Bukti pembayaran berhasil dikirim. Silakan tunggu konfirmasi admin.</p>
-                    <div class="d-grid gap-2">
-                        <a href="booking.php" class="btn btn-outline-secondary">Lihat Booking Saya</a>
-                        <a href="../public/keranjang.php" class="btn btn-outline-secondary">Kembali ke Keranjang</a>
-                    </div>
                 <?php else: ?>
                     <h5 class="fw-bold mb-1">Selesaikan Pembayaran</h5>
                     <p class="text-muted small mb-3">Data Pembayaran Anda</p>
@@ -250,42 +288,63 @@ $uploadSuccess = !empty($_GET['uploaded']);
                         <small class="text-muted d-block mb-2">No Handphone</small>
                         <h6 class="mb-2"><?= htmlspecialchars($pembayaran['hp']) ?></h6>
 
-                        <small class="text-muted d-block mb-2">Metode Pembayaran</small>
-                        <h6 class="mb-0"><?= htmlspecialchars($pembayaran['metode']) ?></h6>
+                        <div class="bank-box mb-3">
+                            <label class="text-muted d-block mb-2 small fw-bold" for="metode">Pilih Metode Pembayaran</label>
+                            <select id="metode" name="metode" class="form-select" required>
+                                <option value="">-- Pilih Metode Pembayaran --</option>
+                                <option value="DANA" <?= (isset($pembayaran['metode']) && $pembayaran['metode'] === 'DANA') ? 'selected' : '' ?>>DANA</option>
+                                <option value="OVO" <?= (isset($pembayaran['metode']) && $pembayaran['metode'] === 'OVO') ? 'selected' : '' ?>>OVO</option>
+                                <option value="GOPAY" <?= (isset($pembayaran['metode']) && $pembayaran['metode'] === 'GOPAY') ? 'selected' : '' ?>>GOPAY</option>
+                                <option value="Transfer Bank" <?= (isset($pembayaran['metode']) && $pembayaran['metode'] === 'Transfer Bank') ? 'selected' : '' ?>>Transfer Bank</option>
+                                <option value="COD" <?= (isset($pembayaran['metode']) && $pembayaran['metode'] === 'COD') ? 'selected' : '' ?>>COD (Bayar di Tempat)</option>
+                            </select>
+                        </div>
+
+                        <div class="bank-box mb-3">
+                            <small class="text-muted d-block mb-2">Metode Terpilih</small>
+                            <h6 class="mb-0" id="selectedMethod"><?= htmlspecialchars($pembayaran['metode'] ?? 'Transfer Bank') ?></h6>
+                        </div>
+
+                        <div class="bank-box mb-3">
+                            <small class="text-muted d-block mb-2">Nominal Pembayaran</small>
+                            <h6 class="mb-0" id="nominalPembayaran"><?= htmlspecialchars(formatRupiah($nominalPembayaran), ENT_QUOTES, 'UTF-8'); ?></h6>
+                        </div>
 
                         <?php if ($tokenMode && $booking): ?>
-                            <small class="text-muted d-block mb-2 mt-3">Layanan</small>
-                            <h6 class="mb-2"><?= htmlspecialchars($booking['nama_layanan'] ?: 'Layanan Booking') ?></h6>
+                            <div class="bank-box mb-3">
+                                <small class="text-muted d-block mb-2 mt-1">Layanan</small>
+                                <h6 class="mb-2"><?= htmlspecialchars($booking['nama_layanan'] ?: 'Layanan Booking') ?></h6>
 
-                            <small class="text-muted d-block mb-2">Total Pembayaran</small>
-                            <h6 class="mb-0">Rp <?= number_format((float) $booking['total_harga'], 0, ',', '.') ?></h6>
+                                <small class="text-muted d-block mb-2">Total Pembayaran</small>
+                                <h6 class="mb-0">Rp <?= number_format((float) $booking['total_harga'], 0, ',', '.') ?></h6>
+                            </div>
                         <?php endif; ?>
+
+                        <p class="text-muted small mb-2">Silahkan transfer ke rekening berikut untuk melanjutkan pemesanan:</p>
+
+                        <div class="bank-box mb-3">
+                            <small class="text-muted d-block mb-2">BANK BRI</small>
+                            <h4 class="mb-2">883 0987 224</h4>
+                            <small class="text-muted">A/N YAYUK ERNAWATI</small>
+                        </div>
+
+                        <form action="../actions/proses_konfirmasi.php" method="post" enctype="multipart/form-data" novalidate>
+                            <?php if ($tokenMode): ?>
+                                <input type="hidden" name="konfirmasi_akhir_token" value="<?= htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?>">
+                            <?php elseif ($idBookingMode): ?>
+                                <input type="hidden" name="id_booking" value="<?= (int) $idBooking ?>">
+                            <?php endif; ?>
+                            <label class="upload-box w-100 mb-3" id="uploadBox">
+                                <div class="fs-3">⇪</div>
+                                <div class="small text-muted">Upload Bukti Pembayaran (.jpg, .png)</div>
+                                <input type="file" name="bukti_pembayaran" accept=".jpg,.jpeg,.png" id="fileInput" required>
+                            </label>
+
+                            <div id="fileNameDisplay" class="small text-muted mb-3" style="display:none;">File: <strong id="fileName"></strong></div>
+
+                            <button type="submit" class="btn-konfirmasi btn-konfirmasi w-100">Kirim Bukti Pembayaran</button>
+                        </form>
                     </div>
-
-                    <p class="text-muted small">Silahkan transfer ke rekening berikut untuk melanjutkan pemesanan:</p>
-
-                    <div class="bank-box mb-3">
-                        <small class="text-muted d-block mb-2">BANK BRI</small>
-                        <h4 class="mb-2">883 0987 224</h4>
-                        <small class="text-muted">A/N YAYUK ERNAWATI</small>
-                    </div>
-
-                    <form action="../actions/proses_konfirmasi.php" method="post" enctype="multipart/form-data" novalidate>
-                        <?php if ($tokenMode): ?>
-                            <input type="hidden" name="konfirmasi_akhir_token" value="<?= htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?>">
-                        <?php elseif ($idBookingMode): ?>
-                            <input type="hidden" name="id_booking" value="<?= (int) $idBooking ?>">
-                        <?php endif; ?>
-                        <label class="upload-box w-100 mb-3" id="uploadBox">
-                            <div class="fs-3">⇪</div>
-                            <div class="small text-muted">Upload Bukti Pembayaran (.jpg, .png)</div>
-                            <input type="file" name="bukti_pembayaran" accept=".jpg,.jpeg,.png" id="fileInput">
-                        </label>
-
-                        <div id="fileNameDisplay" class="small text-muted mb-3" style="display:none;">File: <strong id="fileName"></strong></div>
-
-                        <button type="submit" class="btn-konfirmasi btn-konfirmasi w-100">Kirim Bukti Pembayaran</button>
-                    </form>
                 <?php endif; ?>
             </div>
 
@@ -342,6 +401,17 @@ function showPopupMessages() {
 const fileInput = document.getElementById('fileInput');
 const fileNameDisplay = document.getElementById('fileNameDisplay');
 const fileNameText = document.getElementById('fileName');
+const metodeSelect = document.getElementById('metode');
+const selectedMethodDisplay = document.getElementById('selectedMethod');
+
+// Update metode terpilih ketika select berubah
+if (metodeSelect) {
+    metodeSelect.addEventListener('change', function() {
+        if (selectedMethodDisplay) {
+            selectedMethodDisplay.textContent = this.value || 'Pilih Metode Pembayaran';
+        }
+    });
+}
 
 function updateFileDisplay() {
     const fileName = fileInput?.files[0]?.name;

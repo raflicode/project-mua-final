@@ -37,22 +37,6 @@ function formatRupiah($value): string
     return 'Rp ' . number_format((float) $value, 0, ',', '.');
 }
 
-$stmt = $pdo->query("SELECT id_layanan, nama_layanan, harga_dasar, foto_layanan, deskripsi FROM layanan WHERE is_active = 1 AND kategori_layanan = 'kostum' ORDER BY nama_layanan ASC");
-$kostumRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-$kostumData = [];
-foreach ($kostumRows as $row) {
-    $kostumData[] = [
-        'jenis' => $row['nama_layanan'],
-        'variasi' => [[
-            'id' => (int) $row['id_layanan'],
-            'nama' => $row['nama_layanan'],
-            'foto' => kostumImagePath($row['foto_layanan'] ?? ''),
-            'harga' => formatRupiah($row['harga_dasar']),
-            'harga_value' => (float) $row['harga_dasar'],
-            'include' => kostumIncludes($row['deskripsi'] ?? ''),
-        ]],
-    ];
-}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -63,7 +47,6 @@ foreach ($kostumRows as $row) {
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lobster&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
 
@@ -94,10 +77,10 @@ body{
     margin:auto;
 }
 
-/* CARD */
+/* CARD - Disesuaikan dengan style dekor/makeup */
 .card-custom{
     border:none;
-    border-radius:20px;
+    border-radius:18px;
     overflow:hidden;
     background:#fff;
     box-shadow:0 5px 15px rgba(0,0,0,.12);
@@ -106,13 +89,13 @@ body{
     cursor:pointer;
 }
 .card-custom:hover{ transform:translateY(-5px); }
-.card-body{ display:flex; flex-direction:column; height:100%; }
+.card-custom .card-body{ display:flex; flex-direction:column; height:100%; }
 
 .img-paket-wrap{
     width:100%;
     aspect-ratio:4/5;
     overflow:hidden;
-    border-radius:14px;
+    border-radius:12px;
     margin-bottom:14px;
     background:#f3f3f3;
 }
@@ -134,36 +117,53 @@ body{
     margin-bottom:12px;
 }
 
-/* MODAL */
+/* MODAL - Format baru sama seperti dekor.php */
 .modal-kostum .modal-dialog{ max-width:760px; }
 .modal-kostum .modal-content{ border:none; border-radius:24px; overflow:hidden; }
-
-/* Header: hanya nama kostum + tombol tutup */
 .modal-kostum .modal-header{
-    background:#b85a00;
+    background:#a88656;
     border:none;
-    padding:16px 20px;
+    padding:16px 18px;
+    flex-direction:column;
+    align-items:stretch;
+}
+
+.modal-kostum .modal-title{
+    color:#fff;
+    font-weight:700;
+}
+.modal-level2-bar{
     display:flex;
     align-items:center;
-    justify-content:space-between;
+    justify-content:center;
+    gap:8px;
 }
-.modal-title{
+.var-btn{
+    width:30px; height:30px;
+    border:none; border-radius:50%;
+    background:rgba(255,255,255,.18);
     color:#fff;
-    font-size:1.2rem;
-    font-weight:700;
-    margin:0;
+    cursor:pointer;
+}
+.var-label{
+    flex:1; text-align:center;
+    color:#fff;
+    font-size:.85rem;
+    font-weight:600;
+}
+.counter2{
+    color:rgba(255,255,255,.7);
+    font-size:.7rem;
 }
 
+/* Body & Layout */
 .modal-kostum .modal-body{ padding:24px; }
-
 .modal-content-wrap{
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:24px;
     align-items:start;
 }
-
-/* Dots variasi */
 .variant-dots{
     display:flex;
     justify-content:center;
@@ -174,12 +174,9 @@ body{
     width:8px; height:8px;
     border-radius:50%;
     background:#ddd;
-    cursor:pointer;
-    transition:background .2s, transform .2s;
 }
 .variant-dot.active{ background:#b85a00; transform:scale(1.2); }
 
-/* Foto modal */
 .modal-img-wrap{
     width:100%;
     aspect-ratio:1/1;
@@ -187,47 +184,38 @@ body{
     border-radius:16px;
     background:#f3f3f3;
     position:relative;
-    touch-action:pan-y;
-    user-select:none;
 }
-.modal-img-wrap img{
-    width:100%; height:100%;
-    object-fit:cover;
-    display:block;
-    pointer-events:none;
-    transition:opacity .15s;
-}
+.modal-img-wrap img{ width:100%; height:100%; object-fit:cover; }
 
-/* Panah di dalam foto */
 .foto-nav{
     position:absolute;
     top:50%; transform:translateY(-50%);
     width:36px; height:36px;
     border:none; border-radius:50%;
     background:rgba(0,0,0,.35);
-    color:#fff; z-index:10; cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    transition:background .2s;
+    color:#fff; z-index:10;
 }
-.foto-nav:hover{ background:rgba(0,0,0,.6); }
-.foto-nav:disabled{ opacity:.25; cursor:default; }
 .foto-prev{ left:10px; }
 .foto-next{ right:10px; }
 
 .modal-var-name{ font-size:1.15rem; font-weight:700; margin-bottom:10px; }
+.modal-harga-label{ font-size:.78rem; color:#999; margin-bottom:2px; }
+.modal-harga-val{ font-size:1.2rem; color:#b85a00; font-weight:700; margin-bottom:14px; }
 .modal-include-label{ font-size:.92rem; font-weight:600; margin-bottom:6px; }
-.modal-include-ol{ padding-left:20px; font-size:.9rem; color:#444; margin-bottom:18px; }
-.modal-harga-label{ font-size:.78rem; color:#999; }
-.modal-harga-val{ font-size:1.2rem; color:#b85a00; font-weight:700; }
+.modal-include-ol{ padding-left:20px; font-size:.9rem; color:#444; margin-bottom:4px; }
 
-.modal-kostum .modal-footer{ border:none; padding:0 24px 24px; gap:10px; }
+.modal-kostum .modal-footer{ border:none; padding:0 24px 20px; gap:10px; }
+.modal-kostum .modal-footer .btn-dark{ background:#a88656; border:none; border-radius:30px; color:#fff; height:45px; font-weight:600; }
+.modal-kostum .modal-footer .btn-dark:hover{ background:#967447; }
+.modal-kostum .modal-footer .btn-warning{ background:#a88656; color:#fff; border:none; border-radius:30px; font-weight:600; height:45px; }
+.modal-kostum .modal-footer .btn-warning:hover{ background:#967447; color:#fff; }
 
 .btn-kembali{
     position:fixed;
     bottom:20px; left:20px;
     border-radius:30px;
     padding:10px 20px;
-    z-index:1000;
+    z-index:1000
 }
 
 /* RESPONSIVE */
@@ -314,7 +302,7 @@ body{
     <!-- FOOTER -->
     <div class="modal-footer justify-content-stretch">
         <button type="button" class="btn btn-dark flex-grow-1" id="btnKeranjang">
-            🛒 Keranjang
+        <i class="bi bi-cart3"></i> Keranjang
         </button>
         <button type="button" class="btn btn-warning flex-grow-1" id="modalBookingBtn">
             Booking
@@ -526,7 +514,16 @@ document.getElementById('modalBookingBtn').addEventListener('click',()=>{
     if(!isLoggedIn){
         Swal.fire({ icon:'warning', title:'Login diperlukan', text:'Silakan login terlebih dahulu.' });
     } else {
-        window.location.href = 'booking.php';
+        const v = kostumData[idxKostum].variasi[idxVariasi];
+
+const harga = Number(String(v.harga).replace(/[^0-9]/g,''));
+
+window.location.href =
+    './booking.php?' +
+    'nama=' + encodeURIComponent(v.nama) +
+    '&harga=' + harga +
+    '&foto=' + encodeURIComponent(v.foto) +
+    '&source_page=kostum';
     }
 });
 
