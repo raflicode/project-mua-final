@@ -5,38 +5,15 @@ $page = $page ?? pathinfo($_SERVER['SCRIPT_NAME'] ?? '', PATHINFO_FILENAME);
 <style>
 :root {
     --surface: #ffffff;
-    --surface-soft: #fcfbfa;
-    --surface-muted: #f4f1ee;
-    --surface-strong: #ede9e4;
-    --text-primary: #1e1a16;
-    --text-secondary: #5c5852;
-    --text-muted: #9c968f;
-    --border: rgba(30, 26, 22, 0.08);
-    --accent: #8c6f4c;
-    --accent-soft: rgba(140, 111, 76, 0.08);
-    --accent-hover: rgba(140, 111, 76, 0.12);
-    --danger: #dc3545;
-    --danger-soft: rgba(220, 53, 69, 0.08);
-    --sidebar-width: 260px;
+    --surface-soft: rgba(255, 248, 240, 0.18);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 248, 240, 0.96);
+    --text-muted: rgba(255, 248, 240, 0.72);
+    --border: rgba(255, 255, 255, 0.08);
+    --accent-soft: rgba(255, 248, 240, 0.18);
+    --danger-soft: rgba(234, 84, 85, 0.12);
+    --sidebar-width: 280px;
     --sidebar-collapsed-width: 80px;
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --surface: #141414;
-        --surface-soft: #1c1c1c;
-        --surface-muted: #262626;
-        --surface-strong: #333333;
-        --text-primary: #f5f5f5;
-        --text-secondary: #adaba8;
-        --text-muted: #706e6b;
-        --border: rgba(255, 255, 255, 0.06);
-        --accent: #d4b37a;
-        --accent-soft: rgba(212, 179, 122, 0.1);
-        --accent-hover: rgba(212, 179, 122, 0.15);
-        --danger: #ea5455;
-        --danger-soft: rgba(234, 84, 85, 0.12);
-    }
 }
 
 .sidebar {
@@ -45,8 +22,8 @@ $page = $page ?? pathinfo($_SERVER['SCRIPT_NAME'] ?? '', PATHINFO_FILENAME);
     left: 0;
     bottom: 0;
     width: var(--sidebar-width);
-    padding: 24px 16px;
-    background: var(--surface);
+    padding: 24px 18px;
+    background: linear-gradient(180deg, #8b5e3c, #5c3a21);
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
@@ -71,13 +48,13 @@ body[data-sidebar-state='collapsed'] .sidebar {
     width: 38px;
     height: 38px;
     min-width: 38px;
-    border-radius: 10px;
-    background: var(--accent-soft);
+    border-radius: 12px;
+    background: rgba(255, 248, 240, 0.16);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-size: 16px;
-    color: var(--accent);
+    color: var(--surface);
 }
 
 .sidebar-brand .brand-title {
@@ -87,10 +64,10 @@ body[data-sidebar-state='collapsed'] .sidebar {
 }
 
 .sidebar-brand h5 {
-    font-size: 0.95rem;
+    font-size: 0.98rem;
     font-weight: 700;
     margin: 0;
-    color: var(--text-primary);
+    color: var(--surface);
     white-space: nowrap;
     letter-spacing: -0.01em;
 }
@@ -98,8 +75,7 @@ body[data-sidebar-state='collapsed'] .sidebar {
 .sidebar-brand small {
     font-size: 0.75rem;
     font-weight: 500;
-    color: var(--text-muted);
-    white-space: nowrap;
+    color: var(--text-secondary);
 }
 
 body[data-sidebar-state='collapsed'] .sidebar-brand {
@@ -114,7 +90,7 @@ body[data-sidebar-state='collapsed'] .sidebar-brand .brand-title {
 .sidebar-menu {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     flex: 1;
 }
 
@@ -122,19 +98,15 @@ body[data-sidebar-state='collapsed'] .sidebar-brand .brand-title {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 14px;
-    border-radius: 10px;
+    padding: 12px 14px;
+    border-radius: 14px;
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     font-weight: 500;
     transition: all 0.2s ease;
-    min-height: 44px;
-    background: transparent;
-    border: none;
+    min-height: 46px;
     width: 100%;
-    text-align: left;
-    cursor: pointer;
 }
 
 .sidebar-icon {
@@ -149,27 +121,25 @@ body[data-sidebar-state='collapsed'] .sidebar-brand .brand-title {
 }
 
 .sidebar-link:hover {
-    background: var(--surface-soft);
-    color: var(--text-primary);
+    background: var(--accent-soft);
+    color: var(--surface);
 }
 
 .sidebar-link:hover .sidebar-icon {
-    color: var(--text-primary);
+    color: var(--surface);
     transform: translateX(2px);
 }
 
-/* Active State */
 .sidebar-link.active {
-    background: var(--accent-soft);
-    color: var(--accent);
+    background: rgba(255, 255, 255, 0.18);
+    color: var(--surface);
     font-weight: 600;
 }
 
 .sidebar-link.active .sidebar-icon {
-    color: var(--accent);
+    color: var(--surface);
 }
 
-/* Logout khusus diletakkan di bawah */
 .sidebar-footer-menu {
     margin-top: auto;
     padding-top: 16px;
@@ -182,11 +152,11 @@ body[data-sidebar-state='collapsed'] .sidebar-brand .brand-title {
 
 .sidebar-link.logout-link:hover {
     background: var(--danger-soft);
-    color: var(--danger);
+    color: #ffffff;
 }
 
 .sidebar-link.logout-link:hover .sidebar-icon {
-    color: var(--danger);
+    color: #ffffff;
 }
 
 body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-label {
@@ -195,22 +165,21 @@ body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-label {
 
 body[data-sidebar-state='collapsed'] .sidebar-link {
     justify-content: center;
-    padding: 10px 0;
+    padding: 12px 0;
 }
 
 body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-icon {
     transform: none !important;
 }
 
-/* Offcanvas Mobile */
 .offcanvas.offcanvas-start {
     width: 280px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
+    background: linear-gradient(180deg, #8b5e3c, #5c3a21);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .offcanvas-body {
-    padding: 24px 16px;
+    padding: 24px 18px;
     display: flex;
     flex-direction: column;
 }
@@ -224,7 +193,7 @@ body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-icon {
 
 <div class="sidebar d-none d-lg-flex" id="adminSidebar">
     <div class="sidebar-brand">
-        <span class="brand-icon"><i data-lucide="sparkles"></i></span>
+        <!-- <span class="brand-icon"><i data-lucide="sparkles"></i></span> -->
         <div class="brand-title">
             <h5>Yayuk Makeover</h5>
             <small>Admin Panel</small>

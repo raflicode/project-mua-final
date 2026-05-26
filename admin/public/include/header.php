@@ -10,27 +10,14 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
 
 <style>
 :root {
-    --topbar-bg: rgba(255, 255, 255, 0.8);
-    --topbar-border: rgba(30, 26, 22, 0.08);
-    --topbar-text-main: #1e1a16;
-    --topbar-text-sub: #706e6b;
-    --badge-bg: #fcfbfa;
-    --badge-border: rgba(30, 26, 22, 0.08);
-    --avatar-bg: #8c6f4c;
+    --topbar-bg: rgba(255, 255, 255, 0.92);
+    --topbar-border: rgba(139, 107, 74, 0.16);
+    --topbar-text-main: #3c271d;
+    --topbar-text-sub: #7f6757;
+    --badge-bg: rgba(255, 255, 255, 0.94);
+    --badge-border: rgba(139, 107, 74, 0.16);
+    --avatar-bg: #8b5e3c;
     --avatar-text: #ffffff;
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --topbar-bg: rgba(20, 20, 20, 0.8);
-        --topbar-border: rgba(255, 255, 255, 0.06);
-        --topbar-text-main: #f5f5f5;
-        --topbar-text-sub: #adaba8;
-        --badge-bg: #1c1c1c;
-        --badge-border: rgba(255, 255, 255, 0.06);
-        --avatar-bg: #d4b37a;
-        --avatar-text: #141414;
-    }
 }
 
 .topbar {
@@ -38,10 +25,10 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
     background: var(--topbar-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-radius: 14px;
-    padding: 12px 20px;
+    border-radius: 18px;
+    padding: 14px 20px;
     border: 1px solid var(--topbar-border);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+    box-shadow: 0 14px 40px rgba(91, 60, 37, 0.08);
 }
 
 .topbar-left {
@@ -52,21 +39,20 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
 }
 
 .topbar-toggle {
-    border-radius: 10px;
-    width: 38px;
-    height: 38px;
+    border-radius: 14px;
+    width: 40px;
+    height: 40px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border: 1px solid var(--topbar-border);
-    background: transparent;
+    background: rgba(255, 255, 255, 0.92);
     color: var(--topbar-text-main);
     transition: all 0.2s ease;
 }
 
 .topbar-toggle:hover {
-    background: var(--badge-bg);
-    color: var(--topbar-text-main);
+    background: #ffffff;
 }
 
 .topbar-title {
@@ -76,6 +62,7 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
 }
 
 .page-title {
+    font-family: 'Playfair Display', serif;
     font-size: 1.05rem;
     font-weight: 700;
     color: var(--topbar-text-main);
@@ -100,13 +87,13 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
     gap: 10px;
     background: var(--badge-bg);
     border: 1px solid var(--badge-border);
-    padding: 6px 14px 6px 6px;
+    padding: 8px 14px 8px 10px;
     border-radius: 30px;
 }
 
 .admin-avatar {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     background: var(--avatar-bg);
     color: var(--avatar-text);
@@ -114,11 +101,11 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
 }
 
 .admin-name {
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     font-weight: 600;
     color: var(--topbar-text-main);
     white-space: nowrap;
@@ -126,7 +113,7 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
 
 @media (max-width: 991.98px) {
     .topbar {
-        padding: 10px 14px;
+        padding: 12px 14px;
     }
 }
 </style>
