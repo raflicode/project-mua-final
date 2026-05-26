@@ -220,9 +220,21 @@ $waUrl = 'https://wa.me/6281333273119?' . http_build_query(['text' => $pesan]);
                 </div>
             </div>
 
-            <a href="<?= htmlspecialchars($waUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener" class="btn btn-wa w-100">
+            <a href="javascript:void(0)" onclick="confirmAndRedirect()" class="btn btn-wa w-100">
                 <i class="bi bi-whatsapp me-2"></i>Konfirmasi via WhatsApp
             </a>
+
+            <script>
+                function confirmAndRedirect() {
+                    const waUrl = '<?= htmlspecialchars($waUrl, ENT_QUOTES, 'UTF-8'); ?>';
+                    // Open WhatsApp in new tab
+                    window.open(waUrl, '_blank', 'noopener');
+                    // Redirect to home after 1 second
+                    setTimeout(() => {
+                        window.location.href = '../index.php';
+                    }, 1000);
+                }
+            </script>
         </div>
     </div>
 </div>

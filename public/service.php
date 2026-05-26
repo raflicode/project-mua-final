@@ -356,7 +356,6 @@ $categoryCards = [
                             <p class="small text-muted mb-3"><?= htmlspecialchars($meta['description'], ENT_QUOTES, 'UTF-8'); ?></p>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="badge bg-light text-dark"><?= $meta['count']; ?> layanan aktif</span>
                             <span class="btn btn-sm btn-action-gold">Lihat</span>
                         </div>
                     </div>

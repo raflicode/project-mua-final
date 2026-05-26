@@ -196,6 +196,10 @@ try {
                 }
                 insertBookingDetailAwal($pdo, $idBooking, $idLayanan, $qty, $hargaItem, $itemSubtotal);
             }
+            
+            // Clear cart after booking is created
+            $clearCartStmt = $pdo->prepare("DELETE FROM keranjang WHERE id_user = ?");
+            $clearCartStmt->execute([$idUser]);
         } else {
             insertBookingDetailAwal($pdo, $idBooking, $primaryLayananId, 1, $subtotal, $subtotal);
         }
