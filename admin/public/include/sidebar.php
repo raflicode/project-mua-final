@@ -8,10 +8,12 @@ $page = $page ?? pathinfo($_SERVER['SCRIPT_NAME'] ?? '', PATHINFO_FILENAME);
     --surface-soft: rgba(255, 248, 240, 0.18);
     --text-primary: #ffffff;
     --text-secondary: rgba(255, 248, 240, 0.96);
-    --text-muted: rgba(255, 248, 240, 0.72);
+    --text-muted: rgba(255, 248, 240, 0.60);
     --border: rgba(255, 255, 255, 0.08);
-    --accent-soft: rgba(255, 248, 240, 0.18);
+    --accent-soft: rgba(255, 248, 240, 0.10);
     --danger-soft: rgba(234, 84, 85, 0.12);
+    --active-bg: rgba(180, 130, 60, 0.45);
+    --active-text: #f0c040;
     --sidebar-width: 280px;
     --sidebar-collapsed-width: 80px;
 }
@@ -22,39 +24,45 @@ $page = $page ?? pathinfo($_SERVER['SCRIPT_NAME'] ?? '', PATHINFO_FILENAME);
     left: 0;
     bottom: 0;
     width: var(--sidebar-width);
-    padding: 24px 18px;
-    background: linear-gradient(180deg, #8b5e3c, #5c3a21);
+    padding: 28px 18px 20px;
+    background: linear-gradient(180deg, #4a2e1a 0%, #3b2212 60%, #2e1a0e 100%);
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1050;
+    overflow-y: auto;
+    scrollbar-width: none;
 }
+
+.sidebar::-webkit-scrollbar { display: none; }
 
 body[data-sidebar-state='collapsed'] .sidebar {
     width: var(--sidebar-collapsed-width);
     padding: 24px 12px;
 }
 
+/* ── Brand ── */
 .sidebar-brand {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 13px;
     padding: 6px 10px;
-    margin-bottom: 24px;
+    margin-bottom: 28px;
 }
 
 .sidebar-brand .brand-icon {
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-    border-radius: 12px;
-    background: rgba(255, 248, 240, 0.16);
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 50%;
+    background: rgba(255, 248, 240, 0.13);
+    border: 1.5px solid rgba(255, 248, 240, 0.22);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
-    color: var(--surface);
+    font-size: 17px;
+    color: #f0c040;
 }
 
 .sidebar-brand .brand-title {
@@ -64,7 +72,7 @@ body[data-sidebar-state='collapsed'] .sidebar {
 }
 
 .sidebar-brand h5 {
-    font-size: 0.98rem;
+    font-size: 1rem;
     font-weight: 700;
     margin: 0;
     color: var(--surface);
@@ -73,9 +81,10 @@ body[data-sidebar-state='collapsed'] .sidebar {
 }
 
 .sidebar-brand small {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--text-secondary);
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    letter-spacing: 0.01em;
 }
 
 body[data-sidebar-state='collapsed'] .sidebar-brand {
@@ -87,32 +96,58 @@ body[data-sidebar-state='collapsed'] .sidebar-brand .brand-title {
     display: none;
 }
 
+/* ── Section Label ── */
+.sidebar-section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    color: var(--text-muted);
+    padding: 0 14px;
+    margin-bottom: 6px;
+    margin-top: 4px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+body[data-sidebar-state='collapsed'] .sidebar-section-label {
+    display: none;
+}
+
+/* ── Menu ── */
 .sidebar-menu {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 3px;
     flex: 1;
+}
+
+.sidebar-menu-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 10px;
 }
 
 .sidebar-link {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    border-radius: 14px;
+    gap: 13px;
+    padding: 11px 14px;
+    border-radius: 12px;
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: 0.92rem;
+    font-size: 0.93rem;
     font-weight: 500;
     transition: all 0.2s ease;
     min-height: 46px;
     width: 100%;
+    position: relative;
 }
 
 .sidebar-icon {
-    width: 20px;
-    height: 20px;
-    min-width: 20px;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -127,23 +162,35 @@ body[data-sidebar-state='collapsed'] .sidebar-brand .brand-title {
 
 .sidebar-link:hover .sidebar-icon {
     color: var(--surface);
-    transform: translateX(2px);
 }
 
 .sidebar-link.active {
-    background: rgba(255, 255, 255, 0.18);
-    color: var(--surface);
+    background: var(--active-bg);
+    color: var(--active-text);
     font-weight: 600;
 }
 
 .sidebar-link.active .sidebar-icon {
-    color: var(--surface);
+    color: var(--active-text);
 }
 
+/* ── Footer ── */
 .sidebar-footer-menu {
     margin-top: auto;
     padding-top: 16px;
     border-top: 1px solid var(--border);
+}
+
+.sidebar-footer-copyright {
+    text-align: center;
+    font-size: 0.70rem;
+    color: var(--text-muted);
+    padding: 12px 0 2px;
+    white-space: nowrap;
+}
+
+body[data-sidebar-state='collapsed'] .sidebar-footer-copyright {
+    display: none;
 }
 
 .sidebar-link.logout-link {
@@ -152,13 +199,14 @@ body[data-sidebar-state='collapsed'] .sidebar-brand .brand-title {
 
 .sidebar-link.logout-link:hover {
     background: var(--danger-soft);
-    color: #ffffff;
+    color: #ff8a8a;
 }
 
 .sidebar-link.logout-link:hover .sidebar-icon {
-    color: #ffffff;
+    color: #ff8a8a;
 }
 
+/* ── Collapsed state ── */
 body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-label {
     display: none;
 }
@@ -168,13 +216,10 @@ body[data-sidebar-state='collapsed'] .sidebar-link {
     padding: 12px 0;
 }
 
-body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-icon {
-    transform: none !important;
-}
-
+/* ── Offcanvas (mobile) ── */
 .offcanvas.offcanvas-start {
     width: 280px;
-    background: linear-gradient(180deg, #8b5e3c, #5c3a21);
+    background: linear-gradient(180deg, #4a2e1a 0%, #3b2212 60%, #2e1a0e 100%);
     border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -191,9 +236,10 @@ body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-icon {
 }
 </style>
 
+<!-- Desktop Sidebar -->
 <div class="sidebar d-none d-lg-flex" id="adminSidebar">
     <div class="sidebar-brand">
-        <!-- <span class="brand-icon"><i data-lucide="sparkles"></i></span> -->
+        <span class="brand-icon"><i data-lucide="sparkles"></i></span>
         <div class="brand-title">
             <h5>Yayuk Makeover</h5>
             <small>Admin Panel</small>
@@ -201,30 +247,35 @@ body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-icon {
     </div>
 
     <div class="sidebar-menu">
-        <a href="dashboard.php" class="sidebar-link <?= ($page === 'dashboard') ? 'active' : '' ?>">
-            <span class="sidebar-icon"><i data-lucide="layout-dashboard"></i></span>
-            <span class="sidebar-label">Dashboard</span>
-        </a>
+        <!-- MENU UTAMA -->
+        <div class="sidebar-menu-group">
+            <div class="sidebar-section-label">Menu Utama</div>
 
-        <a href="booking.php" class="sidebar-link <?= ($page === 'booking') ? 'active' : '' ?>">
-            <span class="sidebar-icon"><i data-lucide="notebook-tabs"></i></span>
-            <span class="sidebar-label">Booking</span>
-        </a>
+            <a href="dashboard.php" class="sidebar-link <?= ($page === 'dashboard') ? 'active' : '' ?>">
+                <span class="sidebar-icon"><i data-lucide="layout-dashboard"></i></span>
+                <span class="sidebar-label">Dashboard</span>
+            </a>
 
-        <a href="data_gallery.php" class="sidebar-link <?= ($page === 'gallery') ? 'active' : '' ?>">
-            <span class="sidebar-icon"><i data-lucide="image"></i></span>
-            <span class="sidebar-label">Data Gallery</span>
-        </a>
+            <a href="booking.php" class="sidebar-link <?= ($page === 'booking') ? 'active' : '' ?>">
+                <span class="sidebar-icon"><i data-lucide="notebook-tabs"></i></span>
+                <span class="sidebar-label">Booking</span>
+            </a>
 
-        <a href="data_layanan.php" class="sidebar-link <?= ($page === 'layanan') ? 'active' : '' ?>">
-            <span class="sidebar-icon"><i data-lucide="sparkles"></i></span>
-            <span class="sidebar-label">Data Layanan</span>
-        </a>
+            <a href="data_gallery.php" class="sidebar-link <?= ($page === 'gallery') ? 'active' : '' ?>">
+                <span class="sidebar-icon"><i data-lucide="image"></i></span>
+                <span class="sidebar-label">Data Gallery</span>
+            </a>
 
-        <a href="penjadwalan.php" class="sidebar-link <?= ($page === 'penjadwalan') ? 'active' : '' ?>">
-            <span class="sidebar-icon"><i data-lucide="calendar-days"></i></span>
-            <span class="sidebar-label">Penjadwalan</span>
-        </a>
+            <a href="data_layanan.php" class="sidebar-link <?= ($page === 'layanan') ? 'active' : '' ?>">
+                <span class="sidebar-icon"><i data-lucide="sparkles"></i></span>
+                <span class="sidebar-label">Data Layanan</span>
+            </a>
+
+            <a href="penjadwalan.php" class="sidebar-link <?= ($page === 'penjadwalan') ? 'active' : '' ?>">
+                <span class="sidebar-icon"><i data-lucide="calendar-days"></i></span>
+                <span class="sidebar-label">Penjadwalan</span>
+            </a>
+        </div>
     </div>
 
     <div class="sidebar-footer-menu">
@@ -232,12 +283,14 @@ body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-icon {
             <span class="sidebar-icon"><i data-lucide="log-out"></i></span>
             <span class="sidebar-label">Logout</span>
         </a>
+        <div class="sidebar-footer-copyright">© 2025 Yayuk Makeover</div>
     </div>
 </div>
 
+<!-- Mobile Offcanvas -->
 <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
     <div class="offcanvas-header px-4 pt-4 pb-0">
-        <button type="button" class="btn-close text-reset ms-auto" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
         <div class="sidebar-brand">
@@ -247,28 +300,32 @@ body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-icon {
                 <small>Admin Panel</small>
             </div>
         </div>
-        
+
         <div class="sidebar-menu">
-            <a href="dashboard.php" class="sidebar-link <?= ($page === 'dashboard') ? 'active' : '' ?>">
-                <span class="sidebar-icon"><i data-lucide="layout-dashboard"></i></span>
-                <span class="sidebar-label">Dashboard</span>
-            </a>
-            <a href="booking.php" class="sidebar-link <?= ($page === 'booking') ? 'active' : '' ?>">
-                <span class="sidebar-icon"><i data-lucide="notebook-tabs"></i></span>
-                <span class="sidebar-label">Booking</span>
-            </a>
-            <a href="data_gallery.php" class="sidebar-link <?= ($page === 'gallery') ? 'active' : '' ?>">
-                <span class="sidebar-icon"><i data-lucide="image"></i></span>
-                <span class="sidebar-label">Data Gallery</span>
-            </a>
-            <a href="data_layanan.php" class="sidebar-link <?= ($page === 'layanan') ? 'active' : '' ?>">
-                <span class="sidebar-icon"><i data-lucide="sparkles"></i></span>
-                <span class="sidebar-label">Data Layanan</span>
-            </a>
-            <a href="penjadwalan.php" class="sidebar-link <?= ($page === 'penjadwalan') ? 'active' : '' ?>">
-                <span class="sidebar-icon"><i data-lucide="calendar-days"></i></span>
-                <span class="sidebar-label">Penjadwalan</span>
-            </a>
+            <div class="sidebar-menu-group">
+                <div class="sidebar-section-label">Menu Utama</div>
+
+                <a href="dashboard.php" class="sidebar-link <?= ($page === 'dashboard') ? 'active' : '' ?>">
+                    <span class="sidebar-icon"><i data-lucide="layout-dashboard"></i></span>
+                    <span class="sidebar-label">Dashboard</span>
+                </a>
+                <a href="booking.php" class="sidebar-link <?= ($page === 'booking') ? 'active' : '' ?>">
+                    <span class="sidebar-icon"><i data-lucide="notebook-tabs"></i></span>
+                    <span class="sidebar-label">Booking</span>
+                </a>
+                <a href="data_gallery.php" class="sidebar-link <?= ($page === 'gallery') ? 'active' : '' ?>">
+                    <span class="sidebar-icon"><i data-lucide="image"></i></span>
+                    <span class="sidebar-label">Data Gallery</span>
+                </a>
+                <a href="data_layanan.php" class="sidebar-link <?= ($page === 'layanan') ? 'active' : '' ?>">
+                    <span class="sidebar-icon"><i data-lucide="sparkles"></i></span>
+                    <span class="sidebar-label">Data Layanan</span>
+                </a>
+                <a href="penjadwalan.php" class="sidebar-link <?= ($page === 'penjadwalan') ? 'active' : '' ?>">
+                    <span class="sidebar-icon"><i data-lucide="calendar-days"></i></span>
+                    <span class="sidebar-label">Penjadwalan</span>
+                </a>
+            </div>
         </div>
 
         <div class="sidebar-footer-menu">
@@ -276,6 +333,7 @@ body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-icon {
                 <span class="sidebar-icon"><i data-lucide="log-out"></i></span>
                 <span class="sidebar-label">Logout</span>
             </a>
+            <div class="sidebar-footer-copyright">© 2025 Yayuk Makeover</div>
         </div>
     </div>
 </div>
@@ -285,10 +343,9 @@ body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-icon {
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         if (window.lucide) {
-            lucide.replace({ 'stroke-width': 2, width: 18, height: 18 });
+            lucide.replace({ 'stroke-width': 1.8, width: 18, height: 18 });
         }
 
-        // Fitur collapse state body tetap dipertahankan jika sewaktu-waktu dipicu dari luar sidebar
         const stateKey = 'adminSidebarState';
         const body = document.body;
         const sidebar = document.getElementById('adminSidebar');
