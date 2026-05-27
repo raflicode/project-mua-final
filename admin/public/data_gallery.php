@@ -115,6 +115,34 @@ unset($_SESSION['gallery_flash']);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="../assets/admin-brown.css" rel="stylesheet">
     <link href="../assets/admin-layout.css" rel="stylesheet">
+    <style>
+        :root {
+            --text: #4d3828;
+            --text-main: #4d3828;
+            --text-muted: #6b4f3d;
+        }
+        body {
+            color: var(--text);
+        }
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+        .content-body,
+        .content-body h4,
+        .content-body p,
+        .content-body label,
+        .content-body td,
+        .content-body th,
+        .content-body .badge-kategori,
+        .content-body .gallery-table th,
+        .content-body .gallery-table td,
+        .content-body .text-muted {
+            color: #4d3828 !important;
+        }
+        .content-body .text-muted {
+            color: #6b4f3d !important;
+        }
+    </style>
 </head>
 <body>
 

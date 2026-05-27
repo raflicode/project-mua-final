@@ -318,7 +318,7 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
 
 <body>
     <?php
-    $page = 'kalender_pesanan';
+    $page = 'penjadwalan';
     include 'include/sidebar.php';
     ?>
 

@@ -216,8 +216,9 @@ unset($_SESSION['layanan_flash']);
             --brown:       #8B6B4A;
             --brown-dark:  #5C3D1E;
             --brown-deep:  #3B2410;
-            --text-main:   #2C1A0E;
-            --text-muted:  #7A6352;
+            --text:        #4d3828;
+            --text-main:   #4d3828;
+            --text-muted:  #6B4F3D;
             --white:       #FFFDF9;
             --accent:      #D4956A;
             --accent-soft: #F0DBC8;
@@ -884,7 +885,7 @@ include 'include/sidebar.php';
         <div class="form-group">
             <label class="form-label">Variasi Opsi (opsional)</label>
             <textarea class="form-control-custom" id="formVariants" name="variant_data" placeholder="Opsi 1 | 1500000&#10;Opsi 2 | 2000000"></textarea>
-            <div class="form-hint" style="font-size: 0.78rem; color: #7A6352; margin-top: 8px;">
+            <div class="form-hint" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 8px;">
                 Isi satu opsi per baris dengan format <strong>Nama Opsi | Harga</strong>. Kosongkan jika layanan hanya punya satu harga.
             </div>
         </div>

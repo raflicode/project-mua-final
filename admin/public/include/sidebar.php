@@ -266,12 +266,12 @@ body[data-sidebar-state='collapsed'] .sidebar-link {
                 <span class="sidebar-label">Data Gallery</span>
             </a>
 
-            <a href="data_layanan.php" class="sidebar-link <?= ($page === 'layanan') ? 'active' : '' ?>">
+            <a href="data_layanan.php" class="sidebar-link <?= in_array($page, ['data_layanan', 'layanan'], true) ? 'active' : '' ?>">
                 <span class="sidebar-icon"><i data-lucide="sparkles"></i></span>
                 <span class="sidebar-label">Data Layanan</span>
             </a>
 
-            <a href="penjadwalan.php" class="sidebar-link <?= ($page === 'penjadwalan') ? 'active' : '' ?>">
+            <a href="penjadwalan.php" class="sidebar-link <?= in_array($page, ['penjadwalan', 'kalender_pesanan'], true) ? 'active' : '' ?>">
                 <span class="sidebar-icon"><i data-lucide="calendar-days"></i></span>
                 <span class="sidebar-label">Penjadwalan</span>
             </a>
@@ -317,11 +317,11 @@ body[data-sidebar-state='collapsed'] .sidebar-link {
                     <span class="sidebar-icon"><i data-lucide="image"></i></span>
                     <span class="sidebar-label">Data Gallery</span>
                 </a>
-                <a href="data_layanan.php" class="sidebar-link <?= ($page === 'layanan') ? 'active' : '' ?>">
+                <a href="data_layanan.php" class="sidebar-link <?= in_array($page, ['data_layanan', 'layanan'], true) ? 'active' : '' ?>">
                     <span class="sidebar-icon"><i data-lucide="sparkles"></i></span>
                     <span class="sidebar-label">Data Layanan</span>
                 </a>
-                <a href="penjadwalan.php" class="sidebar-link <?= ($page === 'penjadwalan') ? 'active' : '' ?>">
+                <a href="penjadwalan.php" class="sidebar-link <?= in_array($page, ['penjadwalan', 'kalender_pesanan'], true) ? 'active' : '' ?>">
                     <span class="sidebar-icon"><i data-lucide="calendar-days"></i></span>
                     <span class="sidebar-label">Penjadwalan</span>
                 </a>

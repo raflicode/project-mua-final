@@ -226,6 +226,17 @@ $verificationMessage = verification_message($_GET['verify'] ?? null);
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+:root {
+    --text: #4d3828;
+    --text-main: #4d3828;
+    --text-muted: #6b4f3d;
+}
+body {
+    color: var(--text);
+}
+.text-muted {
+    color: var(--text-muted) !important;
+}
 .welcome {
     background: linear-gradient(135deg, var(--brown-dark), var(--brown));
     color: var(--cream);
@@ -249,7 +260,7 @@ canvas {
 }
 
 .chart-note {
-    color: var(--text-muted);
+    color: #6b4f3d;
     font-size: 0.82rem;
 }
 
@@ -258,8 +269,15 @@ canvas {
 }
 
 .empty-row {
-    color: var(--text-muted);
+    color: #6b4f3d;
     padding: 28px !important;
+}
+
+.table th,
+.table td,
+.summary-label,
+.summary-note {
+    color: #4d3828;
 }
 
 .summary-grid {
