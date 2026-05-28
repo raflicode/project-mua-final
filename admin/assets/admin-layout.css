@@ -296,12 +296,19 @@ body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-icon {
         position: relative;
         padding: 16px 24px;
         gap: 16px;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+    }
+
+    .topbar-left {
+        flex: 1 1 auto;
+        min-width: 0;
     }
 
     .topbar-right {
-        width: 100%;
-        justify-content: space-between;
+        width: auto;
+        flex: 0 0 auto;
+        justify-content: flex-end;
+        margin-left: auto;
     }
 
     .search-box {
@@ -323,13 +330,14 @@ body[data-sidebar-state='collapsed'] .sidebar-link .sidebar-icon {
     }
 
     .topbar-right {
-        align-items: stretch;
+        align-items: flex-end;
         flex-direction: column;
         gap: 10px;
     }
 
     .admin-badge {
-        justify-content: flex-start;
+        justify-content: flex-end;
+        margin-left: auto;
     }
 
     .content {

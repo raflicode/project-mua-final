@@ -83,42 +83,42 @@ $data_booking = [
         <!-- Table -->
         <h6 class="fw-bold mb-3">ALL FILES</h6>
 
-        <div class="card shadow rounded-4 p-3">
+        <div class="card shadow-sm rounded-4 border-0 p-3">
 
             <div class="table-responsive">
-                <table class="table table-hover text-center align-middle mb-0">
+                <table class="table table-hover align-middle text-nowrap modern-admin-table mb-0">
 
-                    <thead class="table-primary">
+                    <thead>
                         <tr>
-                            <th>Paket</th>
-                            <th>Customer</th>
-                            <th>Tanggal Booking</th>
-                            <th>Status</th>
-                            <th>Alamat</th>
-                            <th>No. Telp</th>
+                            <th class="text-nowrap table-cell-wide">Paket</th>
+                            <th class="text-nowrap table-cell-wide">Customer</th>
+                            <th class="text-nowrap table-cell-date">Tanggal Booking</th>
+                            <th class="text-nowrap table-cell-status">Status</th>
+                            <th class="text-nowrap table-cell-wide">Alamat</th>
+                            <th class="text-nowrap table-cell-phone">No. Telp</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         <?php foreach($data_booking as $row): ?>
                         <tr>
-                            <td><?= $row['paket']; ?></td>
-                            <td><?= $row['customer']; ?></td>
-                            <td><?= $row['tgl']; ?></td>
+                            <td class="text-nowrap align-middle"><?= $row['paket']; ?></td>
+                            <td class="text-nowrap align-middle"><?= $row['customer']; ?></td>
+                            <td class="text-nowrap align-middle"><?= $row['tgl']; ?></td>
 
                             <!-- Status -->
-                            <td>
+                            <td class="text-nowrap align-middle">
                                 <?php if($row['status'] == 'Lunas'): ?>
-                                    <span class="badge bg-success">Lunas</span>
+                                    <span class="badge bg-success rounded-pill px-3 py-2">Lunas</span>
                                 <?php elseif($row['status'] == 'Dp'): ?>
-                                    <span class="badge bg-warning text-dark">DP</span>
+                                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2">DP</span>
                                 <?php else: ?>
-                                    <span class="badge bg-secondary">Proses</span>
+                                    <span class="badge bg-primary rounded-pill px-3 py-2">Proses</span>
                                 <?php endif; ?>
                             </td>
 
-                            <td><?= $row['alamat']; ?></td>
-                            <td><?= $row['telp']; ?></td>
+                            <td class="text-nowrap align-middle"><span class="table-cell-truncate" title="<?= $row['alamat']; ?>"><?= $row['alamat']; ?></span></td>
+                            <td class="text-nowrap align-middle"><?= $row['telp']; ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>

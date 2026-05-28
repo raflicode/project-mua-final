@@ -380,6 +380,17 @@ try {
             throw new Exception('Jadwal tidak tersedia lagi. Silakan pilih jadwal lain.');
         }
 
+        $closedStmt = $pdo->prepare("
+            SELECT COUNT(*)
+            FROM jadwal_tutup jt
+            INNER JOIN jadwal_kerja jk ON jk.tanggal = jt.tanggal
+            WHERE jk.id_jadwal = ?
+        ");
+        $closedStmt->execute([$id_jadwal]);
+        if ((int) $closedStmt->fetchColumn() > 0) {
+            throw new Exception('Tanggal ini sedang ditutup oleh admin. Silakan pilih tanggal lain.');
+        }
+
         if ($primaryLayananId <= 0) {
             $primaryLayananId = findOrCreateLayanan(
                 $pdo,

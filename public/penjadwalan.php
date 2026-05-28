@@ -1,6 +1,10 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/koneksi.php';
+require_once __DIR__ . '/../config/db_helpers.php';
+
+ensure_dynamic_booking_schema($pdo);
+
 $backHref = 'booking.php';
 $fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $backMap = [
@@ -33,6 +37,13 @@ $jamMulai = trim($_POST['jam_mulai'] ?? '');
     $jadwal = null;
 
     if ($selectedDate && $jamMulai) {
+
+    $closedStmt = $pdo->prepare('SELECT COUNT(*) FROM jadwal_tutup WHERE tanggal = ?');
+    $closedStmt->execute([$selectedDate]);
+
+    if ((int) $closedStmt->fetchColumn() > 0) {
+        $errors[] = 'Tanggal ini sedang ditutup oleh admin. Silakan pilih tanggal lain.';
+    } else {
 
     $dbstmt = $pdo->prepare(
         'SELECT COUNT(*) FROM booking b
@@ -81,6 +92,8 @@ $insertStmt->execute([
 
     }
 
+    }
+
 } else {
 
     $errors[] = 'Lengkapi tanggal dan jam booking terlebih dahulu.';
@@ -123,6 +136,16 @@ try {
     $bookedByDate = [];
 }
 
+try {
+    $closedDateStmt = $pdo->query('SELECT tanggal, alasan FROM jadwal_tutup ORDER BY tanggal ASC');
+    $closedDates = [];
+    foreach ($closedDateStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $closedDates[$row['tanggal']] = $row['alasan'] ?: 'Tanggal ditutup admin';
+    }
+} catch (Exception $e) {
+    $closedDates = [];
+}
+
 $currentMonth = !empty($jadwals) ? date('Y-m', strtotime($jadwals[0]['tanggal'])) : date('Y-m');
 $monthStart = new DateTime($currentMonth . '-01');
 $monthDays = intval($monthStart->format('t'));
@@ -136,7 +159,8 @@ for ($day = 1; $day <= $monthDays; $day++) {
         'slot_count' => $dateSlotCounts[$date] ?? 0,
         'hasData' => !empty($jadwalByDate[$date]),
         'available' => (!empty($jadwalByDate[$date]) && ($dateSlotCounts[$date] ?? 0) < 3),
-        'booked_count' => $bookedByDate[$date] ?? 0
+        'booked_count' => $bookedByDate[$date] ?? 0,
+        'closed' => isset($closedDates[$date])
     ];
 }
 
@@ -375,7 +399,7 @@ body {
             <div class="calendar mb-4" id="calendar"></div>
 
           <!-- Form Booking -->
-<form id="slotForm" method="post" action="penjadwalan.php">
+<form id="slotForm" method="post" action="penjadwalan.php<?= $fromPage ? '?from=' . urlencode($fromPage) : '' ?>">
 
     <div id="slotArea" style="display:none;">
 
@@ -413,6 +437,7 @@ body {
 const jadwalData = <?= json_encode($jadwalByDate, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 const bookedByJadwal = <?= json_encode($bookedByJadwal ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 const bookedByDate = <?= json_encode($bookedByDate ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+const closedDates = <?= json_encode($closedDates ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 const defaultSlots = [
     { label: 'Pagi', start: '07:00', end: '10:00' },
     { label: 'Siang', start: '11:00', end: '13:00' },
@@ -443,9 +468,11 @@ function renderCalendar() {
 
     for (let i = 1; i <= totalDays; i++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-        const isDisabled = (bookedByDate[dateStr] || 0) >= 3;
+        const isClosed = Object.prototype.hasOwnProperty.call(closedDates, dateStr);
+        const isDisabled = isClosed || (bookedByDate[dateStr] || 0) >= 3;
+        const disabledLabel = isClosed ? 'Ditutup admin' : 'Penuh';
         calendar.innerHTML += `
-            <button type="button" class="tgl${isDisabled ? ' disabled' : ''}" ${isDisabled ? 'disabled' : ''} data-date="${dateStr}" onclick="pilihTanggal(this)">
+            <button type="button" class="tgl${isDisabled ? ' disabled' : ''}" ${isDisabled ? 'disabled' : ''} data-date="${dateStr}" title="${isDisabled ? disabledLabel : 'Tersedia'}" onclick="pilihTanggal(this)">
                 ${i}
             </button>
         `;

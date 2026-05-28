@@ -2,6 +2,9 @@
 require_once __DIR__ . '/../../config/auth.php';
 require_login(['admin']);
 require_once __DIR__ . '/../../config/koneksi.php';
+require_once __DIR__ . '/../../config/db_helpers.php';
+
+ensure_dynamic_booking_schema($pdo);
 
 $selectedYear = (int) ($_GET['year'] ?? date('Y'));
 $selectedMonth = (int) ($_GET['month'] ?? date('n'));
@@ -39,6 +42,30 @@ $firstWeekDay = (int) date('w', $firstDayOfMonth);
 $startPadding = $firstWeekDay;
 $selectedMonthStart = date('Y-m-01 00:00:00', $firstDayOfMonth);
 $selectedMonthEnd = date('Y-m-01 00:00:00', strtotime('+1 month', $firstDayOfMonth));
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['schedule_action'] ?? '';
+    $closeDate = trim($_POST['tanggal_tutup'] ?? '');
+    $reason = trim($_POST['alasan'] ?? '');
+
+    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $closeDate)) {
+        if ($action === 'close_date') {
+            $stmt = $pdo->prepare('INSERT INTO jadwal_tutup (tanggal, alasan) VALUES (?, ?) ON DUPLICATE KEY UPDATE alasan = VALUES(alasan)');
+            $stmt->execute([$closeDate, $reason !== '' ? $reason : 'Ditutup oleh admin']);
+        }
+
+        if ($action === 'open_date') {
+            $stmt = $pdo->prepare('DELETE FROM jadwal_tutup WHERE tanggal = ?');
+            $stmt->execute([$closeDate]);
+        }
+
+        $selectedYear = (int) date('Y', strtotime($closeDate));
+        $selectedMonth = (int) date('n', strtotime($closeDate));
+    }
+
+    header('Location: penjadwalan.php?month=' . $selectedMonth . '&year=' . $selectedYear);
+    exit;
+}
 
 $bookingCounts = [];
 $bookingDetailsByDate = [];
@@ -89,6 +116,22 @@ foreach ($detailStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
     ];
     $bookingDetailsByDate[$dateKey][] = $bookingData;
     $allBookingsThisMonth[] = $bookingData;
+}
+
+$closedDateStmt = $pdo->prepare(
+    "SELECT tanggal, alasan
+     FROM jadwal_tutup
+     WHERE tanggal >= :start_date
+       AND tanggal < :end_date
+     ORDER BY tanggal ASC"
+);
+$closedDateStmt->execute([
+    ':start_date' => date('Y-m-d', $firstDayOfMonth),
+    ':end_date' => date('Y-m-d', strtotime('+1 month', $firstDayOfMonth)),
+]);
+$closedDates = [];
+foreach ($closedDateStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+    $closedDates[$row['tanggal']] = $row['alasan'] ?: 'Ditutup oleh admin';
 }
 
 $prevYear = $selectedMonth === 1 ? $selectedYear - 1 : $selectedYear;
@@ -315,6 +358,20 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
             box-shadow: 0 12px 28px rgba(91, 60, 37, 0.06);
         }
 
+        .filter-grid {
+            display: grid;
+            grid-template-columns: minmax(150px, 180px) minmax(120px, 150px) auto minmax(180px, 1fr) auto;
+            gap: 0.75rem;
+            align-items: end;
+        }
+
+        .filter-field label {
+            color: #6b4f3d;
+            font-size: 0.76rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+
         .filter-form-wrapper .form-select {
             border: 1.5px solid #d6b99f !important;
             background-color: #fffdf9;
@@ -322,19 +379,87 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
             border-radius: 10px;
         }
 
-        .filter-form-wrapper .form-select:focus {
+        .filter-form-wrapper .form-control {
+            border: 1.5px solid #d6b99f !important;
+            background-color: #fffdf9;
+            color: #312112;
+            border-radius: 10px;
+        }
+
+        .filter-form-wrapper .form-select:focus,
+        .filter-form-wrapper .form-control:focus {
             border-color: #b57e4a !important;
             box-shadow: 0 0 0 0.2rem rgba(181, 126, 74, 0.18);
         }
 
+        .btn-filter {
+            background: #5c3a21;
+            border: 1px solid #5c3a21;
+            color: #fff;
+            border-radius: 10px;
+            font-weight: 700;
+            min-height: 34px;
+        }
+
+        .btn-close-date {
+            background: #fff5dc;
+            border: 1px solid #efd292;
+            color: #8a5b16;
+            border-radius: 10px;
+            font-weight: 700;
+            min-height: 34px;
+        }
+
+        .calendar-cell.closed .calendar-day-number {
+            background: #fee2e2;
+            color: #b42318;
+            font-weight: 700;
+        }
+
+        .calendar-cell.closed .calendar-dot-indicator {
+            background-color: #b42318;
+        }
+
+        .closed-date-list {
+            display: grid;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .closed-date-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.75rem 0.85rem;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 12px;
+        }
+
+        .closed-date-title {
+            color: #7c2d12;
+            font-size: 0.86rem;
+            font-weight: 700;
+        }
+
+        .closed-date-reason {
+            color: #9a3412;
+            font-size: 0.76rem;
+        }
+
         @media (max-width: 575.98px) {
-            .filter-form-wrapper form {
+            .filter-grid {
                 display: grid;
-                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+                grid-template-columns: 1fr;
             }
 
             .filter-form-wrapper .col-auto {
                 width: 100%;
+            }
+
+            .filter-field[style] {
+                grid-column: auto !important;
             }
         }
     </style>
@@ -357,24 +482,41 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
             <h1 class="page-main-title">Schedules</h1>
 
             <div class="filter-form-wrapper">
-                <form method="get" class="row g-2 align-items-center">
-                    <div class="col-auto">
-                        <select name="month" class="form-select form-select-sm">
+                <form method="get" class="filter-grid">
+                    <div class="filter-field">
+                        <label for="scheduleMonth">Bulan</label>
+                        <select id="scheduleMonth" name="month" class="form-select form-select-sm">
                             <?php for ($m = 1; $m <= 12; $m++) : ?>
                                 <option value="<?= $m ?>" <?= $m === $selectedMonth ? 'selected' : '' ?>><?= $monthNames[$m] ?></option>
                             <?php endfor; ?>
                         </select>
                     </div>
-                    <div class="col-auto">
-                        <select name="year" class="form-select form-select-sm">
+                    <div class="filter-field">
+                        <label for="scheduleYear">Tahun</label>
+                        <select id="scheduleYear" name="year" class="form-select form-select-sm">
                             <?php for ($y = (int) date('Y') - 2; $y <= (int) date('Y') + 1; $y++) : ?>
                                 <option value="<?= $y ?>" <?= $y === $selectedYear ? 'selected' : '' ?>><?= $y ?></option>
                             <?php endfor; ?>
                         </select>
                     </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-sm btn-dark px-3">Filter</button>
+                    <button type="submit" class="btn btn-sm btn-filter px-3">
+                        <i class="bi bi-funnel me-1"></i> Filter
+                    </button>
+                </form>
+
+                <form method="post" class="filter-grid mt-3">
+                    <input type="hidden" name="schedule_action" value="close_date">
+                    <div class="filter-field">
+                        <label for="tanggalTutup">Tanggal Tutup</label>
+                        <input id="tanggalTutup" type="date" name="tanggal_tutup" class="form-control form-control-sm" required>
                     </div>
+                    <div class="filter-field" style="grid-column: span 3;">
+                        <label for="alasanTutup">Catatan</label>
+                        <input id="alasanTutup" type="text" name="alasan" class="form-control form-control-sm" placeholder="Contoh: Full booked / libur / maintenance">
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-close-date px-3">
+                        <i class="bi bi-calendar-x me-1"></i> Tutup Tanggal
+                    </button>
                 </form>
             </div>
 
@@ -407,16 +549,18 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
                                 $dateKey = sprintf('%04d-%02d-%02d', $selectedYear, $selectedMonth, $day);
                                 $count = (int) ($bookingCounts[$dateKey] ?? 0);
                                 $isToday = $dateKey === date('Y-m-d');
+                                $isClosed = isset($closedDates[$dateKey]);
                             ?>
                                 <div
-                                    class="calendar-cell <?= $count > 0 ? 'has-orders clickable' : '' ?> <?= $isToday ? 'today' : '' ?>"
+                                    class="calendar-cell <?= $count > 0 ? 'has-orders clickable' : '' ?> <?= $isToday ? 'today' : '' ?> <?= $isClosed ? 'closed' : '' ?>"
                                     data-date="<?= htmlspecialchars($dateKey) ?>"
                                     role="<?= $count > 0 ? 'button' : 'presentation' ?>"
                                     tabindex="<?= $count > 0 ? '0' : '-1' ?>"
+                                    title="<?= $isClosed ? htmlspecialchars($closedDates[$dateKey]) : '' ?>"
                                 >
                                     <div class="calendar-day-number"><?= $day ?></div>
                                     
-                                    <?php if ($count > 0) : ?>
+                                    <?php if ($count > 0 || $isClosed) : ?>
                                         <div class="calendar-dot-indicator"></div>
                                     <?php endif; ?>
                                 </div>
@@ -433,6 +577,24 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
                                 <i class="bi bi-plus-lg"></i> Add
                             </button>
                         </div>
+
+                        <?php if (!empty($closedDates)) : ?>
+                            <div class="closed-date-list">
+                                <?php foreach ($closedDates as $date => $reason) : ?>
+                                    <div class="closed-date-item">
+                                        <div>
+                                            <div class="closed-date-title"><?= htmlspecialchars(date('d M Y', strtotime($date))) ?></div>
+                                            <div class="closed-date-reason"><?= htmlspecialchars($reason) ?></div>
+                                        </div>
+                                        <form method="post" class="m-0">
+                                            <input type="hidden" name="schedule_action" value="open_date">
+                                            <input type="hidden" name="tanggal_tutup" value="<?= htmlspecialchars($date) ?>">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">Buka</button>
+                                        </form>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
 
                         <div class="schedule-list-wrapper" id="scheduleDisplayList">
                             <?php if (empty($allBookingsThisMonth)) : ?>

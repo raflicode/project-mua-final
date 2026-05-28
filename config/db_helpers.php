@@ -193,6 +193,15 @@ if (!function_exists('ensure_dynamic_booking_schema')) {
             db_columns($pdo, 'layanan', true);
         }
 
+        if (!db_has_table($pdo, 'jadwal_tutup')) {
+            $pdo->exec("CREATE TABLE jadwal_tutup (
+                tanggal date NOT NULL,
+                alasan varchar(255) DEFAULT NULL,
+                created_at timestamp NOT NULL DEFAULT current_timestamp(),
+                PRIMARY KEY (tanggal)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+        }
+
         $pdo->exec("
             UPDATE booking
             SET status_booking = CASE

@@ -146,7 +146,7 @@ $bookingStmt = $pdo->query("
         $paymentStatusSelect AS status_pembayaran,
         COALESCE($userNameSelect, $paymentNameSelect, u.username) AS full_name,
         u.username,
-        COALESCE(NULLIF($bookingPhoneSelect, ''), $userPhoneSelect, $paymentPhoneSelect) AS no_telp,
+        COALESCE(NULLIF($paymentPhoneSelect, ''), NULLIF($bookingPhoneSelect, ''), $userPhoneSelect) AS no_telp,
         layanan_booking.nama_layanan
     FROM booking b
     LEFT JOIN user u ON u.id_user = b.id_user
@@ -471,8 +471,12 @@ unset($_SESSION['booking_admin_flash']);
 
         /* ===== TABLE SECTION ===== */
         .table-section {
-            background: var(--white); border-radius: 20px;
-            border: 1.5px solid var(--cream-deep); overflow: hidden; max-width: 100%;
+            background: var(--white);
+            border-radius: 20px;
+            border: 1.5px solid rgba(139, 107, 74, 0.24);
+            overflow: hidden;
+            max-width: 100%;
+            box-shadow: 0 18px 42px rgba(91, 60, 37, 0.08);
         }
 
         .table-header {
@@ -511,7 +515,12 @@ unset($_SESSION['booking_admin_flash']);
         }
 
         /* TABLE */
-        .booking-table { width: 100%; min-width: 980px; border-collapse: collapse; }
+        .booking-table {
+            width: 100%;
+            min-width: 1280px;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
 
         .table-scroll {
             width: 100%; max-width: 100%;
@@ -519,12 +528,16 @@ unset($_SESSION['booking_admin_flash']);
         }
 
         .booking-table thead th {
-            padding: 10px 12px;
+            padding: 14px 16px;
             font-size: 0.68rem; font-weight: 600;
             letter-spacing: 0.5px; text-transform: uppercase;
             color: var(--text-muted); background: var(--cream);
-            border-bottom: 1px solid var(--cream-deep);
-            text-align: left; white-space: nowrap;
+            border-bottom: 1.5px solid var(--cream-deep);
+            text-align: left;
+            white-space: nowrap;
+            word-break: normal;
+            overflow-wrap: normal;
+            vertical-align: middle;
         }
 
         .booking-table tbody tr {
@@ -535,15 +548,33 @@ unset($_SESSION['booking_admin_flash']);
         .booking-table tbody tr:hover { background: var(--cream); }
 
         .booking-table tbody td {
-            padding: 10px 12px; font-size: 0.78rem;
-            color: var(--text-main); vertical-align: middle;
+            padding: 14px 16px; font-size: 0.78rem;
+            color: var(--text-main);
+            vertical-align: middle;
+            white-space: nowrap;
+            word-break: normal;
+            overflow-wrap: normal;
         }
 
-        .paket-cell { display: flex; flex-direction: column; gap: 2px; }
-        .paket-name { font-weight: 600; color: var(--brown-dark); font-size: 0.78rem; }
-        .paket-type { font-size: 0.72rem; color: var(--text-muted); }
+        .paket-cell { display: flex; flex-direction: column; gap: 4px; min-width: 190px; }
+        .paket-name {
+            max-width: 240px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 600;
+            color: var(--brown-dark);
+            font-size: 0.82rem;
+        }
+        .paket-type { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; }
 
-        .customer-cell { display: flex; align-items: center; gap: 10px; }
+        .customer-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 170px;
+            white-space: nowrap;
+        }
 
         .cust-avatar {
             width: 32px; height: 32px; border-radius: 50%;
@@ -563,27 +594,43 @@ unset($_SESSION['booking_admin_flash']);
             content: ''; width: 6px; height: 6px; border-radius: 50%;
         }
 
-        .status-lunas  { background: #EDF7ED; color: #2E7D32; }
+        .status-lunas  { background: #e8f5ec; color: #257244; border: 1px solid #b8dfc4; }
         .status-lunas::before  { background: #43A047; }
 
-        .status-pending, .status-konfirmasi {
-            background: #FFF8E1; color: #E65100;
+        .status-pending {
+            background: #fff5dc;
+            color: #9a6512;
+            border: 1px solid #efd292;
         }
-        .status-pending::before, .status-konfirmasi::before { background: #FF8F00; }
+        .status-pending::before { background: #d99017; }
+
+        .status-konfirmasi {
+            background: #e8f5ec;
+            color: #257244;
+            border: 1px solid #b8dfc4;
+        }
+        .status-konfirmasi::before { background: #43A047; }
 
         /* ACTION BTNS */
-        .action-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+        .action-btns { display: flex; flex-wrap: nowrap; gap: 8px; align-items: center; }
 
         .btn-action {
-            min-height: 30px; border-radius: 8px;
-            border: 1px solid var(--cream-deep); background: var(--white);
+            min-height: 34px; border-radius: 10px;
+            border: 1px solid rgba(139, 107, 74, 0.22); background: var(--white);
             display: flex; align-items: center; justify-content: center; gap: 6px;
-            cursor: pointer; font-size: 0.74rem; color: var(--text-muted);
+            cursor: pointer; font-size: 0.76rem; color: var(--text-muted);
             transition: all 0.2s; text-decoration: none;
-            padding: 6px 8px; white-space: nowrap;
+            padding: 7px 10px; white-space: nowrap;
+            font-weight: 700;
         }
 
-        .btn-action:hover { background: var(--brown); color: var(--cream); border-color: var(--brown); }
+        .btn-action:hover {
+            background: var(--brown);
+            color: var(--cream);
+            border-color: var(--brown);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(91, 60, 37, 0.12);
+        }
         .btn-action.accept { color: #2E7D32; }
         .btn-action.reject { color: #C62828; }
         .btn-action.copy   { color: #1565C0; }
@@ -598,12 +645,13 @@ unset($_SESSION['booking_admin_flash']);
         .payment-link-text {
             font-size: 0.7rem;
             color: var(--text-muted);
-            word-break: break-all;
+            word-break: normal;
+            overflow-wrap: normal;
             background: var(--cream);
             border: 1px solid var(--cream-deep);
             border-radius: 6px;
             padding: 5px 8px;
-            max-width: 200px;
+            max-width: 260px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -655,7 +703,7 @@ unset($_SESSION['booking_admin_flash']);
 
         @media (max-width: 1199px) {
             .folders-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .booking-table { min-width: 920px; table-layout: auto; }
+            .booking-table { min-width: 1280px; table-layout: auto; }
             .booking-table thead th, .booking-table tbody td { white-space: nowrap; }
         }
 
@@ -669,8 +717,9 @@ unset($_SESSION['booking_admin_flash']);
             .nav-item a.active { border-left-color: transparent; background: rgba(196,168,130,0.22); }
             .sidebar-footer { padding: 12px 24px 18px; }
             .main { margin-left: 0; min-height: auto; }
-            .topbar { position: relative; padding: 16px 24px; gap: 16px; flex-wrap: wrap; }
-            .topbar-right { width: 100%; justify-content: space-between; }
+            .topbar { position: relative; padding: 16px 24px; gap: 16px; flex-wrap: nowrap; }
+            .topbar-left { flex: 1 1 auto; min-width: 0; }
+            .topbar-right { width: auto; justify-content: flex-end; margin-left: auto; }
             .search-box { flex: 1; }
             .search-box input { width: 100%; }
             .content { padding: 24px; }
@@ -689,7 +738,13 @@ unset($_SESSION['booking_admin_flash']);
             .table-header, .table-footer { padding: 16px; }
             .table-footer { align-items: flex-start; flex-direction: column; gap: 12px; }
             .pagination-btns { width: 100%; overflow-x: auto; padding-bottom: 2px; }
-            .booking-table thead th, .booking-table tbody td { padding: 9px 10px; }
+            .booking-table thead th,
+            .booking-table tbody td {
+                padding: 12px 14px;
+                white-space: nowrap;
+                word-break: normal;
+                overflow-wrap: normal;
+            }
         }
 
         @media (max-width: 575px) {
@@ -698,8 +753,8 @@ unset($_SESSION['booking_admin_flash']);
             .nav-label { padding-left: 8px; }
             .nav-item a { width: 100%; }
             .topbar { padding: 14px 16px; }
-            .topbar-right { align-items: stretch; flex-direction: column; gap: 10px; }
-            .admin-badge { justify-content: flex-start; }
+            .topbar-right { align-items: center; flex-direction: row; gap: 10px; justify-content: flex-end; }
+            .admin-badge { justify-content: flex-end; margin-left: auto; }
             .section-label { margin-bottom: 10px; }
             .filter-tabs { gap: 8px; }
             .filter-tab { padding: 7px 12px; }
@@ -822,18 +877,18 @@ include 'include/sidebar.php';
             </div>
 
             <div class="table-scroll">
-                <table class="booking-table" id="bookingTable">
+                <table class="table table-hover align-middle text-nowrap booking-table mb-0" id="bookingTable">
                     <thead>
                         <tr>
-                            <th>Paket</th>
-                            <th>Customer</th>
-                            <th>Tgl Booking</th>
-                            <th>Status</th>
-                            <th>Alamat</th>
-                            <th>No. Telp</th>
-                            <th>Link Pembayaran</th>
-                            <th>Bukti Pembayaran</th>
-                            <th>Aksi</th>
+                            <th class="text-nowrap table-cell-wide">Paket</th>
+                            <th class="text-nowrap table-cell-wide">Customer</th>
+                            <th class="text-nowrap table-cell-date">Tgl Booking</th>
+                            <th class="text-nowrap table-cell-status">Status</th>
+                            <th class="text-nowrap table-cell-wide">Alamat</th>
+                            <th class="text-nowrap table-cell-phone">No. Telp</th>
+                            <th class="text-nowrap table-cell-wide">Link Pembayaran</th>
+                            <th class="text-nowrap table-cell-wide">Bukti Pembayaran</th>
+                            <th class="text-nowrap table-cell-action">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -1023,25 +1078,25 @@ function renderTable() {
             const ini = escapeHtml(b.customer.substring(0, 2).toUpperCase());
             return `
             <tr>
-                <td>
+                <td class="align-middle text-nowrap table-cell-wide">
                     <div class="paket-cell">
                         <div class="paket-name">${escapeHtml(b.paket)}</div>
                         <div class="paket-type">${escapeHtml(b.kategori.charAt(0).toUpperCase() + b.kategori.slice(1))}</div>
                     </div>
                 </td>
-                <td>
+                <td class="align-middle text-nowrap table-cell-wide">
                     <div class="customer-cell">
                         <div class="cust-avatar">${ini}</div>
                         ${escapeHtml(b.customer)}
                     </div>
                 </td>
-                <td>${escapeHtml(b.tgl)}</td>
-                <td><span class="status-badge ${st.cls}">${st.label}</span></td>
-                <td>${escapeHtml(b.alamat)}</td>
-                <td>${escapeHtml(b.telp)}</td>
-                <td>${renderPaymentTools(b)}</td>
-                <td>${renderProofTools(b)}</td>
-                <td>${renderActions(b)}</td>
+                <td class="align-middle text-nowrap table-cell-date">${escapeHtml(b.tgl)}</td>
+                <td class="align-middle text-nowrap table-cell-status"><span class="status-badge ${st.cls}">${st.label}</span></td>
+                <td class="align-middle text-nowrap table-cell-wide"><span class="table-cell-truncate" title="${escapeHtml(b.alamat)}">${escapeHtml(b.alamat)}</span></td>
+                <td class="align-middle text-nowrap table-cell-phone">${escapeHtml(b.telp)}</td>
+                <td class="align-middle text-nowrap table-cell-wide">${renderPaymentTools(b)}</td>
+                <td class="align-middle text-nowrap table-cell-wide">${renderProofTools(b)}</td>
+                <td class="align-middle text-nowrap table-cell-action">${renderActions(b)}</td>
             </tr>`;
         }).join('');
     }

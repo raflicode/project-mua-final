@@ -61,8 +61,14 @@ body[data-sidebar-state='collapsed'] .sidebar {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 17px;
-    color: #f0c040;
+    overflow: hidden;
+}
+
+.sidebar-brand .brand-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .sidebar-brand .brand-title {
@@ -239,7 +245,7 @@ body[data-sidebar-state='collapsed'] .sidebar-link {
 <!-- Desktop Sidebar -->
 <div class="sidebar d-none d-lg-flex" id="adminSidebar">
     <div class="sidebar-brand">
-        <span class="brand-icon"><i data-lucide="sparkles"></i></span>
+        <span class="brand-icon"><img src="../assets/logo.png" alt="Yayuk Makeover Logo"></span>
         <div class="brand-title">
             <h5>Yayuk Makeover</h5>
             <small>Admin Panel</small>
@@ -283,7 +289,7 @@ body[data-sidebar-state='collapsed'] .sidebar-link {
             <span class="sidebar-icon"><i data-lucide="log-out"></i></span>
             <span class="sidebar-label">Logout</span>
         </a>
-        <div class="sidebar-footer-copyright">© 2025 Yayuk Makeover</div>
+        <div class="sidebar-footer-copyright">© 2026 Not Found</div>
     </div>
 </div>
 
@@ -294,7 +300,7 @@ body[data-sidebar-state='collapsed'] .sidebar-link {
     </div>
     <div class="offcanvas-body">
         <div class="sidebar-brand">
-            <span class="brand-icon"><i data-lucide="sparkles"></i></span>
+            <span class="brand-icon"><img src="../assets/logo.png" alt="Yayuk Makeover Logo"></span>
             <div class="brand-title">
                 <h5>Yayuk Makeover</h5>
                 <small>Admin Panel</small>

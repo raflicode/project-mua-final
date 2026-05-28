@@ -141,6 +141,17 @@ try {
             throw new Exception('Jadwal ini sudah penuh. Silakan pilih jadwal lain.');
         }
 
+        $closedStmt = $pdo->prepare("
+            SELECT COUNT(*)
+            FROM jadwal_tutup jt
+            INNER JOIN jadwal_kerja jk ON jk.tanggal = jt.tanggal
+            WHERE jk.id_jadwal = ?
+        ");
+        $closedStmt->execute([$idJadwal]);
+        if ((int) $closedStmt->fetchColumn() > 0) {
+            throw new Exception('Tanggal ini sedang ditutup oleh admin. Silakan pilih tanggal lain.');
+        }
+
         $bookingColumns = ['id_user', 'id_jadwal', 'total_harga', 'status_booking', 'catatan'];
         $bookingParams = [$idUser, $idJadwal, $totalHarga, 'pending', $alamat];
         if (db_has_column($pdo, 'booking', 'no_telp')) {

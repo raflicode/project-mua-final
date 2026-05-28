@@ -339,7 +339,8 @@ canvas {
     font-size: 1.28rem;
     font-weight: 800;
     line-height: 1.15;
-    word-break: break-word;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .summary-note {
@@ -462,17 +463,17 @@ include 'include/sidebar.php';
         </div>
 
         <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead class="table-light">
+            <table class="table table-hover align-middle text-nowrap modern-admin-table mb-0">
+                <thead>
                     <tr>
-                        <th>Nama Pelanggan</th>
-                        <th>Layanan</th>
-                        <th>Tanggal Bayar</th>
-                        <th>Metode</th>
-                        <th>Bukti Transfer</th>
-                        <th>Status</th>
-                        <th class="text-end">Nominal</th>
-                        <th class="text-end">Aksi</th>
+                        <th class="text-nowrap table-cell-wide">Nama Pelanggan</th>
+                        <th class="text-nowrap table-cell-wide">Layanan</th>
+                        <th class="text-nowrap table-cell-date">Tanggal Bayar</th>
+                        <th class="text-nowrap">Metode</th>
+                        <th class="text-nowrap table-cell-wide">Bukti Transfer</th>
+                        <th class="text-nowrap table-cell-status">Status</th>
+                        <th class="text-nowrap text-end">Nominal</th>
+                        <th class="text-nowrap text-end table-cell-action">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -486,11 +487,11 @@ include 'include/sidebar.php';
                         <?php [$statusLabel, $statusClass] = payment_badge($payment['status_verifikasi']); ?>
                         <?php $proofUrl = payment_proof_url($payment['bukti_transfer']); ?>
                         <tr>
-                            <td><?= htmlspecialchars($payment['full_name']) ?></td>
-                            <td><?= htmlspecialchars($payment['nama_layanan']) ?></td>
-                            <td><?= htmlspecialchars(format_tanggal_id($payment['tanggal_bayar'])) ?></td>
-                            <td><?= htmlspecialchars(ucfirst($payment['metode_bayar'])) ?></td>
-                            <td>
+                            <td class="text-nowrap align-middle"><?= htmlspecialchars($payment['full_name']) ?></td>
+                            <td class="text-nowrap align-middle"><span class="table-cell-truncate" title="<?= htmlspecialchars($payment['nama_layanan']) ?>"><?= htmlspecialchars($payment['nama_layanan']) ?></span></td>
+                            <td class="text-nowrap align-middle"><?= htmlspecialchars(format_tanggal_id($payment['tanggal_bayar'])) ?></td>
+                            <td class="text-nowrap align-middle"><?= htmlspecialchars(ucfirst($payment['metode_bayar'])) ?></td>
+                            <td class="text-nowrap align-middle">
                                 <?php if ($proofUrl !== ''): ?>
                                     <a href="<?= htmlspecialchars($proofUrl) ?>" target="_blank" class="btn btn-outline-primary btn-sm btn-verify proof-link">
                                         <i class="bi bi-receipt"></i>
@@ -500,9 +501,9 @@ include 'include/sidebar.php';
                                     <span class="text-muted">Belum ada</span>
                                 <?php endif; ?>
                             </td>
-                            <td><span class="badge <?= $statusClass ?> rounded-pill px-3"><?= $statusLabel ?></span></td>
-                            <td class="text-end fw-bold"><?= rupiah($payment['jumlah_bayar']) ?></td>
-                            <td>
+                            <td class="text-nowrap align-middle"><span class="badge <?= $statusClass ?> rounded-pill px-3"><?= $statusLabel ?></span></td>
+                            <td class="text-nowrap align-middle text-end fw-bold"><?= rupiah($payment['jumlah_bayar']) ?></td>
+                            <td class="text-nowrap align-middle">
                                 <div class="payment-actions">
                                     <?php if ($payment['status_verifikasi'] === 'pending'): ?>
                                         <form method="post" action="../../actions/verifikasi_pembayaran.php">

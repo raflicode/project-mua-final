@@ -97,7 +97,7 @@ textarea {
 .harga-wrap {
     width: 100%;
     padding: 12px 14px;
-    border: 1.5px solid var(--border) !important;
+    border: 1.5px solid rgba(139, 107, 74, 0.28) !important;
     border-radius: 12px;
     background-color: #fffdf9;
     color: var(--text);
@@ -160,7 +160,10 @@ input:focus {
 .booking-table,
 .gallery-table {
     margin-bottom: 0;
-    table-layout: fixed;
+    table-layout: auto;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 920px;
 }
 
 .table-section thead th,
@@ -168,15 +171,19 @@ input:focus {
 .table-responsive .table thead th,
 .booking-table thead th,
 .gallery-table th {
-    padding: 14px 18px;
+    padding: 15px 18px;
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--text-muted);
-    background: var(--surface-soft) !important;
-    border-bottom: 1px solid var(--border) !important;
+    background: #fbf4ed !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(139, 107, 74, 0.18) !important;
     white-space: nowrap;
+    word-break: normal;
+    overflow-wrap: normal;
+    vertical-align: middle;
 }
 
 .table-section tbody td,
@@ -184,14 +191,24 @@ input:focus {
 .table-responsive .table tbody td,
 .booking-table tbody td,
 .gallery-table td {
-    padding: 14px 18px;
+    padding: 16px 18px;
     font-size: 0.92rem;
     color: var(--text);
     line-height: 1.45;
-    vertical-align: top;
-    border-bottom: 1px solid var(--surface-strong) !important;
-    overflow-wrap: anywhere;
+    vertical-align: middle;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(139, 107, 74, 0.11) !important;
+    white-space: nowrap;
     word-break: normal;
+    overflow-wrap: normal;
+}
+
+.table-section tbody tr:last-child td,
+.admin-card tbody tr:last-child td,
+.table-responsive .table tbody tr:last-child td,
+.booking-table tbody tr:last-child td,
+.gallery-table tbody tr:last-child td {
+    border-bottom: 0 !important;
 }
 
 .table-section tbody tr:hover,
@@ -199,19 +216,37 @@ input:focus {
 .table-responsive .table tbody tr:hover,
 .booking-table tbody tr:hover,
 .gallery-table tr:hover {
-    background: #fdf3e9;
+    background: #fffaf5;
 }
 
 .table-responsive,
 .table-scroll {
-    border-radius: 14px;
+    border-radius: 16px;
     overflow-x: auto;
     scrollbar-color: var(--primary-soft) var(--surface-soft);
+    -webkit-overflow-scrolling: touch;
+    background: var(--surface);
+}
+
+.table-responsive::-webkit-scrollbar,
+.table-scroll::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track,
+.table-scroll::-webkit-scrollbar-track {
+    background: var(--surface-soft);
+}
+
+.table-responsive::-webkit-scrollbar-thumb,
+.table-scroll::-webkit-scrollbar-thumb {
+    background: var(--primary-soft);
+    border-radius: 999px;
 }
 
 .table-responsive .table,
 .table-scroll table {
-    min-width: 860px;
+    min-width: 920px;
 }
 
 .table-responsive .table td,
@@ -220,7 +255,8 @@ input:focus {
 .booking-table th,
 .gallery-table td,
 .gallery-table th {
-    max-width: 260px;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .table-responsive .table td:nth-child(1),
@@ -235,20 +271,29 @@ input:focus {
     white-space: nowrap;
 }
 
+.table-section,
+.admin-card,
+.card-custom:has(.table-responsive),
+.card:has(.table-responsive) {
+    overflow: hidden;
+}
+
 .booking-table {
-    min-width: 1080px;
+    min-width: 1240px;
 }
 
 .booking-table tbody td {
-    font-size: 0.82rem !important;
+    font-size: 0.86rem !important;
 }
 
 .booking-table .paket-name,
 .booking-table .payment-link-text {
-    max-width: 220px;
+    max-width: 260px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .booking-table .paket-type,
@@ -257,16 +302,66 @@ input:focus {
 }
 
 .booking-table .payment-link-box {
-    max-width: 240px;
+    max-width: 280px;
 }
 
 .booking-table .action-btns {
-    align-items: flex-start;
+    align-items: center;
+    flex-wrap: nowrap;
 }
 
 .booking-table .btn-action {
-    min-height: 32px;
-    border-radius: 9px;
+    min-height: 34px;
+    border-radius: 10px;
+}
+
+.modern-admin-table {
+    min-width: 920px;
+}
+
+.modern-admin-table th,
+.modern-admin-table td {
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    vertical-align: middle !important;
+}
+
+.table-cell-truncate {
+    display: inline-block;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+}
+
+.table-cell-wide {
+    min-width: 220px;
+}
+
+.table-cell-action {
+    min-width: 190px;
+}
+
+.table-cell-date,
+.table-cell-phone,
+.table-cell-status {
+    min-width: 130px;
+}
+
+.badge-status,
+.status-badge,
+.badge.rounded-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px !important;
+    padding: 7px 12px !important;
+    font-size: 0.76rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
 }
 
 .badge.bg-primary,
@@ -325,14 +420,18 @@ input:focus {
 
 .gallery-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 .gallery-table th,
 .gallery-table td {
-    padding: 14px 12px;
-    border-bottom: 1px solid var(--border);
+    padding: 15px 18px;
+    border-bottom: 1px solid rgba(139, 107, 74, 0.11);
     vertical-align: middle;
+    white-space: nowrap;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .gallery-table th {
@@ -345,7 +444,7 @@ input:focus {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
 .uploads-note {

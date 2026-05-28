@@ -215,14 +215,14 @@ include 'include/sidebar.php';
         <div class="card-custom">
             <h4 style="margin-bottom:18px; font-weight: 600; color: var(--brown-dark);">Daftar Gallery</h4>
             <div class="table-responsive">
-                <table class="gallery-table">
+                <table class="table table-hover align-middle text-nowrap gallery-table modern-admin-table mb-0">
                     <thead>
                         <tr>
-                            <th>Preview</th>
-                            <th>Judul</th>
-                            <th>Kategori</th>
-                            <th>Urutan</th>
-                            <th>Aksi</th>
+                            <th class="text-nowrap">Preview</th>
+                            <th class="text-nowrap table-cell-wide">Judul</th>
+                            <th class="text-nowrap table-cell-status">Kategori</th>
+                            <th class="text-nowrap">Urutan</th>
+                            <th class="text-nowrap table-cell-action">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -233,16 +233,16 @@ include 'include/sidebar.php';
                         <?php else: ?>
                             <?php foreach ($galleryRows as $item): ?>
                                 <tr>
-                                    <td><img src="<?= htmlspecialchars($item['foto'], ENT_QUOTES, 'UTF-8'); ?>" alt="<?= htmlspecialchars($item['judul'], ENT_QUOTES, 'UTF-8'); ?>" class="thumb-img"></td>
-                                    <td>
+                                    <td class="text-nowrap align-middle"><img src="<?= htmlspecialchars($item['foto'], ENT_QUOTES, 'UTF-8'); ?>" alt="<?= htmlspecialchars($item['judul'], ENT_QUOTES, 'UTF-8'); ?>" class="thumb-img"></td>
+                                    <td class="text-nowrap align-middle">
                                         <strong><?= htmlspecialchars($item['judul'], ENT_QUOTES, 'UTF-8'); ?></strong>
-                                        <p style="margin:4px 0 0; color:var(--text-muted); font-size:0.85rem;"><?= htmlspecialchars($item['deskripsi'], ENT_QUOTES, 'UTF-8'); ?></p>
+                                        <p class="table-cell-truncate" style="margin:4px 0 0; color:var(--text-muted); font-size:0.85rem;" title="<?= htmlspecialchars($item['deskripsi'], ENT_QUOTES, 'UTF-8'); ?>"><?= htmlspecialchars($item['deskripsi'], ENT_QUOTES, 'UTF-8'); ?></p>
                                     </td>
-                                    <td>
+                                    <td class="text-nowrap align-middle">
                                         <span class="badge-kategori <?= 'badge-' . $item['kategori']; ?>"><?= htmlspecialchars(ucfirst($item['kategori']), ENT_QUOTES, 'UTF-8'); ?></span>
                                     </td>
-                                    <td><?= $item['urutan']; ?></td>
-                                    <td>
+                                    <td class="text-nowrap align-middle"><?= $item['urutan']; ?></td>
+                                    <td class="text-nowrap align-middle">
                                         <button type="button" class="btn btn-sm btn-outline-primary btn-action" onclick="editGalleryItem(<?= $item['id']; ?>)"><i class="bi bi-pencil"></i> Edit</button>
                                         <button type="button" class="btn btn-sm btn-outline-secondary btn-action" onclick="previewGalleryItem(<?= $item['id']; ?>)"><i class="bi bi-eye"></i> Lihat</button>
                                         <form method="post" style="display:inline-block;" onsubmit="return confirm('Hapus item gallery ini?');">

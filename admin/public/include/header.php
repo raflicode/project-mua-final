@@ -94,39 +94,6 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
     margin-left: auto;
 }
 
-.admin-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--badge-bg);
-    border: 1px solid var(--badge-border);
-    padding: 7px 13px 7px 9px;
-    border-radius: 999px;
-    max-width: 230px;
-}
-
-.admin-avatar {
-    width: 32px;
-    height: 32px;
-    flex: 0 0 32px;
-    border-radius: 50%;
-    background: var(--avatar-bg);
-    color: var(--avatar-text);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.9rem;
-}
-
-.admin-name {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--topbar-text-main);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 
 @media (max-width: 991.98px) {
     .topbar {
@@ -136,6 +103,21 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
         flex-wrap: nowrap !important;
         padding: 10px 12px;
         gap: 10px;
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 1055;
+        border-radius: 0 !important;
+        margin-bottom: 0 !important;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 14px 40px rgba(91, 60, 37, 0.08);
+        backdrop-filter: blur(12px);
+    }
+
+    .main {
+        padding-top: 72px !important;
     }
 
     .topbar-left {
@@ -146,30 +128,13 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
 
     .topbar-right {
         flex: 0 0 auto;
+        width: auto;
         min-width: 0;
         margin-left: auto;
         justify-content: flex-end;
+        align-items: center;
     }
 
-    .admin-badge {
-        width: 36px;
-        height: 36px;
-        max-width: 36px;
-        padding: 0;
-        justify-content: center;
-        border-radius: 50%;
-    }
-
-    .admin-avatar {
-        width: 100%;
-        height: 100%;
-        flex-basis: 100%;
-        font-size: 0.82rem;
-    }
-
-    .admin-name {
-        display: none;
-    }
 
     .breadcrumb-nav {
         display: none;
@@ -205,9 +170,5 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
         </div>
     </div>
     <div class="topbar-right">
-        <div class="admin-badge">
-            <div class="admin-avatar"><?php echo strtoupper(substr($admin_name, 0, 1)); ?></div>
-            <div class="admin-name"><?php echo htmlspecialchars($admin_name); ?></div>
-        </div>
     </div>
 </div>
