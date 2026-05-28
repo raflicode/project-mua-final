@@ -6,14 +6,14 @@ $page = $page ?? pathinfo($_SERVER['SCRIPT_NAME'] ?? '', PATHINFO_FILENAME);
 :root {
     --surface: #ffffff;
     --surface-soft: rgba(255, 248, 240, 0.18);
-    --text-primary: #ffffff;
-    --text-secondary: rgba(255, 248, 240, 0.96);
-    --text-muted: rgba(255, 248, 240, 0.60);
+    --text-primary: #f3e2d2;
+    --text-secondary: #d7b99e;
+    --text-muted: #a97e62;
     --border: rgba(255, 255, 255, 0.08);
     --accent-soft: rgba(255, 248, 240, 0.10);
     --danger-soft: rgba(234, 84, 85, 0.12);
     --active-bg: rgba(180, 130, 60, 0.45);
-    --active-text: #f0c040;
+    --active-text: #d9a040;
     --sidebar-width: 280px;
     --sidebar-collapsed-width: 80px;
 }
