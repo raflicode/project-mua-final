@@ -15,6 +15,8 @@ $booking = null;
 if ($tokenMode || $idBookingMode) {
     $where = $tokenMode ? 'b.konfirmasi_akhir_token = ?' : 'b.id_booking = ?';
     $param = $tokenMode ? $token : $idBooking;
+    $paymentNameSelect = db_has_column($pdo, 'pembayaran', 'nama') ? 'p.nama' : 'NULL';
+    $paymentPhoneSelect = db_has_column($pdo, 'pembayaran', 'no_telp') ? 'p.no_telp' : (db_has_column($pdo, 'pembayaran', 'hp') ? 'p.hp' : 'NULL');
     $stmt = $pdo->prepare("
         SELECT
             b.id_booking,
@@ -25,9 +27,20 @@ if ($tokenMode || $idBookingMode) {
             u.full_name,
             u.username,
             u.no_telp,
+            $paymentNameSelect AS payment_name,
+            $paymentPhoneSelect AS payment_phone,
             GROUP_CONCAT(DISTINCT l.nama_layanan ORDER BY l.nama_layanan SEPARATOR ', ') AS nama_layanan
         FROM booking b
         LEFT JOIN user u ON u.id_user = b.id_user
+        LEFT JOIN (
+            SELECT p1.*
+            FROM pembayaran p1
+            INNER JOIN (
+                SELECT id_booking, MAX(id_pembayaran) AS id_pembayaran
+                FROM pembayaran
+                GROUP BY id_booking
+            ) latest_p ON latest_p.id_pembayaran = p1.id_pembayaran
+        ) p ON p.id_booking = b.id_booking
         LEFT JOIN booking_detail bd ON bd.id_booking = b.id_booking
         LEFT JOIN layanan l ON l.id_layanan = bd.id_layanan
         WHERE {$where} AND b.status_booking IN ('dikonfirmasi', 'konfirmasi')
@@ -43,8 +56,8 @@ if ($tokenMode || $idBookingMode) {
     }
 
     $pembayaran = [
-        'nama' => $booking['full_name'] ?: ($booking['username'] ?: 'Client'),
-        'hp' => $booking['no_telp'] ?: '-',
+        'nama' => $booking['payment_name'] ?: $booking['full_name'] ?: ($booking['username'] ?: 'Client'),
+        'hp' => $booking['payment_phone'] ?: $booking['no_telp'] ?: '-',
         'metode' => isset($_POST['metode']) ? trim($_POST['metode']) : 'Transfer Bank',
     ];
     $backHref = 'booking.php';

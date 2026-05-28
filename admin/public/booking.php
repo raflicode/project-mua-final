@@ -144,7 +144,7 @@ $bookingStmt = $pdo->query("
         COALESCE($bookingProofSelect, $paymentProofSelect) AS bukti_pembayaran,
         COALESCE($bookingUploadSelect, $paymentUploadSelect) AS tanggal_upload,
         $paymentStatusSelect AS status_pembayaran,
-        COALESCE($userNameSelect, $paymentNameSelect, u.username) AS full_name,
+        COALESCE($paymentNameSelect, $userNameSelect, u.username) AS full_name,
         u.username,
         COALESCE(NULLIF($paymentPhoneSelect, ''), NULLIF($bookingPhoneSelect, ''), $userPhoneSelect) AS no_telp,
         layanan_booking.nama_layanan
