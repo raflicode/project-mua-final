@@ -258,27 +258,27 @@ body[data-sidebar-state='collapsed'] .sidebar-link {
             <div class="sidebar-section-label">Menu Utama</div>
 
             <a href="dashboard.php" class="sidebar-link <?= ($page === 'dashboard') ? 'active' : '' ?>">
-                <span class="sidebar-icon"><i data-lucide="layout-dashboard"></i></span>
+                <span class="sidebar-icon"><i class="bi bi-speedometer2"></i></span>
                 <span class="sidebar-label">Dashboard</span>
             </a>
 
             <a href="booking.php" class="sidebar-link <?= ($page === 'booking') ? 'active' : '' ?>">
-                <span class="sidebar-icon"><i data-lucide="notebook-tabs"></i></span>
+                <span class="sidebar-icon"><i class="bi bi-calendar-event"></i></span>
                 <span class="sidebar-label">Booking</span>
             </a>
 
             <a href="data_gallery.php" class="sidebar-link <?= ($page === 'gallery') ? 'active' : '' ?>">
-                <span class="sidebar-icon"><i data-lucide="image"></i></span>
+                <span class="sidebar-icon"><i class="bi bi-images"></i></span>
                 <span class="sidebar-label">Data Gallery</span>
             </a>
 
             <a href="data_layanan.php" class="sidebar-link <?= in_array($page, ['data_layanan', 'layanan'], true) ? 'active' : '' ?>">
-                <span class="sidebar-icon"><i data-lucide="sparkles"></i></span>
+                <span class="sidebar-icon"><i class="bi bi-star-fill"></i></span>
                 <span class="sidebar-label">Data Layanan</span>
             </a>
 
             <a href="penjadwalan.php" class="sidebar-link <?= in_array($page, ['penjadwalan', 'kalender_pesanan'], true) ? 'active' : '' ?>">
-                <span class="sidebar-icon"><i data-lucide="calendar-days"></i></span>
+                <span class="sidebar-icon"><i class="bi bi-calendar-week"></i></span>
                 <span class="sidebar-label">Penjadwalan</span>
             </a>
         </div>
@@ -286,7 +286,7 @@ body[data-sidebar-state='collapsed'] .sidebar-link {
 
     <div class="sidebar-footer-menu">
         <a href="logout.php" class="sidebar-link logout-link">
-            <span class="sidebar-icon"><i data-lucide="log-out"></i></span>
+            <span class="sidebar-icon"><i class="bi bi-box-arrow-right"></i></span>
             <span class="sidebar-label">Logout</span>
         </a>
         <div class="sidebar-footer-copyright">© 2026 Not Found</div>
@@ -312,23 +312,23 @@ body[data-sidebar-state='collapsed'] .sidebar-link {
                 <div class="sidebar-section-label">Menu Utama</div>
 
                 <a href="dashboard.php" class="sidebar-link <?= ($page === 'dashboard') ? 'active' : '' ?>">
-                    <span class="sidebar-icon"><i data-lucide="layout-dashboard"></i></span>
+                    <span class="sidebar-icon"><i class="bi bi-speedometer2"></i></span>
                     <span class="sidebar-label">Dashboard</span>
                 </a>
                 <a href="booking.php" class="sidebar-link <?= ($page === 'booking') ? 'active' : '' ?>">
-                    <span class="sidebar-icon"><i data-lucide="notebook-tabs"></i></span>
+                    <span class="sidebar-icon"><i class="bi bi-calendar-event"></i></span>
                     <span class="sidebar-label">Booking</span>
                 </a>
                 <a href="data_gallery.php" class="sidebar-link <?= ($page === 'gallery') ? 'active' : '' ?>">
-                    <span class="sidebar-icon"><i data-lucide="image"></i></span>
+                    <span class="sidebar-icon"><i class="bi bi-images"></i></span>
                     <span class="sidebar-label">Data Gallery</span>
                 </a>
                 <a href="data_layanan.php" class="sidebar-link <?= in_array($page, ['data_layanan', 'layanan'], true) ? 'active' : '' ?>">
-                    <span class="sidebar-icon"><i data-lucide="sparkles"></i></span>
+                    <span class="sidebar-icon"><i class="bi bi-star-fill"></i></span>
                     <span class="sidebar-label">Data Layanan</span>
                 </a>
                 <a href="penjadwalan.php" class="sidebar-link <?= in_array($page, ['penjadwalan', 'kalender_pesanan'], true) ? 'active' : '' ?>">
-                    <span class="sidebar-icon"><i data-lucide="calendar-days"></i></span>
+                    <span class="sidebar-icon"><i class="bi bi-calendar-week"></i></span>
                     <span class="sidebar-label">Penjadwalan</span>
                 </a>
             </div>
@@ -336,7 +336,7 @@ body[data-sidebar-state='collapsed'] .sidebar-link {
 
         <div class="sidebar-footer-menu">
             <a href="logout.php" class="sidebar-link logout-link">
-                <span class="sidebar-icon"><i data-lucide="log-out"></i></span>
+                <span class="sidebar-icon"><i class="bi bi-box-arrow-right"></i></span>
                 <span class="sidebar-label">Logout</span>
             </a>
             <div class="sidebar-footer-copyright">© 2025 Yayuk Makeover</div>
@@ -345,13 +345,8 @@ body[data-sidebar-state='collapsed'] .sidebar-link {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        if (window.lucide) {
-            lucide.replace({ 'stroke-width': 1.8, width: 18, height: 18 });
-        }
-
         const stateKey = 'adminSidebarState';
         const body = document.body;
         const sidebar = document.getElementById('adminSidebar');
