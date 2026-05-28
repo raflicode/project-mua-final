@@ -91,21 +91,41 @@ textarea {
 .form-group textarea,
 .form-group select,
 .form-control,
-.form-select {
+.form-select,
+.form-control-custom,
+.select-custom,
+.harga-wrap {
     width: 100%;
     padding: 12px 14px;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    background: var(--surface-soft);
+    border: 1.5px solid var(--border) !important;
+    border-radius: 12px;
+    background-color: #fffdf9;
     color: var(--text);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.harga-wrap {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    overflow: hidden;
+}
+
+.harga-wrap input {
+    border: 0 !important;
+    box-shadow: none !important;
 }
 
 .form-control:focus,
 .form-select:focus,
+.form-control-custom:focus,
+.select-custom:focus,
+.harga-wrap:focus-within,
 textarea:focus,
 input:focus {
-    border-color: var(--accent);
+    border-color: var(--accent) !important;
     box-shadow: 0 0 0 0.2rem rgba(181, 126, 74, 0.18);
+    background-color: #ffffff;
 }
 
 .btn-primary,
@@ -135,16 +155,23 @@ input:focus {
 }
 
 .table-section .table,
-.admin-card .table {
+.admin-card .table,
+.table-responsive .table,
+.booking-table,
+.gallery-table {
     margin-bottom: 0;
+    table-layout: fixed;
 }
 
 .table-section thead th,
-.admin-card thead th {
+.admin-card thead th,
+.table-responsive .table thead th,
+.booking-table thead th,
+.gallery-table th {
     padding: 14px 18px;
     font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--text-muted);
     background: var(--surface-soft) !important;
@@ -153,17 +180,93 @@ input:focus {
 }
 
 .table-section tbody td,
-.admin-card tbody td {
+.admin-card tbody td,
+.table-responsive .table tbody td,
+.booking-table tbody td,
+.gallery-table td {
     padding: 14px 18px;
     font-size: 0.92rem;
     color: var(--text);
-    vertical-align: middle;
+    line-height: 1.45;
+    vertical-align: top;
     border-bottom: 1px solid var(--surface-strong) !important;
+    overflow-wrap: anywhere;
+    word-break: normal;
 }
 
 .table-section tbody tr:hover,
-.admin-card tbody tr:hover {
+.admin-card tbody tr:hover,
+.table-responsive .table tbody tr:hover,
+.booking-table tbody tr:hover,
+.gallery-table tr:hover {
     background: #fdf3e9;
+}
+
+.table-responsive,
+.table-scroll {
+    border-radius: 14px;
+    overflow-x: auto;
+    scrollbar-color: var(--primary-soft) var(--surface-soft);
+}
+
+.table-responsive .table,
+.table-scroll table {
+    min-width: 860px;
+}
+
+.table-responsive .table td,
+.table-responsive .table th,
+.booking-table td,
+.booking-table th,
+.gallery-table td,
+.gallery-table th {
+    max-width: 260px;
+}
+
+.table-responsive .table td:nth-child(1),
+.booking-table td:nth-child(1),
+.gallery-table td:nth-child(1) {
+    font-weight: 600;
+}
+
+.table .btn,
+.booking-table .btn-action,
+.gallery-table .btn-action {
+    white-space: nowrap;
+}
+
+.booking-table {
+    min-width: 1080px;
+}
+
+.booking-table tbody td {
+    font-size: 0.82rem !important;
+}
+
+.booking-table .paket-name,
+.booking-table .payment-link-text {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.booking-table .paket-type,
+.booking-table .muted-action {
+    color: var(--text-muted-2);
+}
+
+.booking-table .payment-link-box {
+    max-width: 240px;
+}
+
+.booking-table .action-btns {
+    align-items: flex-start;
+}
+
+.booking-table .btn-action {
+    min-height: 32px;
+    border-radius: 9px;
 }
 
 .badge.bg-primary,

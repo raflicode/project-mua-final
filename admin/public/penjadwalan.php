@@ -132,7 +132,7 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
             border-radius: 24px;
             padding: 2rem;
             box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
-            border: 1px solid rgba(0, 0, 0, 0.01);
+            border: 1.5px solid #e8d0bb;
             height: 100%;
         }
 
@@ -311,7 +311,31 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
             border-radius: 16px;
             padding: 1rem;
             margin-bottom: 1.5rem;
-            border: 1px solid rgba(0, 0, 0, 0.02);
+            border: 1.5px solid #e8d0bb;
+            box-shadow: 0 12px 28px rgba(91, 60, 37, 0.06);
+        }
+
+        .filter-form-wrapper .form-select {
+            border: 1.5px solid #d6b99f !important;
+            background-color: #fffdf9;
+            color: #312112;
+            border-radius: 10px;
+        }
+
+        .filter-form-wrapper .form-select:focus {
+            border-color: #b57e4a !important;
+            box-shadow: 0 0 0 0.2rem rgba(181, 126, 74, 0.18);
+        }
+
+        @media (max-width: 575.98px) {
+            .filter-form-wrapper form {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+            }
+
+            .filter-form-wrapper .col-auto {
+                width: 100%;
+            }
         }
     </style>
 </head>

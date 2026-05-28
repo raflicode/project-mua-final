@@ -25,23 +25,26 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
     background: var(--topbar-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-radius: 18px;
-    padding: 14px 20px;
+    border-radius: 16px;
+    padding: 12px 18px;
     border: 1px solid var(--topbar-border);
     box-shadow: 0 14px 40px rgba(91, 60, 37, 0.08);
+    gap: 16px;
 }
 
 .topbar-left {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
     flex: 1;
+    min-width: 0;
 }
 
 .topbar-toggle {
-    border-radius: 14px;
+    border-radius: 12px;
     width: 40px;
     height: 40px;
+    flex: 0 0 40px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -59,6 +62,7 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-width: 0;
 }
 
 .page-title {
@@ -66,19 +70,28 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
     font-size: 1.05rem;
     font-weight: 700;
     color: var(--topbar-text-main);
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .breadcrumb-nav {
     font-size: 0.78rem;
     font-weight: 500;
     color: var(--topbar-text-sub);
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .topbar-right {
     display: flex;
     align-items: center;
     gap: 14px;
+    margin-left: auto;
 }
 
 .admin-badge {
@@ -87,13 +100,15 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
     gap: 10px;
     background: var(--badge-bg);
     border: 1px solid var(--badge-border);
-    padding: 8px 14px 8px 10px;
-    border-radius: 30px;
+    padding: 7px 13px 7px 9px;
+    border-radius: 999px;
+    max-width: 230px;
 }
 
 .admin-avatar {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
     border-radius: 50%;
     background: var(--avatar-bg);
     color: var(--avatar-text);
@@ -109,12 +124,73 @@ $admin_name = $_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Admin';
     font-weight: 600;
     color: var(--topbar-text-main);
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 @media (max-width: 991.98px) {
     .topbar {
-        padding: 12px 14px;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        flex-wrap: nowrap !important;
+        padding: 10px 12px;
+        gap: 10px;
     }
+
+    .topbar-left {
+        gap: 10px;
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    .topbar-right {
+        flex: 0 0 auto;
+        min-width: 0;
+        margin-left: auto;
+        justify-content: flex-end;
+    }
+
+    .admin-badge {
+        width: 36px;
+        height: 36px;
+        max-width: 36px;
+        padding: 0;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .admin-avatar {
+        width: 100%;
+        height: 100%;
+        flex-basis: 100%;
+        font-size: 0.82rem;
+    }
+
+    .admin-name {
+        display: none;
+    }
+
+    .breadcrumb-nav {
+        display: none;
+    }
+}
+
+@media (max-width: 380px) {
+    .topbar {
+        gap: 8px;
+    }
+
+    .topbar-toggle {
+        width: 38px;
+        height: 38px;
+        flex-basis: 38px;
+    }
+
+    .page-title {
+        font-size: 0.95rem;
+    }
+
 }
 </style>
 

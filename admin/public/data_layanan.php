@@ -779,8 +779,92 @@ unset($_SESSION['layanan_flash']);
             pointer-events:none;
         }
         .toast-msg.show { opacity:1; transform:translateY(0); }
+
+        /* Layout overrides for the shared admin sidebar/header */
+        .main {
+            margin-left: var(--sidebar-width, 280px);
+            width: calc(100% - var(--sidebar-width, 280px));
+            min-width: 0;
+        }
+
+        .content {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .content-header {
+            gap: 16px;
+        }
+
+        .cards-grid {
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        }
+
+        .category-tabs {
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 991.98px) {
+            body {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+                min-height: auto;
+            }
+
+            .content {
+                padding: 24px 20px 32px;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .content {
+                padding: 20px 16px 28px;
+            }
+
+            .content-header {
+                align-items: stretch;
+                flex-direction: column;
+                margin-bottom: 22px;
+            }
+
+            .content-header h2 {
+                font-size: 1.35rem;
+            }
+
+            .btn-tambah {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .category-tabs {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            .cat-tab {
+                justify-content: center;
+                padding: 10px 12px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .modal-box {
+                width: calc(100% - 24px);
+                padding: 24px 18px;
+            }
+        }
     </style>
     <link href="../assets/admin-brown.css" rel="stylesheet">
+    <link href="../assets/admin-layout.css" rel="stylesheet">
 </head>
 <body>
 
