@@ -1,61 +1,14 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/koneksi.php';
+require_once __DIR__ . '/../config/service_catalog.php';
 
-function dekorImagePath(?string $path): string
-{
-    if (!$path) {
-        return '../assets/fotodekor1.png';
-    }
-    if (preg_match('#^(https?://|/)#', $path)) {
-        return $path;
-    }
-    if (strpos($path, '../assets/') === 0) {
-        return $path;
-    }
-    if (strpos($path, 'assets/') === 0) {
-        return '../' . $path;
-    }
-    return '../' . ltrim($path, '/');
-}
-
-function dekorIncludes(?string $deskripsi): array
-{
-    if (!$deskripsi) {
-        return ['Layanan dekorasi siap untuk booking.'];
-    }
-    $items = [];
-    foreach (preg_split('/\r\n|\n|;/', $deskripsi) as $part) {
-        $part = trim($part);
-        if ($part !== '') {
-            $items[] = $part;
-        }
-    }
-    return $items ?: ['Layanan dekorasi siap untuk booking.'];
-}
-
-function formatRupiah($value): string
-{
-    return 'Rp ' . number_format((float) $value, 0, ',', '.');
-}
-
-$stmt = $pdo->query("SELECT id_layanan, nama_layanan, harga_dasar, foto_layanan, deskripsi FROM layanan WHERE is_active = 1 AND kategori_layanan = 'dekor' ORDER BY nama_layanan ASC");
-$dekorRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-$dekorDataFromDB = [];
-foreach ($dekorRows as $row) {
-    $dekorDataFromDB[] = [
-        'id'      => (int) $row['id_layanan'],
-        'jenis'   => $row['nama_layanan'],
-        'variasi' => [[
-            'id'          => (int) $row['id_layanan'],
-            'nama'        => $row['nama_layanan'],
-            'foto'        => dekorImagePath($row['foto_layanan'] ?? ''),
-            'harga'       => formatRupiah($row['harga_dasar']),
-            'harga_value' => (float) $row['harga_dasar'],
-            'include'     => dekorIncludes($row['deskripsi'] ?? ''),
-        ]],
-    ];
-}
+$dekorDataFromDB = fetch_catalog_by_category(
+    $pdo,
+    'dekor',
+    '../assets/fotodekor1.png',
+    'Layanan dekorasi siap untuk booking.'
+);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -336,11 +289,11 @@ body {
 <script>
 const isLoggedIn = <?php echo isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
 
-// Data dari database (digunakan jika ada)
+// Data dari database admin
 const dekorDataDB = <?= json_encode($dekorDataFromDB, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
 
-// Data statis (fallback / default)
-const dekorDataStatis = [
+// Arsip katalog lama, tidak dipakai untuk render client.
+const dekorDataArsip = [
     {
         jenis: 'Dekorasi Indoor (Gedung)',
         variasi: [
@@ -549,8 +502,7 @@ const dekorDataStatis = [
     }
 ];
 
-// Gunakan data DB jika ada, jika tidak pakai data statis
-const dekorData = dekorDataDB.length > 0 ? dekorDataDB : dekorDataStatis;
+const dekorData = dekorDataDB;
 
 let idxDekor   = 0;
 let idxVariasi = 0;

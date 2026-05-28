@@ -1,132 +1,14 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/koneksi.php';
+require_once __DIR__ . '/../config/service_catalog.php';
 
-$makeupPackages = [
-    [
-        'id' => 'graduation',
-        'name' => 'Makeup Graduation',
-        'variants' => [
-            [
-                'price' => 150000,
-                'image' => '../assets/fotomakeup_6.png',
-                'includes' => ['Bulu Mata', 'Softlens', 'Moisturizer Wardah', 'Hairdo Natural', 'Hijabdo', 'Bedak Inez dan Reflon', 'Moisturizer Wardah', 'Primer Maybelin mix Latulip']
-            ],
-            [
-                'price' => 200000,
-                'image' => '../assets/fotogradu2..jpg',
-                'includes' => ['Bulu Mata', 'Softlens', 'Serum Make over', 'Hairdo Natural', 'Hijabdo', 'Foundation Make over mix L+ Pro', 'Bedak Ultima, Makeover, Revlon', 'Primer Make over']
-            ]
-        ]
-    ],
-    [
-        'id' => 'wedding',
-        'name' => 'Makeup Natural',
-        'variants' => [
-            [
-                'price' => 150000,
-                'image' => '../assets/fotonatural1.jpg',
-                'includes' => ['Bulu Mata', 'Softlens', 'Moisturizer Wardah', 'Hairdo Natural', 'Hijabdo', 'Bedak Inez dan Reflon', 'Moisturizer Wardah', 'Primer Maybelin mix Latulip']
-            ],
-            [
-                'price' => 200000,
-                'image' => '../assets/fotolamaran2.jpg',
-                'includes' => ['Bulu Mata', 'Softlens', 'Serum Make over', 'Hairdo Natural', 'Hijabdo', 'Foundation Make over mix L+ Pro', 'Bedak Ultima, Makeover, Revlon', 'Primer Make over']
-            ]
-        ]
-    ],
-    [
-        'id' => 'carnaval',
-        'name' => 'Makeup Carnaval',
-        'variants' => [
-            [
-                'price' => 150000,
-                'image' => '../assets/fotocarnaval2.jpg',
-                'includes' => ['Bulu Mata', 'Softlens', 'Moisturizer Wardah', 'Hairdo Natural', 'Hijabdo', 'Bedak Inez dan Reflon', 'Moisturizer Wardah', 'Primer Maybelin mix Latulip']
-            ],
-            [
-                'price' => 200000,
-                'image' => '../assets/fotocarnaval.jpg',
-                'includes' => ['Bulu Mata', 'Softlens', 'Serum Make over', 'Hairdo Natural', 'Hijabdo', 'Foundation Make over mix L+ Pro', 'Bedak Ultima, Makeover, Revlon', 'Primer Make over']
-            ]
-        ]
-    ],
-    [
-        'id' => 'natural',
-        'name' => 'Makeup Flawless',
-        'variants' => [
-            [
-                'price' => 150000,
-                'image' => '../assets/fotoflawless1.jpg',
-                'includes' => ['Bulu Mata', 'Softlens', 'Moisturizer Wardah', 'Hairdo Natural', 'Hijabdo', 'Bedak Inez dan Reflon', 'Moisturizer Wardah', 'Primer Maybelin mix Latulip']
-            ],
-            [
-                'price' => 200000,
-                'image' => '../assets/fotolamaran1.jpg',
-                'includes' => ['Bulu Mata', 'Softlens', 'Serum Make over', 'Hairdo Natural', 'Hijabdo', 'Foundation Make over mix L+ Pro', 'Bedak Ultima, Makeover, Revlon', 'Primer Make over']
-            ]
-        ]
-    ],
-    [
-        'id' => 'engagement',
-        'name' => 'Makeup Engagement',
-        'variants' => [
-            [
-                'price' => 150000,
-                'image' => '../assets/fotolamaran1.jpg',
-                'includes' => ['Bulu Mata', 'Softlens', 'Moisturizer Wardah', 'Hairdo Natural', 'Hijabdo', 'Bedak Inez dan Reflon', 'Moisturizer Wardah', 'Primer Maybelin mix Latulip']
-            ],
-            [
-                'price' => 200000,
-                'image' => '../assets/fotolamaran2.jpg',
-                'includes' => ['Bulu Mata', 'Softlens', 'Serum Make over', 'Hairdo Natural', 'Hijabdo', 'Foundation Make over mix L+ Pro', 'Bedak Ultima, Makeover, Revlon', 'Primer Make over']
-            ]
-        ]
-    ],
-    [
-        'id' => 'prewedding',
-        'name' => 'Makeup Pre-wedding',
-        'variants' => [
-            [
-                'price' => 300000,
-                'image' => '../assets/fotoprew.jpg',
-                'includes' => ['Bulu Mata', 'Softlens', 'Moisturizer Wardah', 'Hairdo Natural', 'Hijabdo', 'Bedak Inez dan Reflon', 'Moisturizer Wardah', 'Primer Maybelin mix Latulip']
-            ]
-        ]
-    ],
-    [
-        'id' => 'akad',
-        'name' => 'Makeup Akad',
-        'variants' => [
-            [
-                'price' => 6000000,
-                'image' => '../assets/fotomakeup_1.jpeg',
-                'includes' => ['Makeup (inc: softlens, hijab/hair do & retouch)', 'Fresh Melati', 'Baju akad & Resepsi "couple"', 'Baju penerima Tamu 4', 'Bucket bunga', 'Dekorasi 4m']
-            ],
-            [
-                'price' => 8500000,
-                'image' => '../assets/fotomakeup_3.jpeg',
-                'includes' => ['Makeup (inc: softlens, hijab/hair do & retouch)', 'Fresh Melati', 'Baju akad & Resepsi "couple"', 'Baju penerima Tamu 4 tamu manten', 'Baju adat jawa couple', 'Baju adat jawa orang tua 4', 'Baju adat jawa kembar mayang', 'Baju adat jawa joko bagus dalang', 'Perlengkapan temu manten', 'Bucket bunga', 'Dekorasi 6m']
-            ]
-        ]
-    ],
-    [
-        'id' => 'resepsi',
-        'name' => 'Makeup Resepsi',
-        'variants' => [
-            [
-                'price' => 6000000,
-                'image' => '../assets/fotomakeup_2.jpeg',
-                'includes' => ['Makeup (inc: softlens, hijab/hair do & retouch)', 'Fresh Melati', 'Baju akad & Resepsi "couple"', 'Baju penerima Tamu 4', 'Bucket bunga', 'Dekorasi 4m']
-            ],
-            [
-                'price' => 8500000,
-                'image' => '../assets/fotomakeup_5.jpeg',
-                'includes' => ['Makeup (inc: softlens, hijab/hair do & retouch)', 'Fresh Melati', 'Baju akad & Resepsi "couple"', 'Baju penerima Tamu 4 tamu manten', 'Baju adat jawa couple', 'Baju adat jawa orang tua 4', 'Baju adat jawa kembar mayang', 'Baju adat jawa joko bagus dalang', 'Perlengkapan temu manten', 'Bucket bunga', 'Dekorasi 6m']
-            ]
-        ]
-    ]
-];
+$makeupDataFromDB = fetch_catalog_by_category(
+    $pdo,
+    'makeup',
+    '../assets/foto_makeup.jpeg',
+    'Layanan makeup siap untuk booking.'
+);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -412,26 +294,27 @@ body {
 <script>
 const isLoggedIn = <?php echo isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
 
-const makeupData = <?php echo json_encode(array_map(function($pkg) {
-    return [
-        'jenis' => $pkg['name'],
-        'variasi' => array_map(function($v, $i) use ($pkg) {
-            return [
-                'nama'   => $pkg['name'] . ' - Opsi ' . ($i + 1),
-                'foto'   => $v['image'],
-                'harga'  => 'Rp ' . number_format($v['price'], 0, ',', '.'),
-                'harga_value' => $v['price'],
-                'include'=> $v['includes']
-            ];
-        }, $pkg['variants'], array_keys($pkg['variants']))
-    ];
-}, $makeupPackages)); ?>;
+const makeupData = <?php echo json_encode($makeupDataFromDB, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
 
 let idxPaket   = 0;
 let idxVariasi = 0;
 let bsModal    = null;
 
 function renderCards() {
+    if (makeupData.length === 0) {
+        document.getElementById('makeupGrid').innerHTML = `
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-inbox display-5 text-muted"></i>
+                    <h5 class="mt-3">Belum ada layanan makeup aktif</h5>
+                    <p class="text-muted mb-0">Admin dapat menambahkan layanan makeup dari halaman Data Layanan.</p>
+                </div>
+            </div>
+        </div>`;
+        return;
+    }
+
     document.getElementById('makeupGrid').innerHTML = makeupData.map((k, i) => {
         const f = k.variasi[0];
         return `
@@ -535,10 +418,11 @@ const harga = Number(String(v.harga).replace(/[^0-9]/g,''));
 
 window.location.href =
     './booking.php?' +
-    'nama=' + encodeURIComponent(v.nama) +
+    'from=makeup' +
+    '&id=' + encodeURIComponent(v.id || '') +
+    '&layanan=' + encodeURIComponent(v.nama) +
     '&harga=' + harga +
-    '&foto=' + encodeURIComponent(v.foto) +
-    '&source_page=makeup';
+    '&foto=' + encodeURIComponent(v.foto);
     }
 });
 

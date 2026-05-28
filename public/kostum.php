@@ -1,42 +1,14 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/koneksi.php';
+require_once __DIR__ . '/../config/service_catalog.php';
 
-function kostumImagePath(?string $path): string
-{
-    if (!$path) {
-        return '../assets/gallery_kostum/foto_akad.jpeg';
-    }
-
-    if (preg_match('#^(https?://|/)#', $path)) {
-        return $path;
-    }
-
-    return '../' . ltrim($path, '/');
-}
-
-function kostumIncludes(?string $deskripsi): array
-{
-    if (!$deskripsi) {
-        return ['Layanan kostum siap untuk booking.'];
-    }
-
-    $items = [];
-    foreach (preg_split('/\r\n|\n|;/', $deskripsi) as $part) {
-        $part = trim($part);
-        if ($part !== '') {
-            $items[] = $part;
-        }
-    }
-
-    return $items ?: ['Layanan kostum siap untuk booking.'];
-}
-
-function formatRupiah($value): string
-{
-    return 'Rp ' . number_format((float) $value, 0, ',', '.');
-}
-
+$kostumDataFromDB = fetch_catalog_by_category(
+    $pdo,
+    'kostum',
+    '../assets/gallery_kostum/fotoakad.jpeg',
+    'Layanan kostum siap untuk booking.'
+);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -319,122 +291,27 @@ body{
 <script>
 const isLoggedIn = <?php echo isset($_SESSION['id_user']) ? 'true' : 'false'; ?>;
 
-const kostumData = [
-    {
-        jenis:'Kostum Akad',
-        variasi:[
-            {
-                nama:'Akad Modern',
-                foto:'../assets/gallery_kostum/fotoakad.jpeg',
-                harga:'Rp 6.000.000',
-                include:['Makeup(inc:soflens,hijab/hairdo & retouch)','Baju akad & Resepsi "couple"','Baju penerima tamu 4 pasang','Bucket bunga','Dekorasi 4m']
-            },
-            {
-                nama:'Akad Modern 2',
-                foto:'../assets/gallery_kostum/akad_1.jpeg',
-                harga:'Rp 8.500.000',
-                include:['Makeup(inc:soflens,hijab/hairdo & retouch)','Baju akad & Resepsi "couple"','Baju penerima tamu 4 pasang','Bucket bunga','Dekorasi 4m']
-            }
-        ]
-    },
-    {
-        jenis:'Kostum Resepsi',
-        variasi:[
-            {
-                nama:'Resepsi 1',
-                foto:'../assets/gallery_kostum/fotoresepsi.jpeg',
-                harga:'Rp 4.500.000',
-                include:['Gaun resepsi putih','Veil panjang','Aksesoris lengkap','Custom fitting']
-            },
-            {
-                nama:'Resepsi 2',
-                foto:'../assets/gallery_kostum/resepsi_1.jpeg',
-                harga:'Rp 8.500.000',
-                include:['Kebaya akad','Kain bawahan','Aksesoris premium','Custom fitting']
-            }
-        ]
-    },
-    {
-        jenis:'Kostum Graduation',
-        variasi:[
-            {
-                nama:'Kebaya Wisuda',
-                foto:'../assets/gallery_kostum/wisuda_1.jpeg',
-                harga:'Rp 2.500.000',
-                include:['Kebaya wisuda','Baju','Rok/kebaya']
-            }
-        ]
-    },
-    {
-        jenis:'Kostum Adat Indonesia',
-        variasi:[
-            {
-                nama:'Adat Jawa',
-                foto:'../assets/gallery_kostum/adat_jawa.jpeg',
-                harga:'Rp 5.100.000',
-                include:['Kebaya jawa','Jarik','Sanggul','Custom fitting']
-            },
-            {
-                nama:'Adat Bali',
-                foto:'../assets/gallery_kostum/adat_bali1.jpeg',
-                harga:'Rp 5.300.000',
-                include:['Kebaya bali','Selendang','Kamen','Custom fitting']
-            },
-            {
-                nama:'Adat Sulawesi',
-                foto:'../assets/gallery_kostum/adat_sulawesi.jpeg',
-                harga:'Rp 5.300.000',
-                include:['Baju Bodo','Selendang','Sarung sutra','Custom fitting']
-            },
-            {
-                nama:'Adat NTT',
-                foto:'../assets/gallery_kostum/adat_ntt.jpeg',
-                harga:'Rp 5.300.000',
-                include:['Tenun ikat NTT','Sarung tenun','Aksesoris manik','Custom fitting']
-            },
-            {
-                nama:'Adat Kalimantan',
-                foto:'../assets/gallery_kostum/adat_kalimantan.jpeg',
-                harga:'Rp 5.300.000',
-                include:['Baju king/sapei','Kain pelangi','Mahkota bulu enggang','Custom fitting']
-            }
-        ]
-    },
-    {
-        jenis:'Kostum Carnaval',
-        variasi:[
-            {
-                nama:'Carnaval',
-                foto:'../assets/gallery_kostum/Carnaval.jpeg',
-                harga:'Rp 2.500.000',
-                include:['Kostum karnaval','Headpiece','Aksesoris glitter']
-            }
-        ]
-    },
-    {
-        jenis:'Jas & Setelan',
-        variasi:[
-            {
-                nama:'Jas Formal',
-                foto:'../assets/gallery_kostum/jas.jpeg',
-                harga:'Rp 2.000.000',
-                include:['Jas atasan formal','Kemeja','Dasi']
-            },
-            {
-                nama:'Jas Formal Set',
-                foto:'../assets/gallery_kostum/jas_set.jpeg',
-                harga:'Rp 5.300.000',
-                include:['Jas formal','Celana','Kemeja','Dasi','Custom fitting']
-            }
-        ]
-    }
-];
+const kostumData = <?= json_encode($kostumDataFromDB, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
 
 let idxKostum  = 0;
 let idxVariasi = 0;
 let bsModal    = null;
 
 function renderCards(){
+    if (kostumData.length === 0) {
+        document.getElementById('kostumGrid').innerHTML = `
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-inbox display-5 text-muted"></i>
+                    <h5 class="mt-3">Belum ada layanan kostum aktif</h5>
+                    <p class="text-muted mb-0">Admin dapat menambahkan layanan kostum dari halaman Data Layanan.</p>
+                </div>
+            </div>
+        </div>`;
+        return;
+    }
+
     document.getElementById('kostumGrid').innerHTML = kostumData.map((k,i) => {
         const f = k.variasi[0];
         return `
@@ -520,10 +397,11 @@ const harga = Number(String(v.harga).replace(/[^0-9]/g,''));
 
 window.location.href =
     './booking.php?' +
-    'nama=' + encodeURIComponent(v.nama) +
+    'from=kostum' +
+    '&id=' + encodeURIComponent(v.id || '') +
+    '&layanan=' + encodeURIComponent(v.nama) +
     '&harga=' + harga +
-    '&foto=' + encodeURIComponent(v.foto) +
-    '&source_page=kostum';
+    '&foto=' + encodeURIComponent(v.foto);
     }
 });
 

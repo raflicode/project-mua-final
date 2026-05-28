@@ -17,20 +17,6 @@ foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
     ];
 }
 
-if (empty($photos)) {
-    $photos = [
-        ['src' => '../assets/foto_makeup.jpeg', 'title' => 'Makeup Natural', 'desc' => 'Makeup natural untuk tampilan yang anggun.'],
-        ['src' => '../assets/fotomakeup_1.jpeg', 'title' => 'Makeup Wedding', 'desc' => 'Riasan pengantin untuk hari istimewa.'],
-        ['src' => '../assets/fotomakeup_2.jpeg', 'title' => 'Makeup Elegan', 'desc' => 'Riasan elegan dengan hasil akhir rapi.'],
-        ['src' => '../assets/fotomakeup_3.jpeg', 'title' => 'Makeup Glamour', 'desc' => 'Tampilan glamour yang tetap lembut.'],
-        ['src' => '../assets/fotomakeup_4.jpeg', 'title' => 'Makeup Adat', 'desc' => 'Makeup adat dengan sentuhan modern.'],
-        ['src' => '../assets/fotomakeup_5.jpeg', 'title' => 'Makeup Spesial', 'desc' => 'Riasan cantik untuk acara spesial.'],
-        ['src' => '../assets/fotomakeup_6.png', 'title' => 'Makeup Engagement', 'desc' => 'Makeup cantik untuk acara tunangan.'],
-        ['src' => '../assets/fotomakeup_7.png', 'title' => 'Makeup Soft Look', 'desc' => 'Look lembut yang menonjolkan kecantikan alami.'],
-        ['src' => '../assets/fotomakeup_8.png', 'title' => 'Makeup Bridal', 'desc' => 'Riasan bridal yang flawless dan tahan lama.'],
-        ['src' => '../assets/fotomakeup_9.png', 'title' => 'Makeup Premium', 'desc' => 'Riasan premium untuk momen terbaik Anda.'],
-    ];
-}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -113,6 +99,11 @@ if (empty($photos)) {
     <section class="mt-5">
         <h4 class="section-title">Gallery Makeup</h4>
         <div class="row g-3">
+            <?php if (empty($photos)): ?>
+                <div class="col-12">
+                    <p class="text-muted mb-0">Belum ada data gallery makeup.</p>
+                </div>
+            <?php endif; ?>
             <?php foreach ($photos as $i => $photo): ?>
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="gallery-card" onclick="openLightbox(<?= $i ?>)">

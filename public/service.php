@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__ . '/../config/koneksi.php';
 require_once __DIR__ . '/../config/db_helpers.php';
+require_once __DIR__ . '/../config/service_catalog.php';
 
 ensure_dynamic_booking_schema($pdo);
 
@@ -90,6 +91,12 @@ $categoryCards = [
         'count' => count($servicesByCategory['dekor'] ?? []),
     ],
 ];
+$packageDataFromDB = fetch_catalog_by_category(
+    $pdo,
+    'paket',
+    '../assets/silver.jpeg',
+    'Layanan paket siap untuk booking.'
+);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -372,142 +379,45 @@ $categoryCards = [
     </div>
 
     <div class="row g-4 justify-content-center pb-5">
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card-premium card-silver-theme">
-                <div class="card-header-silver">
-                    <div class="badge-package badge-silver">Bundling Package</div>
-                    <h4 class="fw-bold text-dark mb-1">Paket Silver</h4>
-                    <div class="d-flex align-items-baseline mt-2">
-                        <span class="price-currency">IDR</span>
-                        <span class="price-style">5.000.000</span>
+        <?php foreach ($packageDataFromDB as $package): ?>
+            <?php
+            $variant = $package['variasi'][0];
+            $tier = premiumTier($package['jenis'], implode(' ', $variant['include']));
+            $isGold = $tier === 'gold';
+            ?>
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card-premium <?= $isGold ? 'card-gold-theme' : 'card-silver-theme'; ?>">
+                    <div class="<?= $isGold ? 'card-header-gold' : 'card-header-silver'; ?>">
+                        <div class="badge-package <?= $isGold ? 'badge-gold' : 'badge-silver'; ?>"><?= $isGold ? 'Best Seller Package' : 'Bundling Package'; ?></div>
+                        <h4 class="fw-bold text-dark mb-1"><?= htmlspecialchars($package['jenis'], ENT_QUOTES, 'UTF-8'); ?></h4>
+                        <div class="d-flex align-items-baseline mt-2">
+                            <span class="price-currency">IDR</span>
+                            <span class="price-style"><?= htmlspecialchars(str_replace('Rp ', '', $variant['harga']), ENT_QUOTES, 'UTF-8'); ?></span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="card-body-custom">
-                    <ul class="include-list">
-                        <li>
-                            <span class="icon-check icon-silver-check"><i class="bi bi-check-lg"></i></span>
-                            <div>
-                                <strong>Make Up</strong> 
-                                <span class="text-muted d-block small">(inc: softlens, hijab/hair do & retouch)</span>
-                            </div>
-                        </li>
-                        <li>
-                            <span class="icon-check icon-silver-check"><i class="bi bi-check-lg"></i></span>
-                            Fresh Melati 
-                        </li>
-                        <li>
-                            <span class="icon-check icon-silver-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Akad & Resepsi (Couple)
-                        </li>
-                        <li>
-                            <span class="icon-check icon-silver-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Penerima Tamu 4 & Temu Manten
-                        </li>
-                        <li>
-                            <span class="icon-check icon-silver-check"><i class="bi bi-check-lg"></i></span>
-                            Bucket Bunga
-                        </li>
-                        <li>
-                            <span class="icon-check icon-silver-check"><i class="bi bi-check-lg"></i></span>
-                            Dekorasi 4 Meter
-                        </li>
-                    </ul>
+                    <div class="card-body-custom">
+                        <ul class="include-list">
+                            <?php foreach ($variant['include'] as $include): ?>
+                                <li>
+                                    <span class="icon-check <?= $isGold ? 'icon-gold-check' : 'icon-silver-check'; ?>"><i class="bi bi-check-lg"></i></span>
+                                    <?= htmlspecialchars($include, ENT_QUOTES, 'UTF-8'); ?>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
 
-                    <div class="d-flex gap-2 mt-auto">
-                        <button type="button" onclick="addToCart('Paket Silver', 'paket', 5000000, '../assets/silver.jpeg')" class="btn btn-cart-custom" title="Tambah ke Keranjang">
-                            <i class="bi bi-cart3 fs-5"></i>
-                        </button>
-                        <button type="button" onclick="handleServiceBooking('Paket Silver', 5000000, '../assets/silver.jpeg')" class="btn btn-action-silver flex-grow-1 text-center">
-                            Booking Silver
-                        </button>
+                        <div class="d-flex gap-2 mt-auto">
+                            <button type="button" onclick="addToCart(<?= htmlspecialchars(json_encode($variant['nama']), ENT_QUOTES, 'UTF-8'); ?>, 'paket', <?= (float) $variant['harga_value']; ?>, <?= htmlspecialchars(json_encode($variant['foto']), ENT_QUOTES, 'UTF-8'); ?>, <?= (int) $variant['id']; ?>)" class="btn btn-cart-custom" title="Tambah ke Keranjang"<?= $isGold ? ' style="border-color: #fcd34d;"' : ''; ?>>
+                                <i class="bi bi-cart3 fs-5"></i>
+                            </button>
+                            <button type="button" onclick="handleServiceBooking(<?= htmlspecialchars(json_encode($variant['nama']), ENT_QUOTES, 'UTF-8'); ?>, <?= (float) $variant['harga_value']; ?>, <?= htmlspecialchars(json_encode($variant['foto']), ENT_QUOTES, 'UTF-8'); ?>, <?= (int) $variant['id']; ?>)" class="btn <?= $isGold ? 'btn-action-gold' : 'btn-action-silver'; ?> flex-grow-1 text-center">
+                                Booking <?= htmlspecialchars($package['jenis'], ENT_QUOTES, 'UTF-8'); ?>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card-premium card-gold-theme">
-                <div class="card-header-gold">
-                    <div class="badge-package badge-gold">Best Seller Package</div>
-                    <h4 class="fw-bold text-dark mb-1">Paket Gold</h4>
-                    <div class="d-flex align-items-baseline mt-2">
-                        <span class="price-currency">IDR</span>
-                        <span class="price-style">7.500.000</span>
-                    </div>
-                </div>
-
-                <div class="card-body-custom">
-                    <ul class="include-list">
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            <div>
-                                <strong>Make Up</strong>
-                                <span class="text-muted d-block small">(inc: softlens, henna, nail art, hijab/hair do & retouch)</span>
-                            </div>
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Fresh Melati
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Akad & Resepso (Couple)
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Make Up & Kain Orang Tua / Besan
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Penerima Tamu 4
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Adat Jawa Couple
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Adat Orang Tua 4
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Adat Jawa Kembar Mayang
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Baju Adat Joko Bagus
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Dalang
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Perlengkapan Temu Manten
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Bucket Bunga
-                        </li>
-                        <li>
-                            <span class="icon-check icon-gold-check"><i class="bi bi-check-lg"></i></span>
-                            Dekorasi 6 Meter
-                        </li>
-                    </ul>
-
-                    <div class="d-flex gap-2 mt-auto">
-                        <button type="button" onclick="addToCart('Paket Gold', 'paket', 7500000, '../assets/gold.jpeg')" class="btn btn-cart-custom" title="Tambah ke Keranjang" style="border-color: #fcd34d;">
-                            <i class="bi bi-cart3 fs-5"></i>
-                        </button>
-                        <button type="button" onclick="handleServiceBooking('Paket Gold', 7500000, '../assets/gold.jpeg')" class="btn btn-action-gold flex-grow-1 text-center">
-                            Booking Gold
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        <?php endforeach; ?>
     </div>
 </div>
 

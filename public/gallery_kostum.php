@@ -17,18 +17,6 @@ foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
     ];
 }
 
-if (empty($photos)) {
-    $photos = [
-        ['src' => '../assets/gallery_kostum/adat_jawa.jpeg', 'title' => 'Kostum Baju Adat', 'desc' => 'Kostum adat pengantin dengan detail elegan.'],
-        ['src' => '../assets/gallery_kostum/fotoresepsi.jpeg', 'title' => 'Kostum Wedding', 'desc' => 'Busana wedding dengan nuansa anggun.'],
-        ['src' => '../assets/fotograduation.jpeg', 'title' => 'Kostum Graduation', 'desc' => 'Pilihan kostum untuk momen wisuda.'],
-        ['src' => '../assets/gallery_kostum/fotoakad.jpeg', 'title' => 'Kostum Kebaya', 'desc' => 'Kebaya cantik untuk acara spesial.'],
-        ['src' => '../assets/gallery_kostum/adat_bali1.jpeg', 'title' => 'Kostum Tradisional', 'desc' => 'Busana tradisional dengan aksesoris lengkap.'],
-        ['src' => '../assets/gallery_kostum/carnaval.jpeg', 'title' => 'Kostum Elegan', 'desc' => 'Tampilan elegan untuk acara formal.'],
-        ['src' => '../assets/gallery_kostum/resepsi_1.jpeg', 'title' => 'Kostum Premium', 'desc' => 'Kostum premium untuk hari istimewa.'],
-        ['src' => '../assets/gallery_kostum/adat_ntt.jpeg', 'title' => 'Kostum Custom', 'desc' => 'Pilihan kostum dengan penyesuaian ukuran.'],
-    ];
-}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -111,6 +99,11 @@ if (empty($photos)) {
     <section class="mt-5">
         <h4 class="section-title">Gallery Kostum</h4>
         <div class="row g-3">
+            <?php if (empty($photos)): ?>
+                <div class="col-12">
+                    <p class="text-muted mb-0">Belum ada data gallery kostum.</p>
+                </div>
+            <?php endif; ?>
             <?php foreach ($photos as $i => $photo): ?>
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="gallery-card" onclick="openLightbox(<?= $i ?>)">

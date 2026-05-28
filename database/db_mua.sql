@@ -62,6 +62,24 @@ CREATE TABLE `booking_detail` (
 -- --------------------------------------------------------
 
 --
+-- Struktur dari tabel `gallery`
+--
+
+CREATE TABLE `gallery` (
+  `id_gallery` bigint(20) UNSIGNED NOT NULL,
+  `kategori` enum('makeup','kostum','dekor') NOT NULL DEFAULT 'makeup',
+  `judul` varchar(150) NOT NULL,
+  `deskripsi` text DEFAULT NULL,
+  `foto` varchar(255) DEFAULT NULL,
+  `urutan` int(11) NOT NULL DEFAULT 0,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Struktur dari tabel `jadwal_kerja`
 --
 
@@ -107,6 +125,7 @@ CREATE TABLE `layanan` (
   `deskripsi` text DEFAULT NULL,
   `harga_dasar` decimal(12,2) NOT NULL,
   `foto_layanan` varchar(255) DEFAULT NULL,
+  `variant_data` text DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -168,6 +187,14 @@ ALTER TABLE `booking_detail`
   ADD KEY `idx_bookingdetail_layanan` (`id_layanan`);
 
 --
+-- Indeks untuk tabel `gallery`
+--
+ALTER TABLE `gallery`
+  ADD PRIMARY KEY (`id_gallery`),
+  ADD KEY `idx_gallery_kategori` (`kategori`),
+  ADD KEY `idx_gallery_active_order` (`is_active`,`urutan`);
+
+--
 -- Indeks untuk tabel `jadwal_kerja`
 --
 ALTER TABLE `jadwal_kerja`
@@ -217,6 +244,12 @@ ALTER TABLE `booking`
 --
 ALTER TABLE `booking_detail`
   MODIFY `id_booking_detail` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT untuk tabel `gallery`
+--
+ALTER TABLE `gallery`
+  MODIFY `id_gallery` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT untuk tabel `jadwal_kerja`

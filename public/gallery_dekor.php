@@ -17,25 +17,6 @@ foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
     ];
 }
 
-if (empty($photos)) {
-    $photos = [
-        ['src' => '../assets/fotodekor1.png', 'title' => 'Pelaminan Modern', 'desc' => 'Dekorasi pelaminan tema modern minimalis.'],
-        ['src' => '../assets/fotodekor2.png', 'title' => 'Wedding Decoration', 'desc' => 'Dekorasi pernikahan full setup indoor.'],
-        ['src' => '../assets/fotodekor3.png', 'title' => 'Dekor Akad Nikah', 'desc' => 'Setup meja akad dengan floral premium.'],
-        ['src' => '../assets/fotodekor4.png', 'title' => 'Standing Flower', 'desc' => 'Rangkaian bunga segar untuk pelaminan.'],
-        ['src' => '../assets/fotodekor5.png', 'title' => 'Dekor Lamaran', 'desc' => 'Backdrop foto cantik untuk lamaran.'],
-        ['src' => '../assets/fotodekor6.jpeg', 'title' => 'Dekor Garden Party', 'desc' => 'Dekorasi outdoor nuansa alam terbuka.'],
-        ['src' => '../assets/fotodekor7.jpeg', 'title' => 'Dekor Garden Party', 'desc' => 'Dekorasi outdoor dengan nuansa alam terbuka yang segar.'],
-        ['src' => '../assets/fotodekor8.jpeg', 'title' => 'Dekor Garden Party', 'desc' => 'Konsep pesta kebun romantis dengan pencahayaan hangat.'],
-        ['src' => '../assets/fotodekor9.jpeg', 'title' => 'Dekor Garden Party', 'desc' => 'Kombinasi tatanan bunga segar dan latar belakang alami.'],
-        ['src' => '../assets/fotodekor10.jpeg', 'title' => 'Dekor Garden Party', 'desc' => 'Desain pelaminan outdoor minimalis yang intim dan elegan.'],
-        ['src' => '../assets/fotodekor11.jpeg', 'title' => 'Dekor Garden Party', 'desc' => 'Sentuhan dekorasi kayu rustic untuk suasana asri.'],
-        ['src' => '../assets/fotodekor12.jpeg', 'title' => 'Dekor Garden Party', 'desc' => 'Pilihan tema botanical yang cocok untuk acara siang hari.'],
-        ['src' => '../assets/fotodekor13.jpeg', 'title' => 'Dekor Garden Party', 'desc' => 'Dekorasi lorong masuk outdoor berselimut lampu gantung.'],
-        ['src' => '../assets/fotodekor14.jpeg', 'title' => 'Dekor Garden Party', 'desc' => 'Perpaduan warna pastel yang menyatu dengan keindahan taman.'],
-        ['src' => '../assets/fotodekor15.jpeg', 'title' => 'Dekor Garden Party', 'desc' => 'Layout pelaminan premium untuk momen sakral di luar ruangan.'],
-    ];
-}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -118,6 +99,11 @@ if (empty($photos)) {
     <section class="mt-5">
         <h4 class="section-title">Gallery Dekor</h4>
         <div class="row g-3">
+            <?php if (empty($photos)): ?>
+                <div class="col-12">
+                    <p class="text-muted mb-0">Belum ada data gallery dekor.</p>
+                </div>
+            <?php endif; ?>
             <?php foreach ($photos as $i => $photo): ?>
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="gallery-card" onclick="openLightbox(<?= $i ?>)">
