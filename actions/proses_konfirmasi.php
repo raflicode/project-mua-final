@@ -5,10 +5,25 @@ require_once '../config/db_helpers.php';
 
 ensure_dynamic_booking_schema($pdo);
 
+function normalizePaymentMethodValue(string $method): string
+{
+    $method = strtolower(trim($method));
+
+    if (in_array($method, ['cod', 'cash', 'bayar di tempat'], true)) {
+        return 'cash';
+    }
+
+    if (in_array($method, ['dana', 'ovo', 'gopay', 'ewallet', 'e-wallet'], true)) {
+        return 'ewallet';
+    }
+
+    return 'transfer';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!empty($_POST['konfirmasi_akhir_token']) || !empty($_POST['id_booking']))) {
     $token = trim($_POST['konfirmasi_akhir_token'] ?? '');
     $idBookingParam = (int) ($_POST['id_booking'] ?? 0);
-    $metode = trim($_POST['metode'] ?? 'transfer');
+    $metode = normalizePaymentMethodValue($_POST['metode'] ?? 'transfer');
     $file = $_FILES['bukti_pembayaran'] ?? null;
     $errors = [];
 
@@ -226,17 +241,7 @@ $catatan = trim($pembayaran['alamat'] ?? '');
 
 function normalizePaymentMethod(string $method): string
 {
-    $method = strtolower(trim($method));
-
-    if (in_array($method, ['cod', 'cash', 'bayar di tempat'], true)) {
-        return 'cash';
-    }
-
-    if (in_array($method, ['dana', 'ovo', 'gopay', 'ewallet', 'e-wallet'], true)) {
-        return 'ewallet';
-    }
-
-    return 'transfer';
+    return normalizePaymentMethodValue($method);
 }
 
 function tableColumns(PDO $pdo, string $table): array

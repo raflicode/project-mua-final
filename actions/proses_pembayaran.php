@@ -130,6 +130,14 @@ try {
 
         $pdo->beginTransaction();
 
+        $jadwalStmt = $pdo->prepare('SELECT kapasitas_max, status_slot FROM jadwal_kerja WHERE id_jadwal = ? LIMIT 1');
+        $jadwalStmt->execute([$idJadwal]);
+        $jadwalData = $jadwalStmt->fetch(PDO::FETCH_ASSOC);
+        if (!$jadwalData || $jadwalData['status_slot'] !== 'tersedia') {
+            throw new Exception('Jadwal ini tidak tersedia lagi. Silakan pilih jadwal lain.');
+        }
+
+        $kapasitasMax = max(1, (int) $jadwalData['kapasitas_max']);
         $checkStmt = $pdo->prepare("
             SELECT COUNT(*)
             FROM booking
@@ -137,7 +145,7 @@ try {
               AND status_booking <> 'dibatalkan'
         ");
         $checkStmt->execute([$idJadwal]);
-        if ((int) $checkStmt->fetchColumn() >= 3) {
+        if ((int) $checkStmt->fetchColumn() >= $kapasitasMax) {
             throw new Exception('Jadwal ini sudah penuh. Silakan pilih jadwal lain.');
         }
 
@@ -190,6 +198,19 @@ try {
         }
 
         $_SESSION['draft_booking']['id_booking'] = $idBooking;
+
+        $bookedStmt = $pdo->prepare("
+            SELECT COUNT(*)
+            FROM booking
+            WHERE id_jadwal = ?
+              AND status_booking <> 'dibatalkan'
+        ");
+        $bookedStmt->execute([$idJadwal]);
+        if ((int) $bookedStmt->fetchColumn() >= $kapasitasMax) {
+            $updateJadwal = $pdo->prepare("UPDATE jadwal_kerja SET status_slot = 'penuh' WHERE id_jadwal = ?");
+            $updateJadwal->execute([$idJadwal]);
+        }
+
         $pdo->commit();
     }
 } catch (Throwable $e) {

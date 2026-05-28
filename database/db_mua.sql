@@ -33,7 +33,7 @@ CREATE TABLE `booking` (
   `id_jadwal` bigint(20) UNSIGNED NOT NULL,
   `tgl_booking` datetime DEFAULT current_timestamp(),
   `total_harga` decimal(12,2) NOT NULL DEFAULT 0.00,
-  `status_booking` enum('pending','dikonfirmasi','selesai','dibatalkan') DEFAULT 'pending',
+  `status_booking` enum('pending','dikonfirmasi','konfirmasi','selesai','dibatalkan') DEFAULT 'pending',
   `konfirmasi_akhir_token` varchar(64) DEFAULT NULL,
   `bukti_pembayaran` varchar(255) DEFAULT NULL,
   `tanggal_upload` datetime DEFAULT NULL,

@@ -72,13 +72,13 @@ $bookingDetailsByDate = [];
 $allBookingsThisMonth = []; // Menampung semua list untuk panel kanan
 
 $stmt = $pdo->prepare(
-    "SELECT DATE(tgl_booking) AS booking_date, COUNT(*) AS total_pesanan
-     FROM booking
-     WHERE status_booking <> 'dibatalkan'
-       AND tgl_booking IS NOT NULL
-       AND tgl_booking >= :start_date
-       AND tgl_booking < :end_date
-     GROUP BY DATE(tgl_booking)"
+    "SELECT jk.tanggal AS booking_date, COUNT(*) AS total_pesanan
+     FROM booking b
+     INNER JOIN jadwal_kerja jk ON jk.id_jadwal = b.id_jadwal
+     WHERE b.status_booking <> 'dibatalkan'
+       AND jk.tanggal >= :start_date
+       AND jk.tanggal < :end_date
+     GROUP BY jk.tanggal"
 );
 $stmt->execute([
     ':start_date' => $selectedMonthStart,
@@ -91,13 +91,13 @@ foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
 }
 
 $detailStmt = $pdo->prepare(
-    "SELECT id_booking, tgl_booking, total_harga, status_booking
-     FROM booking
-     WHERE status_booking <> 'dibatalkan'
-       AND tgl_booking IS NOT NULL
-       AND tgl_booking >= :start_date
-       AND tgl_booking < :end_date
-     ORDER BY tgl_booking ASC, id_booking ASC"
+    "SELECT b.id_booking, jk.tanggal, jk.jam_mulai, b.total_harga, b.status_booking
+     FROM booking b
+     INNER JOIN jadwal_kerja jk ON jk.id_jadwal = b.id_jadwal
+     WHERE b.status_booking <> 'dibatalkan'
+       AND jk.tanggal >= :start_date
+       AND jk.tanggal < :end_date
+     ORDER BY jk.tanggal ASC, jk.jam_mulai ASC, b.id_booking ASC"
 );
 $detailStmt->execute([
     ':start_date' => $selectedMonthStart,
@@ -105,12 +105,12 @@ $detailStmt->execute([
 ]);
 
 foreach ($detailStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-    $dateKey = date('Y-m-d', strtotime($row['tgl_booking']));
+    $dateKey = $row['tanggal'];
     $bookingData = [
         'id_booking' => (int) $row['id_booking'],
-        'tanggal' => $row['tgl_booking'],
-        'tgl_label' => date('d M Y', strtotime($row['tgl_booking'])),
-        'jam_label' => date('H:i', strtotime($row['tgl_booking'])),
+        'tanggal' => $row['tanggal'] . ' ' . $row['jam_mulai'],
+        'tgl_label' => date('d M Y', strtotime($row['tanggal'])),
+        'jam_label' => date('H:i', strtotime($row['jam_mulai'])),
         'status' => $row['status_booking'],
         'total_harga' => (int) $row['total_harga'],
     ];
