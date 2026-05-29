@@ -44,6 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!empty($_POST['konfirmasi_akhir_to
         $errors[] = 'Link pembayaran tidak valid atau sudah diproses.';
     }
 
+    // Authorization check: Pastikan user yang login adalah user yang membuat booking
+    if ($booking && isset($_SESSION['id_user']) && (int)$_SESSION['id_user'] !== (int)$booking['id_user']) {
+        $errors[] = 'Anda tidak memiliki akses untuk memproses pembayaran booking ini.';
+    }
+
     if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
         $errors[] = 'Terjadi kesalahan saat upload file';
     } else {
@@ -117,10 +122,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!empty($_POST['konfirmasi_akhir_to
         }
 
         $pdo->commit();
-        $target = $token !== ''
-            ? '../public/konfirmasi_akhir.php?token=' . urlencode($token)
-            : '../public/konfirmasi_akhir.php?id_booking=' . (int) $booking['id_booking'];
-        header('Location: ' . $target . '&uploaded=1');
+        $_SESSION['success_message'] = 'Bukti pembayaran berhasil dikirim. Silakan tunggu konfirmasi admin.';
+        header('Location: ../index.php');
         exit;
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) {

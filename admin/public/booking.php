@@ -167,7 +167,7 @@ $bookingStmt = $pdo->query("
             GROUP BY id_booking
         ) latest_p ON latest_p.id_pembayaran = p1.id_pembayaran
     ) p ON p.id_booking = b.id_booking
-    WHERE b.status_booking IN ('pending','konfirmasi','selesai')
+    WHERE b.status_booking IN ('pending','konfirmasi')
     ORDER BY b.tgl_booking DESC
 ");
 

@@ -652,6 +652,18 @@ include __DIR__ . '/actions/proses_index.php';
 </script>
 <?php endif; ?>
 
+<?php if(isset($_SESSION['success_message'])): ?>
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: '<?php echo htmlspecialchars($_SESSION['success_message'], ENT_QUOTES, 'UTF-8'); ?>',
+        timer: 3000,
+        showConfirmButton: false
+    });
+</script>
+<?php unset($_SESSION['success_message']); endif; ?>
+
 <?php include __DIR__ . '/public/include/navbar.php'; ?>
 
 <header class="hero-section">

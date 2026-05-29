@@ -97,6 +97,62 @@ $packageDataFromDB = fetch_catalog_by_category(
     '../assets/silver.jpeg',
     'Layanan paket siap untuk booking.'
 );
+
+// Hardcoded paket wedding
+$paketWedding = [
+    [
+        'id' => 1001,
+        'jenis' => 'Paket Silver',
+        'variasi' => [
+            [
+                'id' => 1001,
+                'nama' => 'Paket Silver',
+                'foto' => '../assets/silver.jpeg',
+                'harga' => 'Rp 5.000.000',
+                'harga_value' => 5000000,
+                'include' => [
+                    'Make Up',
+                    'Presh Wajah',
+                    'Rigi Adat & Kemang (Couple)',
+                    'Rigi Pernikahan (Satu & Istri, Mamtiab)',
+                    'Rambut Bunga',
+                    'Dekorasi 1 Meter'
+                ],
+            ]
+        ],
+    ],
+    [
+        'id' => 1002,
+        'jenis' => 'Paket Gold',
+        'variasi' => [
+            [
+                'id' => 1002,
+                'nama' => 'Paket Gold',
+                'foto' => '../assets/gold.jpeg',
+                'harga' => 'Rp 7.500.000',
+                'harga_value' => 7500000,
+                'include' => [
+                    'Make Up',
+                    'Presh Wajah',
+                    'Rigi Adat & Kemang (Couple)',
+                    'Make Up & Presh Orang Tua / Kesman',
+                    'Rigi Pernikahan Famili A',
+                    'Rigi Adat Jasa Dara Couple',
+                    'Rigi Adat Daring Hari A',
+                    'Rigi Adat Juso Karikam Masyaraat',
+                    'Rigi Adat Jeso Diagan',
+                    'Dekorasi',
+                    'Patampungan Tamu Mamtiab',
+                    'Rambut Bunga',
+                    'Dekorasi 1 Meter'
+                ],
+            ]
+        ],
+    ],
+];
+
+// Merge database packages with hardcoded packages
+$packageDataFromDB = array_merge($paketWedding, $packageDataFromDB);
 ?>
 <!DOCTYPE html>
 <html lang="id">

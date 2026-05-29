@@ -14,6 +14,12 @@ if (!isset($_SESSION['id_user'])) {
 $id_user = $_SESSION['id_user'];
 $backHref = '../index.php';
 
+// Handle error message
+$error_message = isset($_SESSION['error_message']) ? $_SESSION['error_message'] : '';
+if (isset($_SESSION['error_message'])) {
+    unset($_SESSION['error_message']);
+}
+
 // Ambil data riwayat pesanan dari booking
 try {
 
@@ -287,6 +293,15 @@ function statusBadge($status)
 <body>
 
 <?php include 'include/navbar.php'; ?>
+
+<?php if (!empty($error_message)): ?>
+    <div class="container-fluid px-lg-5 mt-3">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8'); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+<?php endif; ?>
 
 <div class="container-fluid px-lg-5">
 

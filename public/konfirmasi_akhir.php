@@ -20,6 +20,7 @@ if ($tokenMode || $idBookingMode) {
     $stmt = $pdo->prepare("
         SELECT
             b.id_booking,
+            b.id_user,
             b.total_harga,
             b.status_booking,
             b.catatan,
@@ -53,6 +54,13 @@ if ($tokenMode || $idBookingMode) {
     if (!$booking) {
         http_response_code(404);
         die('Data booking tidak ditemukan.');
+    }
+
+    // Authorization check: Pastikan user yang login adalah user yang membuat booking
+    if (isset($_SESSION['id_user']) && (int)$_SESSION['id_user'] !== (int)$booking['id_user']) {
+        $_SESSION['error_message'] = 'Anda tidak memiliki akses ke booking ini.';
+        header('Location: riwayat_pesanan.php');
+        exit;
     }
 
     $pembayaran = [
