@@ -57,9 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'old_username' => $username,
     ];
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/@gmail\.com$/i', $email)) {
-        $queryData['error'] = 'Gunakan alamat Gmail yang valid';
-        header("Location: ../public/register.php?" . http_build_query($queryData));
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $queryData['error'] = 'Gunakan alamat email yang valid';
+        header('Location: ' . BASE_PATH . '/public/register.php?' . http_build_query($queryData));
         exit();
     }
 
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($checkEmail->rowCount() > 0) {
         $queryData['error'] = 'Email sudah dipakai';
-        header("Location: ../public/register.php?" . http_build_query($queryData));
+        header('Location: ' . BASE_PATH . '/public/register.php?' . http_build_query($queryData));
         exit();
     }
 
@@ -77,13 +77,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($checkUsername->rowCount() > 0) {
         $queryData['error'] = 'Username sudah ada';
-        header("Location: ../public/register.php?" . http_build_query($queryData));
+        header('Location: ' . BASE_PATH . '/public/register.php?' . http_build_query($queryData));
         exit();
     }
 
     if (strlen($password) < 8) {
         $queryData['error'] = 'Password minimal 8 karakter';
-        header("Location: ../public/register.php?" . http_build_query($queryData));
+        header('Location: ' . BASE_PATH . '/public/register.php?' . http_build_query($queryData));
         exit();
     }
 
@@ -98,8 +98,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mail->SMTPAuth = true;
         $mail->Username = 'zaind377@gmail.com';
         $mail->Password = 'djql ypoe rndc mnvi';
-        $mail->SMTPSecure = 'tls';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
+        $mail->SMTPAutoTLS = false;
 
         $mail->setFrom('projectmua@gmail.com', 'Project MUA');
         $mail->addAddress($email);
@@ -112,19 +113,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ";
 
         $mail->send();
-
-        $_SESSION['reg_full_name'] = $full_name;
-        $_SESSION['reg_username'] = $username;
-        $_SESSION['reg_email'] = $email;
-        $_SESSION['reg_password_hash'] = $hashedPassword;
-        $_SESSION['reg_otp'] = $otp;
-        $_SESSION['reg_otp_time'] = time();
-
-        header("Location: ../public/register_verify.php?success=Kode OTP dikirim ke $email");
-        exit();
     } catch (Exception $e) {
-        $queryData['error'] = 'Gagal mengirim OTP: ' . $mail->ErrorInfo;
-        header("Location: ../public/register.php?" . http_build_query($queryData));
-        exit();
+        // Fallback: gunakan mail() jika SMTP tidak bisa
+        try {
+            $mail = new PHPMailer(true);
+            $mail->isMail();
+            $mail->setFrom('projectmua@gmail.com', 'Project MUA');
+            $mail->addAddress($email);
+            $mail->isHTML(true);
+            $mail->Subject = 'Verifikasi Email - Kode OTP';
+            $mail->Body = "
+                <h2>Verifikasi Email</h2>
+                <p>Gunakan kode OTP berikut untuk menyelesaikan pendaftaran:</p>
+                <h1>$otp</h1>
+            ";
+            $mail->send();
+        } catch (Exception $e2) {
+            $queryData['error'] = 'Gagal mengirim OTP: ' . $e2->getMessage();
+            header('Location: ' . BASE_PATH . '/public/register.php?' . http_build_query($queryData));
+            exit();
+        }
     }
+
+    $_SESSION['reg_full_name'] = $full_name;
+    $_SESSION['reg_username'] = $username;
+    $_SESSION['reg_email'] = $email;
+    $_SESSION['reg_password_hash'] = $hashedPassword;
+    $_SESSION['reg_otp'] = $otp;
+    $_SESSION['reg_otp_time'] = time();
+
+    header('Location: ' . BASE_PATH . '/public/register_verify.php?success=Kode OTP dikirim ke ' . urlencode($email));
+    exit();
 }

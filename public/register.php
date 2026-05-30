@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../config/koneksi.php';
 include __DIR__ . '/../actions/proses_register.php';
 ?>
 
@@ -522,7 +523,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
 
                 <!-- FORM -->
-                <form id="registerForm" action="../actions/proses_register.php" method="POST">
+                <form id="registerForm" action="<?= BASE_PATH; ?>/actions/proses_register.php" method="POST">
 
                     <div class="mb-field">
 
@@ -607,7 +608,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     Sudah punya akun?
 
-                    <a href="login.php">
+                    <a href="<?= BASE_PATH; ?>/public/login.php">
                         Login
                     </a>
 

@@ -74,7 +74,7 @@ if (!empty($pembayaran['catatan'])) {
 }
 
 $pesan .= "Total estimasi: " . formatRupiah($total) . "\n\nMohon konfirmasi apakah jadwal dan layanan masih tersedia.";
-$waUrl = 'https://wa.me/6281333273119?' . http_build_query(['text' => $pesan]);
+$waUrl = 'https://wa.me/6281217857682?' . http_build_query(['text' => $pesan]);
 ?>
 <!DOCTYPE html>
 <html lang="id">

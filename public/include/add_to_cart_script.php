@@ -11,7 +11,7 @@ function addToCart(namaLayanan, tipeLayanan, harga, foto = null, idLayanan = nul
             showCancelButton: true
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = '/project-mua-final/public/login.php';
+                window.location.href = '/public/login.php';
             }
         });
         return;
@@ -29,7 +29,7 @@ function addToCart(namaLayanan, tipeLayanan, harga, foto = null, idLayanan = nul
     formData.append('harga', harga);
     formData.append('kuantitas', 1);
 
-    fetch('/project-mua-final/actions/add_to_cart.php', {
+    fetch('/actions/add_to_cart.php', {
         method: 'POST',
         body: formData
     })

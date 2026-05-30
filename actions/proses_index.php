@@ -8,6 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once __DIR__ . '/../config/koneksi.php';
 require_once __DIR__ . '/../config/auth.php';
 
 if (isset($_SESSION['id_user']) && normalize_role($_SESSION['role'] ?? '') === 'admin') {

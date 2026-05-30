@@ -679,7 +679,7 @@ include __DIR__ . '/actions/proses_index.php';
                 </p>
 
                 <div class="hero-actions">
-                    <a href="/project-mua-final/public/service.php" class="btn-booking">
+                    <a href="<?= BASE_PATH; ?>/public/service.php" class="btn-booking">
                         Booking <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>

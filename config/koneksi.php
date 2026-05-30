@@ -1,6 +1,15 @@
 <?php
+// Tentukan Base Path secara Dinamis
+if (!defined('BASE_PATH')) {
+    if (strpos($_SERVER['SCRIPT_NAME'], '/project-mua-final/') !== false) {
+        define('BASE_PATH', '/project-mua-final');
+    } else {
+        define('BASE_PATH', '');
+    }
+}
+
 // Konfigurasi Database
-$host     = 'localhost';
+$host     = 'localhost'; // Ganti dengan host database kamu, biasanya localhost
 $db_name  = 'db_mua'; // Ganti dengan nama database kamu
 $username = 'root';             // Default XAMPP biasanya root
 $password = '';                 // Default XAMPP biasanya kosong

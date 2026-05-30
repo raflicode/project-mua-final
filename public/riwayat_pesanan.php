@@ -214,8 +214,22 @@ function statusBadge($status)
         }
 
         .btn-kembali{
-            border-radius:999px;
-            padding:12px 24px;
+            border-radius:50px;
+            padding:12px 28px;
+            border: 1px solid #b78455;
+            background: #ffffff;
+            color: #b78455;
+            font-weight: 700;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-kembali:hover,
+        .btn-kembali:focus{
+            background: #b78455;
+            color: #ffffff;
+            border-color: #b78455;
+            text-decoration: none;
         }
 
         .empty-box{
@@ -281,7 +295,22 @@ function statusBadge($status)
 
                 width:100%;
                 text-align:left;
+                margin-bottom:18px;
+            }
 
+            .col-tipe::before,
+            .col-harga::before,
+            .col-total::before,
+            .col-status::before{
+                content: attr(data-label);
+                display:block;
+                margin-bottom:10px;
+                font-size:0.95rem;
+                font-weight:700;
+                color:#3d2d1f;
+            }
+
+            .col-produk{
                 margin-bottom:18px;
             }
         }
@@ -306,7 +335,7 @@ function statusBadge($status)
 <div class="container-fluid px-lg-5">
 
     <!-- Heading -->
-    <div class="d-flex align-items-center justify-content-between flex-column flex-md-row mb-4">
+    <div class="d-flex align-items-start align-items-md-center justify-content-between flex-column flex-md-row mb-4">
 
         <div>
 
@@ -416,7 +445,7 @@ function statusBadge($status)
                 </div>
 
                 <!-- Tipe -->
-                <div class="col-tipe">
+                <div class="col-tipe" data-label="Tipe">
 
                     <span class="badge-tipe">
                         <?= htmlspecialchars($kategoriLabel, ENT_QUOTES, 'UTF-8'); ?>
@@ -425,21 +454,21 @@ function statusBadge($status)
                 </div>
 
                 <!-- Harga -->
-                <div class="col-harga">
+                <div class="col-harga" data-label="Harga">
 
                     <?= formatRupiah($totalHarga); ?>
 
                 </div>
 
                 <!-- Total -->
-                <div class="col-total">
+                <div class="col-total" data-label="Total">
 
                     <?= formatRupiah($totalHarga); ?>
 
                 </div>
 
                 <!-- Status -->
-                <div class="col-status">
+                <div class="col-status" data-label="Status">
 
                     <?= statusBadge($status); ?>
 

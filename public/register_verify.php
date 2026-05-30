@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../config/koneksi.php';
 include __DIR__ . '/../actions/proses_register_verify.php';
 ?>
 <!DOCTYPE html>
@@ -26,7 +27,7 @@ include __DIR__ . '/../actions/proses_register_verify.php';
     <div class="col-12 col-sm-10 col-md-6 col-lg-4">
         <div class="card card-custom shadow text-center">
             <div class="text-start mb-3">
-                <a href="register.php" class="text-dark">
+                <a href="<?= BASE_PATH; ?>/public/register.php" class="text-dark">
                     <i class="bi bi-arrow-left fs-4"></i>
                 </a>
             </div>
@@ -40,7 +41,7 @@ include __DIR__ . '/../actions/proses_register_verify.php';
                 Kode OTP sudah dikirim ke <strong><?php echo getRegisterVerifyEmail(); ?></strong>.
             </p>
 
-            <form id="verifyForm" action="../actions/proses_register_verify.php" method="POST">
+            <form id="verifyForm" action="<?= BASE_PATH; ?>/actions/proses_register_verify.php" method="POST">
                 <div class="d-flex justify-content-center gap-2 mb-4">
                     <input type="text" name="otp1" maxlength="1" class="otp-input" required>
                     <input type="text" name="otp2" maxlength="1" class="otp-input" required>
@@ -52,7 +53,7 @@ include __DIR__ . '/../actions/proses_register_verify.php';
             </form>
 
             <p class="mt-3 small">
-                Belum menerima email? <a href="register.php" class="text-danger">Daftar ulang</a>
+                Belum menerima email? <a href="<?= BASE_PATH; ?>/public/register.php" class="text-danger">Daftar ulang</a>
             </p>
         </div>
     </div>

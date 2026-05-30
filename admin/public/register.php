@@ -440,7 +440,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             Contoh: src="assets/images/bridal.jpg"
         -->
         <img
-           src="<?= '/project-mua-final/assets/foto_profile.jpeg' ?>"
+           src="<?= '/assets/foto_profile.jpeg' ?>"
     alt="Bridal makeup"
 >
         <span class="brand-badge">✦ Beauty Studio</span>

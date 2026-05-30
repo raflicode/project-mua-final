@@ -62,13 +62,13 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
     {
       $foto = str_replace('\\', '/', $foto);
 
-      if ($foto === '') return '/project-mua-final/assets/foto_makeup.jpeg';
-      if (preg_match('/^(https?:)?\/\//', $foto)) return $foto;
+      if ($foto === '') return BASE_PATH . '/assets/foto_makeup.jpeg';
+      if (preg_match('/^(https?:)?\/\///', $foto)) return $foto;
       if (strpos($foto, '/') === 0) return $foto;
-      if (strpos($foto, '../assets/') === 0) return '/project-mua-final/' . str_replace('../', '', $foto);
-      if (strpos($foto, 'assets/') === 0) return '/project-mua-final/' . $foto;
+      if (strpos($foto, '../assets/') === 0) return BASE_PATH . '/' . str_replace('../', '', $foto);
+      if (strpos($foto, 'assets/') === 0) return BASE_PATH . '/' . $foto;
 
-      return '/project-mua-final/assets/' . preg_replace('/^(\.\.\/|\.\/)+/', '', $foto);
+      return BASE_PATH . '/assets/' . preg_replace('/^(\.\.\/|\.\/)+(/', '', $foto);
     }
   }
 
@@ -96,7 +96,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/project-mua-final/assets/css/mua-theme.css">
+<link rel="stylesheet" href="<?= BASE_PATH; ?>/assets/css/mua-theme.css">
 
 <style>
   .btn-custom-gold {
@@ -425,7 +425,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
 <nav id="mainNavbar" class="navbar fixed-top px-3 transition-nav">
   <div class="container-fluid">
 
-    <a class="navbar-brand fw-bold d-flex align-items-center" href="/project-mua-final/index.php">
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="<?= BASE_PATH; ?>/index.php">
       Yayuk <span class="ms-1">Makeover</span><span class="brand-dot"></span>
     </a>
 
@@ -441,20 +441,20 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
 
     <div class="d-none d-lg-flex ms-auto align-items-center gap-4 text-dark">
 
-      <a class="nav-link" href="/project-mua-final/index.php">Home</a>
+      <a class="nav-link" href="<?= BASE_PATH; ?>/index.php">Home</a>
 
-      <a class="nav-link" href="/project-mua-final/public/service.php">
+      <a class="nav-link" href="<?= BASE_PATH; ?>/public/service.php">
         Service
       </a>
 
-      <a class="nav-link" href="/project-mua-final/index.php#gallery">
+      <a class="nav-link" href="<?= BASE_PATH; ?>/index.php#gallery">
         Gallery
       </a>
 
       <!-- Modifikasi: Pembungkus Dropdown Keranjang -->
       <?php if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != ''): ?>
         <div class="nav-cart-preview-trigger nav-item-cart">
-          <a class="nav-link position-relative" href="/project-mua-final/public/keranjang.php">
+          <a class="nav-link position-relative" href="<?= BASE_PATH; ?>/public/keranjang.php">
             <i class="bi bi-cart3"></i> Keranjang
             <span id="cart-count" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="<?= $navbarCartCount > 0 ? 'display:inline-block;' : 'display:none;'; ?> font-size:0.7rem;"><?= $navbarCartCount > 0 ? $navbarCartCount : ''; ?></span>
           </a>
@@ -484,7 +484,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
             </div>
             <li><hr class="dropdown-divider"></li>
             <li class="text-center p-1">
-              <a href="/project-mua-final/public/keranjang.php" class="btn btn-sm btn-custom-gold w-100 py-1" style="font-size: 0.8rem;">Lihat Keranjang Belanja</a>
+              <a href="<?= BASE_PATH; ?>/public/keranjang.php" class="btn btn-sm btn-custom-gold w-100 py-1" style="font-size: 0.8rem;">Lihat Keranjang Belanja</a>
             </li>
           </ul>
         </div>
@@ -516,14 +516,14 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
                 </strong>
               </div>
             </li>
-<a href="/project-mua-final/public/riwayat_pesanan.php" class="dropdown-item">
+<a href="<?= BASE_PATH; ?>/public/riwayat_pesanan.php" class="dropdown-item">
     <i class="bi bi-clock-history me-2"></i>Riwayat Pesanan
 </a>
             <li><hr class="dropdown-divider"></li>
 
             <li>
               <a class="dropdown-item text-danger fw-bold"
-                href="/project-mua-final/actions/logout.php">
+                href="<?= BASE_PATH; ?>/actions/logout.php">
 
                 Logout
 
@@ -537,7 +537,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
       <?php else: ?>
 
         <a class="btn btn-custom-gold border-2 ms-2"
-          href="/project-mua-final/public/login.php">
+          href="<?= BASE_PATH; ?>/public/login.php">
 
           Login
 
@@ -571,7 +571,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
 
       <li>
         <a class="nav-link text-white mobile-menu-link"
-          href="/project-mua-final/index.php">
+          href="<?= BASE_PATH; ?>/index.php">
 
           <i class="bi bi-house-door me-2"></i>Home
 
@@ -580,7 +580,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
 
       <li>
         <a class="nav-link text-white mobile-menu-link"
-          href="/project-mua-final/public/service.php">
+          href="<?= BASE_PATH; ?>/public/service.php">
 
           <i class="bi bi-brush me-2"></i>Service
 
@@ -589,7 +589,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
 
       <li>
         <a class="nav-link text-white mobile-menu-link"
-          href="/project-mua-final/index.php#gallery">
+          href="<?= BASE_PATH; ?>/index.php#gallery">
 
           <i class="bi bi-images me-2"></i>Gallery
 
@@ -601,7 +601,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
         <li>
 
           <a class="nav-link text-white position-relative mobile-menu-link"
-            href="/project-mua-final/public/keranjang.php">
+            href="<?= BASE_PATH; ?>/public/keranjang.php">
 
             <i class="bi bi-cart3 me-2"></i>Keranjang
 
@@ -645,7 +645,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
 
           </div>
 
-          <a href="/project-mua-final/actions/logout.php"
+          <a href="<?= BASE_PATH; ?>/actions/logout.php"
             class="logout-icon">
 
             <i class="bi bi-box-arrow-right"></i>
@@ -656,7 +656,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
 
       <?php else: ?>
 
-        <a href="/project-mua-final/public/login.php"
+        <a href="<?= BASE_PATH; ?>/public/login.php"
           class="btn btn-light">
 
           Login
@@ -671,6 +671,8 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
 </div>
 
 <script>
+  const basePath = '<?= BASE_PATH; ?>';
+  
   window.onscroll = function () {
 
     var navbar = document.getElementById('mainNavbar');
@@ -685,7 +687,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
   // Modifikasi: Ambil data jumlah sekaligus list item belanjaan
   function resolveCartImageUrl(foto) {
     if (!foto) {
-      return '/project-mua-final/assets/foto_makeup.jpeg';
+      return basePath + '/assets/foto_makeup.jpeg';
     }
 
     if (/^(https?:)?\/\//.test(foto)) {
@@ -699,14 +701,14 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
     }
 
     if (normalized.startsWith('../assets/')) {
-      return '/project-mua-final/' + normalized.replace('../', '');
+      return basePath + '/' + normalized.replace('../', '');
     }
 
     if (normalized.startsWith('assets/')) {
-      return '/project-mua-final/' + normalized;
+      return basePath + '/' + normalized;
     }
 
-    return '/project-mua-final/assets/' + normalized.replace(/^(\.\.\/|\.\/)+/, '');
+    return basePath + '/assets/' + normalized.replace(/^(\.\.\/|\.\/)+/, '');
   }
 
   function escapeCartText(text) {
