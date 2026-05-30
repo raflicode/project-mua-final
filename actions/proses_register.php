@@ -1,9 +1,6 @@
 <?php
 session_start();
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
 function getRegisterAlertScript() {
     $script = '';
 
@@ -44,7 +41,7 @@ function getOldRegisterValue($key) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once __DIR__ . '/../config/koneksi.php';
-    require_once __DIR__ . '/../vendor/autoload.php';
+    require_once __DIR__ . '/../config/email_helper.php';
 
     $full_name = trim($_POST['full_name']);
     $username = trim($_POST['username']);
@@ -90,49 +87,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     $otp = rand(1000, 9999);
 
-    $mail = new PHPMailer(true);
+    $htmlBody = getOtpEmailTemplate($otp, 10);
+    $plainBody = getOtpPlainText($otp, 10);
 
-    try {
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'zaind377@gmail.com';
-        $mail->Password = 'djql ypoe rndc mnvi';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
-        $mail->SMTPAutoTLS = false;
+    $result = sendEmail(
+        $email,
+        'Verifikasi Email - Kode OTP',
+        $htmlBody,
+        $plainBody
+    );
 
-        $mail->setFrom('projectmua@gmail.com', 'Project MUA');
-        $mail->addAddress($email);
-        $mail->isHTML(true);
-        $mail->Subject = 'Verifikasi Email - Kode OTP';
-        $mail->Body = "
-            <h2>Verifikasi Email</h2>
-            <p>Gunakan kode OTP berikut untuk menyelesaikan pendaftaran:</p>
-            <h1>$otp</h1>
-        ";
-
-        $mail->send();
-    } catch (Exception $e) {
-        // Fallback: gunakan mail() jika SMTP tidak bisa
-        try {
-            $mail = new PHPMailer(true);
-            $mail->isMail();
-            $mail->setFrom('projectmua@gmail.com', 'Project MUA');
-            $mail->addAddress($email);
-            $mail->isHTML(true);
-            $mail->Subject = 'Verifikasi Email - Kode OTP';
-            $mail->Body = "
-                <h2>Verifikasi Email</h2>
-                <p>Gunakan kode OTP berikut untuk menyelesaikan pendaftaran:</p>
-                <h1>$otp</h1>
-            ";
-            $mail->send();
-        } catch (Exception $e2) {
-            $queryData['error'] = 'Gagal mengirim OTP: ' . $e2->getMessage();
-            header('Location: ' . BASE_PATH . '/public/register.php?' . http_build_query($queryData));
-            exit();
-        }
+    if (!$result['success']) {
+        $queryData['error'] = 'Gagal mengirim OTP: ' . $result['error'];
+        header('Location: ' . BASE_PATH . '/public/register.php?' . http_build_query($queryData));
+        exit();
     }
 
     $_SESSION['reg_full_name'] = $full_name;

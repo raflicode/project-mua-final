@@ -18,9 +18,9 @@ define('SMTP_AUTH', false); // Tidak perlu auth untuk localhost
 define('SMTP_USERNAME', '');
 define('SMTP_PASSWORD', '');
 
-// Email Pengirim - Ganti dengan nama domain/email Anda
-// Format: no-reply@yourdomain.com atau support@yourdomain.com
-define('MAIL_FROM_ADDRESS', 'noreply@projectmua.local');
+// Email Pengirim - gunakan alamat email valid dari domain hosting Anda
+// Contoh: admin@si-makeup.mif.myhost.id atau noreply@yourdomain.com
+define('MAIL_FROM_ADDRESS', 'admin@si-makeup.mif.myhost.id');
 define('MAIL_FROM_NAME', 'Project MUA');
 
 // Enable Debug Mode

@@ -1,17 +1,13 @@
 <?php
 /**
- * Email Helper Functions
- * Fungsi helper untuk mengirim email dengan PHPMailer
+ * Email Helper Functions - Native PHP mail()
+ * Menggunakan PHP native mail() function
  */
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/email_config.php';
+require_once __DIR__ . '/email_config_native.php';
 
 /**
- * Mengirim email HTML dengan template yang sudah ditentukan
+ * Mengirim email HTML dengan native PHP mail()
  * 
  * @param string $to Email penerima
  * @param string $subject Subject email
@@ -20,106 +16,74 @@ require_once __DIR__ . '/email_config.php';
  * @return array ['success' => bool, 'message' => string, 'error' => string|null]
  */
 function sendEmail($to, $subject, $htmlBody, $plainBody = null) {
-    $mail = new PHPMailer(true);
+    // Validasi email
+    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+        $errorMsg = "Email penerima tidak valid: $to";
+        error_log($errorMsg);
+        return [
+            'success' => false,
+            'message' => 'Email penerima tidak valid',
+            'error' => $errorMsg
+        ];
+    }
 
     try {
-        // SMTP Configuration
-        $mail->isSMTP();
-        $mail->SMTPDebug = MAIL_DEBUG;
-        $mail->Debugoutput = function($str, $level) {
-            error_log("[PHPMailer debug level $level] $str");
-        };
+        // Prepare headers
+        $headers = "MIME-Version: 1.0\r\n";
+        $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $headers .= "From: " . MAIL_FROM_NAME . " <" . MAIL_FROM_ADDRESS . ">\r\n";
+        $headers .= "Reply-To: " . MAIL_FROM_ADDRESS . "\r\n";
+        $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
+        $headers .= "X-Priority: 3\r\n";
+        $headers .= "Return-Path: " . MAIL_FROM_ADDRESS . "\r\n";
 
-        $mail->Host = SMTP_HOST;
-        
-        // Hanya set auth jika dibutuhkan (bukan untuk localhost)
-        if (SMTP_AUTH) {
-            $mail->SMTPAuth = true;
-            $mail->Username = SMTP_USERNAME;
-            $mail->Password = SMTP_PASSWORD;
+        // Subject harus di-encode untuk non-ASCII
+        $subject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+
+        // Siapkan body dengan boundary untuk multipart
+        $boundary = "==Multipart_Boundary_" . md5(time());
+        $headers .= "Content-Type: multipart/alternative; boundary=\"$boundary\"\r\n";
+
+        // Buat multipart body
+        $body = "--$boundary\r\n";
+        $body .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+        $body .= ($plainBody ?: strip_tags(html_entity_decode($htmlBody))) . "\r\n";
+        $body .= "--$boundary\r\n";
+        $body .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+        $body .= $htmlBody . "\r\n";
+        $body .= "--$boundary--\r\n";
+
+        // Kirim email
+        $mail_sent = mail($to, $subject, $body, $headers);
+
+        if ($mail_sent) {
+            error_log("Email berhasil dikirim ke $to dengan subject: $subject");
+            return [
+                'success' => true,
+                'message' => 'Email berhasil dikirim',
+                'error' => null
+            ];
+        } else {
+            $errorMsg = "PHP mail() function gagal mengirim ke $to";
+            error_log($errorMsg);
+            return [
+                'success' => false,
+                'message' => 'Gagal mengirim email via mail()',
+                'error' => $errorMsg
+            ];
         }
-
-        // Hanya set secure jika ada value (bukan untuk localhost)
-        if (!empty(SMTP_SECURE)) {
-            $mail->SMTPSecure = SMTP_SECURE;
-        }
-
-        $mail->Port = SMTP_PORT;
-
-        // Sender & Recipient
-        $mail->setFrom(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
-        $mail->addReplyTo(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
-        $mail->addAddress($to);
-
-        // Email Content
-        $mail->isHTML(true);
-        $mail->Subject = $subject;
-        $mail->Body = $htmlBody;
-
-        // Plain text alternative (untuk kompatibilitas email clients)
-        if ($plainBody) {
-            $mail->AltBody = $plainBody;
-        }
-
-        // Kirim
-        $mail->send();
-
-        return [
-            'success' => true,
-            'message' => 'Email berhasil dikirim',
-            'error' => null
-        ];
 
     } catch (Exception $e) {
-        $errorMsg = "PHPMailer Error: " . $e->getMessage() . " | ErrorInfo: " . $mail->ErrorInfo;
+        $errorMsg = "Exception saat kirim email: " . $e->getMessage();
         error_log($errorMsg);
-
-        // Fallback ke PHP mail() jika SMTP gagal
-        return sendEmailWithNativeMail($to, $subject, $htmlBody, $plainBody, $errorMsg);
-    }
-}
-
-function sendEmailWithNativeMail($to, $subject, $htmlBody, $plainBody = null, $previousError = null) {
-    $headers = "MIME-Version: 1.0\r\n";
-    $headers .= "Content-Type: multipart/alternative; boundary=\"==Multipart_Boundary_" . md5(time()) . "\"\r\n";
-    $headers .= "From: " . MAIL_FROM_NAME . " <" . MAIL_FROM_ADDRESS . ">\r\n";
-    $headers .= "Reply-To: " . MAIL_FROM_ADDRESS . "\r\n";
-    $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
-    $headers .= "X-Priority: 3\r\n";
-    $headers .= "Return-Path: " . MAIL_FROM_ADDRESS . "\r\n";
-
-    $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
-    $boundary = "==Multipart_Boundary_" . md5(time());
-
-    $body = "--$boundary\r\n";
-    $body .= "Content-Type: text/plain; charset=UTF-8\r\n";
-    $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
-    $body .= ($plainBody ?: strip_tags(html_entity_decode($htmlBody))) . "\r\n";
-    $body .= "--$boundary\r\n";
-    $body .= "Content-Type: text/html; charset=UTF-8\r\n";
-    $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
-    $body .= $htmlBody . "\r\n";
-    $body .= "--$boundary--\r\n";
-
-    $mailSent = mail($to, $encodedSubject, $body, $headers);
-
-    if ($mailSent) {
-        error_log("Fallback mail() berhasil mengirim ke $to");
         return [
-            'success' => true,
-            'message' => 'Email berhasil dikirim (fallback mail())',
-            'error' => null
+            'success' => false,
+            'message' => 'Gagal mengirim email',
+            'error' => $errorMsg
         ];
     }
-
-    $errorMsg = "PHPMailer Error: " . $previousError . " | PHP mail() function gagal mengirim ke $to";
-    error_log($errorMsg);
-
-    return [
-        'success' => false,
-        'message' => 'Gagal mengirim email',
-        'error' => $errorMsg
-    ];
 }
 
 /**
@@ -170,7 +134,7 @@ function getOtpEmailTemplate($otp, $validityMinutes = 10) {
                 </div>
 
                 <div class='warning'>
-                    <strong>⚠️ Penting:</strong> Jangan bagikan kode ini kepada siapapun. Tim kami tidak akan pernah meminta kode OTP Anda melalui email atau pesan lain.
+                    <strong>Penting:</strong> Jangan bagikan kode ini kepada siapapun. Tim kami tidak akan pernah meminta kode OTP Anda melalui email atau pesan lain.
                 </div>
 
                 <p>Jika Anda tidak melakukan permintaan ini, silakan abaikan email ini atau hubungi kami segera.</p>
