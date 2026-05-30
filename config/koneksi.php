@@ -9,21 +9,21 @@ if (!defined('BASE_PATH')) {
 }
 
 // Konfigurasi Database
-$host     = 'localhost'; // Ganti dengan host database kamu, biasanya localhost
-$db_name  = 'db_mua'; // Ganti dengan nama database kamu
-$username = 'root';             // Default XAMPP biasanya root
-$password = '';                 // Default XAMPP biasanya kosong
+$host = 'mif.myhost.id';
+$db_name = 'mifmyho2_D5'; // Ganti dengan nama database kamu
+$username = 'mifmyho2_D5';             // Default XAMPP biasanya root
+$password = '@MIF2025';        // Default XAMPP biasanya kosong
 
 try {
     // Membuat koneksi menggunakan PDO
     // Mengatur charset ke utf8mb4 agar support karakter khusus/emoticon
     $dsn = "mysql:host=$host;dbname=$db_name;charset=utf8mb4";
-    
+
     // Opsi tambahan untuk keamanan dan error handling
     $options = [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // Menampilkan error sebagai Exception
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, // Menampilkan error sebagai Exception
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,       // Hasil fetch otomatis jadi array asosiatif
-        PDO::ATTR_EMULATE_PREPARES   => false,                  // Mematikan emulasi agar benar-benar pakai prepared statements asli
+        PDO::ATTR_EMULATE_PREPARES => false,                  // Mematikan emulasi agar benar-benar pakai prepared statements asli
     ];
 
     $pdo = new PDO($dsn, $username, $password, $options);
@@ -33,7 +33,8 @@ try {
     }
 
     if (!function_exists('buildRememberToken')) {
-        function buildRememberToken($userId, $passwordHash) {
+        function buildRememberToken($userId, $passwordHash)
+        {
             return hash_hmac('sha256', $userId . ':' . $passwordHash, AUTH_REMEMBER_SECRET);
         }
     }

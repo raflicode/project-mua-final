@@ -1,11 +1,8 @@
 <?php
 session_start();
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/../config/koneksi.php'; // Include koneksi database
+require __DIR__ . '/../config/koneksi.php';
+require __DIR__ . '/../config/email_helper.php';
 
 // Ambil email dari parameter GET atau POST
 $email_tujuan = isset($_GET['email']) ? $_GET['email'] : (isset($_POST['email']) ? $_POST['email'] : '');
@@ -31,52 +28,32 @@ if (!$user) {
     exit;
 }
 
-$mail = new PHPMailer(true);
 
-echo "phpmailer berhasil";
+// Generate OTP 4 digit
+$otp = rand(1000, 9999);
 
-try {
+// Simpan OTP di session untuk verifikasi nanti
+$_SESSION['otp'] = $otp;
+$_SESSION['otp_email'] = $email_tujuan;
 
-    $mail->isSMTP();
-    $mail->Host = 'smtp.gmail.com';
-    $mail->SMTPAuth = true;
+// Ambil template email OTP
+$htmlBody = getOtpEmailTemplate($otp, 10);
+$plainBody = getOtpPlainText($otp, 10);
 
-    // EMAIL PENGIRIM
-    $mail->Username = 'zaind377@gmail.com';
+// Kirim email menggunakan helper function
+$result = sendEmail(
+    $email_tujuan,
+    'Kode OTP - Verifikasi Akun Project MUA',
+    $htmlBody,
+    $plainBody
+);
 
-    // APP PASSWORD DARI GOOGLE
-    $mail->Password = 'djql ypoe rndc mnvi';
-
-    $mail->SMTPSecure = 'tls';
-    $mail->Port = 587;
-
-    $mail->setFrom('zaind377@gmail.com', 'Project MUA');
-
-    // EMAIL TUJUAN (dinamis berdasarkan input)
-    $mail->addAddress($email_tujuan);
-
-    $mail->isHTML(true);
-
-    $mail->Subject = 'Kode OTP';
-
-    $otp = rand(1000, 9999); // OTP 4 digit
-
-    // Simpan OTP di session untuk verifikasi nanti
-    $_SESSION['otp'] = $otp;
-    $_SESSION['otp_email'] = $email_tujuan;
-
-    $mail->Body = "
-        <h2>Kode OTP</h2>
-        <h1>$otp</h1>
-    ";
-
-    $mail->send();
-
-    // Redirect ke halaman reset password untuk verifikasi OTP
+if ($result['success']) {
+    // Email berhasil dikirim, redirect ke halaman verifikasi OTP
     header('Location: ../public/otp_verifikasi.php');
     exit();
-
-} catch (Exception $e) {
-
-    echo "Gagal kirim OTP: " . $mail->ErrorInfo;
+} else {
+    // Email gagal dikirim
+    echo "Gagal kirim OTP: " . $result['error'];
+    exit();
 }
