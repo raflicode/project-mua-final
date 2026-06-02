@@ -115,7 +115,7 @@ try {
         $idJadwal = (int) $draft['id_jadwal'];
         $isCartCheckout = ($draft['source'] ?? '') === 'cart';
         $subtotal = (float) ($draft['total'] ?? $draft['harga'] ?? 0);
-        $totalHarga = $subtotal + 10000;
+        $totalHarga = $subtotal;
         $primaryLayananId = (int) ($draft['id_layanan'] ?? ($draft['items'][0]['id_layanan'] ?? 0));
 
         if ($primaryLayananId <= 0) {

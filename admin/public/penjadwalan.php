@@ -84,88 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    if ($action === 'add_booking_schedule') {
-        $idUser = (int) ($_POST['id_user'] ?? 0);
-        $idLayanan = (int) ($_POST['id_layanan'] ?? 0);
-        $scheduleDate = trim($_POST['tanggal_booking'] ?? '');
-        $jamMulai = trim($_POST['jam_mulai'] ?? '');
-        $catatan = trim($_POST['catatan'] ?? '');
-        $totalHargaInput = (float) ($_POST['total_harga'] ?? 0);
-
-        try {
-            if ($idUser <= 0 || $idLayanan <= 0 || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $scheduleDate) || !preg_match('/^\d{2}:\d{2}$/', $jamMulai)) {
-                throw new RuntimeException('Lengkapi pelanggan, layanan, tanggal, dan jam booking.');
-            }
-
-            if ($scheduleDate < date('Y-m-d')) {
-                throw new RuntimeException('Tanggal booking tidak boleh sebelum hari ini.');
-            }
-
-            $userStmt = $pdo->prepare("SELECT id_user FROM user WHERE id_user = ? LIMIT 1");
-            $userStmt->execute([$idUser]);
-            if (!$userStmt->fetchColumn()) {
-                throw new RuntimeException('Pelanggan tidak ditemukan.');
-            }
-
-            $serviceStmt = $pdo->prepare("SELECT id_layanan, harga_dasar FROM layanan WHERE id_layanan = ? LIMIT 1");
-            $serviceStmt->execute([$idLayanan]);
-            $service = $serviceStmt->fetch(PDO::FETCH_ASSOC);
-            if (!$service) {
-                throw new RuntimeException('Layanan tidak ditemukan.');
-            }
-
-            $bookedDateStmt = $pdo->prepare("
-                SELECT COUNT(*)
-                FROM booking b
-                INNER JOIN jadwal_kerja jk ON jk.id_jadwal = b.id_jadwal
-                WHERE jk.tanggal = ?
-                  AND b.status_booking <> 'dibatalkan'
-            ");
-            $bookedDateStmt->execute([$scheduleDate]);
-            if ((int) $bookedDateStmt->fetchColumn() >= 3) {
-                throw new RuntimeException('Tanggal ini sudah penuh.');
-            }
-
-            $jamSelesai = date('H:i:s', strtotime($jamMulai . ' +2 hours'));
-            $totalHarga = $totalHargaInput > 0 ? $totalHargaInput : (float) $service['harga_dasar'];
-
-            $pdo->beginTransaction();
-
-            $jadwalStmt = $pdo->prepare("
-                INSERT INTO jadwal_kerja (tanggal, jam_mulai, jam_selesai, kapasitas_max, status_slot)
-                VALUES (?, ?, ?, 1, 'penuh')
-            ");
-            $jadwalStmt->execute([$scheduleDate, $jamMulai, $jamSelesai]);
-            $idJadwal = (int) $pdo->lastInsertId();
-
-            $bookingStmt = $pdo->prepare("
-                INSERT INTO booking (id_user, id_jadwal, total_harga, status_booking, catatan)
-                VALUES (?, ?, ?, 'dikonfirmasi', ?)
-            ");
-            $bookingStmt->execute([$idUser, $idJadwal, $totalHarga, $catatan]);
-            $idBooking = (int) $pdo->lastInsertId();
-
-            $detailStmt = $pdo->prepare("
-                INSERT INTO booking_detail (id_booking, id_layanan, qty, harga, subtotal)
-                VALUES (?, ?, 1, ?, ?)
-            ");
-            $detailStmt->execute([$idBooking, $idLayanan, $totalHarga, $totalHarga]);
-
-            $pdo->commit();
-
-            $_SESSION['schedule_flash'] = ['type' => 'success', 'message' => 'Jadwal pesanan berhasil ditambahkan.'];
-            header('Location: penjadwalan.php?month=' . (int) date('n', strtotime($scheduleDate)) . '&year=' . (int) date('Y', strtotime($scheduleDate)));
-            exit;
-        } catch (Throwable $e) {
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
-
-            $_SESSION['schedule_flash'] = ['type' => 'danger', 'message' => $e->getMessage()];
-            header('Location: penjadwalan.php?month=' . $selectedMonth . '&year=' . $selectedYear);
-            exit;
-        }
-    }
 
     if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $closeDate)) {
         if ($action === 'close_date') {
@@ -186,29 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-try {
-    $clientStmt = $pdo->query("
-        SELECT id_user, COALESCE(NULLIF(full_name, ''), username) AS nama
-        FROM user
-        WHERE role IS NULL OR role <> 'admin'
-        ORDER BY nama ASC
-    ");
-    $clientOptions = $clientStmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (Throwable $e) {
-    $clientOptions = [];
-}
-
-try {
-    $layananStmt = $pdo->query("
-        SELECT id_layanan, nama_layanan, harga_dasar
-        FROM layanan
-        WHERE is_active = 1
-        ORDER BY nama_layanan ASC
-    ");
-    $layananOptions = $layananStmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (Throwable $e) {
-    $layananOptions = [];
-}
 
 $bookingCounts = [];
 $bookingDetailsByDate = [];
@@ -467,19 +362,6 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
             font-weight: 700;
             color: #0f172a;
             margin: 0;
-        }
-
-        .btn-add-schedule {
-            background: #e0f2fe;
-            color: #0369a1;
-            font-weight: 500;
-            font-size: 0.85rem;
-            padding: 0.4rem 0.85rem;
-            border-radius: 12px;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
         }
 
         .schedule-list-wrapper {
@@ -747,9 +629,6 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
                     <div class="ui-schedule-card">
                         <div class="schedule-right-header">
                             <h3 class="schedule-right-title">Schedules</h3>
-                            <button class="btn-add-schedule" data-bs-toggle="modal" data-bs-target="#addScheduleModal">
-                                <i class="bi bi-plus-lg"></i> Add
-                            </button>
                         </div>
 
                         <?php if (!empty($closedDates)) : ?>
@@ -791,74 +670,6 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
         </div>
     </div>
 
-    <div class="modal fade" id="addScheduleModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 20px; border: none;">
-                <form method="post">
-                    <input type="hidden" name="schedule_action" value="add_booking_schedule">
-                    <div class="modal-header" style="border-bottom: 1px solid #f1f5f9;">
-                        <h5 class="modal-title" style="color: #0f172a; font-weight: 700;">Tambah Jadwal Pesanan</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Pelanggan</label>
-                            <select name="id_user" class="form-select" required>
-                                <option value="">Pilih pelanggan</option>
-                                <?php foreach ($clientOptions as $client) : ?>
-                                    <option value="<?= (int) $client['id_user'] ?>"><?= htmlspecialchars($client['nama'], ENT_QUOTES, 'UTF-8') ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Layanan</label>
-                            <select name="id_layanan" id="manualLayananSelect" class="form-select" required>
-                                <option value="" data-price="0">Pilih layanan</option>
-                                <?php foreach ($layananOptions as $layanan) : ?>
-                                    <option value="<?= (int) $layanan['id_layanan'] ?>" data-price="<?= (float) $layanan['harga_dasar'] ?>">
-                                        <?= htmlspecialchars($layanan['nama_layanan'], ENT_QUOTES, 'UTF-8') ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div class="row g-3">
-                            <div class="col-sm-6">
-                                <label class="form-label fw-semibold">Tanggal</label>
-                                <input type="date" name="tanggal_booking" class="form-control" min="<?= date('Y-m-d') ?>" required>
-                            </div>
-                            <div class="col-sm-6">
-                                <label class="form-label fw-semibold">Jam Mulai</label>
-                                <input type="time" name="jam_mulai" class="form-control" required>
-                            </div>
-                        </div>
-
-                        <div class="mt-3">
-                            <label class="form-label fw-semibold">Total Harga</label>
-                            <input type="number" name="total_harga" id="manualTotalHarga" class="form-control" min="0" step="1000" placeholder="Otomatis dari harga layanan">
-                        </div>
-
-                        <div class="mt-3">
-                            <label class="form-label fw-semibold">Catatan</label>
-                            <textarea name="catatan" class="form-control" rows="3" placeholder="Alamat atau catatan pesanan"></textarea>
-                        </div>
-
-                        <?php if (empty($clientOptions) || empty($layananOptions)) : ?>
-                            <div class="alert alert-warning mt-3 mb-0">
-                                Data pelanggan atau layanan belum tersedia.
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="modal-footer" style="border-top: 1px solid #f1f5f9;">
-                        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-success rounded-pill" <?= empty($clientOptions) || empty($layananOptions) ? 'disabled' : '' ?>>Simpan Jadwal</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <div class="modal fade" id="bookingDetailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="border-radius: 20px; border: none;">
@@ -879,16 +690,6 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
         const detailModal = new bootstrap.Modal(document.getElementById('bookingDetailModal'));
         const modalTitle = document.getElementById('bookingDetailModalLabel');
         const modalBody = document.getElementById('bookingDetailModalBody');
-        const manualLayananSelect = document.getElementById('manualLayananSelect');
-        const manualTotalHarga = document.getElementById('manualTotalHarga');
-
-        if (manualLayananSelect && manualTotalHarga) {
-            manualLayananSelect.addEventListener('change', () => {
-                const selectedOption = manualLayananSelect.options[manualLayananSelect.selectedIndex];
-                const price = Number(selectedOption?.dataset.price || 0);
-                manualTotalHarga.value = price > 0 ? Math.round(price) : '';
-            });
-        }
 
         function formatRupiah(value) {
             return new Intl.NumberFormat('id-ID', {

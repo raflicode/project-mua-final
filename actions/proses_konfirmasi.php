@@ -9,10 +9,6 @@ function normalizePaymentMethodValue(string $method): string
 {
     $method = strtolower(trim($method));
 
-    if (in_array($method, ['cod', 'cash', 'bayar di tempat'], true)) {
-        return 'cash';
-    }
-
     if (in_array($method, ['dana', 'ovo', 'gopay', 'ewallet', 'e-wallet'], true)) {
         return 'ewallet';
     }
@@ -239,7 +235,7 @@ $status = 'pending';
 $id_jadwal = $draft['id_jadwal'] ?? null;
 $isCartCheckout = isset($draft['source']) && $draft['source'] === 'cart';
 $primaryLayananId = intval($draft['id_layanan'] ?? ($draft['items'][0]['id_layanan'] ?? 0));
-$total_harga = floatval($draft['total'] ?? $draft['harga'] ?? 0) + 10000;
+$total_harga = floatval($draft['total'] ?? $draft['harga'] ?? 0);
 $catatan = trim($pembayaran['alamat'] ?? '');
 
 function normalizePaymentMethod(string $method): string

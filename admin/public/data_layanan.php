@@ -117,9 +117,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $kategori = normalize_layanan_kategori(trim($_POST['kategori_layanan'] ?? 'makeup'));
         $nama = trim($_POST['nama_layanan'] ?? '');
-        $harga = (float) ($_POST['harga_dasar'] ?? 0);
-        $deskripsi = trim($_POST['deskripsi'] ?? '');
-        $variantRaw = trim($_POST['variant_data'] ?? '');
+        $rawHarga = trim((string) ($_POST['harga_dasar'] ?? '0'));
+        $harga = (float) str_replace([',', '.'], '', $rawHarga);
+        $deskripsi = null;
+        $variantRaw = '';
 
         if ($nama === '' || $harga <= 0) {
             layanan_redirect('Nama layanan dan harga wajib diisi.', 'danger');
@@ -945,20 +946,7 @@ include 'include/sidebar.php';
             <label class="form-label">Harga</label>
             <div class="harga-wrap">
                 <span class="harga-prefix">Rp</span>
-                <input type="number" id="formHarga" name="harga_dasar" placeholder="2500000">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Deskripsi</label>
-            <textarea class="form-control-custom" id="formDeskripsi" name="deskripsi" placeholder="Deskripsi singkat layanan..."></textarea>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Variasi Opsi (opsional)</label>
-            <textarea class="form-control-custom" id="formVariants" name="variant_data" placeholder="Opsi 1 | 1500000&#10;Opsi 2 | 2000000"></textarea>
-            <div class="form-hint" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 8px;">
-                Isi satu opsi per baris dengan format <strong>Nama Opsi | Harga</strong>. Kosongkan jika layanan hanya punya satu harga.
+                <input type="number" id="formHarga" name="harga_dasar" placeholder="2500000" step="1" min="0" inputmode="numeric">
             </div>
         </div>
 
@@ -1010,7 +998,7 @@ function renderCards() {
 
     const filtered = layananData.filter(l => {
         const katMatch  = currentKat === 'semua' || l.kategori === currentKat;
-        const srchMatch = l.nama.toLowerCase().includes(search) || l.deskripsi.toLowerCase().includes(search);
+        const srchMatch = l.nama.toLowerCase().includes(search);
         return katMatch && srchMatch;
     });
 
@@ -1034,7 +1022,6 @@ function renderCards() {
             <div class="card-body-area">
                 <div class="card-paket-name">${l.nama}</div>
                 <div class="card-harga">${fmt(l.harga)}</div>
-                <div class="card-desc">${l.deskripsi || '-'}</div>
                 <div class="card-actions">
                     <button class="btn-edit-card" onclick="openModal(${l.id})">
                         <i class="bi bi-pencil"></i> Edit
@@ -1059,8 +1046,6 @@ function openModal(id) {
         document.getElementById('formKategori').value      = l.kategori;
         document.getElementById('formNama').value          = l.nama;
         document.getElementById('formHarga').value         = l.harga;
-        document.getElementById('formDeskripsi').value     = l.deskripsi;
-        document.getElementById('formVariants').value      = l.variant_data || '';
         document.getElementById('fotoLama').value          = l.foto_raw || '';
         document.getElementById('btnHapusModal').style.display = 'block';
     } else {
@@ -1070,8 +1055,6 @@ function openModal(id) {
         document.getElementById('formKategori').value      = currentKat !== 'semua' ? currentKat : 'makeup';
         document.getElementById('formNama').value          = '';
         document.getElementById('formHarga').value         = '';
-        document.getElementById('formDeskripsi').value     = '';
-        document.getElementById('formVariants').value      = '';
         document.getElementById('fotoLama').value          = '';
         document.getElementById('btnHapusModal').style.display = 'none';
     }
@@ -1097,18 +1080,17 @@ function simpanLayanan() {
     const kategori = document.getElementById('formKategori').value;
     const nama     = document.getElementById('formNama').value.trim();
     const harga    = document.getElementById('formHarga').value;
-    const deskripsi= document.getElementById('formDeskripsi').value.trim();
 
     if (!nama || !harga) { toast('Nama dan harga wajib diisi!'); return; }
 
     if (id) {
         const idx = layananData.findIndex(x => x.id == id);
         if (idx > -1) {
-            layananData[idx] = { ...layananData[idx], kategori, nama, harga: Number(harga), deskripsi };
+            layananData[idx] = { ...layananData[idx], kategori, nama, harga: Number(harga) };
             toast('Layanan berhasil diperbarui ✓');
         }
     } else {
-        layananData.push({ id: nextId++, kategori, nama, harga: Number(harga), deskripsi, foto:'' });
+        layananData.push({ id: nextId++, kategori, nama, harga: Number(harga), foto:'' });
         toast('Layanan berhasil ditambahkan ✓');
     }
 

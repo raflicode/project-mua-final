@@ -63,9 +63,10 @@ if ($tokenMode || $idBookingMode) {
         exit;
     }
 
+    $paymentPhone = trim((string) ($booking['payment_phone'] ?? '')) ?: trim((string) ($booking['no_telp'] ?? ''));
     $pembayaran = [
         'nama' => $booking['payment_name'] ?: $booking['full_name'] ?: ($booking['username'] ?: 'Client'),
-        'hp' => $booking['payment_phone'] ?: $booking['no_telp'] ?: '-',
+        'hp' => $paymentPhone,
         'metode' => isset($_POST['metode']) ? trim($_POST['metode']) : 'Transfer Bank',
     ];
     $backHref = 'booking.php';

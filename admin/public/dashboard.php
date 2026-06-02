@@ -475,13 +475,12 @@ include 'include/sidebar.php';
                         <th class="text-nowrap table-cell-wide">Bukti Transfer</th>
                         <th class="text-nowrap table-cell-status">Status</th>
                         <th class="text-nowrap text-end">Nominal</th>
-                        <th class="text-nowrap text-end table-cell-action">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if ($paymentRows === []): ?>
                         <tr>
-                            <td colspan="8" class="text-center empty-row">Belum ada laporan pembayaran.</td>
+                            <td colspan="7" class="text-center empty-row">Belum ada laporan pembayaran.</td>
                         </tr>
                     <?php endif; ?>
 
@@ -505,24 +504,6 @@ include 'include/sidebar.php';
                             </td>
                             <td class="text-nowrap align-middle"><span class="badge <?= $statusClass ?> rounded-pill px-3"><?= $statusLabel ?></span></td>
                             <td class="text-nowrap align-middle text-end fw-bold"><?= rupiah($payment['jumlah_bayar']) ?></td>
-                            <td class="text-nowrap align-middle">
-                                <div class="payment-actions">
-                                    <?php if ($payment['status_verifikasi'] === 'pending'): ?>
-                                        <form method="post" action="../../actions/verifikasi_pembayaran.php">
-                                            <input type="hidden" name="id_pembayaran" value="<?= (int) $payment['id_pembayaran'] ?>">
-                                            <input type="hidden" name="status_verifikasi" value="diterima">
-                                            <button type="submit" class="btn btn-success btn-sm btn-verify" onclick="return confirm('Terima pembayaran ini?')">Terima</button>
-                                        </form>
-                                        <form method="post" action="../../actions/verifikasi_pembayaran.php">
-                                            <input type="hidden" name="id_pembayaran" value="<?= (int) $payment['id_pembayaran'] ?>">
-                                            <input type="hidden" name="status_verifikasi" value="ditolak">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm btn-verify" onclick="return confirm('Tolak pembayaran ini?')">Tolak</button>
-                                        </form>
-                                    <?php else: ?>
-                                        <span class="text-muted">-</span>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
