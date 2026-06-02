@@ -111,12 +111,12 @@ $paketWedding = [
                 'harga' => 'Rp 5.000.000',
                 'harga_value' => 5000000,
                 'include' => [
-                    'Make Up',
-                    'Presh Wajah',
-                    'Rigi Adat & Kemang (Couple)',
-                    'Rigi Pernikahan (Satu & Istri, Mamtiab)',
-                    'Rambut Bunga',
-                    'Dekorasi 1 Meter'
+                    'Make Up (inc: softlens, hijab/hair do & retouch)',
+                    'Fresh Melati',
+                    'Baju Akad & Resepsi "couple"',
+                    'Baju Penerima Tamu 4',
+                    'Bucket Bunga',
+                    'Dekorasi 4 Meter'
                 ],
             ]
         ],
@@ -132,19 +132,18 @@ $paketWedding = [
                 'harga' => 'Rp 7.500.000',
                 'harga_value' => 7500000,
                 'include' => [
-                    'Make Up',
-                    'Presh Wajah',
-                    'Rigi Adat & Kemang (Couple)',
-                    'Make Up & Presh Orang Tua / Kesman',
-                    'Rigi Pernikahan Famili A',
-                    'Rigi Adat Jasa Dara Couple',
-                    'Rigi Adat Daring Hari A',
-                    'Rigi Adat Juso Karikam Masyaraat',
-                    'Rigi Adat Jeso Diagan',
-                    'Dekorasi',
-                    'Patampungan Tamu Mamtiab',
-                    'Rambut Bunga',
-                    'Dekorasi 1 Meter'
+                    'Make Up (inc: softlens, henna, nail art, hijab/hair d0 & retouch)',
+                    'Fresh Melati',
+                    'Baju Akad & Resepsi "couple"',
+                    'Baju Perima Tamu 4 & Temu Manten',
+                    'Baju Adat Jawa Couple ',
+                    'Baju Adat Jawa Orang Tua 4',
+                    'Baju Adat Jawa Kembar Mayang',
+                    'Baju Adat Jawa Joko Bagus',
+                    'Dalang',
+                    'Perlengkapan Temu Manten',
+                    'Bucket Bunga',
+                    'Dekorasi 6 Meter'
                 ],
             ]
         ],
