@@ -37,13 +37,6 @@ foreach ($incomeStmt->fetchAll() as $row) {
     }
 }
 
-$unfinishedBookingStmt = $pdo->query("
-    SELECT COUNT(*)
-    FROM booking
-    WHERE status_booking NOT IN ('selesai', 'dibatalkan')
-");
-$unfinishedBookingCount = (int) $unfinishedBookingStmt->fetchColumn();
-
 $monthlyRevenueStmt = $pdo->prepare("
     SELECT COALESCE(SUM(jumlah_bayar), 0)
     FROM pembayaran
@@ -57,25 +50,22 @@ $monthlyRevenueStmt->execute([
 ]);
 $currentMonthRevenue = (float) $monthlyRevenueStmt->fetchColumn();
 
-$pendingPaymentStmt = $pdo->query("
-    SELECT COUNT(*)
-    FROM pembayaran
-    WHERE status_verifikasi = 'pending'
-");
-$pendingPaymentCount = (int) $pendingPaymentStmt->fetchColumn();
-
-$monthlyBookingStmt = $pdo->prepare("
+$pendingBookingStmt = $pdo->query("
     SELECT COUNT(*)
     FROM booking
-    WHERE created_at >= :start_date
-      AND created_at < :end_date
-      AND status_booking <> 'dibatalkan'
+    WHERE status_booking = 'pending'
 ");
-$monthlyBookingStmt->execute([
-    'start_date' => $currentMonthStart,
-    'end_date' => $nextMonthStart,
-]);
-$currentMonthBookingCount = (int) $monthlyBookingStmt->fetchColumn();
+$pendingBookingCount = (int) $pendingBookingStmt->fetchColumn();
+
+$upcomingScheduleStmt = $pdo->prepare("
+    SELECT COUNT(*)
+    FROM booking b
+    INNER JOIN jadwal_kerja jk ON jk.id_jadwal = b.id_jadwal
+    WHERE b.status_booking <> 'dibatalkan'
+      AND jk.tanggal >= ?
+");
+$upcomingScheduleStmt->execute([date('Y-m-d')]);
+$upcomingScheduleCount = (int) $upcomingScheduleStmt->fetchColumn();
 
 $serviceStmt = $pdo->query("
     SELECT kategori_layanan, COALESCE(SUM(qty), 0) AS total_pesanan
@@ -180,32 +170,25 @@ function payment_proof_url(?string $fileName): string {
 
 $summaryCards = [
     [
-        'label' => 'Booking Belum Selesai',
-        'value' => number_format($unfinishedBookingCount, 0, ',', '.'),
-        'note' => 'Status pending, dibayar, atau diproses',
-        'icon' => 'bi-calendar-check',
-        'tone' => 'brown',
-    ],
-    [
-        'label' => 'Pendapatan Bulan Ini',
+        'label' => 'Pendapatan Bulanan',
         'value' => rupiah($currentMonthRevenue),
         'note' => 'Dari pembayaran yang diterima',
         'icon' => 'bi-cash-stack',
         'tone' => 'green',
     ],
     [
-        'label' => 'Pembayaran Menunggu',
-        'value' => number_format($pendingPaymentCount, 0, ',', '.'),
-        'note' => 'Perlu verifikasi admin',
+        'label' => 'Booking Menunggu Verifikasi',
+        'value' => number_format($pendingBookingCount, 0, ',', '.'),
+        'note' => 'Status booking masih pending',
         'icon' => 'bi-hourglass-split',
         'tone' => 'gold',
     ],
     [
-        'label' => 'Booking Bulan Ini',
-        'value' => number_format($currentMonthBookingCount, 0, ',', '.'),
-        'note' => 'Booking baru dari client',
-        'icon' => 'bi-people',
-        'tone' => 'mauve',
+        'label' => 'Jadwal Booking Mendatang',
+        'value' => number_format($upcomingScheduleCount, 0, ',', '.'),
+        'note' => 'Diambil dari penjadwalan',
+        'icon' => 'bi-calendar-event',
+        'tone' => 'brown',
     ],
 ];
 
@@ -282,7 +265,7 @@ canvas {
 
 .summary-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
     margin-bottom: 24px;
 }

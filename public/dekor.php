@@ -255,7 +255,7 @@ body {
                     <button class="foto-nav foto-next" id="btnFotoNext" onclick="navigasi(1)">
                         <i class="bi bi-chevron-right"></i>
                     </button>
-                    <img id="modalImg" src="" alt="">
+                    <img id="modalImg" src="" alt="" decoding="async">
                 </div>
             </div>
 
@@ -534,7 +534,7 @@ function renderCards() {
                     <h5 class="fw-bold mb-2">${k.jenis}</h5>
                     <span class="variant-count">${k.variasi.length} variasi tersedia</span>
                     <div class="img-paket-wrap">
-                        <img src="${f.foto}" alt="${k.jenis}"
+                        <img src="${f.foto}" alt="${k.jenis}" loading="lazy" decoding="async"
                              onerror="this.src='https://placehold.co/400x500?text=Foto'">
                     </div>
                     <p class="fw-semibold mb-1">Include :</p>

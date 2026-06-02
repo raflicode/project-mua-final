@@ -259,7 +259,7 @@ body {
                     <button class="foto-nav foto-next" id="btnFotoNext" onclick="navigasi(1)">
                         <i class="bi bi-chevron-right"></i>
                     </button>
-                    <img id="modalImg" src="" alt="">
+                    <img id="modalImg" src="" alt="" decoding="async">
                 </div>
             </div>
 
@@ -323,7 +323,7 @@ function renderCards() {
                 <div class="card-body">
                     <h5 class="fw-bold mb-2">${k.jenis}</h5>
                     <span class="variant-count">${k.variasi.length} variasi tersedia</span>
-                    <div class="img-paket-wrap"><img src="${f.foto}" alt="${k.jenis}"></div>
+                    <div class="img-paket-wrap"><img src="${f.foto}" alt="${k.jenis}" loading="lazy" decoding="async"></div>
                     <p class="fw-semibold mb-1">Include :</p>
                     <ol class="include-ol">${f.include.map(x => `<li>${x}</li>`).join('')}</ol>
                     <div class="harga-label">Mulai dari</div>

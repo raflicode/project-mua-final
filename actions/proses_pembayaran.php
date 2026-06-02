@@ -190,9 +190,17 @@ try {
                 insertBookingDetailAwal($pdo, $idBooking, $idLayanan, $qty, $hargaItem, $itemSubtotal);
             }
             
-            // Clear cart after booking is created
-            $clearCartStmt = $pdo->prepare("DELETE FROM keranjang WHERE id_user = ?");
-            $clearCartStmt->execute([$idUser]);
+            $cartItemIds = $draft['cart_item_ids'] ?? [];
+            if (empty($cartItemIds)) {
+                $cartItemIds = array_column($draft['items'], 'id_keranjang');
+            }
+
+            $cartItemIds = array_values(array_unique(array_filter(array_map('intval', (array) $cartItemIds), fn($id) => $id > 0)));
+            if (!empty($cartItemIds)) {
+                $deletePlaceholders = implode(', ', array_fill(0, count($cartItemIds), '?'));
+                $clearCartStmt = $pdo->prepare("DELETE FROM keranjang WHERE id_user = ? AND id_keranjang IN ($deletePlaceholders)");
+                $clearCartStmt->execute(array_merge([$idUser], $cartItemIds));
+            }
         } else {
             insertBookingDetailAwal($pdo, $idBooking, $primaryLayananId, 1, $subtotal, $subtotal);
         }

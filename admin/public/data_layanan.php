@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/auth.php';
 require_login(['admin']);
 require_once __DIR__ . '/../../config/koneksi.php';
 require_once __DIR__ . '/../../config/db_helpers.php';
+require_once __DIR__ . '/../../config/image_upload.php';
 
 ensure_dynamic_booking_schema($pdo);
 
@@ -125,27 +126,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $foto = trim($_POST['foto_lama'] ?? '');
-        if (!empty($_FILES['foto_layanan']['name']) && $_FILES['foto_layanan']['error'] === UPLOAD_ERR_OK) {
-            $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mime = finfo_file($finfo, $_FILES['foto_layanan']['tmp_name']);
-            finfo_close($finfo);
-
-            if (!isset($allowed[$mime])) {
-                layanan_redirect('Foto harus JPG, PNG, atau WEBP.', 'danger');
-            }
-
-            $uploadDir = __DIR__ . '/../../assets/layanan';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-
-            $fileName = uniqid('layanan_') . '.' . $allowed[$mime];
-            if (!move_uploaded_file($_FILES['foto_layanan']['tmp_name'], $uploadDir . '/' . $fileName)) {
-                layanan_redirect('Gagal menyimpan foto layanan.', 'danger');
-            }
-
-            $foto = 'assets/layanan/' . $fileName;
+        if (!empty($_FILES['foto_layanan']['name'])) {
+            $savedImage = save_optimized_upload_image(
+                $_FILES['foto_layanan'],
+                __DIR__ . '/../../assets/layanan',
+                'assets/layanan',
+                'layanan_'
+            );
+            $foto = $savedImage['relative_path'];
         }
 
         $variants = parse_variant_input($variantRaw, $harga, $foto ?: null);

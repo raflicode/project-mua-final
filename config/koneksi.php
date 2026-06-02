@@ -1,18 +1,30 @@
 <?php
-// Tentukan Base Path secara Dinamis
+// Tentukan Base Path secara dinamis agar tidak bergantung pada nama folder lokal.
 if (!defined('BASE_PATH')) {
-    if (strpos($_SERVER['SCRIPT_NAME'], '/project-mua-final/') !== false) {
-        define('BASE_PATH', '/project-mua-final');
-    } else {
-        define('BASE_PATH', '');
+    if (!function_exists('app_base_path')) {
+        function app_base_path(): string
+        {
+            $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+            foreach (['/admin/', '/public/', '/actions/', '/config/'] as $segment) {
+                $pos = strpos($script, $segment);
+                if ($pos !== false) {
+                    return rtrim(substr($script, 0, $pos), '/');
+                }
+            }
+
+            $dir = str_replace('\\', '/', dirname($script));
+            return $dir === '/' ? '' : rtrim($dir, '/');
+        }
     }
+
+    define('BASE_PATH', app_base_path());
 }
 
 // Konfigurasi Database
-$host = 'mif.myhost.id';
-$db_name = 'mifmyho2_D5'; // Ganti dengan nama database kamu
-$username = 'mifmyho2_D5';             // Default XAMPP biasanya root
-$password = '@MIF2025';        // Default XAMPP biasanya kosong
+$host = 'localhost';
+$db_name = 'db_mua'; // Ganti dengan nama database kamu
+$username = 'root';             // Default XAMPP biasanya root
+$password = '';        // Default XAMPP biasanya kosong
 
 try {
     // Membuat koneksi menggunakan PDO
