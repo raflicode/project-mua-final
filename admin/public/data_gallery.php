@@ -152,7 +152,7 @@ include 'include/sidebar.php';
             </div>
         <?php endif; ?>
 
-        <div class="card-custom">
+        <div class="card-custom mb-4">
             <div class="d-flex align-items-center" style="margin-bottom:18px;">
                 <h4 id="galleryFormTitle" style="font-weight: 600; color: var(--brown-dark);">Tambah Gallery Baru</h4>
             </div>

@@ -24,7 +24,7 @@ if (!defined('BASE_PATH')) {
 $host = 'localhost';
 $db_name = 'db_mua'; // Ganti dengan nama database kamu
 $username = 'root';             // Default XAMPP biasanya root
-$password = '';        // Default XAMPP biasanya kosong
+$password = 'root';        // Default XAMPP biasanya kosong
 
 try {
     // Membuat koneksi menggunakan PDO

@@ -90,6 +90,24 @@ $serviceRows = $serviceStmt->fetchAll();
 $serviceLabels = array_column($serviceRows, 'kategori_layanan');
 $serviceTotals = array_map('intval', array_column($serviceRows, 'total_pesanan'));
 
+$paymentPerPage = 8;
+$paymentPage = max(1, (int) ($_GET['pay_page'] ?? 1));
+$paymentOffset = ($paymentPage - 1) * $paymentPerPage;
+$paymentWhere = "COALESCE(p.status_verifikasi, 'pending') <> 'ditolak'";
+
+$paymentTotalStmt = $pdo->query("
+    SELECT COUNT(*)
+    FROM pembayaran p
+    INNER JOIN booking b ON b.id_booking = p.id_booking
+    WHERE $paymentWhere
+");
+$paymentTotalRows = (int) $paymentTotalStmt->fetchColumn();
+$paymentTotalPages = max(1, (int) ceil($paymentTotalRows / $paymentPerPage));
+if ($paymentPage > $paymentTotalPages) {
+    $paymentPage = $paymentTotalPages;
+    $paymentOffset = ($paymentPage - 1) * $paymentPerPage;
+}
+
 $paymentStmt = $pdo->query("
     SELECT p.id_pembayaran,
            p.jumlah_bayar,
@@ -109,8 +127,9 @@ $paymentStmt = $pdo->query("
         INNER JOIN layanan l ON l.id_layanan = bd.id_layanan
         GROUP BY bd.id_booking
     ) ls ON ls.id_booking = b.id_booking
+    WHERE $paymentWhere
     ORDER BY COALESCE(p.tgl_upload, p.created_at) DESC
-    LIMIT 8
+    LIMIT $paymentPerPage OFFSET $paymentOffset
 ");
 $paymentRows = $paymentStmt->fetchAll();
 
@@ -509,6 +528,22 @@ include 'include/sidebar.php';
                 </tbody>
             </table>
         </div>
+        <?php if ($paymentTotalPages > 1): ?>
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+                <div class="chart-note">
+                    Menampilkan <?= count($paymentRows) ?> dari <?= (int) $paymentTotalRows ?> pembayaran
+                </div>
+                <nav aria-label="Pagination laporan pembayaran">
+                    <ul class="pagination pagination-sm mb-0">
+                        <?php for ($i = 1; $i <= $paymentTotalPages; $i++): ?>
+                            <li class="page-item <?= $i === $paymentPage ? 'active' : '' ?>">
+                                <a class="page-link" href="?pay_page=<?= $i ?>#laporan-pembayaran"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+                    </ul>
+                </nav>
+            </div>
+        <?php endif; ?>
     </div>
 
     </div>

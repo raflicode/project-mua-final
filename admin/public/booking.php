@@ -133,23 +133,15 @@ $paymentNameSelect = tableHasColumn($pdo, 'pembayaran', 'nama') ? 'p.nama' : 'NU
 $userNameSelect = tableHasColumn($pdo, 'user', 'full_name') ? 'u.full_name' : (tableHasColumn($pdo, 'user', 'nama_lengkap') ? 'u.nama_lengkap' : 'NULL');
 $userPhoneSelect = tableHasColumn($pdo, 'user', 'no_telp') ? 'u.no_telp' : (tableHasColumn($pdo, 'user', 'hp') ? 'u.hp' : 'NULL');
 
-$bookingStmt = $pdo->query("
-    SELECT
-        b.id_booking,
-        b.tgl_booking,
-        jk.tanggal AS jadwal_tanggal,
-        jk.jam_mulai AS jadwal_jam_mulai,
-        b.status_booking,
-        b.catatan,
-        b.total_harga,
-        $bookingTokenSelect AS konfirmasi_akhir_token,
-        COALESCE($bookingProofSelect, $paymentProofSelect) AS bukti_pembayaran,
-        COALESCE($bookingUploadSelect, $paymentUploadSelect) AS tanggal_upload,
-        $paymentStatusSelect AS status_pembayaran,
-        COALESCE($paymentNameSelect, $userNameSelect, u.username) AS full_name,
-        u.username,
-        COALESCE(NULLIF($paymentPhoneSelect, ''), NULLIF($bookingPhoneSelect, ''), $userPhoneSelect) AS no_telp,
-        layanan_booking.nama_layanan
+$bookingPerPage = 10;
+$bookingPage = max(1, (int) ($_GET['page'] ?? 1));
+$currentFolderParam = $_GET['folder'] ?? 'semua';
+$currentStatusParam = $_GET['status'] ?? 'semua';
+$currentSearchParam = trim((string) ($_GET['q'] ?? ''));
+$currentFolderParam = in_array($currentFolderParam, ['semua', 'makeup', 'dekor', 'kostum'], true) ? $currentFolderParam : 'semua';
+$currentStatusParam = in_array($currentStatusParam, ['semua', 'pending', 'konfirmasi'], true) ? $currentStatusParam : 'semua';
+
+$bookingFromSql = "
     FROM booking b
     LEFT JOIN user u ON u.id_user = b.id_user
     LEFT JOIN jadwal_kerja jk ON jk.id_jadwal = b.id_jadwal
@@ -170,9 +162,100 @@ $bookingStmt = $pdo->query("
             GROUP BY id_booking
         ) latest_p ON latest_p.id_pembayaran = p1.id_pembayaran
     ) p ON p.id_booking = b.id_booking
-    WHERE b.status_booking IN ('pending','konfirmasi')
+";
+
+$bookingWhere = ["b.status_booking IN ('pending','konfirmasi')"];
+$bookingParams = [];
+
+if ($currentStatusParam !== 'semua') {
+    $bookingWhere[] = 'b.status_booking = :status_filter';
+    $bookingParams['status_filter'] = $currentStatusParam;
+}
+
+$categoryExpr = "LOWER(COALESCE(layanan_booking.nama_layanan, ''))";
+if ($currentFolderParam === 'dekor') {
+    $bookingWhere[] = "$categoryExpr LIKE '%dekor%'";
+} elseif ($currentFolderParam === 'kostum') {
+    $bookingWhere[] = "$categoryExpr LIKE '%kostum%'";
+} elseif ($currentFolderParam === 'makeup') {
+    $bookingWhere[] = "$categoryExpr NOT LIKE '%dekor%' AND $categoryExpr NOT LIKE '%kostum%'";
+}
+
+if ($currentSearchParam !== '') {
+    $bookingWhere[] = "(LOWER(COALESCE(layanan_booking.nama_layanan, '')) LIKE :search_filter
+        OR LOWER(COALESCE($paymentNameSelect, $userNameSelect, u.username, '')) LIKE :search_filter)";
+    $bookingParams['search_filter'] = '%' . strtolower($currentSearchParam) . '%';
+}
+
+$bookingWhereSql = 'WHERE ' . implode(' AND ', $bookingWhere);
+
+$bookingTotalStmt = $pdo->prepare("SELECT COUNT(*) $bookingFromSql $bookingWhereSql");
+$bookingTotalStmt->execute($bookingParams);
+$bookingTotalRows = (int) $bookingTotalStmt->fetchColumn();
+$bookingTotalPages = max(1, (int) ceil($bookingTotalRows / $bookingPerPage));
+if ($bookingPage > $bookingTotalPages) {
+    $bookingPage = $bookingTotalPages;
+}
+$bookingOffset = ($bookingPage - 1) * $bookingPerPage;
+
+function booking_count_for_folder(PDO $pdo, string $fromSql, array $where, array $params, string $folder, string $categoryExpr): int
+{
+    $folderWhere = $where;
+    if ($folder === 'dekor') {
+        $folderWhere[] = "$categoryExpr LIKE '%dekor%'";
+    } elseif ($folder === 'kostum') {
+        $folderWhere[] = "$categoryExpr LIKE '%kostum%'";
+    } elseif ($folder === 'makeup') {
+        $folderWhere[] = "$categoryExpr NOT LIKE '%dekor%' AND $categoryExpr NOT LIKE '%kostum%'";
+    }
+
+    $stmt = $pdo->prepare('SELECT COUNT(*) ' . $fromSql . ' WHERE ' . implode(' AND ', $folderWhere));
+    $stmt->execute($params);
+    return (int) $stmt->fetchColumn();
+}
+
+$bookingCountBaseWhere = ["b.status_booking IN ('pending','konfirmasi')"];
+$bookingCountBaseParams = [];
+if ($currentStatusParam !== 'semua') {
+    $bookingCountBaseWhere[] = 'b.status_booking = :status_filter';
+    $bookingCountBaseParams['status_filter'] = $currentStatusParam;
+}
+if ($currentSearchParam !== '') {
+    $bookingCountBaseWhere[] = "(LOWER(COALESCE(layanan_booking.nama_layanan, '')) LIKE :search_filter
+        OR LOWER(COALESCE($paymentNameSelect, $userNameSelect, u.username, '')) LIKE :search_filter)";
+    $bookingCountBaseParams['search_filter'] = '%' . strtolower($currentSearchParam) . '%';
+}
+
+$bookingCounts = [
+    'semua' => booking_count_for_folder($pdo, $bookingFromSql, $bookingCountBaseWhere, $bookingCountBaseParams, 'semua', $categoryExpr),
+    'makeup' => booking_count_for_folder($pdo, $bookingFromSql, $bookingCountBaseWhere, $bookingCountBaseParams, 'makeup', $categoryExpr),
+    'dekor' => booking_count_for_folder($pdo, $bookingFromSql, $bookingCountBaseWhere, $bookingCountBaseParams, 'dekor', $categoryExpr),
+    'kostum' => booking_count_for_folder($pdo, $bookingFromSql, $bookingCountBaseWhere, $bookingCountBaseParams, 'kostum', $categoryExpr),
+];
+
+$bookingStmt = $pdo->prepare("
+    SELECT
+        b.id_booking,
+        b.tgl_booking,
+        jk.tanggal AS jadwal_tanggal,
+        jk.jam_mulai AS jadwal_jam_mulai,
+        b.status_booking,
+        b.catatan,
+        b.total_harga,
+        $bookingTokenSelect AS konfirmasi_akhir_token,
+        COALESCE($bookingProofSelect, $paymentProofSelect) AS bukti_pembayaran,
+        COALESCE($bookingUploadSelect, $paymentUploadSelect) AS tanggal_upload,
+        $paymentStatusSelect AS status_pembayaran,
+        COALESCE($paymentNameSelect, $userNameSelect, u.username) AS full_name,
+        u.username,
+        COALESCE(NULLIF($paymentPhoneSelect, ''), NULLIF($bookingPhoneSelect, ''), $userPhoneSelect) AS no_telp,
+        layanan_booking.nama_layanan
+    $bookingFromSql
+    $bookingWhereSql
     ORDER BY b.tgl_booking DESC
+    LIMIT $bookingPerPage OFFSET $bookingOffset
 ");
+$bookingStmt->execute($bookingParams);
 
 $bookingRows = [];
 foreach ($bookingStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
@@ -346,32 +429,6 @@ unset($_SESSION['booking_admin_flash']);
             display: flex;
             flex-direction: column;
         }
-
-        /* ===== TOPBAR ===== */
-        .topbar {
-            background: var(--white);
-            border-bottom: 1px solid var(--cream-deep);
-            padding: 14px 32px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-
-        .topbar-left { display: flex; align-items: center; gap: 12px; }
-
-        .topbar-left .page-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--brown-dark);
-        }
-
-        .topbar-left .breadcrumb-nav { font-size: 0.78rem; color: var(--text-muted); }
-
-        .topbar-right { display: flex; align-items: center; gap: 16px; }
 
         .search-box {
             display: flex;
@@ -722,9 +779,6 @@ unset($_SESSION['booking_admin_flash']);
             .nav-item a.active { border-left-color: transparent; background: rgba(196,168,130,0.22); }
             .sidebar-footer { padding: 12px 24px 18px; }
             .main { margin-left: 0; min-height: auto; }
-            .topbar { position: relative; padding: 16px 24px; gap: 16px; flex-wrap: nowrap; }
-            .topbar-left { flex: 1 1 auto; min-width: 0; }
-            .topbar-right { width: auto; justify-content: flex-end; margin-left: auto; }
             .search-box { flex: 1; }
             .search-box input { width: 100%; }
             .content { padding: 24px; }
@@ -757,8 +811,6 @@ unset($_SESSION['booking_admin_flash']);
             .sidebar-nav { display: grid; grid-template-columns: 1fr; }
             .nav-label { padding-left: 8px; }
             .nav-item a { width: 100%; }
-            .topbar { padding: 14px 16px; }
-            .topbar-right { align-items: center; flex-direction: row; gap: 10px; justify-content: flex-end; }
             .admin-badge { justify-content: flex-end; margin-left: auto; }
             .section-label { margin-bottom: 10px; }
             .filter-tabs { gap: 8px; }
@@ -767,6 +819,7 @@ unset($_SESSION['booking_admin_flash']);
         }
     </style>
     <link href="../assets/admin-brown.css" rel="stylesheet">
+    <link href="../assets/admin-layout.css" rel="stylesheet">
 </head>
 <body>
 
@@ -799,7 +852,7 @@ include 'include/sidebar.php';
         <div class="section-label">Quick Access</div>
         <div class="folders-grid">
 
-            <div class="folder-card active" onclick="setFolder('semua', this)">
+            <div class="folder-card <?= $currentFolderParam === 'semua' ? 'active' : '' ?>" onclick="setFolder('semua')">
                 <div class="folder-icon">
                     <svg viewBox="0 0 48 40" fill="none">
                         <rect x="0" y="10" width="48" height="30" rx="5" fill="#C4A882" opacity="0.3"/>
@@ -812,11 +865,11 @@ include 'include/sidebar.php';
                 </div>
                 <div>
                     <div class="folder-name">Semua</div>
-                    <div class="folder-count" id="count-semua">0 booking</div>
+                    <div class="folder-count" id="count-semua"><?= (int) $bookingCounts['semua'] ?> booking</div>
                 </div>
             </div>
 
-            <div class="folder-card" onclick="setFolder('makeup', this)">
+            <div class="folder-card <?= $currentFolderParam === 'makeup' ? 'active' : '' ?>" onclick="setFolder('makeup')">
                 <div class="folder-icon">
                     <svg viewBox="0 0 48 40" fill="none">
                         <rect x="0" y="10" width="48" height="30" rx="5" fill="#D4956A" opacity="0.3"/>
@@ -830,11 +883,11 @@ include 'include/sidebar.php';
                 </div>
                 <div>
                     <div class="folder-name">Makeup</div>
-                    <div class="folder-count" id="count-makeup">0 booking</div>
+                    <div class="folder-count" id="count-makeup"><?= (int) $bookingCounts['makeup'] ?> booking</div>
                 </div>
             </div>
 
-            <div class="folder-card" onclick="setFolder('dekor', this)">
+            <div class="folder-card <?= $currentFolderParam === 'dekor' ? 'active' : '' ?>" onclick="setFolder('dekor')">
                 <div class="folder-icon">
                     <svg viewBox="0 0 48 40" fill="none">
                         <rect x="0" y="10" width="48" height="30" rx="5" fill="#8B6B4A" opacity="0.3"/>
@@ -846,11 +899,11 @@ include 'include/sidebar.php';
                 </div>
                 <div>
                     <div class="folder-name">Dekor</div>
-                    <div class="folder-count" id="count-dekor">0 booking</div>
+                    <div class="folder-count" id="count-dekor"><?= (int) $bookingCounts['dekor'] ?> booking</div>
                 </div>
             </div>
 
-            <div class="folder-card" onclick="setFolder('kostum', this)">
+            <div class="folder-card <?= $currentFolderParam === 'kostum' ? 'active' : '' ?>" onclick="setFolder('kostum')">
                 <div class="folder-icon">
                     <svg viewBox="0 0 48 40" fill="none">
                         <rect x="0" y="10" width="48" height="30" rx="5" fill="#5C3D1E" opacity="0.3"/>
@@ -861,7 +914,7 @@ include 'include/sidebar.php';
                 </div>
                 <div>
                     <div class="folder-name">Kostum</div>
-                    <div class="folder-count" id="count-kostum">0 booking</div>
+                    <div class="folder-count" id="count-kostum"><?= (int) $bookingCounts['kostum'] ?> booking</div>
                 </div>
             </div>
 
@@ -870,14 +923,13 @@ include 'include/sidebar.php';
         <div class="table-section">
             <div class="table-header">
                 <div class="table-header-left">
-                    <h3 id="table-title">All Files</h3>
-                    <span class="count-badge" id="table-count">0</span>
+                    <h3 id="table-title"><?= htmlspecialchars(['semua' => 'All Files', 'makeup' => 'Makeup', 'dekor' => 'Dekor', 'kostum' => 'Kostum'][$currentFolderParam] ?? 'All Files', ENT_QUOTES, 'UTF-8') ?></h3>
+                    <span class="count-badge" id="table-count"><?= (int) $bookingTotalRows ?></span>
                 </div>
                 <div class="filter-tabs">
-                    <div class="filter-tab active" onclick="filterStatus('semua', this)">Semua</div>
-                    <div class="filter-tab" onclick="filterStatus('pending', this)">Pending</div>
-                    <div class="filter-tab" onclick="filterStatus('konfirmasi', this)">Konfirmasi</div>
-                    <div class="filter-tab" onclick="filterStatus('selesai', this)">Selesai</div>
+                    <div class="filter-tab <?= $currentStatusParam === 'semua' ? 'active' : '' ?>" onclick="filterStatus('semua')">Semua</div>
+                    <div class="filter-tab <?= $currentStatusParam === 'pending' ? 'active' : '' ?>" onclick="filterStatus('pending')">Pending</div>
+                    <div class="filter-tab <?= $currentStatusParam === 'konfirmasi' ? 'active' : '' ?>" onclick="filterStatus('konfirmasi')">Konfirmasi</div>
                 </div>
             </div>
 
@@ -940,12 +992,15 @@ include 'include/sidebar.php';
 
 <script>
 const bookingData = <?= json_encode($bookingRows, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
+const bookingCounts = <?= json_encode($bookingCounts, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
+const totalRows = <?= (int) $bookingTotalRows ?>;
+const totalPages = <?= (int) $bookingTotalPages ?>;
+const perPage = <?= (int) $bookingPerPage ?>;
 
-let currentFolder = 'semua';
-let currentStatus = 'semua';
-let currentSearch = '';
-const perPage     = 6;
-let currentPage   = 1;
+let currentFolder = <?= json_encode($currentFolderParam) ?>;
+let currentStatus = <?= json_encode($currentStatusParam) ?>;
+let currentSearch = <?= json_encode($currentSearchParam) ?>;
+let currentPage = <?= (int) $bookingPage ?>;
 
 // Status: hanya 4 — pending, konfirmasi, selesai (+ dikonfirmasi sebagai fallback lama)
 const statusLabels = {
@@ -1044,34 +1099,25 @@ function renderActions(b) {
 }
 
 function initCounts() {
-    document.getElementById('count-semua').textContent  = bookingData.length + ' booking';
-    document.getElementById('count-makeup').textContent = bookingData.filter(b => b.kategori === 'makeup').length  + ' booking';
-    document.getElementById('count-dekor').textContent  = bookingData.filter(b => b.kategori === 'dekor').length   + ' booking';
-    document.getElementById('count-kostum').textContent = bookingData.filter(b => b.kategori === 'kostum').length  + ' booking';
+    document.getElementById('count-semua').textContent = `${bookingCounts.semua || 0} booking`;
+    document.getElementById('count-makeup').textContent = `${bookingCounts.makeup || 0} booking`;
+    document.getElementById('count-dekor').textContent = `${bookingCounts.dekor || 0} booking`;
+    document.getElementById('count-kostum').textContent = `${bookingCounts.kostum || 0} booking`;
 }
 
 function getFiltered() {
-    return bookingData.filter(b => {
-        const folderMatch = currentFolder === 'semua' || b.kategori === currentFolder;
-        // Filter tab "konfirmasi" menangkap kedua nilai status lama & baru
-        const statusMatch = currentStatus === 'semua'
-            || b.status === currentStatus
-            || (currentStatus === 'konfirmasi' && b.status === 'dikonfirmasi');
-        const searchMatch = currentSearch === ''
-            || b.paket.toLowerCase().includes(currentSearch)
-            || b.customer.toLowerCase().includes(currentSearch);
-        return folderMatch && statusMatch && searchMatch;
-    });
+    return bookingData;
 }
 
 function renderTable() {
     const data     = getFiltered();
-    const start    = (currentPage - 1) * perPage;
-    const pageData = data.slice(start, start + perPage);
+    const pageData = data;
     const tbody    = document.getElementById('tableBody');
+    const firstRow = totalRows === 0 ? 0 : ((currentPage - 1) * perPage) + 1;
+    const lastRow = totalRows === 0 ? 0 : firstRow + pageData.length - 1;
 
-    document.getElementById('table-count').textContent = data.length;
-    document.getElementById('tableInfo').textContent   = `Menampilkan ${pageData.length} dari ${data.length} data`;
+    document.getElementById('table-count').textContent = totalRows;
+    document.getElementById('tableInfo').textContent   = `Menampilkan ${firstRow}-${lastRow} dari ${totalRows} data`;
 
     if (data.length === 0) {
         tbody.innerHTML = '';
@@ -1106,44 +1152,45 @@ function renderTable() {
         }).join('');
     }
 
-    renderPagination(data.length);
+    renderPagination();
 }
 
-function renderPagination(total) {
-    const pages = Math.ceil(total / perPage);
+function renderPagination() {
     const pg    = document.getElementById('pagination');
-    if (pages <= 1) { pg.innerHTML = ''; return; }
+    if (totalPages <= 1) { pg.innerHTML = ''; return; }
     let html = '';
-    for (let i = 1; i <= pages; i++) {
-        html += `<div class="pg-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</div>`;
+    for (let i = 1; i <= totalPages; i++) {
+        html += `<button type="button" class="pg-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
     }
     pg.innerHTML = html;
 }
 
-function goPage(p) { currentPage = p; renderTable(); }
-
-function setFolder(folder, el) {
-    currentFolder = folder;
-    currentPage   = 1;
-    document.querySelectorAll('.folder-card').forEach(c => c.classList.remove('active'));
-    el.classList.add('active');
-    const titles = { semua: 'All Files', makeup: 'Makeup', dekor: 'Dekor', kostum: 'Kostum' };
-    document.getElementById('table-title').textContent = titles[folder] || folder;
-    renderTable();
+function updateBookingUrl(params = {}) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('folder', params.folder ?? currentFolder);
+    url.searchParams.set('status', params.status ?? currentStatus);
+    const q = params.q ?? currentSearch;
+    if (q) url.searchParams.set('q', q);
+    else url.searchParams.delete('q');
+    url.searchParams.set('page', params.page ?? 1);
+    window.location.href = url.toString();
 }
 
-function filterStatus(status, el) {
+function goPage(p) { updateBookingUrl({ page: p }); }
+
+function setFolder(folder) {
+    currentFolder = folder;
+    updateBookingUrl({ folder, page: 1 });
+}
+
+function filterStatus(status) {
     currentStatus = status;
-    currentPage   = 1;
-    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    renderTable();
+    updateBookingUrl({ status, page: 1 });
 }
 
 function filterTable() {
     currentSearch = (document.getElementById('searchInput')?.value || '').toLowerCase();
-    currentPage   = 1;
-    renderTable();
+    updateBookingUrl({ q: currentSearch, page: 1 });
 }
 
 // Gunakan data-link attribute agar link tidak rusak oleh kutip dalam onclick
