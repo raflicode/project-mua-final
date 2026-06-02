@@ -4,6 +4,8 @@ $error   = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once __DIR__ . '/../../config/koneksi.php';
+    
     $username = trim($_POST['username'] ?? '');
     $email    = trim($_POST['email']    ?? '');
     $password = $_POST['password']      ?? '';
@@ -12,11 +14,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Semua field wajib diisi.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Format email tidak valid.';
-    } elseif (strlen($password) < 6) {
-        $error = 'Password minimal 6 karakter.';
+    } elseif (strlen($password) < 8) {
+        $error = 'Password minimal 8 karakter.';
     } else {
-        // TODO: simpan ke database di sini
-        $success = 'Akun berhasil dibuat! Silakan <a href="login.php">masuk</a>.';
+        try {
+            // Check if email already exists
+            $checkEmail = $pdo->prepare("SELECT id_user FROM user WHERE email = ? LIMIT 1");
+            $checkEmail->execute([$email]);
+            if ($checkEmail->fetchColumn()) {
+                $error = 'Email sudah terdaftar. Gunakan email lain.';
+            } else {
+                // Check if username already exists
+                $checkUsername = $pdo->prepare("SELECT id_user FROM user WHERE username = ? LIMIT 1");
+                $checkUsername->execute([$username]);
+                if ($checkUsername->fetchColumn()) {
+                    $error = 'Username sudah digunakan. Gunakan username lain.';
+                } else {
+                    // Hash password with PASSWORD_DEFAULT
+                    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                    
+                    // Insert into user table with admin role
+                    $stmt = $pdo->prepare("
+                        INSERT INTO user (username, full_name, email, password_hash, role)
+                        VALUES (?, ?, ?, ?, 'admin')
+                    ");
+                    $stmt->execute([$username, $username, $email, $hashedPassword]);
+                    
+                    $success = 'Akun admin berhasil dibuat! Silakan <a href="login.php">masuk</a>.';
+                }
+            }
+        } catch (PDOException $e) {
+            $error = 'Terjadi kesalahan: ' . $e->getMessage();
+        }
     }
 }
 ?>
