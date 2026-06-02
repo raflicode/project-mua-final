@@ -57,6 +57,37 @@ function formatRupiah($angka)
     return 'Rp ' . number_format((float)$angka, 0, ',', '.');
 }
 
+function riwayatImagePath(?string $foto, string $kategori = '', string $namaLayanan = ''): string
+{
+    $foto = trim((string) $foto);
+    if ($foto === '') {
+        $type = strtolower($kategori . ' ' . $namaLayanan);
+        if (str_contains($type, 'dekor')) {
+            return '../assets/foto_dekor.jpeg';
+        }
+        if (str_contains($type, 'kostum')) {
+            return '../assets/gallery_kostum/kostum_4.jpeg';
+        }
+
+        return '../assets/foto_makeup.jpeg';
+    }
+
+    $foto = str_replace('\\', '/', $foto);
+    if (preg_match('#^(https?:)?//#', $foto) || str_starts_with($foto, '/')) {
+        return $foto;
+    }
+
+    if (str_starts_with($foto, '../assets/')) {
+        return $foto;
+    }
+
+    if (str_starts_with($foto, 'assets/')) {
+        return '../' . $foto;
+    }
+
+    return '../assets/' . ltrim($foto, '/');
+}
+
 // Badge status pesanan
 function statusBadge($status)
 {
@@ -279,12 +310,33 @@ function statusBadge($status)
 
         @media(max-width:992px){
 
+            body{
+                padding-top: 86px;
+                padding-bottom: 48px;
+            }
+
+            .section-title{
+                font-size: 1.75rem;
+            }
+
+            .section-subtitle{
+                font-size: 0.95rem;
+            }
+
+            .btn-kembali{
+                width:100%;
+                margin-top:14px;
+                text-align:center;
+            }
+
             .history-header{
                 display:none;
             }
 
             .history-item{
                 display:block;
+                border-radius:18px;
+                padding:18px;
             }
 
             .col-produk,
@@ -312,6 +364,39 @@ function statusBadge($status)
 
             .col-produk{
                 margin-bottom:18px;
+                gap:14px;
+                align-items:flex-start;
+            }
+
+            .history-item img{
+                width:74px;
+                height:74px;
+                border-radius:14px;
+                flex:0 0 74px;
+            }
+
+            .item-title{
+                font-size:0.98rem;
+                line-height:1.35;
+                overflow-wrap:anywhere;
+            }
+
+            .status-badge,
+            .badge-tipe{
+                padding:8px 12px;
+                font-size:0.8rem;
+            }
+        }
+
+        @media(max-width:575px){
+            .container-fluid{
+                padding-left:14px;
+                padding-right:14px;
+            }
+
+            .empty-box{
+                padding:48px 16px;
+                border-radius:18px;
             }
         }
 
@@ -411,12 +496,9 @@ function statusBadge($status)
         <?php foreach ($riwayat as $item): ?>
 
             <?php
-                $foto = !empty($item['foto_layanan'])
-                    ? $item['foto_layanan']
-                    : '../assets/gallery_kostum/kostum_4.jpeg';
-
                 $namaLayanan = trim($item['nama_layanan'] ?? 'Layanan Booking');
                 $kategori = trim(explode(',', $item['kategori_layanan'] ?? 'makeup')[0] ?? 'makeup');
+                $foto = riwayatImagePath($item['foto_layanan'] ?? '', $kategori, $namaLayanan);
                 $kategoriLabel = ucfirst($kategori);
                 $status = $item['status_booking'] ?? 'pending';
                 $totalHarga = (float) ($item['total_harga'] ?? 0);
@@ -427,7 +509,7 @@ function statusBadge($status)
                 <!-- Produk -->
                 <div class="col-produk">
 
-                    <img src="<?= htmlspecialchars($foto, ENT_QUOTES, 'UTF-8'); ?>" alt="produk">
+                    <img src="<?= htmlspecialchars($foto, ENT_QUOTES, 'UTF-8'); ?>" alt="produk" onerror="this.onerror=null;this.src='../assets/foto_makeup.jpeg';">
 
                     <div>
 

@@ -1,5 +1,50 @@
 <!-- Script untuk Add to Cart - Tambahkan di service.php atau halaman product lainnya -->
 <script>
+const addToCartBasePath = <?= json_encode(BASE_PATH); ?>;
+
+function addToCartUrl(path) {
+    return (addToCartBasePath || '') + '/' + path.replace(/^\/+/, '');
+}
+
+function addToCartCandidateUrls(path) {
+    const cleanPath = path.replace(/^\/+/, '');
+    return [...new Set([
+        addToCartUrl(cleanPath),
+        '../' + cleanPath,
+        cleanPath
+    ])];
+}
+
+function postAddToCart(formData) {
+    const urls = addToCartCandidateUrls('actions/add_to_cart.php');
+    let lastError = null;
+
+    return urls.reduce((promise, url) => {
+        return promise.catch(() => {
+            return fetch(url, {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                return response.text().then(text => {
+                    try {
+                        return JSON.parse(text);
+                    } catch (error) {
+                        if (!response.ok) {
+                            throw new Error('HTTP ' + response.status);
+                        }
+                        throw error;
+                    }
+                });
+            }).catch(error => {
+                lastError = error;
+                throw error;
+            });
+        });
+    }, Promise.reject()).catch(() => {
+        throw lastError || new Error('Add to cart request failed');
+    });
+}
+
 function addToCart(namaLayanan, tipeLayanan, harga, foto = null, idLayanan = null) {
     // Check if user is logged in
     if (!<?= isset($_SESSION['id_user']) ? 'true' : 'false' ?>) {
@@ -11,7 +56,7 @@ function addToCart(namaLayanan, tipeLayanan, harga, foto = null, idLayanan = nul
             showCancelButton: true
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = '/public/login.php';
+                window.location.href = addToCartUrl('public/login.php');
             }
         });
         return;
@@ -29,11 +74,7 @@ function addToCart(namaLayanan, tipeLayanan, harga, foto = null, idLayanan = nul
     formData.append('harga', harga);
     formData.append('kuantitas', 1);
 
-    fetch('/actions/add_to_cart.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
+    postAddToCart(formData)
     .then(data => {
         if (data.success) {
             Swal.fire({

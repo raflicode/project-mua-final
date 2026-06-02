@@ -615,6 +615,17 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
 
         </li>
 
+        <li>
+
+          <a class="nav-link text-white mobile-menu-link"
+            href="<?= BASE_PATH; ?>/public/riwayat_pesanan.php">
+
+            <i class="bi bi-clock-history me-2"></i>Riwayat Pesanan
+
+          </a>
+
+        </li>
+
       <?php endif; ?>
 
     </ul>

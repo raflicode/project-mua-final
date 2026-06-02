@@ -42,7 +42,7 @@ try {
 
     if ($status === 'diterima' && !in_array($payment['status_booking'], ['selesai', 'dibatalkan'], true)) {
         $updateBooking = $pdo->prepare('UPDATE booking SET status_booking = ? WHERE id_booking = ?');
-        $updateBooking->execute(['selesai', $payment['id_booking']]);
+        $updateBooking->execute(['dikonfirmasi', $payment['id_booking']]);
     }
 
     $pdo->commit();

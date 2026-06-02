@@ -101,9 +101,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pay = $pdo->prepare("UPDATE pembayaran SET `$paymentStatusColumn` = 'diterima' WHERE id_booking = ?");
                 $pay->execute([$idBooking]);
             }
-            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'selesai' WHERE id_booking = ?");
+            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'dikonfirmasi' WHERE id_booking = ?");
             $stmt->execute([$idBooking]);
-            redirectBooking('Pembayaran dikonfirmasi. Booking ditandai selesai.');
+            redirectBooking('Pembayaran dikonfirmasi. Booking masuk jadwal aktif.');
         }
 
         if ($action === 'tolak_pembayaran') {
@@ -137,6 +137,8 @@ $bookingStmt = $pdo->query("
     SELECT
         b.id_booking,
         b.tgl_booking,
+        jk.tanggal AS jadwal_tanggal,
+        jk.jam_mulai AS jadwal_jam_mulai,
         b.status_booking,
         b.catatan,
         b.total_harga,
@@ -150,6 +152,7 @@ $bookingStmt = $pdo->query("
         layanan_booking.nama_layanan
     FROM booking b
     LEFT JOIN user u ON u.id_user = b.id_user
+    LEFT JOIN jadwal_kerja jk ON jk.id_jadwal = b.id_jadwal
     LEFT JOIN (
         SELECT
             bd.id_booking,
@@ -191,7 +194,9 @@ foreach ($bookingStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         'paket'            => $paket,
         'kategori'         => $kategori,
         'customer'         => $row['full_name'] ?: ($row['username'] ?: 'Client'),
-        'tgl'              => $row['tgl_booking'] ? date('d F Y', strtotime($row['tgl_booking'])) : '-',
+        'tgl'              => $row['jadwal_tanggal']
+                                ? date('d F Y', strtotime($row['jadwal_tanggal'])) . ($row['jadwal_jam_mulai'] ? ' ' . date('H:i', strtotime($row['jadwal_jam_mulai'])) : '')
+                                : ($row['tgl_booking'] ? date('d F Y', strtotime($row['tgl_booking'])) : '-'),
         'status'           => $status,
         'alamat'           => $row['catatan'] ?: '-',
         'telp'             => $row['no_telp'] ?: '-',
@@ -882,7 +887,7 @@ include 'include/sidebar.php';
                         <tr>
                             <th class="text-nowrap table-cell-wide">Paket</th>
                             <th class="text-nowrap table-cell-wide">Customer</th>
-                            <th class="text-nowrap table-cell-date">Tgl Booking</th>
+                            <th class="text-nowrap table-cell-date">Jadwal Booking</th>
                             <th class="text-nowrap table-cell-status">Status</th>
                             <th class="text-nowrap table-cell-wide">Alamat</th>
                             <th class="text-nowrap table-cell-phone">No. Telp</th>

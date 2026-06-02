@@ -1,11 +1,23 @@
 <?php
-// Tentukan Base Path secara Dinamis
+// Tentukan Base Path secara dinamis agar tidak bergantung pada nama folder lokal.
 if (!defined('BASE_PATH')) {
-    if (strpos($_SERVER['SCRIPT_NAME'], '/project-mua-final/') !== false) {
-        define('BASE_PATH', '/project-mua-final');
-    } else {
-        define('BASE_PATH', '');
+    if (!function_exists('app_base_path')) {
+        function app_base_path(): string
+        {
+            $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+            foreach (['/admin/', '/public/', '/actions/', '/config/'] as $segment) {
+                $pos = strpos($script, $segment);
+                if ($pos !== false) {
+                    return rtrim(substr($script, 0, $pos), '/');
+                }
+            }
+
+            $dir = str_replace('\\', '/', dirname($script));
+            return $dir === '/' ? '' : rtrim($dir, '/');
+        }
     }
+
+    define('BASE_PATH', app_base_path());
 }
 
 // Konfigurasi Database

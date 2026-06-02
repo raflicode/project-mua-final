@@ -17,6 +17,29 @@ if ($selectedYear < 2000 || $selectedYear > 2100) {
     $selectedYear = (int) date('Y');
 }
 
+$hasExplicitMonthFilter = isset($_GET['month']) || isset($_GET['year']);
+if (!$hasExplicitMonthFilter) {
+    try {
+        $nearestStmt = $pdo->prepare("
+            SELECT jk.tanggal
+            FROM booking b
+            INNER JOIN jadwal_kerja jk ON jk.id_jadwal = b.id_jadwal
+            WHERE b.status_booking <> 'dibatalkan'
+              AND jk.tanggal >= ?
+            ORDER BY jk.tanggal ASC, jk.jam_mulai ASC
+            LIMIT 1
+        ");
+        $nearestStmt->execute([date('Y-m-d')]);
+        $nearestDate = $nearestStmt->fetchColumn();
+        if ($nearestDate) {
+            $selectedYear = (int) date('Y', strtotime($nearestDate));
+            $selectedMonth = (int) date('n', strtotime($nearestDate));
+        }
+    } catch (Throwable $e) {
+        // Tetap tampilkan bulan berjalan jika data jadwal belum tersedia.
+    }
+}
+
 $monthNames = [
     1 => 'January',
     2 => 'February',
@@ -42,11 +65,107 @@ $firstWeekDay = (int) date('w', $firstDayOfMonth);
 $startPadding = $firstWeekDay;
 $selectedMonthStart = date('Y-m-01 00:00:00', $firstDayOfMonth);
 $selectedMonthEnd = date('Y-m-01 00:00:00', strtotime('+1 month', $firstDayOfMonth));
+$scheduleFlash = $_SESSION['schedule_flash'] ?? null;
+unset($_SESSION['schedule_flash']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['schedule_action'] ?? '';
     $closeDate = trim($_POST['tanggal_tutup'] ?? '');
     $reason = trim($_POST['alasan'] ?? '');
+
+    if ($action === 'finish_booking') {
+        $idBooking = (int) ($_POST['id_booking'] ?? 0);
+        if ($idBooking > 0) {
+            $stmt = $pdo->prepare("UPDATE booking SET status_booking = 'selesai' WHERE id_booking = ? AND status_booking <> 'dibatalkan'");
+            $stmt->execute([$idBooking]);
+        }
+
+        header('Location: penjadwalan.php?month=' . $selectedMonth . '&year=' . $selectedYear);
+        exit;
+    }
+
+    if ($action === 'add_booking_schedule') {
+        $idUser = (int) ($_POST['id_user'] ?? 0);
+        $idLayanan = (int) ($_POST['id_layanan'] ?? 0);
+        $scheduleDate = trim($_POST['tanggal_booking'] ?? '');
+        $jamMulai = trim($_POST['jam_mulai'] ?? '');
+        $catatan = trim($_POST['catatan'] ?? '');
+        $totalHargaInput = (float) ($_POST['total_harga'] ?? 0);
+
+        try {
+            if ($idUser <= 0 || $idLayanan <= 0 || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $scheduleDate) || !preg_match('/^\d{2}:\d{2}$/', $jamMulai)) {
+                throw new RuntimeException('Lengkapi pelanggan, layanan, tanggal, dan jam booking.');
+            }
+
+            if ($scheduleDate < date('Y-m-d')) {
+                throw new RuntimeException('Tanggal booking tidak boleh sebelum hari ini.');
+            }
+
+            $userStmt = $pdo->prepare("SELECT id_user FROM user WHERE id_user = ? LIMIT 1");
+            $userStmt->execute([$idUser]);
+            if (!$userStmt->fetchColumn()) {
+                throw new RuntimeException('Pelanggan tidak ditemukan.');
+            }
+
+            $serviceStmt = $pdo->prepare("SELECT id_layanan, harga_dasar FROM layanan WHERE id_layanan = ? LIMIT 1");
+            $serviceStmt->execute([$idLayanan]);
+            $service = $serviceStmt->fetch(PDO::FETCH_ASSOC);
+            if (!$service) {
+                throw new RuntimeException('Layanan tidak ditemukan.');
+            }
+
+            $bookedDateStmt = $pdo->prepare("
+                SELECT COUNT(*)
+                FROM booking b
+                INNER JOIN jadwal_kerja jk ON jk.id_jadwal = b.id_jadwal
+                WHERE jk.tanggal = ?
+                  AND b.status_booking <> 'dibatalkan'
+            ");
+            $bookedDateStmt->execute([$scheduleDate]);
+            if ((int) $bookedDateStmt->fetchColumn() >= 3) {
+                throw new RuntimeException('Tanggal ini sudah penuh.');
+            }
+
+            $jamSelesai = date('H:i:s', strtotime($jamMulai . ' +2 hours'));
+            $totalHarga = $totalHargaInput > 0 ? $totalHargaInput : (float) $service['harga_dasar'];
+
+            $pdo->beginTransaction();
+
+            $jadwalStmt = $pdo->prepare("
+                INSERT INTO jadwal_kerja (tanggal, jam_mulai, jam_selesai, kapasitas_max, status_slot)
+                VALUES (?, ?, ?, 1, 'penuh')
+            ");
+            $jadwalStmt->execute([$scheduleDate, $jamMulai, $jamSelesai]);
+            $idJadwal = (int) $pdo->lastInsertId();
+
+            $bookingStmt = $pdo->prepare("
+                INSERT INTO booking (id_user, id_jadwal, total_harga, status_booking, catatan)
+                VALUES (?, ?, ?, 'dikonfirmasi', ?)
+            ");
+            $bookingStmt->execute([$idUser, $idJadwal, $totalHarga, $catatan]);
+            $idBooking = (int) $pdo->lastInsertId();
+
+            $detailStmt = $pdo->prepare("
+                INSERT INTO booking_detail (id_booking, id_layanan, qty, harga, subtotal)
+                VALUES (?, ?, 1, ?, ?)
+            ");
+            $detailStmt->execute([$idBooking, $idLayanan, $totalHarga, $totalHarga]);
+
+            $pdo->commit();
+
+            $_SESSION['schedule_flash'] = ['type' => 'success', 'message' => 'Jadwal pesanan berhasil ditambahkan.'];
+            header('Location: penjadwalan.php?month=' . (int) date('n', strtotime($scheduleDate)) . '&year=' . (int) date('Y', strtotime($scheduleDate)));
+            exit;
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+
+            $_SESSION['schedule_flash'] = ['type' => 'danger', 'message' => $e->getMessage()];
+            header('Location: penjadwalan.php?month=' . $selectedMonth . '&year=' . $selectedYear);
+            exit;
+        }
+    }
 
     if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $closeDate)) {
         if ($action === 'close_date') {
@@ -67,23 +186,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
+try {
+    $clientStmt = $pdo->query("
+        SELECT id_user, COALESCE(NULLIF(full_name, ''), username) AS nama
+        FROM user
+        WHERE role IS NULL OR role <> 'admin'
+        ORDER BY nama ASC
+    ");
+    $clientOptions = $clientStmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Throwable $e) {
+    $clientOptions = [];
+}
+
+try {
+    $layananStmt = $pdo->query("
+        SELECT id_layanan, nama_layanan, harga_dasar
+        FROM layanan
+        WHERE is_active = 1
+        ORDER BY nama_layanan ASC
+    ");
+    $layananOptions = $layananStmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Throwable $e) {
+    $layananOptions = [];
+}
+
 $bookingCounts = [];
 $bookingDetailsByDate = [];
 $allBookingsThisMonth = []; // Menampung semua list untuk panel kanan
+$scheduleWhere = "b.status_booking <> 'dibatalkan'";
 
 $stmt = $pdo->prepare(
     "SELECT jk.tanggal AS booking_date, COUNT(*) AS total_pesanan
      FROM booking b
      INNER JOIN jadwal_kerja jk ON jk.id_jadwal = b.id_jadwal
-     WHERE b.status_booking <> 'dibatalkan'
-       AND jk.tanggal >= :start_date
-       AND jk.tanggal < :end_date
+     WHERE $scheduleWhere
+       AND jk.tanggal >= ?
+       AND jk.tanggal < ?
      GROUP BY jk.tanggal"
 );
-$stmt->execute([
-    ':start_date' => $selectedMonthStart,
-    ':end_date' => $selectedMonthEnd,
-]);
+$stmt->execute([$selectedMonthStart, $selectedMonthEnd]);
 
 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
     $dateKey = $row['booking_date'];
@@ -91,27 +232,53 @@ foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
 }
 
 $detailStmt = $pdo->prepare(
-    "SELECT b.id_booking, jk.tanggal, jk.jam_mulai, b.total_harga, b.status_booking
+    "SELECT
+        b.id_booking,
+        jk.tanggal,
+        jk.jam_mulai,
+        b.total_harga,
+        b.status_booking,
+        COALESCE(NULLIF(u.full_name, ''), u.username, 'Client') AS customer_name,
+        COALESCE(layanan_booking.nama_layanan, 'Layanan Booking') AS nama_layanan
      FROM booking b
      INNER JOIN jadwal_kerja jk ON jk.id_jadwal = b.id_jadwal
-     WHERE b.status_booking <> 'dibatalkan'
-       AND jk.tanggal >= :start_date
-       AND jk.tanggal < :end_date
+     LEFT JOIN user u ON u.id_user = b.id_user
+     LEFT JOIN (
+        SELECT bd.id_booking, GROUP_CONCAT(DISTINCT l.nama_layanan ORDER BY l.nama_layanan SEPARATOR ', ') AS nama_layanan
+        FROM booking_detail bd
+        LEFT JOIN layanan l ON l.id_layanan = bd.id_layanan
+        GROUP BY bd.id_booking
+     ) layanan_booking ON layanan_booking.id_booking = b.id_booking
+     WHERE $scheduleWhere
+       AND jk.tanggal >= ?
+       AND jk.tanggal < ?
      ORDER BY jk.tanggal ASC, jk.jam_mulai ASC, b.id_booking ASC"
 );
-$detailStmt->execute([
-    ':start_date' => $selectedMonthStart,
-    ':end_date' => $selectedMonthEnd,
-]);
+$detailStmt->execute([$selectedMonthStart, $selectedMonthEnd]);
 
 foreach ($detailStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
     $dateKey = $row['tanggal'];
+    $isDone = $row['status_booking'] === 'selesai' || $row['tanggal'] < date('Y-m-d');
+    $statusBooking = strtolower((string) $row['status_booking']);
+    if ($isDone) {
+        $statusLabel = 'Selesai';
+    } elseif ($statusBooking === 'pending') {
+        $statusLabel = 'Menunggu Verifikasi';
+    } elseif ($statusBooking === 'konfirmasi') {
+        $statusLabel = 'Menunggu Pembayaran';
+    } else {
+        $statusLabel = 'Terjadwal';
+    }
     $bookingData = [
         'id_booking' => (int) $row['id_booking'],
         'tanggal' => $row['tanggal'] . ' ' . $row['jam_mulai'],
         'tgl_label' => date('d M Y', strtotime($row['tanggal'])),
         'jam_label' => date('H:i', strtotime($row['jam_mulai'])),
         'status' => $row['status_booking'],
+        'status_label' => $statusLabel,
+        'is_done' => $isDone,
+        'customer_name' => $row['customer_name'] ?? 'Client',
+        'nama_layanan' => $row['nama_layanan'] ?? 'Layanan Booking',
         'total_harga' => (int) $row['total_harga'],
     ];
     $bookingDetailsByDate[$dateKey][] = $bookingData;
@@ -481,6 +648,13 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
         <div class="content content-container">
             <h1 class="page-main-title">Schedules</h1>
 
+            <?php if ($scheduleFlash) : ?>
+                <div class="alert alert-<?= htmlspecialchars($scheduleFlash['type'], ENT_QUOTES, 'UTF-8') ?> alert-dismissible fade show" role="alert">
+                    <?= htmlspecialchars($scheduleFlash['message'], ENT_QUOTES, 'UTF-8') ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+
             <div class="filter-form-wrapper">
                 <form method="get" class="filter-grid">
                     <div class="filter-field">
@@ -573,7 +747,7 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
                     <div class="ui-schedule-card">
                         <div class="schedule-right-header">
                             <h3 class="schedule-right-title">Schedules</h3>
-                            <button class="btn-add-schedule" onclick="window.location.href='booking.php'">
+                            <button class="btn-add-schedule" data-bs-toggle="modal" data-bs-target="#addScheduleModal">
                                 <i class="bi bi-plus-lg"></i> Add
                             </button>
                         </div>
@@ -602,9 +776,9 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
                             <?php else : ?>
                                 <?php foreach ($allBookingsThisMonth as $b) : ?>
                                     <div class="schedule-item-card" style="cursor: pointer;" onclick="filterModalFromRight('<?= date('Y-m-d', strtotime($b['tanggal'])) ?>')">
-                                        <div class="schedule-item-title">Booking #<?= $b['id_booking'] ?> (<?= htmlspecialchars($b['status']) ?>)</div>
+                                        <div class="schedule-item-title"><?= htmlspecialchars($b['nama_layanan']) ?> (<?= htmlspecialchars($b['status_label']) ?>)</div>
                                         <div class="schedule-item-time">
-                                            <i class="bi bi-clock me-1"></i> <?= $b['jam_label'] ?> | <i class="bi bi-calendar3 me-1"></i> <?= $b['tgl_label'] ?>
+                                            <i class="bi bi-person me-1"></i> <?= htmlspecialchars($b['customer_name']) ?> | <i class="bi bi-clock me-1"></i> <?= $b['jam_label'] ?>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -613,6 +787,74 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
                     </div>
                 </div>
 
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addScheduleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none;">
+                <form method="post">
+                    <input type="hidden" name="schedule_action" value="add_booking_schedule">
+                    <div class="modal-header" style="border-bottom: 1px solid #f1f5f9;">
+                        <h5 class="modal-title" style="color: #0f172a; font-weight: 700;">Tambah Jadwal Pesanan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Pelanggan</label>
+                            <select name="id_user" class="form-select" required>
+                                <option value="">Pilih pelanggan</option>
+                                <?php foreach ($clientOptions as $client) : ?>
+                                    <option value="<?= (int) $client['id_user'] ?>"><?= htmlspecialchars($client['nama'], ENT_QUOTES, 'UTF-8') ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Layanan</label>
+                            <select name="id_layanan" id="manualLayananSelect" class="form-select" required>
+                                <option value="" data-price="0">Pilih layanan</option>
+                                <?php foreach ($layananOptions as $layanan) : ?>
+                                    <option value="<?= (int) $layanan['id_layanan'] ?>" data-price="<?= (float) $layanan['harga_dasar'] ?>">
+                                        <?= htmlspecialchars($layanan['nama_layanan'], ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label class="form-label fw-semibold">Tanggal</label>
+                                <input type="date" name="tanggal_booking" class="form-control" min="<?= date('Y-m-d') ?>" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="form-label fw-semibold">Jam Mulai</label>
+                                <input type="time" name="jam_mulai" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label fw-semibold">Total Harga</label>
+                            <input type="number" name="total_harga" id="manualTotalHarga" class="form-control" min="0" step="1000" placeholder="Otomatis dari harga layanan">
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label fw-semibold">Catatan</label>
+                            <textarea name="catatan" class="form-control" rows="3" placeholder="Alamat atau catatan pesanan"></textarea>
+                        </div>
+
+                        <?php if (empty($clientOptions) || empty($layananOptions)) : ?>
+                            <div class="alert alert-warning mt-3 mb-0">
+                                Data pelanggan atau layanan belum tersedia.
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid #f1f5f9;">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success rounded-pill" <?= empty($clientOptions) || empty($layananOptions) ? 'disabled' : '' ?>>Simpan Jadwal</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -637,6 +879,16 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
         const detailModal = new bootstrap.Modal(document.getElementById('bookingDetailModal'));
         const modalTitle = document.getElementById('bookingDetailModalLabel');
         const modalBody = document.getElementById('bookingDetailModalBody');
+        const manualLayananSelect = document.getElementById('manualLayananSelect');
+        const manualTotalHarga = document.getElementById('manualTotalHarga');
+
+        if (manualLayananSelect && manualTotalHarga) {
+            manualLayananSelect.addEventListener('change', () => {
+                const selectedOption = manualLayananSelect.options[manualLayananSelect.selectedIndex];
+                const price = Number(selectedOption?.dataset.price || 0);
+                manualTotalHarga.value = price > 0 ? Math.round(price) : '';
+            });
+        }
 
         function formatRupiah(value) {
             return new Intl.NumberFormat('id-ID', {
@@ -664,10 +916,21 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
                 <div class="p-3 mb-2" style="background: #f8fafc; border-radius: 12px; border-left: 4px solid #c78d49;">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <strong style="color: #1e293b;">Booking #${booking.id_booking}</strong>
-                        <span class="badge" style="background: #fef3e2; color: #c78d49;">${booking.status}</span>
+                        <span class="badge" style="background: #fef3e2; color: #c78d49;">${booking.status_label}</span>
                     </div>
+                    <div class="small fw-semibold mb-1" style="color: #1e293b;">${escapeScheduleText(booking.nama_layanan)}</div>
+                    <div class="small text-muted mb-1"><i class="bi bi-person"></i> ${escapeScheduleText(booking.customer_name)}</div>
                     <div class="small text-muted mb-2"><i class="bi bi-clock"></i> Time: ${booking.jam_label}</div>
                     <div class="small font-weight-bold text-dark" style="font-weight: 500;">Total: ${formatRupiah(booking.total_harga)}</div>
+                    ${booking.is_done ? '' : `
+                        <form method="post" class="mt-3">
+                            <input type="hidden" name="schedule_action" value="finish_booking">
+                            <input type="hidden" name="id_booking" value="${booking.id_booking}">
+                            <button type="submit" class="btn btn-sm btn-success rounded-pill" onclick="return confirm('Tandai booking ini selesai?')">
+                                Tandai Selesai
+                            </button>
+                        </form>
+                    `}
                 </div>
             `).join('');
         }
@@ -677,6 +940,12 @@ $nextMonth = $selectedMonth === 12 ? 1 : $selectedMonth + 1;
             modalTitle.textContent = `Schedule - ${formatDateLabel(date)}`;
             modalBody.innerHTML = renderBookingRows(bookings);
             detailModal.show();
+        }
+
+        function escapeScheduleText(value) {
+            const div = document.createElement('div');
+            div.textContent = value == null ? '' : String(value);
+            return div.innerHTML;
         }
 
         function filterModalFromRight(date) {

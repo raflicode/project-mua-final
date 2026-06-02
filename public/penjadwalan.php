@@ -30,6 +30,7 @@ if (!$draft) {
 }
 
 $errors = [];
+$today = date('Y-m-d');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
    $selectedDate = trim($_POST['selected_date'] ?? '');
 $jamMulai = trim($_POST['jam_mulai'] ?? '');
@@ -37,6 +38,10 @@ $jamMulai = trim($_POST['jam_mulai'] ?? '');
     $jadwal = null;
 
     if ($selectedDate && $jamMulai) {
+
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $selectedDate) || $selectedDate < $today) {
+        $errors[] = 'Tanggal booking tidak boleh sebelum hari ini.';
+    } else {
 
     $closedStmt = $pdo->prepare('SELECT COUNT(*) FROM jadwal_tutup WHERE tanggal = ?');
     $closedStmt->execute([$selectedDate]);
@@ -89,6 +94,8 @@ $insertStmt->execute([
     } else {
 
         $errors[] = 'Tanggal ini sudah penuh. Silakan pilih tanggal lain.';
+
+    }
 
     }
 
@@ -354,6 +361,56 @@ body {
     border-radius: 8px; /* Melanjutkan lengkungan yang pas dari sebelumnya */
     font-size: 16px; /* Ukuran teks di dalam input */
 }
+
+@media (max-width: 768px) {
+    body {
+        padding-bottom: 32px;
+    }
+
+    .back-container {
+        margin-top: 88px;
+        margin-bottom: 14px;
+    }
+
+    .container-fluid {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .card-custom {
+        border-radius: 18px;
+    }
+
+    .header-booking {
+        padding: 18px 14px;
+        font-size: 20px;
+    }
+
+    .calendar-header {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .calendar {
+        gap: 7px;
+    }
+
+    .tgl {
+        min-height: 44px;
+        padding: 9px 0;
+        border-radius: 10px;
+        font-size: 14px;
+    }
+
+    .input-waktu {
+        width: 100%;
+        max-width: 260px;
+    }
+
+    .slot-title {
+        font-size: 1rem;
+    }
+}
 </style>
 </head>
 
@@ -438,6 +495,7 @@ const jadwalData = <?= json_encode($jadwalByDate, JSON_HEX_TAG | JSON_HEX_APOS |
 const bookedByJadwal = <?= json_encode($bookedByJadwal ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 const bookedByDate = <?= json_encode($bookedByDate ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 const closedDates = <?= json_encode($closedDates ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+const todayStr = <?= json_encode($today); ?>;
 const defaultSlots = [
     { label: 'Pagi', start: '07:00', end: '10:00' },
     { label: 'Siang', start: '11:00', end: '13:00' },
@@ -469,8 +527,9 @@ function renderCalendar() {
     for (let i = 1; i <= totalDays; i++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
         const isClosed = Object.prototype.hasOwnProperty.call(closedDates, dateStr);
-        const isDisabled = isClosed || (bookedByDate[dateStr] || 0) >= 3;
-        const disabledLabel = isClosed ? 'Ditutup admin' : 'Penuh';
+        const isPastDate = dateStr < todayStr;
+        const isDisabled = isPastDate || isClosed || (bookedByDate[dateStr] || 0) >= 3;
+        const disabledLabel = isPastDate ? 'Tanggal sudah lewat' : (isClosed ? 'Ditutup admin' : 'Penuh');
         calendar.innerHTML += `
             <button type="button" class="tgl${isDisabled ? ' disabled' : ''}" ${isDisabled ? 'disabled' : ''} data-date="${dateStr}" title="${isDisabled ? disabledLabel : 'Tersedia'}" onclick="pilihTanggal(this)">
                 ${i}
