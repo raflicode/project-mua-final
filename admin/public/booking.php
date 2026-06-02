@@ -425,9 +425,13 @@ unset($_SESSION['booking_admin_flash']);
         .main {
             margin-left: var(--sidebar-w);
             flex: 1;
+            min-width: 0;
             min-height: 100vh;
+            width: calc(100vw - var(--sidebar-w));
+            max-width: calc(100vw - var(--sidebar-w));
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
         .search-box {
@@ -475,7 +479,14 @@ unset($_SESSION['booking_admin_flash']);
         .admin-name { font-size: 0.82rem; font-weight: 500; color: var(--text-main); }
 
         /* ===== CONTENT ===== */
-        .content { padding: 24px; flex: 1; max-width: 100%; overflow-x: hidden; }
+        .content {
+            padding: 24px;
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
 
         .content-header { margin-bottom: 28px; }
 
@@ -537,6 +548,8 @@ unset($_SESSION['booking_admin_flash']);
             border-radius: 20px;
             border: 1.5px solid rgba(139, 107, 74, 0.24);
             overflow: hidden;
+            min-width: 0;
+            width: 100%;
             max-width: 100%;
             box-shadow: 0 18px 42px rgba(91, 60, 37, 0.08);
         }
@@ -585,8 +598,12 @@ unset($_SESSION['booking_admin_flash']);
         }
 
         .table-scroll {
-            width: 100%; max-width: 100%;
-            overflow-x: auto; -webkit-overflow-scrolling: touch;
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
         }
 
         .booking-table thead th {
@@ -778,7 +795,12 @@ unset($_SESSION['booking_admin_flash']);
             .nav-item a { border-left: 0; border-radius: 10px; padding: 10px 14px; background: rgba(255,255,255,0.04); }
             .nav-item a.active { border-left-color: transparent; background: rgba(196,168,130,0.22); }
             .sidebar-footer { padding: 12px 24px 18px; }
-            .main { margin-left: 0; min-height: auto; }
+            .main {
+                margin-left: 0;
+                min-height: auto;
+                width: 100%;
+                max-width: 100%;
+            }
             .search-box { flex: 1; }
             .search-box input { width: 100%; }
             .content { padding: 24px; }
