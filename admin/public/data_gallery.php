@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/auth.php';
 require_login(['admin']);
 require_once __DIR__ . '/../../config/koneksi.php';
 require_once __DIR__ . '/../../config/db_helpers.php';
+require_once __DIR__ . '/../../config/image_upload.php';
 
 ensure_dynamic_gallery_schema($pdo);
 
@@ -44,31 +45,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             gallery_redirect('Judul gambar wajib diisi.', 'danger');
         }
 
-        if (!empty($_FILES['foto_gallery']['name']) && $_FILES['foto_gallery']['error'] === UPLOAD_ERR_OK) {
-            if ($_FILES['foto_gallery']['size'] > GALLERY_MAX_UPLOAD_BYTES) {
-                gallery_redirect('Ukuran file tidak boleh lebih dari 5MB.', 'danger');
-            }
-
-            $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mime = finfo_file($finfo, $_FILES['foto_gallery']['tmp_name']);
-            finfo_close($finfo);
-
-            if (!isset($allowed[$mime])) {
-                gallery_redirect('Foto harus JPG, PNG, atau WEBP.', 'danger');
-            }
-
-            $uploadDir = __DIR__ . '/../../assets/gallery';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-
-            $fileName = uniqid('gallery_') . '.' . $allowed[$mime];
-            if (!move_uploaded_file($_FILES['foto_gallery']['tmp_name'], $uploadDir . '/' . $fileName)) {
-                gallery_redirect('Gagal menyimpan foto gallery.', 'danger');
-            }
-
-            $foto = 'assets/gallery/' . $fileName;
+        if (!empty($_FILES['foto_gallery']['name'])) {
+            $savedImage = save_optimized_upload_image(
+                $_FILES['foto_gallery'],
+                __DIR__ . '/../../assets/gallery',
+                'assets/gallery',
+                'gallery_',
+                GALLERY_MAX_UPLOAD_BYTES
+            );
+            $foto = $savedImage['relative_path'];
         }
 
         if ($foto === '') {
