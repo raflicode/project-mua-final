@@ -11,12 +11,16 @@ if (!isset($_SESSION['id_user'])) {
 
 function getCartImagePath(array $item): string
 {
+    $name = strtolower($item['nama_layanan'] ?? '');
+    $type = strtolower($item['tipe_layanan'] ?? '');
+
+    if ($type === 'paket' || str_contains($name, 'paket')) {
+        return '';
+    }
+
     if (!empty($item['foto'])) {
         return $item['foto'];
     }
-
-    $name = strtolower($item['nama_layanan'] ?? '');
-    $type = strtolower($item['tipe_layanan'] ?? '');
 
     $hasName = function (string $needle) use ($name): bool {
         return strpos($name, $needle) !== false;

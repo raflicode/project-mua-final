@@ -337,6 +337,9 @@ function updateDisplay() {
     cartData.forEach((item, index) => {
         const totalHargaItem = Number(item.harga) * Number(item.kuantitas);
         const checked = selectedItems.has(index) ? 'checked' : '';
+        const imageHtml = shouldDisplayImage(item)
+            ? `<img src="${escapeHtml(item.foto)}" alt="${escapeHtml(item.nama_layanan || 'Layanan')}" />`
+            : '';
 
         html += `
             <div class="cart-item" data-id="${item.id_keranjang}">
@@ -344,7 +347,7 @@ function updateDisplay() {
                     <input type="checkbox" class="item-checkbox cart-checkbox" ${checked} onchange="toggleItem(${index}, this.checked)">
                 </div>
                 <div class="col-produk">
-                    <img src="${escapeHtml(item.foto || '../assets/foto_makeup.jpeg')}" alt="${escapeHtml(item.nama_layanan || 'Layanan')}" />
+                    ${imageHtml}
                     <div class="cart-item-details">
                         <div class="item-title">${escapeHtml(item.nama_layanan || 'Layanan')}</div>
                         <div class="item-subtext">ID: ${item.id_keranjang}</div>
@@ -378,6 +381,13 @@ function updateDisplay() {
 
     container.innerHTML = html;
     calculateTotal();
+}
+
+function shouldDisplayImage(item) {
+    const type = String(item.tipe_layanan || '').toLowerCase();
+    const name = String(item.nama_layanan || '').toLowerCase();
+    const foto = String(item.foto || '').trim();
+    return foto !== '' && type !== 'paket' && !name.includes('paket');
 }
 
 function escapeHtml(text) {
@@ -551,7 +561,7 @@ function checkoutSelected() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            window.location.href = 'booking.php';
+            window.location.href = 'penjadwalan.php?from=cart';
         } else {
             alert('Gagal checkout: ' + data.message);
         }

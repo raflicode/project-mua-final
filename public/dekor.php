@@ -275,7 +275,7 @@ body {
             <i class="bi bi-cart3"></i> Keranjang
         </button>
         <button type="button" class="btn btn-warning flex-grow-1" id="modalBookingBtn">
-            Booking
+            Cek Ketersediaan Jadwal
         </button>
     </div>
 
@@ -632,7 +632,7 @@ document.getElementById('modalBookingBtn').addEventListener('click', () => {
     } else {
         const v = dekorData[idxDekor].variasi[idxVariasi];
         const priceValue = v.harga_value || Number(String(v.harga).replace(/[^0-9]/g, '')) || 0;
-        window.location.href = `booking.php?from=dekor&id=${encodeURIComponent(v.id || '')}&layanan=${encodeURIComponent(v.nama)}&harga=${priceValue}&foto=${encodeURIComponent(v.foto)}`;
+        window.location.href = `penjadwalan.php?from=dekor&tipe=dekor&id=${encodeURIComponent(v.id || '')}&layanan=${encodeURIComponent(v.nama)}&harga=${priceValue}&foto=${encodeURIComponent(v.foto)}`;
     }
 });
 

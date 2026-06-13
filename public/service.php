@@ -107,7 +107,7 @@ $paketWedding = [
             [
                 'id' => 1001,
                 'nama' => 'Paket Silver',
-                'foto' => '../assets/silver.jpeg',
+                'foto' => '',
                 'harga' => 'Rp 5.000.000',
                 'harga_value' => 5000000,
                 'include' => [
@@ -128,7 +128,7 @@ $paketWedding = [
             [
                 'id' => 1002,
                 'nama' => 'Paket Gold',
-                'foto' => '../assets/gold.jpeg',
+                'foto' => '',
                 'harga' => 'Rp 7.500.000',
                 'harga_value' => 7500000,
                 'include' => [
@@ -462,11 +462,11 @@ $packageDataFromDB = array_merge($paketWedding, $packageDataFromDB);
                         </ul>
 
                         <div class="d-flex gap-2 mt-auto">
-                            <button type="button" onclick="addToCart(<?= htmlspecialchars(json_encode($variant['nama']), ENT_QUOTES, 'UTF-8'); ?>, 'paket', <?= (float) $variant['harga_value']; ?>, <?= htmlspecialchars(json_encode($variant['foto']), ENT_QUOTES, 'UTF-8'); ?>, <?= (int) $variant['id']; ?>)" class="btn btn-cart-custom" title="Tambah ke Keranjang"<?= $isGold ? ' style="border-color: #fcd34d;"' : ''; ?>>
+                            <button type="button" onclick="addToCart(<?= htmlspecialchars(json_encode($variant['nama']), ENT_QUOTES, 'UTF-8'); ?>, 'paket', <?= (float) $variant['harga_value']; ?>, '', <?= (int) $variant['id']; ?>)" class="btn btn-cart-custom" title="Tambah ke Keranjang"<?= $isGold ? ' style="border-color: #fcd34d;"' : ''; ?>>
                                 <i class="bi bi-cart3 fs-5"></i>
                             </button>
-                            <button type="button" onclick="handleServiceBooking(<?= htmlspecialchars(json_encode($variant['nama']), ENT_QUOTES, 'UTF-8'); ?>, <?= (float) $variant['harga_value']; ?>, <?= htmlspecialchars(json_encode($variant['foto']), ENT_QUOTES, 'UTF-8'); ?>, <?= (int) $variant['id']; ?>)" class="btn <?= $isGold ? 'btn-action-gold' : 'btn-action-silver'; ?> flex-grow-1 text-center">
-                                Booking <?= htmlspecialchars($package['jenis'], ENT_QUOTES, 'UTF-8'); ?>
+                            <button type="button" onclick="handleServiceBooking(<?= htmlspecialchars(json_encode($variant['nama']), ENT_QUOTES, 'UTF-8'); ?>, <?= (float) $variant['harga_value']; ?>, '', <?= (int) $variant['id']; ?>)" class="btn <?= $isGold ? 'btn-action-gold' : 'btn-action-silver'; ?> flex-grow-1 text-center">
+                                Cek Ketersediaan Jadwal
                             </button>
                         </div>
                     </div>
@@ -500,7 +500,7 @@ function handleServiceBooking(layanan, harga, foto = null, id = null) {
         return;
     }
 
-    let url = `booking.php?from=service&layanan=${encodeURIComponent(layanan)}&harga=${encodeURIComponent(harga)}`;
+    let url = `penjadwalan.php?from=service&layanan=${encodeURIComponent(layanan)}&harga=${encodeURIComponent(harga)}&tipe=paket`;
     if (id) url += `&id=${encodeURIComponent(id)}`;
     if (foto) url += `&foto=${encodeURIComponent(foto)}`;
     window.location.href = url;

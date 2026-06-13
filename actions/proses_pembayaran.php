@@ -83,6 +83,11 @@ $_SESSION['pembayaran'] = [
 
 function findOrCreateLayananAwal(PDO $pdo, string $nama, float $harga, string $foto = '', string $kategori = 'makeup'): int
 {
+    $haystack = strtolower($kategori . ' ' . $nama);
+    if (str_contains($haystack, 'paket')) {
+        $foto = '';
+    }
+
     $stmt = $pdo->prepare('SELECT id_layanan FROM layanan WHERE nama_layanan = ? LIMIT 1');
     $stmt->execute([$nama]);
     $id = $stmt->fetchColumn();
@@ -124,7 +129,7 @@ try {
                 $draft['nama_layanan'] ?? 'Layanan Booking',
                 (float) ($draft['harga'] ?? $draft['total'] ?? 0),
                 $draft['foto'] ?? '',
-                ($draft['source'] ?? '') === 'cart' ? 'paket' : 'makeup'
+                $draft['tipe_layanan'] ?? (($draft['source'] ?? '') === 'cart' ? 'paket' : 'makeup')
             );
         }
 

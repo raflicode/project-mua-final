@@ -10,13 +10,88 @@ $fromPage = filter_input(INPUT_GET, 'from', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $backMap = [
     'makeup' => 'makeup.php',
     'dekor' => 'dekor.php',
-    'kostum' => 'kostum.php'
+    'kostum' => 'kostum.php',
+    'cart' => 'keranjang.php',
+    'service' => 'service.php'
 ];
 $backHref = $backMap[$fromPage] ?? 'booking.php';
 
 if (!isset($_SESSION['id_user'])) {
     header('Location: login.php');
     exit;
+}
+
+function resolveScheduleImagePath($path): string
+{
+    $path = trim((string) $path);
+    if ($path === '') {
+        return '';
+    }
+
+    if (preg_match('#^(https?://|/)#', $path)) {
+        return $path;
+    }
+
+    if (strpos($path, '../assets/') === 0) {
+        return $path;
+    }
+
+    if (strpos($path, 'assets/') === 0) {
+        return '../' . $path;
+    }
+
+    return '../' . ltrim($path, '/');
+}
+
+function shouldStoreScheduleImage(?string $foto, string $type = '', string $name = ''): bool
+{
+    $foto = trim((string) $foto);
+    $haystack = strtolower($type . ' ' . $name);
+    if (str_contains($haystack, 'paket') || str_contains($haystack, 'paket silver') || str_contains($haystack, 'paket gold')) {
+        return false;
+    }
+
+    return $foto !== '';
+}
+
+$namaProdukParam = trim((string) filter_input(INPUT_GET, 'layanan', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+if ($namaProdukParam === '') {
+    $namaProdukParam = trim((string) filter_input(INPUT_GET, 'nama', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+}
+$hargaProdukParam = filter_input(INPUT_GET, 'harga', FILTER_VALIDATE_INT);
+$idLayananParam = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$fotoParam = trim((string) filter_input(INPUT_GET, 'foto', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+$tipeParam = trim((string) filter_input(INPUT_GET, 'tipe', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+$hasDirectSelection = $idLayananParam || $namaProdukParam !== '' || $hargaProdukParam > 0;
+
+if ($hasDirectSelection) {
+    $service = null;
+    if ($idLayananParam) {
+        try {
+            $stmt = $pdo->prepare('SELECT * FROM layanan WHERE id_layanan = ? LIMIT 1');
+            $stmt->execute([$idLayananParam]);
+            $service = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $service = null;
+        }
+    }
+
+    $namaProduk = $service['nama_layanan'] ?? $namaProdukParam;
+    $hargaProduk = (float) ($service['harga_dasar'] ?? $hargaProdukParam ?? 0);
+    $tipeLayanan = $tipeParam ?: ($service['kategori_layanan'] ?? $fromPage ?: 'makeup');
+    $foto = resolveScheduleImagePath($service['foto_layanan'] ?? $fotoParam);
+
+    if ($namaProduk !== '' && $hargaProduk > 0) {
+        unset($_SESSION['checkout_booking']);
+        $_SESSION['draft_booking'] = [
+            'source' => 'single',
+            'id_layanan' => $service['id_layanan'] ?? null,
+            'nama_layanan' => $namaProduk,
+            'harga' => $hargaProduk,
+            'foto' => shouldStoreScheduleImage($foto, $tipeLayanan, $namaProduk) ? $foto : '',
+            'tipe_layanan' => $tipeLayanan,
+        ];
+    }
 }
 
 $draft = $_SESSION['draft_booking'] ?? null;
@@ -84,7 +159,7 @@ $insertStmt->execute([
         $_SESSION['draft_booking']['tanggal'] = $selectedDate;
         $_SESSION['draft_booking']['jam_mulai'] = $jamMulai;
         $_SESSION['draft_booking']['jam_selesai'] = $jamSelesai;
-        $redirectUrl = 'pembayaran.php';
+        $redirectUrl = 'booking.php';
         if ($fromPage) {
             $redirectUrl .= '?from=' . urlencode($fromPage);
         }
@@ -259,6 +334,12 @@ body {
     box-shadow: none;
 }
 
+.tgl.unavailable {
+    background: #fff1e8;
+    color: #9a3412;
+    box-shadow: inset 0 0 0 1px rgba(154, 52, 18, 0.18);
+}
+
 .slot {
     background: #ffffff;
     padding: 16px;
@@ -308,6 +389,15 @@ body {
 .alert {
     border-radius: 16px;
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.availability-note {
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(208, 127, 38, 0.18);
+    background: #fff8ed;
+    color: #4f3a25;
 }
 
 .slot-title {
@@ -428,7 +518,7 @@ body {
     <div class="card card-custom">
 
         <div class="header-booking">
-            Pilih Ketersediaan Tanggal
+            Cek Ketersediaan Jadwal
         </div>
 
 
@@ -455,14 +545,16 @@ body {
             <!-- Kalender -->
             <div class="calendar mb-4" id="calendar"></div>
 
+            <div id="availabilityMessage" class="availability-note" style="display:none;"></div>
+
           <!-- Form Booking -->
 <form id="slotForm" method="post" action="penjadwalan.php<?= $fromPage ? '?from=' . urlencode($fromPage) : '' ?>">
 
     <div id="slotArea" style="display:none;">
 
-        <h5 class="slot-title">Isi Jadwal Booking</h5>
+        <h5 class="slot-title">Jadwal Tersedia</h5>
         <p class="text-muted mb-4">
-            Silakan tentukan jam booking sesuai kebutuhan Anda.
+            Silakan tentukan jam booking sesuai kebutuhan Anda, lalu lanjutkan ke review booking.
         </p>
 
         <input type="hidden" name="selected_date" id="selected_date">
@@ -483,7 +575,7 @@ body {
 </div>
 
         <button type="submit" class="btn btn-lanjut w-100 mt-3">
-            LANJUTKAN BOOKING →
+            LANJUTKAN KE BOOKING &rarr;
         </button>
 
     </div>
@@ -528,10 +620,12 @@ function renderCalendar() {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
         const isClosed = Object.prototype.hasOwnProperty.call(closedDates, dateStr);
         const isPastDate = dateStr < todayStr;
-        const isDisabled = isPastDate || isClosed || (bookedByDate[dateStr] || 0) >= 3;
+        const isFull = (bookedByDate[dateStr] || 0) >= 3;
+        const isDisabled = isPastDate;
+        const isUnavailable = isClosed || isFull;
         const disabledLabel = isPastDate ? 'Tanggal sudah lewat' : (isClosed ? 'Ditutup admin' : 'Penuh');
         calendar.innerHTML += `
-            <button type="button" class="tgl${isDisabled ? ' disabled' : ''}" ${isDisabled ? 'disabled' : ''} data-date="${dateStr}" title="${isDisabled ? disabledLabel : 'Tersedia'}" onclick="pilihTanggal(this)">
+            <button type="button" class="tgl${isDisabled ? ' disabled' : ''}${isUnavailable ? ' unavailable' : ''}" ${isDisabled ? 'disabled' : ''} data-date="${dateStr}" title="${(isDisabled || isUnavailable) ? disabledLabel : 'Tersedia'}" onclick="pilihTanggal(this)">
                 ${i}
             </button>
         `;
@@ -559,10 +653,63 @@ function pilihTanggal(el) {
     el.classList.add('active');
 
     const selectedDate = el.dataset.date;
+    const message = document.getElementById('availabilityMessage');
+    const isClosed = Object.prototype.hasOwnProperty.call(closedDates, selectedDate);
+    const isFull = (bookedByDate[selectedDate] || 0) >= 3;
+
+    if (isClosed || isFull) {
+        const reason = isClosed ? `Tanggal ini ditutup oleh admin: ${closedDates[selectedDate]}` : 'Tanggal ini sudah penuh.';
+        const alternatives = findAlternativeDates(selectedDate);
+        message.style.display = 'block';
+        message.innerHTML = `
+            <div class="fw-bold mb-1">Jadwal tidak tersedia</div>
+            <div>${reason}</div>
+            ${alternatives.length ? `<div class="small mt-2">Rekomendasi tanggal lain: ${alternatives.join(', ')}</div>` : '<div class="small mt-2">Belum ada rekomendasi tanggal tersedia di bulan ini. Coba geser ke bulan berikutnya.</div>'}
+        `;
+        document.getElementById('slotArea').style.display = 'none';
+        document.getElementById('selected_date').value = '';
+        return;
+    }
 
     document.getElementById('selected_date').value = selectedDate;
 
+    message.style.display = 'block';
+    message.innerHTML = `
+        <div class="fw-bold mb-1">Jadwal tersedia</div>
+        <div>Tanggal ini masih tersedia. Silakan pilih jam booking untuk melanjutkan.</div>
+    `;
+
     document.getElementById('slotArea').style.display = 'block';
+}
+
+function findAlternativeDates(selectedDate) {
+    const dates = [];
+    const selected = new Date(selectedDate + 'T00:00:00');
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+
+    for (let i = 1; i <= totalDays; i++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        const dateObj = new Date(dateStr + 'T00:00:00');
+        if (dateObj <= selected || dateStr < todayStr) {
+            continue;
+        }
+        if (Object.prototype.hasOwnProperty.call(closedDates, dateStr) || (bookedByDate[dateStr] || 0) >= 3) {
+            continue;
+        }
+        dates.push(formatDisplayDate(dateStr));
+        if (dates.length === 3) {
+            break;
+        }
+    }
+
+    return dates;
+}
+
+function formatDisplayDate(dateStr) {
+    const [year, month, day] = dateStr.split('-');
+    return `${day}/${month}/${year}`;
 }
 function renderSlots(date) {
     const slots = jadwalData[date] || [];
@@ -625,6 +772,11 @@ function pilihSlot(el) {
 
 function clearSlotSelection() {
     document.getElementById('slotArea').style.display = 'none';
+    const message = document.getElementById('availabilityMessage');
+    if (message) {
+        message.style.display = 'none';
+        message.innerHTML = '';
+    }
 }
 
 renderCalendar();

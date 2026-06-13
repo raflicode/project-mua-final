@@ -277,7 +277,7 @@ body{
         <i class="bi bi-cart3"></i> Keranjang
         </button>
         <button type="button" class="btn btn-warning flex-grow-1" id="modalBookingBtn">
-            Booking
+            Cek Ketersediaan Jadwal
         </button>
     </div>
 
@@ -396,8 +396,9 @@ document.getElementById('modalBookingBtn').addEventListener('click',()=>{
 const harga = Number(String(v.harga).replace(/[^0-9]/g,''));
 
 window.location.href =
-    './booking.php?' +
+    './penjadwalan.php?' +
     'from=kostum' +
+    '&tipe=kostum' +
     '&id=' + encodeURIComponent(v.id || '') +
     '&layanan=' + encodeURIComponent(v.nama) +
     '&harga=' + harga +

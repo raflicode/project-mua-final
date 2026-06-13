@@ -20,7 +20,9 @@ $sourcePage = filter_input(INPUT_GET, 'source_page', FILTER_SANITIZE_FULL_SPECIA
 $backMap = [
     'makeup' => 'makeup.php',
     'dekor' => 'dekor.php',
-    'kostum' => 'kostum.php'
+    'kostum' => 'kostum.php',
+    'cart' => 'keranjang.php',
+    'service' => 'service.php'
 ];
 $backHref = $backMap[$sourcePage] ?? $backMap[$fromPage] ?? 'service.php';
 
@@ -46,6 +48,17 @@ function resolveImagePath($path, $default = '../assets/foto_makeup.jpeg')
     return '../' . ltrim($path, '/');
 }
 
+function shouldDisplayOrderImage(?string $foto, string $type = '', string $name = ''): bool
+{
+    $foto = trim((string) $foto);
+    $haystack = strtolower($type . ' ' . $name);
+    if (str_contains($haystack, 'paket')) {
+        return false;
+    }
+
+    return $foto !== '';
+}
+
 $checkout = $_SESSION['checkout_booking'] ?? null;
 $draft = $_SESSION['draft_booking'] ?? null;
 $checkoutMode = false;
@@ -59,6 +72,7 @@ if ($namaProduk === '') {
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $hargaProduk = filter_input(INPUT_GET, 'harga', FILTER_VALIDATE_INT);
 $fotoParam = trim((string) filter_input(INPUT_GET, 'foto', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+$tipeLayanan = trim((string) filter_input(INPUT_GET, 'tipe', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
 if ($fotoParam !== '') {
     $foto = resolveImagePath($fotoParam);
 }
@@ -96,8 +110,16 @@ if (
         'id_layanan' => $checkoutItems[0]['id_layanan'] ?? null,
         'nama_layanan' => $namaProduk,
         'harga' => $hargaProduk,
-        'foto' => $foto
+        'foto' => shouldDisplayOrderImage($foto, 'cart', $namaProduk) ? $foto : '',
+        'tipe_layanan' => 'cart'
     ];
+
+    if (!empty($draft['id_jadwal'])) {
+        $_SESSION['draft_booking']['id_jadwal'] = $draft['id_jadwal'];
+        $_SESSION['draft_booking']['tanggal'] = $draft['tanggal'] ?? null;
+        $_SESSION['draft_booking']['jam_mulai'] = $draft['jam_mulai'] ?? null;
+        $_SESSION['draft_booking']['jam_selesai'] = $draft['jam_selesai'] ?? null;
+    }
 } else {
     if ($hasDirectSelection) {
         unset($_SESSION['checkout_booking']);
@@ -118,6 +140,7 @@ if (
         $namaProduk = $draft['nama_layanan'];
         $hargaProduk = $draft['harga'];
         $foto = $draft['foto'] ?? $foto;
+        $tipeLayanan = $draft['tipe_layanan'] ?? $tipeLayanan;
     }
 
     if (empty($foto) && isset($draft['foto'])) {
@@ -138,9 +161,24 @@ if (
         'id_layanan' => $service['id_layanan'] ?? null,
         'nama_layanan' => $namaProduk,
         'harga' => $hargaProduk,
-        'foto' => $foto
+        'foto' => shouldDisplayOrderImage($foto, $tipeLayanan, $namaProduk) ? $foto : '',
+        'tipe_layanan' => $tipeLayanan ?: ($fromPage ?: 'makeup')
     ];
+
+    if (!empty($draft['id_jadwal'])) {
+        $_SESSION['draft_booking']['id_jadwal'] = $draft['id_jadwal'];
+        $_SESSION['draft_booking']['tanggal'] = $draft['tanggal'] ?? null;
+        $_SESSION['draft_booking']['jam_mulai'] = $draft['jam_mulai'] ?? null;
+        $_SESSION['draft_booking']['jam_selesai'] = $draft['jam_selesai'] ?? null;
+    }
 }
+
+$draft = $_SESSION['draft_booking'] ?? [];
+$hasSelectedSchedule = !empty($draft['id_jadwal']);
+$nextHref = $hasSelectedSchedule
+    ? 'pembayaran.php' . ($fromPage ? '?from=' . urlencode($fromPage) : '')
+    : 'penjadwalan.php' . ($fromPage ? '?from=' . urlencode($fromPage) : '');
+$nextLabel = $hasSelectedSchedule ? 'Lanjut Isi Data Diri' : 'Cek Ketersediaan Jadwal';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -332,7 +370,7 @@ body {
         </a>
         <div>
             <h2 class="section-title mb-1">Review Pesanan</h2>
-            <p class="page-subtitle mb-0">Pastikan detail layanan sudah benar sebelum melanjutkan ke penjadwalan.</p>
+            <p class="page-subtitle mb-0">Pastikan detail layanan dan jadwal sudah benar sebelum melanjutkan.</p>
         </div>
         <div style="width: 48px;"></div>
     </div>
@@ -344,9 +382,12 @@ body {
                 <?php if (!empty($checkoutMode) && !empty($checkoutItems)): ?>
                     <?php foreach ($checkoutItems as $item): ?>
                         <div class="product-item">
-                            <div class="product-img-wrapper">
-                                <img src="<?= htmlspecialchars(resolveImagePath($item['foto'] ?? '', $foto), ENT_QUOTES, 'UTF-8'); ?>" class="product-img" alt="<?= htmlspecialchars($item['nama_layanan'], ENT_QUOTES, 'UTF-8'); ?>">
-                            </div>
+                            <?php $itemFoto = resolveImagePath($item['foto'] ?? '', ''); ?>
+                            <?php if (shouldDisplayOrderImage($itemFoto, $item['tipe_layanan'] ?? '', $item['nama_layanan'] ?? '')): ?>
+                                <div class="product-img-wrapper">
+                                    <img src="<?= htmlspecialchars($itemFoto, ENT_QUOTES, 'UTF-8'); ?>" class="product-img" alt="<?= htmlspecialchars($item['nama_layanan'], ENT_QUOTES, 'UTF-8'); ?>">
+                                </div>
+                            <?php endif; ?>
                             <div class="product-info flex-grow-1">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0"><?= htmlspecialchars($item['nama_layanan'], ENT_QUOTES, 'UTF-8'); ?></h6>
@@ -359,16 +400,24 @@ body {
                     <?php endforeach; ?>
                 <?php else: ?>
                     <div class="product-item">
-                        <div class="product-img-wrapper">
-                            <img src="<?= htmlspecialchars($foto, ENT_QUOTES, 'UTF-8'); ?>" class="product-img" alt="<?= htmlspecialchars($namaProduk, ENT_QUOTES, 'UTF-8'); ?>">
-                        </div>
+                        <?php if (shouldDisplayOrderImage($foto, $tipeLayanan, $namaProduk)): ?>
+                            <div class="product-img-wrapper">
+                                <img src="<?= htmlspecialchars($foto, ENT_QUOTES, 'UTF-8'); ?>" class="product-img" alt="<?= htmlspecialchars($namaProduk, ENT_QUOTES, 'UTF-8'); ?>">
+                            </div>
+                        <?php endif; ?>
                         <div class="product-info flex-grow-1">
                             <div class="d-flex justify-content-between align-items-center">
                                 <h6 class="mb-0"><?= htmlspecialchars($namaProduk, ENT_QUOTES, 'UTF-8'); ?></h6>
                                 <span class="qty-badge">x1</span>
                             </div>
                             <p class="price-value mb-0 text-primary small mt-1"><?= htmlspecialchars(formatRupiah($hargaProduk), ENT_QUOTES, 'UTF-8'); ?></p>
-                            <p class="item-subtext mt-2">Layanan ini akan disimpan sebagai draft booking Anda sebelum memilih jadwal.</p>
+                            <p class="item-subtext mt-2">
+                                <?php if ($hasSelectedSchedule): ?>
+                                    Jadwal: <?= htmlspecialchars(date('d M Y', strtotime($draft['tanggal'] ?? 'now')), ENT_QUOTES, 'UTF-8'); ?><?= !empty($draft['jam_mulai']) ? ' pukul ' . htmlspecialchars(substr($draft['jam_mulai'], 0, 5), ENT_QUOTES, 'UTF-8') : ''; ?>
+                                <?php else: ?>
+                                    Layanan ini akan disimpan sebagai draft sebelum Anda memilih jadwal.
+                                <?php endif; ?>
+                            </p>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -394,9 +443,9 @@ body {
             <div class="sticky-sidebar">
                 <div class="order-card">
                     <h5 class="card-inside-title"><i class="bi bi-calendar-check me-2 text-warning"></i>Langkah Selanjutnya</h5>
-                    <p class="text-muted small mb-4">Pilih tanggal dan jam yang tersedia pada langkah berikutnya.</p>
-                    <a href="penjadwalan.php<?= $fromPage ? '?from=' . urlencode($fromPage) : '' ?>" class="btn btn-payment">
-                        Lanjut ke Penjadwalan <i class="bi bi-arrow-right ms-2"></i>
+                    <p class="text-muted small mb-4"><?= $hasSelectedSchedule ? 'Jadwal tersedia. Lanjutkan untuk melengkapi data booking.' : 'Cek tanggal yang tersedia sebelum mengisi data booking.'; ?></p>
+                    <a href="<?= htmlspecialchars($nextHref, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-payment">
+                        <?= htmlspecialchars($nextLabel, ENT_QUOTES, 'UTF-8'); ?> <i class="bi bi-arrow-right ms-2"></i>
                     </a>
                 </div>
             </div>

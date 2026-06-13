@@ -5,6 +5,10 @@ function getCartImagePath(array $item): string {
     $name = strtolower($item['nama_layanan'] ?? '');
     $type = strtolower($item['tipe_layanan'] ?? '');
 
+    if ($type === 'paket' || str_contains($name, 'paket')) {
+        return '';
+    }
+
     if ($type === 'kostum') {
         if (str_contains($name, 'graduation')) {
             return '../assets/fotograduation.jpeg';
@@ -44,6 +48,12 @@ function getCartImagePath(array $item): string {
 }
 
 function normalizeCartImagePath(?string $foto, array $item): string {
+    $name = strtolower($item['nama_layanan'] ?? '');
+    $type = strtolower($item['tipe_layanan'] ?? '');
+    if ($type === 'paket' || str_contains($name, 'paket')) {
+        return '';
+    }
+
     $foto = trim((string) $foto);
     if ($foto === '') {
         return getCartImagePath($item);

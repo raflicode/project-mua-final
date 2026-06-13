@@ -20,6 +20,25 @@ require_once __DIR__ . '/email_config.php';
  * @return array ['success' => bool, 'message' => string, 'error' => string|null]
  */
 function sendEmail($to, $subject, $htmlBody, $plainBody = null) {
+    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+        return [
+            'success' => false,
+            'message' => 'Email penerima tidak valid',
+            'error' => 'Email penerima tidak valid'
+        ];
+    }
+
+    if (SMTP_AUTH && trim((string) SMTP_PASSWORD) === '') {
+        $errorMsg = 'Konfigurasi email belum lengkap. SENDGRID_API_KEY belum diatur.';
+        error_log($errorMsg);
+
+        return [
+            'success' => false,
+            'message' => 'Konfigurasi email belum lengkap',
+            'error' => $errorMsg
+        ];
+    }
+
     $mail = new PHPMailer(true);
 
     try {
@@ -45,6 +64,8 @@ function sendEmail($to, $subject, $htmlBody, $plainBody = null) {
         }
 
         $mail->Port = SMTP_PORT;
+        $mail->CharSet = 'UTF-8';
+        $mail->Encoding = 'base64';
 
         // Sender & Recipient
         $mail->setFrom(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
@@ -74,8 +95,15 @@ function sendEmail($to, $subject, $htmlBody, $plainBody = null) {
         $errorMsg = "PHPMailer Error: " . $e->getMessage() . " | ErrorInfo: " . $mail->ErrorInfo;
         error_log($errorMsg);
 
-        // Fallback ke PHP mail() jika SMTP gagal
-        return sendEmailWithNativeMail($to, $subject, $htmlBody, $plainBody, $errorMsg);
+        if (defined('USE_NATIVE_MAIL_FALLBACK') && USE_NATIVE_MAIL_FALLBACK) {
+            return sendEmailWithNativeMail($to, $subject, $htmlBody, $plainBody, $errorMsg);
+        }
+
+        return [
+            'success' => false,
+            'message' => 'Gagal mengirim email via SMTP',
+            'error' => $errorMsg
+        ];
     }
 }
 
@@ -101,7 +129,7 @@ function sendEmailWithNativeMail($to, $subject, $htmlBody, $plainBody = null, $p
     $body .= $htmlBody . "\r\n";
     $body .= "--$boundary--\r\n";
 
-    $mailSent = mail($to, $encodedSubject, $body, $headers);
+    $mailSent = @mail($to, $encodedSubject, $body, $headers);
 
     if ($mailSent) {
         error_log("Fallback mail() berhasil mengirim ke $to");

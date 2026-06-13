@@ -29,12 +29,17 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
   if (!function_exists('navbarCartImagePath')) {
     function navbarCartImagePath(array $item): string
     {
+      $name = strtolower($item['nama_layanan'] ?? '');
+      $type = strtolower($item['tipe_layanan'] ?? '');
+
+      if ($type === 'paket' || strpos($name, 'paket') !== false) {
+        return '';
+      }
+
       if (!empty($item['foto'])) {
         return $item['foto'];
       }
 
-      $name = strtolower($item['nama_layanan'] ?? '');
-      $type = strtolower($item['tipe_layanan'] ?? '');
       $hasName = function (string $needle) use ($name): bool {
         return strpos($name, $needle) !== false;
       };
@@ -62,7 +67,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
     {
       $foto = str_replace('\\', '/', $foto);
 
-      if ($foto === '') return BASE_PATH . '/assets/foto_makeup.jpeg';
+      if ($foto === '') return '';
       if (preg_match('/^(https?:)?\/\///', $foto)) return $foto;
       if (strpos($foto, '/') === 0) return $foto;
       if (strpos($foto, '../assets/') === 0) return BASE_PATH . '/' . str_replace('../', '', $foto);
@@ -471,7 +476,9 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
                     $cartItemPrice = number_format((float) ($cartItem['harga'] ?? 0), 0, ',', '.');
                   ?>
                   <div class="cart-item-preview">
-                    <img src="<?= htmlspecialchars($cartItemFoto, ENT_QUOTES, 'UTF-8'); ?>" class="cart-item-img" alt="<?= htmlspecialchars($cartItemName, ENT_QUOTES, 'UTF-8'); ?>">
+                    <?php if ($cartItemFoto !== ''): ?>
+                      <img src="<?= htmlspecialchars($cartItemFoto, ENT_QUOTES, 'UTF-8'); ?>" class="cart-item-img" alt="<?= htmlspecialchars($cartItemName, ENT_QUOTES, 'UTF-8'); ?>">
+                    <?php endif; ?>
                     <div class="cart-item-info">
                       <div class="cart-item-title" title="<?= htmlspecialchars($cartItemName, ENT_QUOTES, 'UTF-8'); ?>"><?= htmlspecialchars($cartItemName, ENT_QUOTES, 'UTF-8'); ?></div>
                       <div class="cart-item-price"><small><?= $cartItemQty; ?>x</small> Rp <?= $cartItemPrice; ?></div>
@@ -698,7 +705,7 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
   // Modifikasi: Ambil data jumlah sekaligus list item belanjaan
   function resolveCartImageUrl(foto) {
     if (!foto) {
-      return basePath + '/assets/foto_makeup.jpeg';
+      return '';
     }
 
     if (/^(https?:)?\/\//.test(foto)) {
@@ -754,14 +761,17 @@ if (isset($_SESSION['id_user']) && $_SESSION['id_user'] != '') {
     if (items && items.length > 0) {
       htmlContent = '';
       items.forEach(item => {
-        const imgUrl = resolveCartImageUrl(item.foto);
+        const type = String(item.tipe_layanan || '').toLowerCase();
+        const name = String(item.nama_layanan || '').toLowerCase();
+        const imgUrl = (type === 'paket' || name.includes('paket')) ? '' : resolveCartImageUrl(item.foto);
         const itemName = escapeCartText(item.nama_layanan);
         const itemQty = Number(item.qty || item.kuantitas || 1);
         const itemPrice = Number(item.harga || 0);
+        const imageHtml = imgUrl ? `<img src="${imgUrl}" class="cart-item-img" alt="${itemName}">` : '';
 
         htmlContent += `
           <div class="cart-item-preview">
-            <img src="${imgUrl}" class="cart-item-img" alt="${itemName}">
+            ${imageHtml}
             <div class="cart-item-info">
               <div class="cart-item-title" title="${itemName}">${itemName}</div>
               <div class="cart-item-price"><small>${itemQty}x</small> Rp ${itemPrice.toLocaleString('id-ID')}</div>

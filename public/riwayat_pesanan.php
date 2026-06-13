@@ -30,7 +30,7 @@ try {
             b.status_booking,
             b.created_at,
             COALESCE(GROUP_CONCAT(DISTINCT COALESCE(l.nama_layanan, 'Layanan Booking') ORDER BY COALESCE(l.nama_layanan, 'Layanan Booking') SEPARATOR ', '), 'Layanan Booking') AS nama_layanan,
-            COALESCE(MIN(l.foto_layanan), '../assets/gallery_kostum/kostum_4.jpeg') AS foto_layanan,
+            COALESCE(MIN(l.foto_layanan), '') AS foto_layanan,
             COALESCE(GROUP_CONCAT(DISTINCT COALESCE(l.kategori_layanan, 'makeup') ORDER BY COALESCE(l.kategori_layanan, 'makeup') SEPARATOR ', '), 'makeup') AS kategori_layanan,
             COALESCE(SUM(bd.qty), 0) AS total_qty
         FROM booking b
@@ -60,8 +60,12 @@ function formatRupiah($angka)
 function riwayatImagePath(?string $foto, string $kategori = '', string $namaLayanan = ''): string
 {
     $foto = trim((string) $foto);
+    $type = strtolower($kategori . ' ' . $namaLayanan);
+    if (str_contains($type, 'paket')) {
+        return '';
+    }
+
     if ($foto === '') {
-        $type = strtolower($kategori . ' ' . $namaLayanan);
         if (str_contains($type, 'dekor')) {
             return '../assets/foto_dekor.jpeg';
         }
@@ -509,7 +513,9 @@ function statusBadge($status)
                 <!-- Produk -->
                 <div class="col-produk">
 
-                    <img src="<?= htmlspecialchars($foto, ENT_QUOTES, 'UTF-8'); ?>" alt="produk" onerror="this.onerror=null;this.src='../assets/foto_makeup.jpeg';">
+                    <?php if ($foto !== ''): ?>
+                        <img src="<?= htmlspecialchars($foto, ENT_QUOTES, 'UTF-8'); ?>" alt="produk" onerror="this.onerror=null;this.src='../assets/foto_makeup.jpeg';">
+                    <?php endif; ?>
 
                     <div>
 

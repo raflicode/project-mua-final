@@ -46,6 +46,14 @@ if (empty($cartIds)) {
 $id_user = $_SESSION['id_user'];
 $placeholders = implode(',', array_fill(0, count($cartIds), '?'));
 
+function checkoutCartShouldKeepImage(array $item): bool
+{
+    $name = strtolower($item['nama_layanan'] ?? '');
+    $type = strtolower($item['tipe_layanan'] ?? '');
+
+    return $type !== 'paket' && !str_contains($name, 'paket') && trim((string) ($item['foto'] ?? '')) !== '';
+}
+
 try {
     $layananTableExists = false;
     try {
@@ -85,6 +93,7 @@ try {
         $itemTotal = floatval($row['harga']) * intval($row['kuantitas']);
         $totalPrice += $itemTotal;
 
+        $rowFoto = checkoutCartShouldKeepImage($row) ? ($row['foto'] ?? '') : '';
         $checkoutItems[] = [
             'id_keranjang' => intval($row['id_keranjang']),
             'nama_layanan' => $row['nama_layanan'],
@@ -92,7 +101,7 @@ try {
             'harga' => floatval($row['harga']),
             'kuantitas' => intval($row['kuantitas']),
             'item_total' => $itemTotal,
-            'foto' => $row['foto'] ?? '',
+            'foto' => $rowFoto,
             'id_layanan' => $serviceId,
         ];
     }
@@ -101,6 +110,17 @@ try {
         'items' => $checkoutItems,
         'total_price' => $totalPrice,
         'cart_item_ids' => $cartIds,
+    ];
+    $_SESSION['draft_booking'] = [
+        'source' => 'cart',
+        'items' => $checkoutItems,
+        'total' => $totalPrice,
+        'cart_item_ids' => $cartIds,
+        'id_layanan' => $checkoutItems[0]['id_layanan'] ?? null,
+        'nama_layanan' => count($checkoutItems) . ' item terpilih',
+        'harga' => $totalPrice,
+        'foto' => $checkoutItems[0]['foto'] ?? '',
+        'tipe_layanan' => 'cart',
     ];
 
     echo json_encode([

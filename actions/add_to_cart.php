@@ -57,6 +57,11 @@ $harga = intval($_POST['harga'] ?? 0);
 $kuantitas = intval($_POST['kuantitas'] ?? 1);
 $foto = trim($_POST['foto'] ?? '');
 
+$isWeddingPackage = strtolower($tipe_layanan . ' ' . $nama_layanan);
+if ($tipe_layanan === 'paket' || str_contains($isWeddingPackage, 'paket wedding')) {
+    $foto = '';
+}
+
 // Validasi input
 if (empty($nama_layanan) || empty($tipe_layanan) || $harga <= 0 || $kuantitas <= 0) {
     http_response_code(400);
