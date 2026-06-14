@@ -236,7 +236,7 @@ try {
     exit;
 }
 
-// Redirect ke halaman konfirmasi awal melalui WhatsApp
+// Redirect ke halaman konfirmasi awal di dalam sistem
 header('Location: ../public/konfirmasi_awal.php' . $fromParam);
 exit;
 ?>

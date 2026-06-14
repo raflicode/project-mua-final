@@ -835,6 +835,7 @@ include __DIR__ . '/actions/proses_index.php';
 </section>
 
 <?php include __DIR__ . '/public/include/footer.php'; ?>
+<?php include __DIR__ . '/public/include/floating_chatbot.php'; ?>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {

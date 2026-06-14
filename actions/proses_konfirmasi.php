@@ -468,29 +468,11 @@ try {
         unset($_SESSION['draft_booking']);
     }
 
-    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-    $projectBase = preg_replace('#/actions$#', '', $scriptDir);
-    $buktiUrl = $scheme . '://' . $host . $projectBase . '/assets/bukti_pembayaran/' . rawurlencode($fileName);
+    $redirectUrl = $canCreateBooking
+        ? '../public/konfirmasi_akhir.php?id_booking=' . (int) $id_booking
+        : '../public/booking.php?success=' . urlencode('Bukti pembayaran berhasil dikirim dan menunggu verifikasi admin.');
 
-    $pesan = "Halo Admin, saya ingin konfirmasi pembayaran booking makeup.\n\n"
-        . "Nama: {$pembayaran['nama']}\n"
-        . "No HP: {$pembayaran['hp']}\n"
-        . "Metode Pembayaran: {$pembayaran['metode']}\n"
-        . "Link Bukti Pembayaran: {$buktiUrl}\n\n";
-
-    if ($canCreateBooking) {
-        $pesan .= "Booking berhasil dibuat dan menunggu verifikasi.\n";
-    } else {
-        $pesan .= "Catatan: Booking belum lengkap (tanggal/jam atau layanan belum dipilih). Mohon bantu verifikasi dan hubungi pemesan.\n";
-    }
-
-    $pesan .= "Saya sudah transfer dan mengirim bukti pembayaran.";
-
-    $wa_url = 'https://wa.me/6281217857682?' . http_build_query(['text' => $pesan]);
-
-    header("Location: $wa_url");
+    header('Location: ' . $redirectUrl);
     exit;
 
 } catch (Exception $e) {

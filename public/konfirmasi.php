@@ -15,6 +15,7 @@ if (!empty($errors)) {
 }
 
 $pembayaran = $_SESSION['pembayaran'];
+$pembayaran['metode'] = $pembayaran['metode'] ?? 'Transfer Bank';
 $backHref = 'pembayaran.php';
 ?>
 <!DOCTYPE html>

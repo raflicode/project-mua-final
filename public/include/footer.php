@@ -127,7 +127,6 @@
                 <div class="social-icons">
                     <a href="https://www.facebook.com/yayux.ernawati" target="_blank"><i class="bi bi-facebook"></i></a>
                     <a href="https://www.instagram.com/yayukmakeover_jbr?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==w" target="_blank"><i class="bi bi-instagram"></i></a>
-                    <a href="https://wa.me/6281333273119" target="_blank"><i class="bi bi-whatsapp"></i></a>
                 </div>
             </div>
         </div>

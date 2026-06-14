@@ -59,22 +59,6 @@ if (!empty($draft['items']) && is_array($draft['items'])) {
     $layananText = "- {$namaLayanan}";
 }
 
-$pesan = "Halo Admin Yayuk Makeover, saya ingin konfirmasi ketersediaan booking.\n\n"
-    . ($idBooking > 0 ? "ID Booking: {$idBooking}\n" : '')
-    . "Nama: " . ($pembayaran['nama'] ?? '-') . "\n"
-    . "No HP: " . ($pembayaran['hp'] ?? '-') . "\n"
-    . "Layanan:\n{$layananText}\n"
-    . "Tanggal: {$tanggal}\n"
-    . "Jam: {$jamMulai}\n"
-    . "Metode Pembayaran: " . ($pembayaran['metode'] ?? '-') . "\n"
-    . "Alamat: " . ($pembayaran['alamat'] ?? '-') . "\n";
-
-if (!empty($pembayaran['catatan'])) {
-    $pesan .= "Catatan: {$pembayaran['catatan']}\n";
-}
-
-$pesan .= "Total estimasi: " . formatRupiah($total) . "\n\nMohon konfirmasi apakah jadwal dan layanan masih tersedia.";
-$waUrl = 'https://wa.me/6281217857682?' . http_build_query(['text' => $pesan]);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -121,10 +105,10 @@ $waUrl = 'https://wa.me/6281217857682?' . http_build_query(['text' => $pesan]);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: #25d366;
+            background: #a58459;
             color: white;
             font-size: 2rem;
-            box-shadow: 0 14px 28px rgba(37, 211, 102, 0.25);
+            box-shadow: 0 14px 28px rgba(165, 132, 89, 0.25);
         }
 
         .summary-box {
@@ -134,18 +118,18 @@ $waUrl = 'https://wa.me/6281217857682?' . http_build_query(['text' => $pesan]);
             padding: 20px;
         }
 
-        .btn-wa {
-            background: #25d366;
+        .btn-next {
+            background: #a58459;
             border: none;
             color: white;
             font-weight: 800;
             padding: 15px 18px;
             border-radius: 16px;
-            box-shadow: 0 16px 30px rgba(37, 211, 102, 0.22);
+            box-shadow: 0 16px 30px rgba(165, 132, 89, 0.22);
         }
 
-        .btn-wa:hover {
-            background: #1fb85a;
+        .btn-next:hover {
+            background: #7b5d3f;
             color: white;
         }
         .back-nav {
@@ -185,9 +169,9 @@ $waUrl = 'https://wa.me/6281217857682?' . http_build_query(['text' => $pesan]);
 
     <div class="card card-custom">
         <div class="hero">
-            <div class="icon-box mb-3"><i class="bi bi-whatsapp"></i></div>
+            <div class="icon-box mb-3"><i class="bi bi-calendar-check"></i></div>
             <h1 class="fw-bold mb-2">Konfirmasi Ketersediaan</h1>
-            <p class="mb-0 text-muted">Kirim ringkasan booking ke admin melalui WhatsApp untuk memastikan jadwal dan layanan tersedia.</p>
+            <p class="mb-0 text-muted">Ringkasan booking Anda sudah tersimpan di sistem. Lanjutkan dengan upload bukti pembayaran agar admin dapat melakukan verifikasi.</p>
         </div>
 
         <div class="card-body p-4">
@@ -220,21 +204,9 @@ $waUrl = 'https://wa.me/6281217857682?' . http_build_query(['text' => $pesan]);
                 </div>
             </div>
 
-            <a href="javascript:void(0)" onclick="confirmAndRedirect()" class="btn btn-wa w-100">
-                <i class="bi bi-whatsapp me-2"></i>Konfirmasi via WhatsApp
+            <a href="konfirmasi.php" class="btn btn-next w-100">
+                <i class="bi bi-upload me-2"></i>Lanjut Upload Bukti Pembayaran
             </a>
-
-            <script>
-                function confirmAndRedirect() {
-                    const waUrl = '<?= htmlspecialchars($waUrl, ENT_QUOTES, 'UTF-8'); ?>';
-                    // Open WhatsApp in new tab
-                    window.open(waUrl, '_blank', 'noopener');
-                    // Redirect to home after 1 second
-                    setTimeout(() => {
-                        window.location.href = '../index.php';
-                    }, 1000);
-                }
-            </script>
         </div>
     </div>
 </div>

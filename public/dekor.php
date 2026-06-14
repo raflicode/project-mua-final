@@ -656,5 +656,6 @@ document.getElementById('btnKeranjang').addEventListener('click', () => {
 renderCards();
 </script>
 <?php include 'include/add_to_cart_script.php'; ?>
+<?php include 'include/floating_chatbot.php'; ?>
 </body>
 </html>
