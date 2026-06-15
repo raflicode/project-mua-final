@@ -21,11 +21,15 @@ if (!defined('BASE_PATH')) {
 }
 
 // Konfigurasi Database
+/* $host     = 'mif.myhost.id';
+$db_name  = 'mifmyho2_D5'; // Ganti dengan nama database kamu
+$username = 'mifmyho2_D5';             // Default XAMPP biasanya root
+$password = '@MIF2025'; */    // Default XAMPP biasanya kosong
+
 $host     = 'localhost';
 $db_name  = 'db_mua'; // Ganti dengan nama database kamu
 $username = 'root';             // Default XAMPP biasanya root
-$password = '';      // Default XAMPP biasanya kosong
-
+$password = ''; 
 try {
     // Membuat koneksi menggunakan PDO
     // Mengatur charset ke utf8mb4 agar support karakter khusus/emoticon

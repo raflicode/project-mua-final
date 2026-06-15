@@ -153,6 +153,16 @@ if (!function_exists('ensure_dynamic_booking_schema')) {
             db_columns($pdo, 'pembayaran', true);
         }
 
+        if (!db_has_column($pdo, 'pembayaran', 'nama')) {
+            $pdo->exec("ALTER TABLE pembayaran ADD nama varchar(100) DEFAULT '' AFTER no_telp");
+            db_columns($pdo, 'pembayaran', true);
+        }
+
+        if (!db_has_column($pdo, 'pembayaran', 'alamat')) {
+            $pdo->exec("ALTER TABLE pembayaran ADD alamat text DEFAULT NULL AFTER nama");
+            db_columns($pdo, 'pembayaran', true);
+        }
+
         if (!db_has_column($pdo, 'pembayaran', 'status_verifikasi')) {
             $pdo->exec("ALTER TABLE pembayaran ADD status_verifikasi enum('pending','diterima','ditolak') DEFAULT 'pending' AFTER tgl_upload");
             if (db_has_column($pdo, 'pembayaran', 'status')) {

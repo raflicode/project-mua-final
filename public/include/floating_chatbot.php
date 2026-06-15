@@ -2,6 +2,7 @@
 $fcwUserName = trim((string) ($_SESSION['full_name'] ?? $_SESSION['username'] ?? ''));
 $fcwUserName = $fcwUserName !== '' ? $fcwUserName : 'Kak';
 $fcwEndpoint = (defined('BASE_PATH') ? BASE_PATH : '') . '/actions/fcw_data.php';
+$fcwPublicBase = (defined('BASE_PATH') ? BASE_PATH : '') . '/public';
 ?>
 <style>
     .fcw-root {
@@ -129,7 +130,7 @@ $fcwEndpoint = (defined('BASE_PATH') ? BASE_PATH : '') . '/actions/fcw_data.php'
     }
 </style>
 
-<div class="fcw-root" id="fcwRoot" data-endpoint="<?= htmlspecialchars($fcwEndpoint, ENT_QUOTES, 'UTF-8'); ?>" data-user="<?= htmlspecialchars($fcwUserName, ENT_QUOTES, 'UTF-8'); ?>">
+<div class="fcw-root" id="fcwRoot" data-endpoint="<?= htmlspecialchars($fcwEndpoint, ENT_QUOTES, 'UTF-8'); ?>" data-public-base="<?= htmlspecialchars($fcwPublicBase, ENT_QUOTES, 'UTF-8'); ?>" data-user="<?= htmlspecialchars($fcwUserName, ENT_QUOTES, 'UTF-8'); ?>">
     <div class="fcw-panel" role="dialog" aria-label="Chatbot Yayuk Makeover">
         <div class="fcw-header">
             <h2 class="fcw-title">Yayuk Assistant</h2>
@@ -146,15 +147,13 @@ $fcwEndpoint = (defined('BASE_PATH') ? BASE_PATH : '') . '/actions/fcw_data.php'
     if (!root) return;
 
     const endpoint = root.dataset.endpoint;
+    const publicBase = (root.dataset.publicBase || '').replace(/\/+$/, '');
     const userName = root.dataset.user || 'Kak';
     const body = document.getElementById('fcwBody');
     const menus = [
-        ['schedule', 'Cek Ketersediaan Jadwal'],
-        ['makeup', 'Lihat Paket Makeup'],
-        ['kostum', 'Lihat Paket Kostum'],
-        ['dekor', 'Lihat Paket Dekorasi'],
-        ['estimate', 'Estimasi Harga'],
-        ['booking', 'Cara Booking']
+        ['packages', 'Lihat Paket'],
+        ['booking', 'Cara Booking'],
+        ['more', 'Lainnya']
     ];
 
     function rupiah(value) {
@@ -165,6 +164,10 @@ $fcwEndpoint = (defined('BASE_PATH') ? BASE_PATH : '') . '/actions/fcw_data.php'
         return String(value ?? '').replace(/[&<>"']/g, function (char) {
             return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char];
         });
+    }
+
+    function publicUrl(path) {
+        return publicBase + '/' + String(path || '').replace(/^\/+/, '');
     }
 
     function menuHtml() {
@@ -185,6 +188,53 @@ $fcwEndpoint = (defined('BASE_PATH') ? BASE_PATH : '') . '/actions/fcw_data.php'
 
     function renderBack() {
         return '<button type="button" class="fcw-option fcw-back" data-fcw-action="home">Kembali ke menu</button>';
+    }
+
+    function showPackagesMenu() {
+        body.innerHTML =
+            '<div class="fcw-message">Pilih kategori paket yang ingin dilihat:</div>' +
+            '<div class="fcw-menu">' +
+            '<button type="button" class="fcw-option" data-fcw-action="pkg-makeup">1. Makeup</button>' +
+            '<button type="button" class="fcw-option" data-fcw-action="pkg-kostum">2. Kostum</button>' +
+            '<button type="button" class="fcw-option" data-fcw-action="pkg-dekor">3. Dekor</button>' +
+            '<button type="button" class="fcw-option" data-fcw-action="pkg-wedding-silver">4. Paket Wedding - Silver</button>' +
+            '<button type="button" class="fcw-option" data-fcw-action="pkg-wedding-gold">5. Paket Wedding - Gold</button>' +
+            '</div>' + renderBack();
+    }
+
+    function showWeddingPackage(kind) {
+        // Try to fetch from backend; if not available, show fallback information and link
+        renderLoading();
+        fetch(endpoint + '?action=package&type=' + encodeURIComponent(kind)).then(function (res) {
+            return res.json().catch(function () { return null; });
+        }).then(function (data) {
+            if (data && Array.isArray(data.items) && data.items.length) {
+                const rows = data.items.map(function (item) {
+                    return '<button type="button" class="fcw-option">' + escapeHtml(item.nama || item.title || '') + '<br><strong>' + escapeHtml(item.harga || item.price || '') + '</strong></button>';
+                }).join('');
+                body.innerHTML = '<div class="fcw-message">Paket ' + escapeHtml(kind) + ' tersedia:</div>' + rows + renderBack();
+                return;
+            }
+            // Fallback static info
+            const title = kind === 'silver' ? 'Paket Wedding - Silver' : 'Paket Wedding - Gold';
+            body.innerHTML = '<div class="fcw-message"><strong>' + escapeHtml(title) + '</strong><br>Silakan buka halaman layanan untuk melihat detail paket atau langsung lakukan booking. Untuk melihat layanan, klik tombol di bawah.</div>' +
+                '<div class="fcw-menu">' +
+                '<a class="fcw-option" href="' + publicUrl('service.php') + '">Lihat Layanan</a>' +
+                '<a class="fcw-option" href="' + publicUrl('booking.php?from=service') + '">Mulai Booking</a>' +
+                '</div>' + renderBack();
+        }).catch(function () {
+            body.innerHTML = '<div class="fcw-message">Maaf, data paket wedding belum bisa dimuat saat ini.</div>' + renderBack();
+        });
+    }
+
+    function showMoreMenu() {
+        body.innerHTML =
+            '<div class="fcw-message">Pilihan lainnya:</div>' +
+            '<div class="fcw-menu">' +
+            '<button type="button" class="fcw-option" data-fcw-action="schedule">Cek Ketersediaan Jadwal</button>' +
+            '<button type="button" class="fcw-option" data-fcw-action="estimate">Estimasi Harga</button>' +
+            '<a class="fcw-option" href="' + publicUrl('service.php') + '">Lihat Layanan & Kontak</a>' +
+            '</div>' + renderBack();
     }
 
     function fetchJson(url) {
@@ -251,17 +301,51 @@ $fcwEndpoint = (defined('BASE_PATH') ? BASE_PATH : '') . '/actions/fcw_data.php'
 
     function showBookingGuide() {
         body.innerHTML =
-            '<div class="fcw-message"><strong>Cara Booking</strong><br>1. Pilih layanan atau paket.<br>2. Klik Cek Ketersediaan Jadwal.<br>3. Pilih tanggal dan jam yang masih tersedia.<br>4. Review booking, isi data, lalu lanjut pembayaran.<br>5. Upload bukti pembayaran untuk diverifikasi admin.</div>' +
+            '<div class="fcw-message"><strong>Cara Booking (alur)</strong><br>' +
+            '1. Pastikan Anda sudah login (bila belum, buka halaman Login).<br>' +
+            '2. Pilih layanan atau paket di halaman layanan atau gunakan menu <em>Lihat Paket</em> di chat ini.<br>' +
+            '3. Setelah memilih layanan, klik tombol Booking untuk masuk ke halaman Review Pesanan.<br>' +
+            '4. Jika belum memilih jadwal, klik <em>Cek Ketersediaan Jadwal</em> dan pilih tanggal + jam yang tersedia.<br>' +
+            '5. Setelah jadwal dipilih, lanjutkan ke <em>Isi Data Diri</em> untuk memasukkan nama, nomor HP, alamat, dan catatan.<br>' +
+            '6. Konfirmasi ketersediaan; admin akan memberikan instruksi pembayaran atau link pembayaran pada riwayat pesanan Anda.<br>' +
+            '7. Cek halaman Riwayat Pesanan untuk melihat status booking dan informasi pembayaran.</div>' +
             renderBack();
     }
 
+    function openChat() {
+        root.classList.add('is-open');
+        document.getElementById('fcwToggle').setAttribute('aria-label', 'Tutup chatbot');
+        renderHome();
+    }
+
+    function closeChat() {
+        root.classList.remove('is-open');
+        document.getElementById('fcwToggle').setAttribute('aria-label', 'Buka chatbot');
+    }
+
     document.getElementById('fcwToggle').addEventListener('click', function () {
-        root.classList.toggle('is-open');
-        if (root.classList.contains('is-open')) renderHome();
+        if (root.classList.contains('is-open')) {
+            closeChat();
+            return;
+        }
+
+        openChat();
     });
 
     document.getElementById('fcwClose').addEventListener('click', function () {
-        root.classList.remove('is-open');
+        closeChat();
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            closeChat();
+        }
+    });
+
+    document.addEventListener('mousedown', function (event) {
+        if (root.classList.contains('is-open') && !root.contains(event.target)) {
+            closeChat();
+        }
     });
 
     body.addEventListener('click', function (event) {
@@ -269,16 +353,20 @@ $fcwEndpoint = (defined('BASE_PATH') ? BASE_PATH : '') . '/actions/fcw_data.php'
         if (!button) return;
         const action = button.dataset.fcwAction;
         if (action === 'home') renderHome();
+        if (action === 'packages') showPackagesMenu();
+        if (action === 'pkg-makeup') showCategory('makeup', 'Paket makeup');
+        if (action === 'pkg-kostum') showCategory('kostum', 'Paket kostum');
+        if (action === 'pkg-dekor') showCategory('dekor', 'Paket dekorasi');
+        if (action === 'pkg-wedding-silver') showWeddingPackage('silver');
+        if (action === 'pkg-wedding-gold') showWeddingPackage('gold');
         if (action === 'schedule') showSchedule();
-        if (action === 'makeup') showCategory('makeup', 'Paket makeup');
-        if (action === 'kostum') showCategory('kostum', 'Paket kostum');
-        if (action === 'dekor') showCategory('dekor', 'Paket dekorasi');
         if (action === 'estimate') showEstimate();
         if (action === 'estimate-makeup') showEstimateCategory('makeup');
         if (action === 'estimate-kostum') showEstimateCategory('kostum');
         if (action === 'estimate-dekor') showEstimateCategory('dekor');
         if (action === 'estimate-paket') showEstimateCategory('paket');
         if (action === 'booking') showBookingGuide();
+        if (action === 'more') showMoreMenu();
     });
 })();
 </script>

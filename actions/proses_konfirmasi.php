@@ -135,6 +135,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!empty($_POST['konfirmasi_akhir_to
     }
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $_SESSION['error_message'] = 'Pembayaran hanya bisa dikirim lewat link pembayaran di histori setelah admin mengonfirmasi booking.';
+    header('Location: ../public/riwayat_pesanan.php');
+    exit;
+}
+
 // Check login
 if (!isset($_SESSION['id_user'])) {
     header('Location: ../public/login.php');
@@ -143,7 +149,7 @@ if (!isset($_SESSION['id_user'])) {
 
 // Check jika ada data pembayaran
 if (!isset($_SESSION['pembayaran'])) {
-    header('Location: ../public/pembayaran.php');
+    header('Location: ../public/isidata.php');
     exit;
 }
 

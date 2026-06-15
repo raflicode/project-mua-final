@@ -20,6 +20,15 @@ if (isset($_SESSION['error_message'])) {
     unset($_SESSION['error_message']);
 }
 
+$success_message = isset($_SESSION['success_message']) ? $_SESSION['success_message'] : '';
+if (isset($_SESSION['success_message'])) {
+    unset($_SESSION['success_message']);
+}
+
+if (isset($_GET['booking_submitted']) && $success_message === '') {
+    $success_message = 'Booking berhasil dikirim. Silakan cek histori ini untuk melihat status dan link pembayaran setelah admin mengonfirmasi.';
+}
+
 // Ambil data riwayat pesanan dari booking
 try {
 
@@ -28,6 +37,7 @@ try {
             b.id_booking,
             b.total_harga,
             b.status_booking,
+            b.konfirmasi_akhir_token,
             b.created_at,
             COALESCE(GROUP_CONCAT(DISTINCT COALESCE(l.nama_layanan, 'Layanan Booking') ORDER BY COALESCE(l.nama_layanan, 'Layanan Booking') SEPARATOR ', '), 'Layanan Booking') AS nama_layanan,
             COALESCE(MIN(l.foto_layanan), '') AS foto_layanan,
@@ -233,6 +243,26 @@ function statusBadge($status)
             font-weight:700;
         }
 
+        .payment-action{
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            margin-top:10px;
+            padding:10px 14px;
+            border-radius:999px;
+            background: linear-gradient(135deg, #d07f26, #ae5c16);
+            color:#fff;
+            font-size:0.82rem;
+            font-weight:700;
+            text-decoration:none;
+            box-shadow:0 10px 20px rgba(208,127,38,0.18);
+        }
+
+        .payment-action:hover{
+            color:#fff;
+            opacity:0.94;
+        }
+
         .success{
             background:#dcfce7;
             color:#166534;
@@ -421,6 +451,15 @@ function statusBadge($status)
     </div>
 <?php endif; ?>
 
+<?php if (!empty($success_message)): ?>
+    <div class="container-fluid px-lg-5 mt-3">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> <?= htmlspecialchars($success_message, ENT_QUOTES, 'UTF-8'); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+<?php endif; ?>
+
 <div class="container-fluid px-lg-5">
 
     <!-- Heading -->
@@ -506,6 +545,10 @@ function statusBadge($status)
                 $kategoriLabel = ucfirst($kategori);
                 $status = $item['status_booking'] ?? 'pending';
                 $totalHarga = (float) ($item['total_harga'] ?? 0);
+                $paymentToken = trim((string) ($item['konfirmasi_akhir_token'] ?? ''));
+                $paymentLink = ($status === 'konfirmasi' && $paymentToken !== '')
+                    ? 'konfirmasi_akhir.php?token=' . rawurlencode($paymentToken)
+                    : '';
             ?>
 
             <div class="history-item">
@@ -559,6 +602,13 @@ function statusBadge($status)
                 <div class="col-status" data-label="Status">
 
                     <?= statusBadge($status); ?>
+
+                    <?php if ($paymentLink !== ''): ?>
+                        <br>
+                        <a href="<?= htmlspecialchars($paymentLink, ENT_QUOTES, 'UTF-8'); ?>" class="payment-action">
+                            <i class="bi bi-credit-card"></i> Bayar Sekarang
+                        </a>
+                    <?php endif; ?>
 
                 </div>
 

@@ -176,7 +176,7 @@ if (
 $draft = $_SESSION['draft_booking'] ?? [];
 $hasSelectedSchedule = !empty($draft['id_jadwal']);
 $nextHref = $hasSelectedSchedule
-    ? 'pembayaran.php' . ($fromPage ? '?from=' . urlencode($fromPage) : '')
+    ? 'isidata.php' . ($fromPage ? '?from=' . urlencode($fromPage) : '')
     : 'penjadwalan.php' . ($fromPage ? '?from=' . urlencode($fromPage) : '');
 $nextLabel = $hasSelectedSchedule ? 'Lanjut Isi Data Diri' : 'Cek Ketersediaan Jadwal';
 ?>

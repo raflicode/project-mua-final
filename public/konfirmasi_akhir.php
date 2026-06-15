@@ -76,21 +76,9 @@ if ($tokenMode || $idBookingMode) {
         exit;
     }
 
-    // Check jika belum ada data pembayaran dari proses_pembayaran
-    if (!isset($_SESSION['pembayaran'])) {
-        header('Location: pembayaran.php');
-        exit;
-    }
-
-    $pembayaran = $_SESSION['pembayaran'];
-    // Add metode pembayaran dari form input jika ada
-    if (isset($_POST['metode'])) {
-        $pembayaran['metode'] = trim($_POST['metode']);
-        $_SESSION['pembayaran']['metode'] = $pembayaran['metode'];
-    } elseif (!isset($pembayaran['metode'])) {
-        $pembayaran['metode'] = 'Transfer Bank'; // Default value
-    }
-    $backHref = 'pembayaran.php';
+    $_SESSION['error_message'] = 'Link pembayaran akan tersedia di histori setelah admin mengonfirmasi booking Anda.';
+    header('Location: riwayat_pesanan.php');
+    exit;
 }
 
 // Check untuk errors dari proses_konfirmasi
@@ -108,7 +96,7 @@ if (!empty($formData)) {
 // Get nominal pembayaran
 $nominalPembayaran = 0;
 $itemDetails = '';
-if ($tokenMode && $booking) {
+if (($tokenMode || $idBookingMode) && $booking) {
     $nominalPembayaran = (float)$booking['total_harga'];
     $itemDetails = $booking['nama_layanan'] ?? '';
 } else {
